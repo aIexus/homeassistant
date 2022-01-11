@@ -1,0 +1,257 @@
+    - alias: bathroom_notify_about_water_leak_under_washing_machine
+      description: 'Уведомление о протечке воды в ванной под стиральной машиной'
+      mode: single
+      trigger:
+        - type: moist
+          platform: device
+          device_id: 46788e98449767dab7c25ef2d34137d7
+          entity_id: binary_sensor.bathroom_water_leak_under_washing_machine_water_leak
+          domain: binary_sensor
+      condition: []
+      action:
+        - service: notify.alexus
+          data:
+            message:  |
+              ➖➖➖➖➖➖➖➖➖➖➖➖
+              {{"\U0001F4A7"}} Обнаружена протечка в ванной комнате под стиральной машиной!
+            title: '{{"\U000026A0"}} ВНИМАНИЕ{{"\U0000203C"}}'
+
+    - alias: kitchen_notify_about_water_leak
+      description: 'Уведомление о протечке воды в кухне'
+      mode: single
+      trigger:
+        - type: moist
+          platform: device
+          device_id: 9123c5c70c00e2ab32573b42b2c11ace
+          entity_id: binary_sensor.kitchen_water_leak_sensor_water_leak
+          domain: binary_sensor
+      condition: []
+      action:
+        - service: notify.alexus
+          data:
+            message: |
+              ➖➖➖➖➖➖➖➖➖➖➖➖
+              {{"\U0001F4A7"}} Обнаружена протечка в кухне под мойкой!
+            title: '{{"\U000026A0"}} ВНИМАНИЕ{{"\U0000203C"}}'
+
+    - alias: home_assistant_startup_notification
+      trigger:
+        - platform: homeassistant
+          event: start
+      condition:
+        - condition: state
+          entity_id: input_boolean.disable_startup_notifications
+          state: 'off'
+      action:
+        - service: notify.alexus
+          data:
+            title: '{{"\U000026A0"}} ВНИМАНИЕ{{"\U0000203C"}}'
+            message: |
+              ➖➖➖➖➖➖➖➖➖➖➖➖
+              Сервер Home Assistant был перезапущен!
+
+    - alias: home_assistant_shutdown_notification
+      trigger:
+        - platform: homeassistant
+          event: shutdown
+      condition:
+        - condition: state
+          entity_id: input_boolean.disable_startup_notifications
+          state: 'off'
+      action:
+        - service: notify.alexus
+          data:
+            title: '{{"\U000026A0"}} ВНИМАНИЕ{{"\U0000203C"}}'
+            message: |
+              ➖➖➖➖➖➖➖➖➖➖➖➖
+              Сервер Home Assistant выключается!
+
+    - alias: rpi_ac_power_failure_notification
+      trigger:
+        - platform: state
+          entity_id: sensor.rpi_ac_power_status
+      condition: []
+      action:
+        - service: notify.alexus
+          data:
+            title: '{{"\U000026A0"}} ВНИМАНИЕ{{"\U0000203C"}}'
+            message: |
+              ➖➖➖➖➖➖➖➖➖➖➖➖
+              Внешнее питание: {{"\U0001F50C"}} {% if is_state("sensor.rpi_ac_power_status", "OK") %}Подключено {{"\U00002714"}}{% else %}Отключено {{"\U0000274C"}}{% endif %} {{"\U0000203C"}}
+
+    - alias: ups_battery_low_level_notification
+      trigger:
+        - platform: state
+          entity_id: binary_sensor.ups_battery_low
+          from: 'off'
+          to: 'on'
+      condition: 
+        - condition: state
+          entity_id: binary_sensor.ups_battery_low
+          state: 'on'
+      action:
+        - service: notify.alexus
+          data:
+            title: '{{"\U0001F50B"}} ВНИМАНИЕ{{"\U0000203C"}}'
+            message: |
+              ➖➖➖➖➖➖➖➖➖➖➖➖
+              Низкий уровень заряда батареи UPS: {{ states("sensor.ups_battery_capacity") }}% / {{ states("sensor.ups_battery_voltage") }}V {{"\U0000203C"}}
+              Внешнее питание: {{"\U0001F50C"}} {% if is_state("sensor.rpi_ac_power_status", "OK") %}Подключено {{"\U00002714"}}{% else %}Отключено {{"\U0000274C"}}{% endif %}
+              
+              {{"\U0000203C"}}Через некоторое время сервер RPi будет остановлен{{"\U0000203C"}}
+
+    - alias: ups_battery_full_level_notification
+      trigger:
+        - platform: numeric_state
+          entity_id: sensor.ups_battery_capacity
+          above: 99
+      condition: 
+        - condition: state
+          entity_id: binary_sensor.ups_battery_low
+          state: 'off'
+      action:
+        - service: notify.alexus
+          data:
+            title: '{{"\U0001F50B"}} ВНИМАНИЕ{{"\U0000203C"}}'
+            message: |
+              ➖➖➖➖➖➖➖➖➖➖➖➖
+              Батарея UPS полностью заряжена: {{ states("sensor.ups_battery_capacity") }}% / {{ states("sensor.ups_battery_voltage") }}V{{"\U0000203C"}}
+              Внешнее питание: {{"\U0001F50C"}} {% if is_state("sensor.rpi_ac_power_status", "OK") %}Подключено {{"\U00002714"}}{% else %}Отключено {{"\U0000274C"}}{% endif %}
+
+    - alias: zone_notifications
+      trigger:
+       # Дом
+      - platform: zone
+        entity_id: 
+          - person.alexus
+          - person.inna
+          - person.ivan
+          - person.vova
+        zone: zone.home
+        event: enter
+      - platform: zone
+        entity_id: 
+          - person.alexus
+          - person.inna
+          - person.ivan
+          - person.vova
+        zone: zone.home
+        event: leave
+        # Школа
+      - platform: zone
+        entity_id: 
+          - person.alexus
+          - person.inna
+          - person.ivan
+          - person.vova
+        zone: zone.school
+        event: enter
+      - platform: zone
+        entity_id: 
+          - person.alexus
+          - person.inna
+          - person.ivan
+          - person.vova
+        zone: zone.school
+        event: leave
+        # ISD
+      - platform: zone
+        entity_id: 
+          - person.alexus
+          - person.inna
+          - person.ivan
+          - person.vova
+        zone: zone.isd
+        event: enter
+      - platform: zone
+        entity_id: 
+          - person.alexus
+          - person.inna
+          - person.ivan
+          - person.vova
+        zone: zone.isd
+        event: leave
+        # Университет
+      - platform: zone
+        entity_id: 
+          - person.alexus
+          - person.inna
+          - person.ivan
+          - person.vova
+        zone: zone.university
+        event: enter
+      - platform: zone
+        entity_id: 
+          - person.alexus
+          - person.inna
+          - person.ivan
+          - person.vova
+        zone: zone.university
+        event: leave
+        # Караван
+      - platform: zone
+        entity_id: 
+          - person.alexus
+          - person.inna
+          - person.ivan
+          - person.vova
+        zone: zone.karavan
+        event: enter
+      - platform: zone
+        entity_id: 
+          - person.alexus
+          - person.inna
+          - person.ivan
+          - person.vova
+        zone: zone.karavan
+        event: leave
+        # METRO
+      - platform: zone
+        entity_id: 
+          - person.alexus
+          - person.inna
+          - person.ivan
+          - person.vova
+        zone: zone.metro
+        event: enter
+      - platform: zone
+        entity_id: 
+          - person.alexus
+          - person.inna
+          - person.ivan
+          - person.vova
+        zone: zone.metro
+        event: leave
+        # Эпицентр
+      - platform: zone
+        entity_id: 
+          - person.alexus
+          - person.inna
+          - person.ivan
+          - person.vova
+        zone: zone.epicentr
+        event: enter
+      - platform: zone
+        entity_id: 
+          - person.alexus
+          - person.inna
+          - person.ivan
+          - person.vova
+        zone: zone.epicentr
+        event: leave
+      condition:
+        - condition: state
+          entity_id: input_boolean.disable_zone_notifications
+          state: 'off'
+        - condition: state
+          entity_id: input_boolean.disable_home_away
+          state: 'off'
+      action:
+        - service: notify.alexus
+          data:
+              message: >
+                {% if (trigger.event) == "leave" %}
+                  {{ states('sensor.time') }}: {{ trigger.to_state.name }} покинул(а) {{ trigger.zone.attributes.friendly_name }}!
+                {% else %}
+                  {{ states('sensor.time') }}: {{ trigger.to_state.name }} прибыл(а) в {{ trigger.zone.attributes.friendly_name }}!
+                {% endif %}

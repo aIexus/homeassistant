@@ -1,0 +1,185 @@
+    - alias: climate_winter_turn_on_heaters
+      description: 'Наступила зима, обогреватели включены'
+      trigger:
+        - platform: state
+          entity_id: sensor.season
+          to: 'winter'
+      condition:
+        - condition: state
+          entity_id: input_boolean.disable_climate
+          state: 'off'
+        - condition: state
+          entity_id: group.heaters
+          state: 'off'
+      action:
+        - service: homeassistant.turn_on
+          entity_id: group.heaters
+        - service: notify.alexus
+          data:
+            message: |
+              ➖➖➖➖➖➖➖➖➖➖➖➖
+              Обогреватели Включены.
+            title: '{{"\U00002603"}} Пришла Зима{{"\U0000203C"}}'
+
+    - alias: climate_summer_turn_off_heaters
+      description: 'Наступило лето, обогреватели выключены'
+      trigger:
+        - platform: state
+          entity_id: sensor.season
+          to: 'summer'
+      condition:
+        - condition: state
+          entity_id: input_boolean.disable_climate
+          state: 'off'
+        - condition: state
+          entity_id: group.heaters
+          state: 'on'
+      action:
+        - service: homeassistant.turn_off
+          entity_id: group.heaters
+        - service: notify.alexus
+          data:
+            message: |
+              ➖➖➖➖➖➖➖➖➖➖➖➖
+              Обогреватели Отключены.
+            title: '{{"\U00002600"}} Пришло Лето{{"\U0000203C"}}'
+
+    - alias: climate_spring_fall_turn_on_heaters
+      description: 'Включение термостатов отопления весной/осенью при наружной температуре ниже 15'
+      trigger:
+        - platform: numeric_state
+          entity_id: sensor.outdoor_temperature
+          below: 15
+          for:
+            hours: 12
+      condition:
+        - condition: state
+          entity_id: group.heaters
+          state: 'off'
+        - condition: state
+          entity_id: input_boolean.disable_climate
+          state: 'off'
+        - condition: or
+          conditions:
+          - condition: state
+            entity_id: sensor.season
+            state: 'spring'
+          - condition: state
+            entity_id: sensor.season
+            state: 'autumn'
+      action:
+        - service: homeassistant.turn_on
+          entity_id: group.heaters
+        - service: notify.alexus
+          data:
+            message: |
+              ➖➖➖➖➖➖➖➖➖➖➖➖
+              Наружная температура ниже 15{{"\U00002103"}}, обогреватели включены.
+            title: '{{"\U0001F927"}} Похолодало{{"\U0000203C"}}'
+
+    - alias: climate_spring_fall_turn_off_heaters
+      description: 'Выключение термостатов отопления весной/осенью при наружной температуре выше 15'
+      trigger:
+        - platform: numeric_state
+          entity_id: sensor.outdoor_temperature
+          above: 15
+          for:
+            hours: 12
+      condition:
+        - condition: state
+          entity_id: group.heaters
+          state: 'on'
+        - condition: state
+          entity_id: input_boolean.disable_climate
+          state: 'off'
+        - condition: or
+          conditions:
+          - condition: state
+            entity_id: sensor.season
+            state: 'spring'
+          - condition: state
+            entity_id: sensor.season
+            state: 'autumn'
+      action:
+        - service: homeassistant.turn_off
+          entity_id: group.heaters
+        - service: notify.alexus
+          data:
+            message: |
+              ➖➖➖➖➖➖➖➖➖➖➖➖
+              Наружная температура выше 15{{"\U00002103"}}, обогреватели отключены.
+            title: '{{"\U0001F917"}} Потеплело{{"\U0000203C"}}'
+
+    - alias: climate_heating_thermostats_away
+      description: 'Переключение термостатов отопления в режим - away'
+      trigger:
+      - entity_id: group.family
+        platform: state
+        to: not_home
+      condition: 
+        - condition: state
+          entity_id: input_boolean.disable_home_away
+          state: 'off'
+        - condition: state
+          entity_id: input_boolean.disable_climate
+          state: 'off'
+        - condition: state
+          entity_id: group.heaters
+          state: 'on'
+        - condition: not
+          conditions:
+          - condition: state
+            entity_id: group.family
+            state: 'home'
+      action:
+        - service: climate.set_preset_mode
+          target:
+            entity_id: 
+              - climate.bedroom_heater
+              - climate.kitchen_heater
+              - climate.living_room_heater
+          data:
+            preset_mode: 'away'
+        # Уведомление о смене режима отопления
+        - service: notify.alexus
+          data:
+            message: |
+              ➖➖➖➖➖➖➖➖➖➖➖➖
+              Обогреватели переключены в режим экономии ({{ state_attr("climate.living_room_heater","temperature") }}{{"\U00002103"}}).
+            title: '{{"\U0001F3E0"}} Все покинули Дом{{"\U0000203C"}}'
+        
+    - alias: climate_heating_thermostats_home
+      description: 'Переключение термостатов отопления в режим - home'
+      trigger:
+      - entity_id: group.family
+        platform: state
+        to: home
+      condition: 
+        - condition: state
+          entity_id: input_boolean.disable_home_away
+          state: 'off'
+        - condition: state
+          entity_id: input_boolean.disable_climate
+          state: 'off'
+        - condition: state
+          entity_id: group.heaters
+          state: 'on'
+        - condition: state
+          entity_id: group.family
+          state: 'home'
+      action:
+        - service: climate.set_preset_mode
+          target:
+            entity_id: 
+              - climate.bedroom_heater
+              - climate.kitchen_heater
+              - climate.living_room_heater
+          data:
+            preset_mode: 'none'
+        # Уведомление о смене режима отопления
+        - service: notify.alexus
+          data:
+            message: |
+              ➖➖➖➖➖➖➖➖➖➖➖➖
+              Обогреватели переключены в нормальный режим ({{ state_attr("climate.living_room_heater","temperature") }}{{"\U00002103"}}).
+            title: '{{"\U0001F3E0"}} Дома кто-то появился{{"\U0000203C"}}'

@@ -1,0 +1,48 @@
+homeassistant:
+  name: Home
+  latitude: !secret home_latitude
+  longitude: !secret home_longitude
+  elevation: 64
+  unit_system: metric
+  time_zone: Europe/Kiev
+  packages: !include_dir_merge_named includes/packages
+  customize: !include includes/customize.yaml
+    
+# Configure a default setup of Home Assistant (frontend, api, etc)
+default_config:
+
+lovelace:
+  mode: yaml
+
+# Text to speech
+tts:
+
+    - platform: google_translate
+
+# Include External Files
+binary_sensor: !include includes/binary_sensors.yaml
+input_boolean: !include includes/input_boolean.yaml
+climate: !include includes/climate.yaml
+group: !include includes/groups.yaml
+script: !include includes/scripts.yaml
+scene: !include includes/scenes.yaml
+recorder: !include includes/recorder.yaml
+device_tracker: !include includes/device_tracker.yaml
+
+# Include External Folders
+sensor: !include_dir_merge_list includes/sensors
+automation: !include_dir_merge_list includes/automation
+
+#Telegram-bot
+
+telegram_bot:
+    - platform: polling
+      api_key: !secret telegramm_bot_token
+      allowed_chat_ids:
+        - !secret telegram_user_1
+    #   - ID пользователя 2   
+
+notify:
+    - name: alexus
+      platform: telegram
+      chat_id: !secret telegram_user_1

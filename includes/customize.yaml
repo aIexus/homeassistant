@@ -1,0 +1,10 @@
+    sensor.ups_battery_voltage:
+        device_class: voltage
+        friendly_name: 'Напряжение на батареи UPS'
+
+    sensor.ups_battery_capacity:
+        device_class: battery
+        friendly_name: 'Уровень заряда батареи UPS'
+
+    sensor.rpi_ac_power_status:
+        friendly_name: 'AC Power Status'

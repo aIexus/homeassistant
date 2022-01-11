@@ -1,0 +1,26 @@
+    - platform: template
+      sensors:
+        anyone_home:
+          device_class: occupancy
+          friendly_name: 'Anyone Home'
+          value_template: "{{ states.person | selectattr('state','eq','home') | list | count > 0 }}"
+
+    - platform: template
+      sensors:
+        ups_battery_low:
+          device_class: problem
+          friendly_name: "Состояние батареи UPS"
+          value_template: >-
+            {% if (states("sensor.ups_battery_capacity") | int < 25) or (states("sensor.ups_battery_voltage") | float < 3.2) %}
+            on
+            {% else %}
+            off
+            {% endif %}
+          icon_template: >-
+            {% if is_state("binary_sensor.ups_battery_low", "on") %}
+            mdi:battery-low
+            {% elif (states("sensor.ups_battery_capacity") | int >=25) and (states("sensor.ups_battery_capacity") | int < 75) %}
+            mdi:battery-medium
+            {% else %}
+            mdi:battery-high
+            {% endif %}

@@ -1,0 +1,245 @@
+telegram: 
+
+    # script: 
+
+    #     send_message_status_ok:
+    #         alias: Отправка через сервис уведомлений
+    #         sequence: 
+    #         - service: notify.alexus
+    #           data: 
+    #             message: "Текущее время - {{ states('sensor.time') }}. Всё в порядке!"
+
+    automation:
+
+        - alias: telegram_menu_start
+          trigger:
+            platform: event
+            event_type: telegram_command
+            event_data:
+              command: '/start'
+          action:
+          - service: notify.alexus
+            data:
+              message: |
+                Добро пожаловать в управление Умным домом!
+                ➖➖➖➖➖➖➖➖➖➖➖➖
+                Выберите раздел:
+              data:
+                inline_keyboard: 'Меню:/menu, Геолокация:/geo'
+
+        - alias: telegram_menu_main
+          trigger:
+            platform: event
+            event_type: telegram_callback
+            event_data:
+              command: '/menu'
+          action:
+          - service: notify.alexus
+            data:
+              message: |
+                  Главное меню
+                  ➖➖➖➖➖➖➖➖➖➖➖➖
+                  Выберите раздел:
+              data: 
+                inline_keyboard: "Статус:/status, Климат:/climate, Освещение:/lights, Безопасность:/security, Геолокация:/geo"
+
+        - alias: telegram_menu_status
+          initial_state: true
+          trigger:
+            platform: event
+            event_type: telegram_callback
+            event_data:
+              data: '/status'
+          action:
+          - service: notify.alexus
+            data:
+              message: |
+                {{"\U0001F4C5"}} {{ states("sensor.date") }} {{"\U0001F551"}} {{ states("sensor.time") }}
+                ➖➖➖➖➖➖➖➖➖➖➖➖
+                {{"\U0001F50C"}} RPi Power status: {% if states("binary_sensor.rpi_power_status") == 'off' %}OK{% else%}Problem{% endif %}
+                {{"\U0001F4C6"}} RPi Last Boot: {{ states("sensor.last_boot_custom") }} ago
+                {{"\U0001F199"}} HA Uptime: {{ states("sensor.online_custom") }}
+                {{"\U0001F4C5"}} Last Success BackUp: {{ states("sensor.last_google_backup_train") }}
+
+                {{"\U0001F50B"}} UPS Battery: {{ states("sensor.ups_battery_capacity") }}% / {{ states("sensor.ups_battery_voltage") }}V
+                
+                CPU: {{"\U0001F321"}} {{ states("sensor.processor_temperature") }}{{"\U00002103"}}, Loading: {{ states("sensor.processor_use") }}{{"\U00000025"}}
+                RAM: {{ states("sensor.memory_use_percent") }}{{"\U00000025"}} Usage
+                SSD: {{ states("sensor.disk_use_percent") }}{{"\U00000025"}} Usage, {{ states("sensor.disk_free") }} Gb Free
+
+                Speedtest(Mbit/s): {{"\U000023EC"}}{{ states("sensor.speedtest_download") }}/{{"\U000023EB"}}{{ states("sensor.speedtest_upload") }} {{"\U0001F3CE"}}
+              data: 
+                inline_keyboard: "Статус:/status, Климат:/climate, Освещение:/lights, Безопасность:/security, Меню:/menu"
+
+        - alias: telegram_menu_climate
+          initial_state: true
+          trigger:
+            platform: event
+            event_type: telegram_callback
+            event_data:
+              data: '/climate'
+          action:
+          - service: notify.alexus
+            data:
+              message: |
+                Показатели климата в квартире:
+                ➖➖➖➖➖➖➖➖➖➖➖➖
+                Гостинная: 
+                - {{"\U0001F321"}}: {{ states("sensor.living_room_lumi_weather_temperature") }}{{"\U00002103"}}   {{"\U0001F4A6"}}: {{ states("sensor.living_room_lumi_weather_humidity") }} % 
+                - {{"\U0001F525"}}: {{ states("switch.living_room_socket_heating") }}          {{"\U0001F4C8"}}: {{ states("sensor.living_room_socket_heating_energy")}} kWh
+                - {{"\U0001F50C"}}: ({{ states("sensor.living_room_socket_heating_voltage") }} V | {{ states("sensor.living_room_socket_heating_current") }} A | {{ states("sensor.living_room_socket_heating_power") }} W)
+                
+                Спальня: 
+                - {{"\U0001F321"}}: {{ states("sensor.bedroom_lumi_weather_temperature") }}{{"\U00002103"}}   {{"\U0001F4A6"}}: {{ states("sensor.bedroom_lumi_weather_humidity") }} %, 
+                - {{"\U0001F525"}}: {{ states("switch.bedroom_socket_heating") }}          {{"\U0001F4C8"}}: {{ states("sensor.bedroom_socket_heating_energy")}} kWh
+                - {{"\U0001F50C"}}: ({{ states("sensor.bedroom_socket_heating_voltage") }} V | {{ states("sensor.bedroom_socket_heating_current") }} A | {{ states("sensor.bedroom_socket_heating_power") }} W)
+                
+                Кухня:
+                - {{"\U0001F321"}}: {{ states("sensor.kitchen_lumi_weather_temperature") }}{{"\U00002103"}}   {{"\U0001F4A6"}}: {{ states("sensor.kitchen_lumi_weather_humidity") }} %, 
+                - {{"\U0001F525"}}: {{ states("switch.kitchen_socket_heating") }}          {{"\U0001F4C8"}}: {{ states("sensor.kitchen_socket_heating_energy")}} kWh
+                - {{"\U0001F50C"}}: ({{ states("sensor.kitchen_socket_heating_voltage") }} V | {{ states("sensor.kitchen_socket_heating_current") }} A | {{ states("sensor.kitchen_socket_heating_power") }} W)
+              data: 
+                inline_keyboard: "Статус:/status, Климат:/climate, Освещение:/lights, Безопасность:/security, Меню:/menu"
+
+        - alias: telegram_menu_lights
+          initial_state: true
+          trigger:
+            platform: event
+            event_type: telegram_callback
+            event_data:
+              data: '/lights'
+          action:
+          - service: notify.alexus
+            data:
+              message: |
+                Освещение в квартире {{"\U0001F4A1"}}:
+                ➖➖➖➖➖➖➖➖➖➖➖➖
+                Гостинная: {% if is_state("switch.living_room_light_switch","on") %}{{"\U00002705"}} Включено{% else %}{{"\U0000274C"}} Выключено{% endif %}
+                Спальня: {% if is_state("switch.bedroom_light_switch","on") %}{{"\U00002705"}} Включено{% else %}{{"\U0000274C"}} Выключено{% endif %}
+                Кухня:
+                Ванная:
+                Коридор:
+                ➖➖➖➖➖➖➖➖➖➖➖➖
+                Переключить или вернуться в главное меню?
+              data:
+                  inline_keyboard: "Гостинная:/toggle_living_room_light, Спальня:/toggle_bedroom_light, Кухня:/toggle_kitchen_light, Меню:/menu"
+
+        - alias: telegram_menu_toggle_light_in_bedroom
+          initial_state: true
+          trigger:
+            platform: event
+            event_type: telegram_callback
+            event_data:
+              data: '/toggle_bedroom_light'
+          action:
+          - service: switch.toggle
+            target:
+                entity_id: switch.bedroom_light_switch
+          - delay:
+              seconds: 5
+          - service: notify.alexus
+            data:
+              message: |
+                Результат действия:
+                ➖➖➖➖➖➖➖➖➖➖➖➖
+                Освещение в Спальне: {% if is_state("switch.bedroom_light_switch","on") %}{{"\U00002705"}} Включено{% else %}{{"\U0000274C"}} Выключено{% endif %}
+              data:
+                  inline_keyboard: "Гостинная:/toggle_living_room_light, Спальня:/toggle_bedroom_light, Кухня:/toggle_kitchen_light, Меню:/menu"
+
+        - alias: telegram_menu_toggle_light_in_living_room
+          initial_state: true
+          trigger:
+            platform: event
+            event_type: telegram_callback
+            event_data:
+              data: '/toggle_living_room_light'
+          action:
+          - service: switch.toggle
+            target:
+                entity_id: switch.living_room_light_switch
+          - delay:
+              seconds: 5
+          - service: notify.alexus
+            data:
+              message: |
+                Результат действия:
+                ➖➖➖➖➖➖➖➖➖➖➖➖
+                Освещение в Гостинной: {% if is_state("switch.living_room_light_switch","on") %}{{"\U00002705"}} Включено{% else %}{{"\U0000274C"}} Выключено{% endif %}
+              data:
+                  inline_keyboard: "Гостинная:/toggle_living_room_light, Спальня:/toggle_bedroom_light, Кухня:/toggle_kitchen_light, Меню:/menu"
+
+        - alias: telegram_menu_geo
+          trigger:
+            platform: event
+            event_type: telegram_callback
+            event_data:
+              command: '/geo'
+          action:
+          - service: notify.alexus
+            data:
+              message: |
+                  Геолокация:
+                  ➖➖➖➖➖➖➖➖➖➖➖➖
+                  Выберите члена семьи:
+              data: 
+                inline_keyboard: "Инна:/inna, Вова:/vova, Иван:/ivan, Меню:/menu"
+
+        - alias: telegram_menu_geo_ivan
+          initial_state: true
+          trigger:
+            platform: event
+            event_type: telegram_callback
+            event_data:
+              data: '/ivan'
+          action:
+          - service: notify.alexus
+            data:
+              message: |
+                Иван сейчас находится здесь:
+                ➖➖➖➖➖➖➖➖➖➖➖➖
+                Адрес: {{"\U0001F3E1"}} {{ state_attr("device_tracker.google_maps_116201395133676470264","address") }}
+                Заряд батареи: {{"\U0001F50B"}} {{ state_attr("device_tracker.google_maps_116201395133676470264","battery_level") }} %
+                Ссылка на карту: https://www.google.com/maps/place/{{ state_attr("person.ivan","latitude") }}+{{ state_attr("person.ivan","longitude") }}
+                Обновленно: {{ as_timestamp(state_attr("device_tracker.google_maps_116201395133676470264","last_seen")) | timestamp_custom("\U0001F4C5 %d.%m.%Y \U0001F551 %H:%M", default = 0) }}
+              data: 
+                inline_keyboard: "Инна:/inna, Вова:/vova, Иван:/ivan, Меню:/menu"
+
+        - alias: telegram_menu_geo_inna
+          initial_state: true
+          trigger:
+            platform: event
+            event_type: telegram_callback
+            event_data:
+              data: '/inna'
+          action:
+          - service: notify.alexus
+            data:
+              message: |
+                Инна сейчас находится здесь:
+                ➖➖➖➖➖➖➖➖➖➖➖➖
+                Адрес: {{"\U0001F3E1"}} {{ state_attr("device_tracker.google_maps_104258358112460913017","address") }}
+                Заряд батареи: {{"\U0001F50B"}} {{ state_attr("device_tracker.google_maps_104258358112460913017","battery_level") }} %
+                Ссылка на карту: https://www.google.com/maps/place/{{ state_attr("person.inna","latitude") }}+{{ state_attr("person.inna","longitude") }}
+                Обновленно: {{ as_timestamp(state_attr("device_tracker.google_maps_104258358112460913017","last_seen")) | timestamp_custom("\U0001F4C5 %d.%m.%Y \U0001F551 %H:%M", default = 0) }}
+              data: 
+                inline_keyboard: "Инна:/inna, Вова:/vova, Иван:/ivan, Меню:/menu"
+
+        - alias: telegram_menu_geo_vova
+          initial_state: true
+          trigger:
+            platform: event
+            event_type: telegram_callback
+            event_data:
+              data: '/vova'
+          action:
+          - service: notify.alexus
+            data:
+              message: |
+                Вова сейчас находится здесь:
+                ➖➖➖➖➖➖➖➖➖➖➖➖
+                Адрес: {{"\U0001F3E1"}} {{ state_attr("device_tracker.google_maps_105010208332419299900","address") }}
+                Заряд батареи: {{"\U0001F50B"}} {{ state_attr("device_tracker.google_maps_105010208332419299900","battery_level") }} %
+                Ссылка на карту: https://www.google.com/maps/place/{{ state_attr("person.vova","latitude") }}+{{ state_attr("person.vova","longitude") }}
+                Обновленно: {{ as_timestamp(state_attr("device_tracker.google_maps_105010208332419299900","last_seen")) | timestamp_custom("\U0001F4C5 %d.%m.%Y \U0001F551 %H:%M", default = 0) }}
+              data: 
+                inline_keyboard: "Инна:/inna, Вова:/vova, Иван:/ivan, Меню:/menu"

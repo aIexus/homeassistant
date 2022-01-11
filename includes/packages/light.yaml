@@ -1,0 +1,180 @@
+ light_settings:
+
+    sensor:
+      - platform: template
+        sensors:
+          period_of_day:
+            friendly_name: 'Period of the day'
+            value_template: >-
+              {% set elevation = state_attr('sun.sun', 'elevation') %}
+              {% set rising = state_attr('sun.sun', 'rising') %}
+              {%- if elevation <= -12 -%}
+                night
+              {%- elif ( -12 < elevation) and (elevation <= -6) -%}
+                {{ 'dawn' if rising else 'dusk' }}
+              {%- else -%}
+                day
+              {%- endif -%}light
+            icon_template: >-
+              {% set elevation = state_attr('sun.sun', 'elevation') %}
+              {% set rising = state_attr('sun.sun', 'rising') %}
+              {%- if elevation <= -12 -%}
+                mdi:weather-night
+              {%- elif ( -12 < elevation) and (elevation <= -6) -%}
+                mdi:weather-sunset-{{ 'up' if rising else 'down' }}
+              {% else %}
+                mdi:weather-sunny
+              {% endif %}
+
+    binary_sensor:
+      # Сенсор автоотключения света в спальне
+      - platform: template
+        sensors:
+          bedroom_auto_light_off_sensor:
+            friendly_name: "Автоотключение Света в Спальне"
+            value_template: >-
+              {{ is_state('switch.bedroom_light_switch', 'on')  
+                 and is_state('binary_sensor.bedroom_lumi_sensor_motion_occupancy', 'off')  }}
+            icon_template: >-
+              {% if is_state("binary_sensor.bedroom_auto_light_off_sensor", "on") %}
+              mdi:timer
+              {% else %}
+              mdi:timer-off
+              {% endif %}
+
+      # Сенсор автоотключения света в гостинной
+      - platform: template
+        sensors:
+          living_room_auto_light_off_sensor:
+            friendly_name: "Автоотключение Света в Гостинной"
+            value_template: >-
+              {{ is_state('switch.living_room_light_switch', 'on')  
+                 and is_state('binary_sensor.living_room_lumi_sensor_motion_occupancy', 'off')  }}
+            icon_template: >-
+              {% if is_state("binary_sensor.living_room_auto_light_off_sensor", "on") %}
+              mdi:timer
+              {% else %}
+              mdi:timer-off
+              {% endif %}
+
+    timer:
+          # Таймер отключения света в спальне
+          bedroom_light_off_timer:
+            name: Время до отключения света в спальне
+            duration: '00:10:00'
+
+          # Таймер отключения света в гостинной
+          living_room_light_off_timer:
+            name: Время до отключения света в гостинной
+            duration: '00:10:00'
+
+    automation:
+
+        - alias: bedroom_auto_light_off
+          description: 'Автоматическое Выключение освещения в спальне'
+          mode: single
+          trigger:
+          # По Таймеру
+            - platform: event
+              event_type: timer.finished
+              event_data:
+                entity_id: timer.bedroom_light_off_timer
+          condition:
+            - condition: state
+              entity_id: switch.bedroom_light_switch
+              state: 'on'
+          action:
+            - service: switch.turn_off
+              entity_id: switch.bedroom_light_switch
+
+        # Таймер автоотключения
+        - alias: bedroom_light_off_timer_start
+          description: 'Активация таймера автоотключения в спальне'
+          initial_state: true
+          trigger:
+          # Условия для запуска таймера освещения
+            - platform: state
+              entity_id: binary_sensor.bedroom_auto_light_off_sensor
+              to: 'on'
+          condition:
+            - condition: state
+              entity_id: input_boolean.disable_occupancy
+              state: 'off'
+          action:
+              service: timer.start
+              entity_id: timer.bedroom_light_off_timer
+              data_template: 
+                  duration: > 
+                   {%- if states("sensor.period_of_day") == 'nightlight' -%}
+                   00:20:00
+                   {%- elif states("sensor.period_of_day") == 'daylight'  -%}
+                   00:10:00
+                   {%- else -%}
+                   00:15:00
+                   {% endif %} 
+
+        # Сброс таймера при выключении
+        - alias: bedroom_light_off_timer_cancel
+          initial_state: true
+          trigger:
+          - platform: state
+            entity_id: binary_sensor.bedroom_auto_light_off_sensor
+            to: 'off'
+          action:
+          - service: timer.cancel
+            entity_id: timer.bedroom_light_off_timer
+
+        # Автоматизация выключения света в гостинной
+        - alias: living_room_auto_light_off
+          description: 'Автоматическое Выключение освещения в гостинной'
+          mode: single
+          trigger:
+          # По Таймеру
+            - platform: event
+              event_type: timer.finished
+              event_data:
+                entity_id: timer.living_room_light_off_timer
+          condition:
+            - condition: state
+              entity_id: switch.living_room_light_switch
+              state: 'on'
+          action:
+            - service: switch.turn_off
+              entity_id: switch.living_room_light_switch
+
+        # Таймер автоотключения
+        - alias: living_room_light_off_timer_start
+          description: 'Активация таймера автоотключения в гостинной'
+          initial_state: true
+          trigger:
+          # Условия для запуска таймера освещения
+            - platform: state
+              entity_id: binary_sensor.living_room_auto_light_off_sensor
+              to: 'on'
+          condition:
+            - condition: state
+              entity_id: input_boolean.disable_occupancy
+              state: 'off'
+          action:
+              service: timer.start
+              entity_id: timer.living_room_light_off_timer
+              data_template: 
+                  duration: > 
+                   {%- if states("sensor.period_of_day") == 'nightlight' -%}
+                   00:20:00
+                   {%- elif states("sensor.period_of_day") == 'daylight'  -%}
+                   00:10:00
+                   {%- else -%}
+                   00:15:00
+                   {% endif %} 
+
+        # Сброс таймера при выключении света в гостинной
+        - alias: living_room_light_off_timer_cancel
+          initial_state: true
+          trigger:
+          - platform: state
+            entity_id: binary_sensor.living_room_auto_light_off_sensor
+            to: 'off'
+          action:
+          - service: timer.cancel
+            entity_id: timer.living_room_light_off_timer

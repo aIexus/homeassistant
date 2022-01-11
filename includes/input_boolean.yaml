@@ -1,0 +1,36 @@
+
+    disable_occupancy:
+      name: Disable Occupancy Automation
+      icon: mdi:eye-off
+
+    disable_home_away:
+      name: Disable Home/Away Automation
+      icon: mdi:map-marker-off
+
+    disable_zone_notifications:
+      name: Disable Zone Notifications
+      icon: mdi:message-bulleted-off
+
+    disable_climate:
+      name: Disable Climate Automation
+      icon: mdi:thermostat-box
+
+    disable_startup_notifications:
+      name: Disable Startup Notifications
+      icon: mdi:bell-off
+
+    enable_manual_control_heater:
+      name: Enable Manual Control of Heaters
+      icon: mdi:radiator
+
+    enable_manual_control_lights:
+      name: Enable Manual Control of Lights
+      icon: mdi:lightbulb-group-outline
+
+    enable_manual_control_garlands:
+      name: Enable Manual Control of Garlands
+      icon: mdi:string-lights
+
+    # vacation_mode:
+    #   name: Vacation Mode
+    #   icon: mdi:airplane
