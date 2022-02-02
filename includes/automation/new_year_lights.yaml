@@ -1,68 +1,78 @@
-    - alias: living_room_christmas_garlands_turn_on
-      description: when anyone at home + sunset
-      trigger:
-        - platform: sun
-          event: sunset
-          offset: '0'
-      condition:
-        - condition: state
-          entity_id: binary_sensor.anyone_home
-          state: 'on'
-      action:
-        - type: turn_on
-          device_id: c3218ed710034497f53afa86d75c815a
-          entity_id: switch.living_room_christmas_tree
-          domain: switch
-        - type: turn_on
-          device_id: 16c7f7b50b7d19f8958142b5b72cd138
-          entity_id: switch.living_room_top_garland
-          domain: switch
-        - type: turn_on
-          device_id: ff7c64a5382d5d4e195582df2cbfd9cb
-          entity_id: switch.living_room_garland_curtain
-          domain: switch
-      mode: single
+    # - alias: living_room_christmas_garlands_turn_on
+    #   description: when anyone at home + sunset
+    #   trigger:
+    #     - platform: sun
+    #       event: sunset
+    #       offset: '0'
+    #   condition:
+    #     - condition: state
+    #       entity_id: binary_sensor.anyone_home
+    #       state: 'on'
+    #     - condition: template # Only between December 23 and January 15.
+    #       value_template: >
+    #         {% set n = now() %}
+    #         {{ ( n.month == 12 and ( n.day >  23 and n.day <= 31 ) ) or 
+    #           ( n.month == 1  and ( n.day >= 1  and n.day <  15 )) }}
+    #   action:
+    #     - type: turn_on
+    #       device_id: c3218ed710034497f53afa86d75c815a
+    #       entity_id: switch.living_room_christmas_tree
+    #       domain: switch
+    #     - type: turn_on
+    #       device_id: 16c7f7b50b7d19f8958142b5b72cd138
+    #       entity_id: switch.living_room_top_garland
+    #       domain: switch
+    #     - type: turn_on
+    #       device_id: ff7c64a5382d5d4e195582df2cbfd9cb
+    #       entity_id: switch.living_room_garland_curtain
+    #       domain: switch
+    #   mode: single
     
-    - alias: living_room_christmas_garlands_turn_off
-      description: when moone at home + sunset OR after 23:00
-      mode: single
-      trigger:
-        - platform: time
-          at: '23:00'
-        - platform: state
-          entity_id: binary_sensor.anyone_home
-          from: 'on'
-          to: 'off'
-          for:
-            minutes: 5
-      condition: 
-       - condition: or
-         conditions:
-         - condition: device
-           type: is_on
-           device_id: c3218ed710034497f53afa86d75c815a
-           entity_id: switch.living_room_christmas_tree
-           domain: switch
-         - condition: device
-           type: is_on
-           device_id: 16c7f7b50b7d19f8958142b5b72cd138
-           entity_id: switch.living_room_top_garland
-           domain: switch
-         - condition: device
-           type: is_on
-           device_id: ff7c64a5382d5d4e195582df2cbfd9cb
-           entity_id: switch.living_room_garland_curtain
-           domain: switch
-      action:
-        - type: turn_off
-          device_id: c3218ed710034497f53afa86d75c815a
-          entity_id: switch.living_room_christmas_tree
-          domain: switch
-        - type: turn_off
-          device_id: 16c7f7b50b7d19f8958142b5b72cd138
-          entity_id: switch.living_room_top_garland
-          domain: switch
-        - type: turn_off
-          device_id: ff7c64a5382d5d4e195582df2cbfd9cb
-          entity_id: switch.living_room_garland_curtain
-          domain: switch
+    # - alias: living_room_christmas_garlands_turn_off
+    #   description: when moone at home + sunset OR after 23:00
+    #   mode: single
+    #   trigger:
+    #     - platform: time
+    #       at: '23:00'
+    #     - platform: state
+    #       entity_id: binary_sensor.anyone_home
+    #       from: 'on'
+    #       to: 'off'
+    #       for:
+    #         minutes: 5
+    #   condition: 
+    #     - condition: template # Only between December 23 and January 15.
+    #       value_template: >
+    #         {% set n = now() %}
+    #         {{ ( n.month == 12 and ( n.day >  23 and n.day <= 31 ) ) or 
+    #           ( n.month == 1  and ( n.day >= 1  and n.day <  15 )) }}
+    #     - condition: or
+    #       conditions:
+    #       - condition: device
+    #         type: is_on
+    #         device_id: c3218ed710034497f53afa86d75c815a
+    #         entity_id: switch.living_room_christmas_tree
+    #         domain: switch
+    #       - condition: device
+    #         type: is_on
+    #         device_id: 16c7f7b50b7d19f8958142b5b72cd138
+    #         entity_id: switch.living_room_top_garland
+    #         domain: switch
+    #       - condition: device
+    #         type: is_on
+    #         device_id: ff7c64a5382d5d4e195582df2cbfd9cb
+    #         entity_id: switch.living_room_garland_curtain
+    #         domain: switch
+    #   action:
+    #     - type: turn_off
+    #       device_id: c3218ed710034497f53afa86d75c815a
+    #       entity_id: switch.living_room_christmas_tree
+    #       domain: switch
+    #     - type: turn_off
+    #       device_id: 16c7f7b50b7d19f8958142b5b72cd138
+    #       entity_id: switch.living_room_top_garland
+    #       domain: switch
+    #     - type: turn_off
+    #       device_id: ff7c64a5382d5d4e195582df2cbfd9cb
+    #       entity_id: switch.living_room_garland_curtain
+    #       domain: switch

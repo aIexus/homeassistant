@@ -27,9 +27,17 @@
       name: Enable Manual Control of Lights
       icon: mdi:lightbulb-group-outline
 
-    enable_manual_control_garlands:
-      name: Enable Manual Control of Garlands
-      icon: mdi:string-lights
+    enable_manual_control_aqua_lights:
+      name: Enable Manual Control of Aquarium Lights
+      icon: mdi:fishbowl-outline
+
+    disable_heating:
+      name: Heating is Disabled
+      icon: mdi:radiator-off
+
+    # enable_manual_control_garlands:
+    #   name: Enable Manual Control of Garlands
+    #   icon: mdi:string-lights
 
     # vacation_mode:
     #   name: Vacation Mode

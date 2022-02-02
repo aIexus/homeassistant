@@ -65,11 +65,20 @@ views:
                 - type: button
                   tap_action:
                     action: toggle
-                  entity: input_boolean.enable_manual_control_garlands
+                  entity: input_boolean.enable_manual_control_aqua_lights
                   show_state: false
                   show_name: false
                   hold_action:
                     action: none
+
+                # - type: button
+                #   tap_action:
+                #     action: toggle
+                #   entity: input_boolean.enable_manual_control_garlands
+                #   show_state: false
+                #   show_name: false
+                #   hold_action:
+                #     action: none
 
             - type: conditional
               conditions:
@@ -107,21 +116,37 @@ views:
 
             - type: conditional
               conditions:
-                - entity: input_boolean.enable_manual_control_garlands
+                - entity: input_boolean.enable_manual_control_aqua_lights
                   state: 'on'
               card:
                 type: entities
                 show_header_toggle: true
-                title: Гирлянды
+                title: Аквариум
                 icon: mdi:ceiling-light-multiple-outline
                 state_color: true
                 entities:
-                  - entity: switch.living_room_christmas_tree
-                    name: Ёлочная
-                  - entity: switch.living_room_garland_curtain
-                    name: Штора
-                  - entity: switch.living_room_top_garland
-                    name: Верхняя
+                  - entity: switch.living_room_aquarium_main_lighting
+                    name: Основной свет
+                  - entity: switch.living_room_aquarium_moonlight
+                    name: Лунный свет
+
+            # - type: conditional
+            #   conditions:
+            #     - entity: input_boolean.enable_manual_control_garlands
+            #       state: 'on'
+            #   card:
+            #     type: entities
+            #     show_header_toggle: true
+            #     title: Гирлянды
+            #     icon: mdi:ceiling-light-multiple-outline
+            #     state_color: true
+            #     entities:
+            #       - entity: switch.living_room_christmas_tree
+            #         name: Ёлочная
+            #       - entity: switch.living_room_garland_curtain
+            #         name: Штора
+            #       - entity: switch.living_room_top_garland
+            #         name: Верхняя
 
    - title: Система
      icon: mdi:monitor-dashboard
@@ -142,7 +167,9 @@ views:
                - entity: sensor.last_boot_custom
                  name: Last boot
                - entity: sensor.online_custom
-               
+               - entity: binary_sensor.updater
+               - entity: sensor.hacs
+
            - type: entities
              show_header_toggle: false
              title: Статус питания
@@ -243,11 +270,11 @@ views:
        - type: vertical-stack
          title: Интернет  Соединение
          cards:
-
+           - type: entity
+             entity: sensor.archer_c80_router_external_ip
            - type: sensor
              entity: sensor.speedtest_download
              graph: line
-
            - type: sensor
              entity: sensor.speedtest_upload
              graph: line
@@ -276,6 +303,8 @@ views:
          cards:
             - type: entities
               entities:
+                - entity: binary_sensor.living_room_loggia_door_contact
+                  name: Дверь на лоджию
                 - entity: binary_sensor.living_room_auto_light_off_sensor
                 - entity: binary_sensor.living_room_lumi_sensor_motion_occupancy
                   name: Датчик движения
@@ -321,6 +350,8 @@ views:
                   name: Давление
                 - entity: sensor.kitchen_lumi_weather_temperature
                   name: Температура
+                - entity: binary_sensor.kitchen_smoke_detector_smoke
+                  name: Датчик дыма
                 - entity: binary_sensor.kitchen_water_leak_sensor_water_leak
                   name: Датчик протечки
 
@@ -335,5 +366,15 @@ views:
                   name: Давление
                 - entity: sensor.bathroom_lumi_weather_temperature
                   name: Температура
+                - entity: binary_sensor.bathroom_water_leak_under_the_bath_water_leak
+                  name: Датчик протечки, под ванной
                 - entity: binary_sensor.bathroom_water_leak_under_washing_machine_water_leak
                   name: Датчик протечки, под стиральной машиной
+
+       - type: vertical-stack
+         title: Коридор
+         cards:
+           - type: entities
+             entities:
+               - entity: binary_sensor.corridor_entrance_door_contact
+                 name: Входная дверь

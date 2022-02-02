@@ -1,0 +1,72 @@
+    - alias: living_room_aquarium_main_lighting_on
+      description: 'Аквариум - Включение основного освещения'
+      mode: single
+      trigger:
+        - platform: time
+          at: '08:00'
+        - platform: time
+          at: '12:00'
+        - platform: time
+          at: '16:00'
+      condition:
+        - condition: state
+          entity_id: switch.living_room_aquarium_main_lighting
+          state: 'off'
+      action:
+        - type: turn_on
+          device_id: c3218ed710034497f53afa86d75c815a
+          entity_id: switch.living_room_aquarium_main_lighting
+          domain: switch
+
+    - alias: living_room_aquarium_main_lighting_off
+      description: 'Аквариум - Выключение основного освещения'
+      mode: single
+      trigger:
+        - platform: time
+          at: '11:00'
+        - platform: time
+          at: '15:00'
+        - platform: time
+          at: '21:00'
+      condition:
+        - condition: state
+          entity_id: switch.living_room_aquarium_main_lighting
+          state: 'on'
+      action:
+        - type: turn_off
+          device_id: c3218ed710034497f53afa86d75c815a
+          entity_id: switch.living_room_aquarium_main_lighting
+          domain: switch
+
+    - alias: living_room_aquarioum_moonlight_on
+      description: 'Аквариум - Включение лунного света'
+      mode: single
+      trigger:
+        - platform: time
+          at: '20:00'
+      condition:
+        - condition: state
+          entity_id: switch.living_room_aquarium_moonlight
+          state: 'off'
+      action:
+        - type: turn_on
+          device_id: 16c7f7b50b7d19f8958142b5b72cd138
+          entity_id: switch.living_room_aquarium_moonlight
+          domain: switch
+
+    - alias: living_room_aquarioum_moonlight_off
+      description: 'Аквариум - Выключение лунного света'
+      mode: single
+      trigger:
+        - platform: time
+          at: '23:00'
+      condition:
+        - condition: state
+          entity_id: switch.living_room_aquarium_moonlight
+          state: 'on'
+      action:
+        - type: turn_off
+          device_id: 16c7f7b50b7d19f8958142b5b72cd138
+          entity_id: switch.living_room_aquarium_moonlight
+          domain: switch
+
