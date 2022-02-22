@@ -1,14 +1,5 @@
 telegram: 
 
-    # script: 
-
-    #     send_message_status_ok:
-    #         alias: Отправка через сервис уведомлений
-    #         sequence: 
-    #         - service: notify.alexus
-    #           data: 
-    #             message: "Текущее время - {{ states('sensor.time') }}. Всё в порядке!"
-
     automation:
 
         - alias: telegram_menu_start
@@ -21,7 +12,7 @@ telegram:
           - service: notify.alexus
             data:
               message: |
-                Добро пожаловать в управление Умным домом!
+                Добро пожаловать в управление Умным Домом!
                 ➖➖➖➖➖➖➖➖➖➖➖➖
                 Выберите раздел:
               data:
@@ -68,8 +59,9 @@ telegram:
                 CPU: {{"\U0001F321"}} {{ states("sensor.processor_temperature") }}{{"\U00002103"}}, Loading: {{ states("sensor.processor_use") }}{{"\U00000025"}}
                 RAM: {{ states("sensor.memory_use_percent") }}{{"\U00000025"}} Usage
                 SSD: {{ states("sensor.disk_use_percent") }}{{"\U00000025"}} Usage, {{ states("sensor.disk_free") }} Gb Free
-
-                Speedtest(Mbit/s): {{"\U000023EC"}}{{ states("sensor.speedtest_download") }}/{{"\U000023EB"}}{{ states("sensor.speedtest_upload") }} {{"\U0001F3CE"}}
+                
+                External IP: {{ states("sensor.archer_c80_router_external_ip") }}
+                Speedtest(Mbps): {{"\U000023EC"}}{{ states("sensor.speedtest_download") }}/{{"\U000023EB"}}{{ states("sensor.speedtest_upload") }}
               data: 
                 inline_keyboard: 
                   - "Статус:/status, Климат:/climate, Освещение:/lights"
@@ -102,6 +94,9 @@ telegram:
                 - {{"\U0001F321"}}: {{ states("sensor.kitchen_lumi_weather_temperature") }}{{"\U00002103"}}   {{"\U0001F4A6"}}: {{ states("sensor.kitchen_lumi_weather_humidity") }} %, 
                 - {{"\U0001F525"}}: {{ states("switch.kitchen_socket_heating") }}          {{"\U0001F4C8"}}: {{ states("sensor.kitchen_socket_heating_energy")}} kWh
                 - {{"\U0001F50C"}}: ({{ states("sensor.kitchen_socket_heating_voltage") }} V | {{ states("sensor.kitchen_socket_heating_current") }} A | {{ states("sensor.kitchen_socket_heating_power") }} W)
+                
+                Ванная:
+                - {{"\U0001F321"}}: {{ states("sensor.bathroom_lumi_weather_temperature") }}{{"\U00002103"}}   {{"\U0001F4A6"}}: {{ states("sensor.bathroom_lumi_weather_humidity") }} %, 
               data: 
                 inline_keyboard:  
                   - "Статус:/status, Климат:/climate, Освещение:/lights"

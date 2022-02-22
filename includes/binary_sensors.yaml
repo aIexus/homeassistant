@@ -11,7 +11,7 @@
           device_class: problem
           friendly_name: "Состояние батареи UPS"
           value_template: >-
-            {% if (states("sensor.ups_battery_capacity") | int < 25) or (states("sensor.ups_battery_voltage") | float < 3.2) %}
+            {% if (states("sensor.ups_battery_capacity") | int(0) < 25) or (states("sensor.ups_battery_voltage") | float(0) < 3.2) %}
             on
             {% else %}
             off
@@ -19,7 +19,7 @@
           icon_template: >-
             {% if is_state("binary_sensor.ups_battery_low", "on") %}
             mdi:battery-low
-            {% elif (states("sensor.ups_battery_capacity") | int >=25) and (states("sensor.ups_battery_capacity") | int < 75) %}
+            {% elif (states("sensor.ups_battery_capacity") | int(0) >=25) and (states("sensor.ups_battery_capacity") | int(0) < 75) %}
             mdi:battery-medium
             {% else %}
             mdi:battery-high

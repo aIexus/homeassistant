@@ -44,14 +44,19 @@ views:
               columns: 3
               title: Управление
               cards:
-                - type: button
-                  tap_action:
-                    action: toggle
-                  entity: input_boolean.enable_manual_control_heater
-                  show_state: false
-                  show_name: false
-                  hold_action:
-                    action: none
+                - type:  conditional
+                  conditions: 
+                    - entity: input_boolean.heating_status
+                      state: 'on'
+                  card:
+                    type: button
+                    tap_action:
+                      action: toggle
+                    entity: input_boolean.enable_manual_control_heater
+                    show_state: false
+                    show_name: false
+                    hold_action:
+                      action: none
 
                 - type: button
                   tap_action:
@@ -80,9 +85,12 @@ views:
                 #   hold_action:
                 #     action: none
 
+
             - type: conditional
               conditions:
                 - entity: input_boolean.enable_manual_control_heater
+                  state: 'on'
+                - entity: input_boolean.heating_status
                   state: 'on'
               card:
                 type: grid
@@ -282,10 +290,12 @@ views:
        - type: vertical-stack
          cards:
           - entities:
+              - entity: input_boolean.heating_status
               - entity: input_boolean.disable_climate
-              - entity: input_boolean.disable_zone_notifications
-              - entity: input_boolean.disable_startup_notifications
               - entity: input_boolean.disable_home_away
+              - entity: input_boolean.disable_zone_notifications
+              - entity: input_boolean.disable_climate_notifications
+              - entity: input_boolean.disable_startup_notifications
               - entity: input_boolean.disable_occupancy
             show_header_toggle: false
             title: Отмена Автоматизаций
@@ -322,6 +332,10 @@ views:
          cards:
             - type: entities
               entities:
+                - entity: binary_sensor.bedroom_window_left_contact
+                  name: Окно, левая створка
+                - entity: binary_sensor.bedroom_window_right_contact
+                  name: Окно, правая створка
                 - entity: binary_sensor.bedroom_auto_light_off_sensor
                 - entity: binary_sensor.bedroom_lumi_sensor_motion_occupancy
                   name: Датчик движения
@@ -344,6 +358,8 @@ views:
                 #   name: Датчик движения
                 # - entity: sensor.kitchen_lumi_sensor_motion_illuminance_lux
                 #   name: Освещенность
+                - entity: binary_sensor.kitchen_window_contact
+                  name: Окно
                 - entity: sensor.kitchen_lumi_weather_humidity
                   name: Влажность
                 - entity: sensor.kitchen_lumi_weather_pressure
@@ -378,3 +394,13 @@ views:
              entities:
                - entity: binary_sensor.corridor_entrance_door_contact
                  name: Входная дверь
+
+       - type: vertical-stack
+         title: Лоджия
+         cards:
+           - type: entities
+             entities:
+               - entity: sensor.loggia_tuya_weather_humidity
+                 name: Влажность
+               - entity: sensor.loggia_tuya_weather_temperature
+                 name: Температура

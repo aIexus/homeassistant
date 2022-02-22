@@ -9,3 +9,23 @@
       data:
           keep_days: 3
           repack: true
+
+- alias: HomeAssistant_shutdown_turn_off_switches
+  description: 'Отключение всех устройств при отключении инстанса'
+  mode: single
+  trigger:
+    - platform: homeassistant
+      event: shutdown
+  condition: []
+  action:
+    - service: homeassistant.turn_off
+      target:
+        entity_id:
+          - switch.bedroom_light_switch
+          - switch.bedroom_socket_heating
+          - switch.kitchen_socket_heating
+          - switch.living_room_aquarium_main_lighting
+          - switch.living_room_aquarium_moonlight
+          - switch.living_room_light_switch
+          - switch.living_room_socket_heating
+          - switch.tuya_socket_plug_1

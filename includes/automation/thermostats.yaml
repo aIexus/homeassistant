@@ -1,3 +1,31 @@
+    - alias: climate_turn_on_heaters
+      description: 'Включение обогревателей'
+      trigger:
+        - platform: state
+          entity_id: input_boolean.heating_status
+          to: 'on'
+      condition:
+        - condition: state
+          entity_id: group.heaters
+          state: 'off'
+      action:
+        - service: homeassistant.turn_on
+          entity_id: group.heaters
+
+    - alias: climate_turn_off_heaters
+      description: 'Выключение обогревателей'
+      trigger:
+        - platform: state
+          entity_id: input_boolean.heating_status
+          to: 'off'
+      condition:
+        - condition: state
+          entity_id: group.heaters
+          state: 'on'
+      action:
+        - service: homeassistant.turn_off
+          entity_id: group.heaters
+
     - alias: climate_winter_turn_on_heaters
       description: 'Наступила зима, обогреватели включены'
       trigger:
@@ -8,21 +36,24 @@
         - condition: state
           entity_id: input_boolean.disable_climate
           state: 'off'
-        # - condition: state
-        #   entity_id: input_boolean.disable_heating
-        #   state: 'on'
         - condition: state
-          entity_id: group.heaters
+          entity_id: input_boolean.heating_status
           state: 'off'
+        # - condition: state
+        #   entity_id: group.heaters
+        #   state: 'off'
       action:
         - service: homeassistant.turn_on
-          entity_id: group.heaters
+          entity_id: input_boolean.heating_status
+        - condition: state
+          entity_id: input_boolean.disable_climate_notifications
+          state: 'off'
         - service: notify.alexus
           data:
+            title: '{{"\U00002603"}} Пришла Зима{{"\U0000203C"}}'
             message: |
               ➖➖➖➖➖➖➖➖➖➖➖➖
               Обогреватели Включены.
-            title: '{{"\U00002603"}} Пришла Зима{{"\U0000203C"}}'
 
     - alias: climate_summer_turn_off_heaters
       description: 'Наступило лето, обогреватели выключены'
@@ -35,17 +66,23 @@
           entity_id: input_boolean.disable_climate
           state: 'off'
         - condition: state
-          entity_id: group.heaters
+          entity_id: input_boolean.heating_status
           state: 'on'
+        # - condition: state
+        #   entity_id: group.heaters
+        #   state: 'on'
       action:
         - service: homeassistant.turn_off
-          entity_id: group.heaters
+          entity_id: input_boolean.heating_status
+        - condition: state
+          entity_id: input_boolean.disable_climate_notifications
+          state: 'off'
         - service: notify.alexus
           data:
+            title: '{{"\U00002600"}} Пришло Лето{{"\U0000203C"}}'
             message: |
               ➖➖➖➖➖➖➖➖➖➖➖➖
               Обогреватели Отключены.
-            title: '{{"\U00002600"}} Пришло Лето{{"\U0000203C"}}'
 
     - alias: climate_spring_fall_turn_on_heaters
       description: 'Включение термостатов отопления весной/осенью при наружной температуре ниже 15'
@@ -56,11 +93,14 @@
           for:
             hours: 12
       condition:
-        - condition: state
-          entity_id: group.heaters
-          state: 'off'
+        # - condition: state
+        #   entity_id: group.heaters
+        #   state: 'off'
         - condition: state
           entity_id: input_boolean.disable_climate
+          state: 'off'
+        - condition: state
+          entity_id: input_boolean.heating_status
           state: 'off'
         - condition: or
           conditions:
@@ -72,13 +112,16 @@
             state: 'autumn'
       action:
         - service: homeassistant.turn_on
-          entity_id: group.heaters
+          entity_id: input_boolean.heating_status
+        - condition: state
+          entity_id: input_boolean.disable_climate_notifications
+          state: 'off'
         - service: notify.alexus
           data:
+            title: '{{"\U0001F927"}} Похолодало{{"\U0000203C"}}'
             message: |
               ➖➖➖➖➖➖➖➖➖➖➖➖
               Наружная температура ниже 15{{"\U00002103"}}, обогреватели включены.
-            title: '{{"\U0001F927"}} Похолодало{{"\U0000203C"}}'
 
     - alias: climate_spring_fall_turn_off_heaters
       description: 'Выключение термостатов отопления весной/осенью при наружной температуре выше 15'
@@ -89,12 +132,15 @@
           for:
             hours: 12
       condition:
-        - condition: state
-          entity_id: group.heaters
-          state: 'on'
+        # - condition: state
+        #   entity_id: group.heaters
+        #   state: 'on'
         - condition: state
           entity_id: input_boolean.disable_climate
           state: 'off'
+        - condition: state
+          entity_id: input_boolean.heating_status
+          state: 'on'
         - condition: or
           conditions:
           - condition: state
@@ -105,13 +151,16 @@
             state: 'autumn'
       action:
         - service: homeassistant.turn_off
-          entity_id: group.heaters
+          entity_id: input_boolean.heating_status
+        - condition: state
+          entity_id: input_boolean.disable_climate_notifications
+          state: 'off'
         - service: notify.alexus
           data:
+            title: '{{"\U0001F917"}} Потеплело{{"\U0000203C"}}'
             message: |
               ➖➖➖➖➖➖➖➖➖➖➖➖
               Наружная температура выше 15{{"\U00002103"}}, обогреватели отключены.
-            title: '{{"\U0001F917"}} Потеплело{{"\U0000203C"}}'
 
     - alias: climate_heating_thermostats_away
       description: 'Переключение термостатов отопления в режим - away'
@@ -127,8 +176,11 @@
           entity_id: input_boolean.disable_climate
           state: 'off'
         - condition: state
-          entity_id: group.heaters
+          entity_id: input_boolean.heating_status
           state: 'on'
+        # - condition: state
+        #   entity_id: group.heaters
+        #   state: 'on'
         - condition: not
           conditions:
           - condition: state
@@ -143,14 +195,17 @@
               - climate.living_room_heater
           data:
             preset_mode: 'away'
+        - condition: state
+          entity_id: input_boolean.disable_climate_notifications
+          state: 'off'
         # Уведомление о смене режима отопления
         - service: notify.alexus
           data:
+            title: '{{"\U0001F3E0"}} Все покинули Дом{{"\U0000203C"}}'
             message: |
               ➖➖➖➖➖➖➖➖➖➖➖➖
               Обогреватели переключены в режим экономии ({{ state_attr("climate.living_room_heater","temperature") }}{{"\U00002103"}}).
-            title: '{{"\U0001F3E0"}} Все покинули Дом{{"\U0000203C"}}'
-        
+
     - alias: climate_heating_thermostats_home
       description: 'Переключение термостатов отопления в режим - home'
       trigger:
@@ -165,8 +220,11 @@
           entity_id: input_boolean.disable_climate
           state: 'off'
         - condition: state
-          entity_id: group.heaters
+          entity_id: input_boolean.heating_status
           state: 'on'
+        # - condition: state
+        #   entity_id: group.heaters
+        #   state: 'on'
         - condition: state
           entity_id: group.family
           state: 'home'
@@ -179,10 +237,234 @@
               - climate.living_room_heater
           data:
             preset_mode: 'none'
+        - condition: state
+          entity_id: input_boolean.disable_climate_notifications
+          state: 'off'
         # Уведомление о смене режима отопления
         - service: notify.alexus
           data:
+            title: '{{"\U0001F3E0"}} Дома кто-то появился{{"\U0000203C"}}'
             message: |
               ➖➖➖➖➖➖➖➖➖➖➖➖
               Обогреватели переключены в нормальный режим ({{ state_attr("climate.living_room_heater","temperature") }}{{"\U00002103"}}).
-            title: '{{"\U0001F3E0"}} Дома кто-то появился{{"\U0000203C"}}'
+
+    - alias: climate_loggia_door_opened_turn_off_heater
+      description: 'Выключение обогревателя в гостинной при открытой двери на лоджию'
+      trigger:
+        - type: opened
+          platform: device
+          device_id: 19904350a3cc7a64c7db5fe737b6d044
+          entity_id: binary_sensor.living_room_loggia_door_contact
+          domain: binary_sensor
+          for:
+            minutes: 5
+      condition:
+        - condition: state
+          entity_id: input_boolean.disable_climate
+          state: 'off'
+        - condition: state
+          entity_id: input_boolean.heating_status
+          state: 'on'
+        - condition: state
+          entity_id: climate.living_room_heater
+          state: 'heat'
+      action:
+        - service: climate.turn_off
+          entity_id: climate.living_room_heater
+        - condition: state
+          entity_id: input_boolean.disable_climate_notifications
+          state: 'off'
+        - service: notify.alexus
+          data:
+            title: '{{"\U0001F3E0"}} Открыта дверь на лоджию{{"\U0000203C"}}'
+            message: |
+              ➖➖➖➖➖➖➖➖➖➖➖➖
+              Обогреватель в Гостинной выключен{{"\U0000203C"}}
+
+    - alias: climate_loggia_door_closed_turn_on_heater
+      description: 'Включение обогревателя в гостинной при закрытой двери на лоджию'
+      trigger:
+        - type: not_opened
+          platform: device
+          device_id: 19904350a3cc7a64c7db5fe737b6d044
+          entity_id: binary_sensor.living_room_loggia_door_contact
+          domain: binary_sensor
+          for:
+            minutes: 1
+      condition:
+        - condition: state
+          entity_id: input_boolean.disable_climate
+          state: 'off'
+        - condition: state
+          entity_id: input_boolean.heating_status
+          state: 'on'
+        - condition: state
+          entity_id: climate.living_room_heater
+          state: 'off'
+      action:
+        - service: climate.turn_on
+          entity_id: climate.living_room_heater
+        - condition: state
+          entity_id: input_boolean.disable_climate_notifications
+          state: 'off'
+        - service: notify.alexus
+          data:
+            title: '{{"\U0001F3E0"}} Дверь на лоджию закрыта{{"\U0000203C"}}'
+            message: |
+              ➖➖➖➖➖➖➖➖➖➖➖➖
+              Обогреватель в Гостинной включен{{"\U0000203C"}}
+
+    - alias: climate_kitchen_window_opened_turn_off_heater
+      description: 'Выключение обогревателя в кухне при открытом окне'
+      trigger:
+        - type: opened
+          platform: device
+          device_id: 1302f3abc6e95ef58820671b5a312ef9
+          entity_id: binary_sensor.kitchen_window_contact
+          domain: binary_sensor
+          for:
+            minutes: 5
+      condition:
+        - condition: state
+          entity_id: input_boolean.disable_climate
+          state: 'off'
+        - condition: state
+          entity_id: input_boolean.heating_status
+          state: 'on'
+        - condition: state
+          entity_id: climate.kitchen_heater
+          state: 'heat'
+      action:
+        - service: climate.turn_off
+          entity_id: climate.kitchen_heater
+        - condition: state
+          entity_id: input_boolean.disable_climate_notifications
+          state: 'off'
+        - service: notify.alexus
+          data:
+            title: '{{"\U0001F3E0"}} Открыто окно на кухне{{"\U0000203C"}}'
+            message: |
+              ➖➖➖➖➖➖➖➖➖➖➖➖
+              Обогреватель в Кухне выключен{{"\U0000203C"}}
+
+    - alias: climate_kitchen_window_closed_turn_on_heater
+      description: 'Включение обогревателя в кухне при закрытом окне'
+      trigger:
+        - type: not_opened
+          platform: device
+          device_id: 1302f3abc6e95ef58820671b5a312ef9
+          entity_id: binary_sensor.kitchen_window_contact
+          domain: binary_sensor
+          for:
+            minutes: 1
+      condition:
+        - condition: state
+          entity_id: input_boolean.disable_climate
+          state: 'off'
+        - condition: state
+          entity_id: input_boolean.heating_status
+          state: 'on'
+        - condition: state
+          entity_id: climate.kitchen_heater
+          state: 'off'
+      action:
+        - service: climate.turn_on
+          entity_id: climate.kitchen_heater
+        - condition: state
+          entity_id: input_boolean.disable_climate_notifications
+          state: 'off'
+        - service: notify.alexus
+          data:
+            title: '{{"\U0001F3E0"}} Окно на кухне закрыто{{"\U0000203C"}}'
+            message: |
+              ➖➖➖➖➖➖➖➖➖➖➖➖
+              Обогреватель в Кухне включен{{"\U0000203C"}}
+
+    - alias: climate_bedroom_window_opened_turn_off_heater
+      description: 'Выключение обогревателя в спальне при открытых окнах'
+      trigger:
+        - type: opened
+          platform: device
+          device_id: 2f6082b7e9590a817b9d0c38250da1c2
+          entity_id: binary_sensor.bedroom_window_left_contact
+          domain: binary_sensor
+          for:
+            minutes: 5
+        - type: opened
+          platform: device
+          device_id: 23c37395cdf6111e45519ee000fcd250
+          entity_id: binary_sensor.bedroom_window_right_contact
+          domain: binary_sensor
+          for:
+            minutes: 5
+      condition:
+        - condition: state
+          entity_id: input_boolean.disable_climate
+          state: 'off'
+        - condition: state
+          entity_id: input_boolean.heating_status
+          state: 'on'
+        - condition: state
+          entity_id: climate.bedroom_heater
+          state: 'heat'
+      action:
+        - service: climate.turn_off
+          entity_id: climate.bedroom_heater
+        - condition: state
+          entity_id: input_boolean.disable_climate_notifications
+          state: 'off'
+        - service: notify.alexus
+          data:
+            title: '{{"\U0001F3E0"}} Открыто окно в спальне{{"\U0000203C"}}'
+            message: |
+              ➖➖➖➖➖➖➖➖➖➖➖➖
+              Обогреватель в Спальне выключен{{"\U0000203C"}}
+
+    - alias: climate_bedroom_windows_closed_turn_on_heater
+      description: 'Включение обогревателя в спальне при закрытых окнах'
+      trigger:
+        - type: not_opened
+          platform: device
+          device_id: 2f6082b7e9590a817b9d0c38250da1c2
+          entity_id: binary_sensor.bedroom_window_left_contact
+          domain: binary_sensor
+          for:
+            minutes: 1
+        - type: not_opened
+          platform: device
+          device_id: 23c37395cdf6111e45519ee000fcd250
+          entity_id: binary_sensor.bedroom_window_right_contact
+          domain: binary_sensor
+          for:
+            minutes: 1
+      condition:
+        - condition: state
+          entity_id: input_boolean.disable_climate
+          state: 'off'
+        - condition: state
+          entity_id: input_boolean.heating_status
+          state: 'on'
+        - condition: and
+          conditions:
+          - condition: state
+            entity_id: binary_sensor.bedroom_window_left_contact
+            state: 'off'
+          - condition: state
+            entity_id: binary_sensor.bedroom_window_right_contact
+            state: 'off'
+        - condition: state
+          entity_id: climate.bedroom_heater
+          state: 'off'
+      action:
+        - service: climate.turn_on
+          entity_id: climate.bedroom_heater
+        - condition: state
+          entity_id: input_boolean.disable_climate_notifications
+          state: 'off'
+        - service: notify.alexus
+          data:
+            title: '{{"\U0001F3E0"}} Окна в спальне закрыты{{"\U0000203C"}}'
+            message: |
+              ➖➖➖➖➖➖➖➖➖➖➖➖
+              Обогреватель в Спальне включен{{"\U0000203C"}}
+

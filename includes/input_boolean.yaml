@@ -19,6 +19,10 @@
       name: Disable Startup Notifications
       icon: mdi:bell-off
 
+    disable_climate_notifications:
+      name: Disable Climate Notifications
+      icon: mdi:message-bulleted-off
+
     enable_manual_control_heater:
       name: Enable Manual Control of Heaters
       icon: mdi:radiator
@@ -31,9 +35,9 @@
       name: Enable Manual Control of Aquarium Lights
       icon: mdi:fishbowl-outline
 
-    disable_heating:
-      name: Heating is Disabled
-      icon: mdi:radiator-off
+    heating_status:
+      name: Heating status
+      icon: mdi:radiator
 
     # enable_manual_control_garlands:
     #   name: Enable Manual Control of Garlands
