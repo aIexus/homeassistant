@@ -97,6 +97,10 @@ telegram:
                 
                 Ванная:
                 - {{"\U0001F321"}}: {{ states("sensor.bathroom_lumi_weather_temperature") }}{{"\U00002103"}}   {{"\U0001F4A6"}}: {{ states("sensor.bathroom_lumi_weather_humidity") }} %, 
+
+                Лоджия:
+                - {{"\U0001F321"}}: {{ states("sensor.loggia_tuya_weather_temperature") }}{{"\U00002103"}}   {{"\U0001F4A6"}}: {{ states("sensor.loggia_tuya_weather_humidity") }} %, 
+
               data: 
                 inline_keyboard:  
                   - "Статус:/status, Климат:/climate, Освещение:/lights"
@@ -177,6 +181,42 @@ telegram:
                     - "Гостинная:/toggle_living_room_light, Спальня:/toggle_bedroom_light, Кухня:/toggle_kitchen_light"
                     - "Ванная:/toggle_bathroom_light, Коридор:/toggle_corridor_light"
                     - "Меню:/menu"
+
+        - alias: telegram_menu_security
+          initial_state: true
+          trigger:
+            platform: event
+            event_type: telegram_callback
+            event_data:
+              data: '/security'
+          action:
+          - service: notify.alexus
+            data:
+              message: |
+                {{"\U0001F6E1"}} Безопасность в квартире:
+                ➖➖➖➖➖➖➖➖➖➖➖➖
+                {{"\U0001F3D8"}} Входная дверь: {% if is_state("binary_sensor.corridor_entrance_door_contact","off") %}Закрыта {{"\U0001F512"}}{%else%}Открыта {{"\U0001F513"}}{%endif%}
+
+                {{"\U0001F6AA"}} Дверь в Гостинной на Лоджию: {% if is_state("binary_sensor.living_room_loggia_door_contact","off") %}Закрыта {{"\U0001F512"}}{%else%}Открыта {{"\U0001F513"}}{%endif%}
+
+                {{"\U0001FA9F"}} Окно в Спальне: 
+                - Левая  створка: {% if is_state("binary_sensor.bedroom_window_left_contact","off") %}Закрыта {{"\U0001F512"}}{%else%}Открыта {{"\U0001F513"}}{%endif%}
+                - Правая створка: {% if is_state("binary_sensor.bedroom_window_right_contact","off") %}Закрыта {{"\U0001F512"}}{%else%}Открыта {{"\U0001F513"}}{%endif%}
+
+                {{"\U0001FA9F"}} Окно в Кухне: {% if is_state("binary_sensor.kitchen_window_contact","off") %}Закрыто {{"\U0001F512"}}{%else%}Открыто {{"\U0001F513"}}{%endif%}
+                
+                {{"\U0001F4A7"}} Датчики протечки в Ванной:  
+                - под ванной {{"\U0001F6C1"}}: {% if is_state("binary_sensor.bathroom_water_leak_under_the_bath_water_leak","off") %}Сухо {{"\U00002714"}}{%else%}{{"\U000026A0"}} Протечка{{"\U0000203C"}}{%endif%}
+                - под машинкой {{"\U0001F9FA"}}: {% if is_state("binary_sensor.bathroom_water_leak_under_washing_machine_water_leak","off") %}Сухо {{"\U00002714"}}{%else%}{{"\U000026A0"}} Протечка{{"\U0000203C"}}{%endif%} 
+
+                {{"\U0001F4A7"}} Датчик протечки в Кухне: {% if is_state("binary_sensor.kitchen_water_leak_sensor_water_leak","off") %}Сухо {{"\U00002714"}}{%else%}{{"\U000026A0"}} Протечка{{"\U0000203C"}}{%endif%}
+
+                {{"\U0001F6AD"}} Детектор Дыма в Кухне: {% if is_state("binary_sensor.kitchen_smoke_detector_smoke","off") %}Без Дыма {{"\U00002714"}}{%else%}{{"\U000026A0"}} Дым Обнаружен{{"\U0000203C"}}{%endif%}
+              data: 
+                inline_keyboard:  
+                  - "Статус:/status, Климат:/climate, Освещение:/lights"
+                  - "Безопасность:/security, Меню:/menu"
+
 
         - alias: telegram_menu_geo
           trigger:

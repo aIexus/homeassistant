@@ -1,3 +1,15 @@
+  - platform: file
+    name: ups_battery_voltage
+    unit_of_measurement: 'V'
+    scan_interval: '00:01:00'
+    file_path: /config/files/ups_battery_voltage.txt
+
+  - platform: file
+    name: ups_battery_capacity
+    unit_of_measurement: '%'
+    scan_interval: '00:01:00'
+    file_path: /config/files/ups_battery_capacity.txt
+
   - platform: time_date
     display_options:
       - 'time'

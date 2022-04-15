@@ -7,6 +7,7 @@ homeassistant:
   time_zone: Europe/Kiev
   packages: !include_dir_merge_named includes/packages
   customize: !include includes/customize.yaml
+  allowlist_external_dirs: "/config/files/"
     
 # Configure a default setup of Home Assistant (frontend, api, etc)
 default_config:

@@ -161,7 +161,7 @@
         - type: opened
           platform: device
           device_id: 8bdd25d1820505d01332c5ac3780dee1
-          entity_id: binary_sensor.corridor_entrance_door_voltage
+          entity_id: binary_sensor.corridor_entrance_door_contact
           domain: binary_sensor
       condition:
         - condition: state
@@ -182,14 +182,14 @@
         - type: opened
           platform: device
           device_id: 8bdd25d1820505d01332c5ac3780dee1
-          entity_id: binary_sensor.corridor_entrance_door_voltage
+          entity_id: binary_sensor.corridor_entrance_door_contact
           domain: binary_sensor
           for:
             minutes: 2
       condition: []
-        # - condition: state
-        #   entity_id: binary_sensor.anyone_home
-        #   state: 'on'
+      #  - condition: state
+      #    entity_id: binary_sensor.anyone_home
+      #    state: 'on'
       action:
         - service: notify.alexus
           data:

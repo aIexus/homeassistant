@@ -91,7 +91,7 @@
           entity_id: sensor.outdoor_temperature
           below: 15
           for:
-            hours: 12
+            hours: 3
       condition:
         # - condition: state
         #   entity_id: group.heaters
@@ -130,7 +130,7 @@
           entity_id: sensor.outdoor_temperature
           above: 15
           for:
-            hours: 12
+            hours: 6
       condition:
         # - condition: state
         #   entity_id: group.heaters

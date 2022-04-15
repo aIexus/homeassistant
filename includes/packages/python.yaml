@@ -2,35 +2,37 @@ python_script_config:
     python_script:
         requirements:
         - RPi.GPIO>=0.7.0
-        
-    sensor:
-        - platform: python_script
-          name: ups_battery_voltage
-          unit_of_measurement: 'V'
-          scan_interval: '00:01:00'
-          source: |
-            import struct
-            import smbus
-            import sys
-            bus = smbus.SMBus(1) # 0 = /dev/i2c-0 (port I2C0), 1 = /dev/i2c-1 (port I2C1)
-            address = 0x36
-            read = bus.read_word_data(address, 2)
-            swapped = struct.unpack("<H", struct.pack(">H", read))[0]
-            self.state = round(swapped * 1.25 /1000/16,2)
 
-        - platform: python_script
-          name: ups_battery_capacity
-          unit_of_measurement: '%'
-          scan_interval: '00:01:00'
-          source: |
-            import struct
-            import smbus
-            import sys
-            bus = smbus.SMBus(1) # 0 = /dev/i2c-0 (port I2C0), 1 = /dev/i2c-1 (port I2C1)
-            address = 0x36
-            read = bus.read_word_data(address, 4)
-            swapped = struct.unpack("<H", struct.pack(">H", read))[0]
-            self.state = round(swapped/256)
+    sensor:
+        # - platform: python_script
+        #   name: ups_battery_voltage
+        #   unit_of_measurement: 'V'
+        #   scan_interval: '00:01:00'
+        #   source: |
+        #     # import struct
+        #     # import smbus as smbus
+        #     # import sys
+        #     # bus = smbus.SMBus(1) # 0 = /dev/i2c-0 (port I2C0), 1 = /dev/i2c-1 (port I2C1)
+        #     # address = 0x36
+        #     # read = bus.read_word_data(address, 2)
+        #     # swapped = struct.unpack("<H", struct.pack(">H", read))[0]
+        #     # self.state = round(swapped * 1.25 /1000/16,2)
+        #     self.state = 4.00
+
+        # - platform: python_script
+        #   name: ups_battery_capacity
+        #   unit_of_measurement: '%'
+        #   scan_interval: '00:01:00'
+        #   source: |
+        #     # import struct
+        #     # import smbus as smbus
+        #     # import sys
+        #     # bus = smbus.SMBus(1) # 0 = /dev/i2c-0 (port I2C0), 1 = /dev/i2c-1 (port I2C1)
+        #     # address = 0x36
+        #     # read = bus.read_word_data(address, 4)
+        #     # swapped = struct.unpack("<H", struct.pack(">H", read))[0]
+        #     # self.state = round(swapped/256)
+        #     self.state = 100
 
         - platform: python_script
           name: rpi_ac_power_status

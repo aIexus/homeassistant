@@ -175,7 +175,7 @@ views:
                - entity: sensor.last_boot_custom
                  name: Last boot
                - entity: sensor.online_custom
-               - entity: binary_sensor.updater
+               - entity: update.home_assistant_core_update
                - entity: sensor.hacs
 
            - type: entities
