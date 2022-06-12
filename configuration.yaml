@@ -8,17 +8,24 @@ homeassistant:
   packages: !include_dir_merge_named includes/packages
   customize: !include includes/customize.yaml
   allowlist_external_dirs: "/config/files/"
-    
+
 # Configure a default setup of Home Assistant (frontend, api, etc)
 default_config:
 
 lovelace:
   mode: yaml
+  resources:
+    - url: /hacsfiles/lovelace-auto-entities/auto-entities.js
+      type: module
+    - url: /hacsfiles/lovelace-multiple-entity-row/multiple-entity-row.js
+      type: module
 
 # Text to speech
 tts:
 
     - platform: google_translate
+
+smartir:
 
 # Include External Files
 binary_sensor: !include includes/binary_sensors.yaml
@@ -35,7 +42,6 @@ sensor: !include_dir_merge_list includes/sensors
 automation: !include_dir_merge_list includes/automation
 
 #Telegram-bot
-
 telegram_bot:
     - platform: polling
       api_key: !secret telegramm_bot_token

@@ -1,14 +1,31 @@
   - platform: file
-    name: ups_battery_voltage
-    unit_of_measurement: 'V'
-    scan_interval: '00:01:00'
+    name: file_battery_voltage
+    scan_interval: '00:02:00'
     file_path: /config/files/ups_battery_voltage.txt
 
+
   - platform: file
-    name: ups_battery_capacity
-    unit_of_measurement: '%'
-    scan_interval: '00:01:00'
+    name: file_battery_capacity
+    scan_interval: '00:03:00'
     file_path: /config/files/ups_battery_capacity.txt
+
+  - platform: file
+    name: file_ac_power_status
+    scan_interval: '00:00:30'
+    file_path: /config/files/rpi_ac_power_status.txt
+
+  - platform: template
+    sensors:
+      ups_battery_voltage:
+        friendly_name: "Напряжение на батареи UPS"
+        unit_of_measurement: 'V'
+        value_template: '{{ states("sensor.file_battery_voltage") }}'
+        device_class: voltage
+      ups_battery_capacity:
+        friendly_name: "Уровень заряда батареи UPS"
+        unit_of_measurement: '%'
+        value_template: '{{ states("sensor.file_battery_capacity") }}'
+        device_class: battery
 
   - platform: time_date
     display_options:
@@ -43,14 +60,14 @@
       - type: network_out
         arg: wlan0
       - type: last_boot
-      
-  - platform: sql
-    db_url: mysql://homeassistant:homeassistant@core-mariadb/homeassistant?charset=utf8
-    queries: 
-      - name: Maria DB size
-        query: 'SELECT table_schema "database", Round(Sum(data_length + index_length) / 1048576, 2) "value" FROM information_schema.tables WHERE table_schema="homeassistant" GROUP BY table_schema;'
-        column: 'value'
-        unit_of_measurement: MB 
+
+#   - platform: sql
+    # db_url: mysql://homeassistant:homeassistant@core-mariadb/homeassistant?charset=utf8
+    # queries: 
+    #   - name: Maria DB size
+        # query: 'SELECT table_schema "database", Round(Sum(data_length + index_length) / 1048576, 2) "value" FROM information_schema.tables WHERE table_schema="homeassistant" GROUP BY table_schema;'
+        # column: 'value'
+        # unit_of_measurement: MB 
 
 # Время с последней перезагрузки
   - platform: template

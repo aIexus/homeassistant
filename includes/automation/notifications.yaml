@@ -105,7 +105,7 @@
     - alias: rpi_ac_power_failure_notification
       trigger:
         - platform: state
-          entity_id: sensor.rpi_ac_power_status
+          entity_id: binary_sensor.rpi_ac_power_status
       condition: []
       action:
         - service: notify.alexus
@@ -113,7 +113,7 @@
             title: '{{"\U000026A0"}} ВНИМАНИЕ{{"\U0000203C"}}'
             message: |
               ➖➖➖➖➖➖➖➖➖➖➖➖
-              Внешнее питание: {{"\U0001F50C"}} {% if is_state("sensor.rpi_ac_power_status", "OK") %}Подключено{% else %}Отключено{% endif %}
+              Внешнее питание: {{"\U0001F50C"}} {% if is_state("binary_sensor.rpi_ac_power_status", "on") %}Подключено{% else %}Отключено{% endif %}
 
     - alias: ups_battery_low_level_notification
       trigger:
@@ -132,7 +132,7 @@
             message: |
               ➖➖➖➖➖➖➖➖➖➖➖➖
               Низкий уровень заряда батареи UPS: {{ states("sensor.ups_battery_capacity") }}% / {{ states("sensor.ups_battery_voltage") }}V {{"\U0000203C"}}
-              Внешнее питание: {{"\U0001F50C"}} {% if is_state("sensor.rpi_ac_power_status", "OK") %}Подключено{% else %}Отключено{% endif %}
+              Внешнее питание: {{"\U0001F50C"}} {% if is_state("binary_sensor.rpi_ac_power_status", "on") %}Подключено{% else %}Отключено{% endif %}
               
               {{"\U0000203C"}}Через некоторое время сервер RPi будет остановлен{{"\U0000203C"}}
 
@@ -152,7 +152,7 @@
             message: |
               ➖➖➖➖➖➖➖➖➖➖➖➖
               Батарея UPS полностью заряжена: {{ states("sensor.ups_battery_capacity") }}% / {{ states("sensor.ups_battery_voltage") }}V{{"\U0000203C"}}
-              Внешнее питание: {{"\U0001F50C"}} {% if is_state("sensor.rpi_ac_power_status", "OK") %}Подключено{% else %}Отключено{% endif %}
+              Внешнее питание: {{"\U0001F50C"}} {% if is_state("binary_sensor.rpi_ac_power_status", "on") %}Подключено{% else %}Отключено{% endif %}
 
     - alias: corridor_notify_entrance_door_opened_no_one_at_home
       description: 'Тревога - входная дверь открылась, но дома никого нет'

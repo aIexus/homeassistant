@@ -120,6 +120,9 @@
           - platform: state
             entity_id: binary_sensor.bedroom_auto_light_off_sensor
             to: 'off'
+          - platform: state
+            entity_id: input_boolean.disable_occupancy
+            to: 'on'
           action:
           - service: timer.cancel
             entity_id: timer.bedroom_light_off_timer
@@ -175,6 +178,9 @@
           - platform: state
             entity_id: binary_sensor.living_room_auto_light_off_sensor
             to: 'off'
+          - platform: state
+            entity_id: input_boolean.disable_occupancy
+            to: 'on'
           action:
           - service: timer.cancel
             entity_id: timer.living_room_light_off_timer

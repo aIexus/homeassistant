@@ -16,3 +16,7 @@
       - climate.bedroom_heater
       - climate.kitchen_heater
       - climate.living_room_heater
+
+    Air_Conditioners:
+      - climate.living_room_ac
+      - climate.bedroom_ac

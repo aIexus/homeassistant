@@ -49,14 +49,14 @@ telegram:
               message: |
                 {{"\U0001F4C5"}} {{ states("sensor.date") }} {{"\U0001F551"}} {{ states("sensor.time") }}
                 ➖➖➖➖➖➖➖➖➖➖➖➖
-                {{"\U0001F50C"}} RPi Power status: {% if states("binary_sensor.rpi_power_status") == 'off' %}OK{% else%}Problem{% endif %}
+                {{"\U0001F4BB"}} RPi Power status: {% if is_state("binary_sensor.rpi_ac_power_status",'on') %}{{"\U0001F50C"}}{% else%}{{"\U0001F50B"}}{% endif %}
                 {{"\U0001F4C6"}} RPi Last Boot: {{ states("sensor.last_boot_custom") }} ago
                 {{"\U0001F199"}} HA Uptime: {{ states("sensor.online_custom") }}
                 {{"\U0001F4C5"}} Last Success BackUp: {{ states("sensor.last_google_backup_train") }}
 
                 {{"\U0001F50B"}} UPS Battery Status: ({% if is_state("binary_sensor.ups_battery_low","off") %}OK{%else%}Low{{"\U0000203C"}}{%endif%}) {{ states("sensor.ups_battery_capacity") }}% / {{ states("sensor.ups_battery_voltage") }}V
                 
-                CPU: {{"\U0001F321"}} {{ states("sensor.processor_temperature") }}{{"\U00002103"}}, Loading: {{ states("sensor.processor_use") }}{{"\U00000025"}}
+                CPU: {{"\U0001F321"}} {{ states("sensor.processor_temperature") }}{{"\U00002103"}}, {{"\U0001F4C8"}}: {{ states("sensor.processor_use") }}{{"\U00000025"}}
                 RAM: {{ states("sensor.memory_use_percent") }}{{"\U00000025"}} Usage
                 SSD: {{ states("sensor.disk_use_percent") }}{{"\U00000025"}} Usage, {{ states("sensor.disk_free") }} Gb Free
                 
@@ -80,26 +80,32 @@ telegram:
               message: |
                 Показатели климата в квартире:
                 ➖➖➖➖➖➖➖➖➖➖➖➖
-                Гостинная: 
-                - {{"\U0001F321"}}: {{ states("sensor.living_room_lumi_weather_temperature") }}{{"\U00002103"}}   {{"\U0001F4A6"}}: {{ states("sensor.living_room_lumi_weather_humidity") }} % 
-                - {{"\U0001F525"}}: {{ states("switch.living_room_socket_heating") }}          {{"\U0001F4C8"}}: {{ states("sensor.living_room_socket_heating_energy")}} kWh
-                - {{"\U0001F50C"}}: ({{ states("sensor.living_room_socket_heating_voltage") }} V | {{ states("sensor.living_room_socket_heating_current") }} A | {{ states("sensor.living_room_socket_heating_power") }} W)
-                
-                Спальня: 
-                - {{"\U0001F321"}}: {{ states("sensor.bedroom_lumi_weather_temperature") }}{{"\U00002103"}}   {{"\U0001F4A6"}}: {{ states("sensor.bedroom_lumi_weather_humidity") }} %, 
-                - {{"\U0001F525"}}: {{ states("switch.bedroom_socket_heating") }}          {{"\U0001F4C8"}}: {{ states("sensor.bedroom_socket_heating_energy")}} kWh
-                - {{"\U0001F50C"}}: ({{ states("sensor.bedroom_socket_heating_voltage") }} V | {{ states("sensor.bedroom_socket_heating_current") }} A | {{ states("sensor.bedroom_socket_heating_power") }} W)
-                
-                Кухня:
-                - {{"\U0001F321"}}: {{ states("sensor.kitchen_lumi_weather_temperature") }}{{"\U00002103"}}   {{"\U0001F4A6"}}: {{ states("sensor.kitchen_lumi_weather_humidity") }} %, 
-                - {{"\U0001F525"}}: {{ states("switch.kitchen_socket_heating") }}          {{"\U0001F4C8"}}: {{ states("sensor.kitchen_socket_heating_energy")}} kWh
-                - {{"\U0001F50C"}}: ({{ states("sensor.kitchen_socket_heating_voltage") }} V | {{ states("sensor.kitchen_socket_heating_current") }} A | {{ states("sensor.kitchen_socket_heating_power") }} W)
-                
-                Ванная:
-                - {{"\U0001F321"}}: {{ states("sensor.bathroom_lumi_weather_temperature") }}{{"\U00002103"}}   {{"\U0001F4A6"}}: {{ states("sensor.bathroom_lumi_weather_humidity") }} %, 
+                {{"\U0001F6CB"}} Гостинная {{"\U0001F321"}}: {{ states("sensor.living_room_lumi_weather_temperature") | round(1) }}{{"\U00002103"}}   {{"\U0001F4A6"}}: {{ states("sensor.living_room_lumi_weather_humidity") | round(1) }} %
+                {% if is_state('input_boolean.heating_status','on') %}Отопление: {% if state_attr('climate.living_room_heater', 'hvac_action') == "off" %}{{"\U0001F4F4"}}{%endif%}
+                - {{"\U0001F525"}}: {{ states("switch.living_room_socket_heating") }}, >{{"\U0001F321"}}: {{ state_attr('climate.living_room_heater', 'temperature') }}{{"\U00002103"}}
+                - {{"\U0001F50C"}}: ({{ states("sensor.living_room_socket_heating_voltage") }} V | {{ states("sensor.living_room_socket_heating_current") | round(1) }} A | {{ states("sensor.living_room_socket_heating_power") }} W | {{ states("sensor.living_room_socket_heating_meter") | round(1) }} kWh)
+                {% elif is_state('input_boolean.ac_status','on') %}Кондиционер: {% if is_state('climate.living_room_ac', 'off') %}{{"\U0001F4F4"}}{% elif is_state('climate.living_room_ac', 'cool') %}{{"\U00002744"}}{% elif is_state('climate.living_room_ac', 'heat') %}{{"\U0001F525"}}{% elif is_state('climate.living_room_ac', 'dry') %}{{"\U0001F4A7"}}{% else %}{{"\U0001F504"}}{%endif%}
+                - {{"\U0001F321"}}: {{ state_attr('climate.living_room_ac','temperature') }}{{"\U00002103"}} | {{"\U0001F32C"}}: {{ state_attr('climate.living_room_ac','fan_mode') }}
+                - {{"\U0001F50C"}}: ({{ states("sensor.living_room_air_conditioner_socket_voltage") }} V | {{ states("sensor.living_room_air_conditioner_socket_current") | round(1) }} A | {{ states("sensor.living_room_air_conditioner_socket_power") }} W | {{ states("sensor.living_room_air_conditioner_socket_meter") | round(1) }} kWh)
+                {% endif %}
+                {{"\U0001F6CC"}} Спальня {{"\U0001F321"}}: {{ states("sensor.bedroom_lumi_weather_temperature") | round(1) }}{{"\U00002103"}}   {{"\U0001F4A6"}}: {{ states("sensor.bedroom_lumi_weather_humidity") | round(1) }} %
+                {% if is_state('input_boolean.heating_status','on') %}Отопление: {% if state_attr('climate.bedroom_heater', 'hvac_action') == "off" %}{{"\U0001F4F4"}}{%endif%}
+                - {{"\U0001F525"}}: {{ states("switch.bedroom_socket_heating") }}, >{{"\U0001F321"}}: {{ state_attr('climate.bedroom_heater', 'temperature') }}{{"\U00002103"}}
+                - {{"\U0001F50C"}}: ({{ states("sensor.bedroom_socket_heating_voltage") }} V | {{ states("sensor.bedroom_socket_heating_current") | round(1) }} A | {{ states("sensor.bedroom_socket_heating_power") }} W | {{ states("sensor.bedroom_socket_heating_meter") | round(1) }} kWh)
+                {% elif is_state('input_boolean.ac_status','on') %}Кондиционер: {% if is_state('climate.bedroom_ac', 'off') %}{{"\U0001F4F4"}}{% elif is_state('climate.bedroom_ac', 'cool') %}{{"\U00002744"}}{% elif is_state('climate.bedroom_ac', 'heat') %}{{"\U0001F525"}}{% elif is_state('climate.bedroom_ac', 'dry') %}{{"\U0001F4A7"}}{% elif is_state('climate.bedroom_ac', 'fan_only') %}{{"\U0001F32C"}}{% else %}{{"\U0001F504"}}{%endif%}
+                - {{"\U0001F321"}}: {{ state_attr('climate.bedroom_ac','temperature') }}{{"\U00002103"}} | {{"\U0001F32C"}}: {{ state_attr('climate.bedroom_ac','fan_mode') }}
+                - {{"\U0001F50C"}}: ({{ states("sensor.bedroom_air_conditioner_socket_voltage") }} V | {{ states("sensor.bedroom_air_conditioner_socket_current") | round(1) }} A | {{ states("sensor.bedroom_air_conditioner_socket_power") }} W | {{ states("sensor.bedroom_air_conditioner_socket_meter") | round(1) }} kWh)
+                {% endif %}
+                {{"\U0001F37D"}} Кухня {{"\U0001F321"}}: {{ states("sensor.kitchen_lumi_weather_temperature") | round(1) }}{{"\U00002103"}}   {{"\U0001F4A6"}}: {{ states("sensor.kitchen_lumi_weather_humidity") | round(1) }} %
+                {% if is_state('input_boolean.heating_status','on') %}Отопление: {% if state_attr('climate.kitchen_heater', 'hvac_action') == "off" %}{{"\U0001F4F4"}}{%endif%}
+                - {{"\U0001F525"}}: {{ states("switch.kitchen_socket_heating") }}, >{{"\U0001F321"}}: {{ state_attr('climate.kitchen_heater', 'temperature') }}{{"\U00002103"}}
+                - {{"\U0001F50C"}}: ({{ states("sensor.kitchen_socket_heating_voltage") }} V | {{ states("sensor.kitchen_socket_heating_current") | round(1) }} A | {{ states("sensor.kitchen_socket_heating_power") }} W | {{ states("sensor.kitchen_socket_heating_meter") | round(1) }} kWh)
+                {% endif %}
+                {{"\U0001F6C0"}} Ванная {{"\U0001F321"}}: {{ states("sensor.bathroom_lumi_weather_temperature") | round(1) }}{{"\U00002103"}}   {{"\U0001F4A6"}}: {{ states("sensor.bathroom_lumi_weather_humidity") | round(1) }} %
 
-                Лоджия:
-                - {{"\U0001F321"}}: {{ states("sensor.loggia_tuya_weather_temperature") }}{{"\U00002103"}}   {{"\U0001F4A6"}}: {{ states("sensor.loggia_tuya_weather_humidity") }} %, 
+                {{"\U0001FA9F"}} Лоджия {{"\U0001F321"}}: {{ states("sensor.loggia_tuya_weather_temperature") | round(1) }}{{"\U00002103"}}   {{"\U0001F4A6"}}: {{ states("sensor.loggia_tuya_weather_humidity") | round(1) }} %
+                ➖➖➖➖➖➖➖➖➖➖➖➖
+                {{"\U0001F3DE"}} Улица {{"\U0001F321"}}: {{ states("sensor.outdoor_temperature") | round(1) }}{{"\U00002103"}}   {{"\U0001F4A6"}}: {{ states("sensor.outdoor_humidity") | round(1) }} %
 
               data: 
                 inline_keyboard:  
@@ -119,11 +125,11 @@ telegram:
               message: |
                 Освещение в квартире {{"\U0001F4A1"}}:
                 ➖➖➖➖➖➖➖➖➖➖➖➖
-                Гостинная: {% if is_state("switch.living_room_light_switch","on") %}{{"\U00002705"}} Включено{% else %}{{"\U0000274C"}} Выключено{% endif %}
-                Спальня: {% if is_state("switch.bedroom_light_switch","on") %}{{"\U00002705"}} Включено{% else %}{{"\U0000274C"}} Выключено{% endif %}
-                Кухня:
-                Ванная:
-                Коридор:
+                {{"\U0001F6CB"}} Гостинная: {% if is_state("switch.living_room_light_switch","on") %}{{"\U00002705"}} Включено{% else %}{{"\U0000274C"}} Выключено{% endif %}
+                {{"\U0001F6CC"}} Спальня: {% if is_state("switch.bedroom_light_switch","on") %}{{"\U00002705"}} Включено{% else %}{{"\U0000274C"}} Выключено{% endif %}
+                {{"\U0001F37D"}} Кухня:
+                {{"\U0001F6C0"}} Ванная:
+                {{"\U0001F6AA"}} Коридор:
                 ➖➖➖➖➖➖➖➖➖➖➖➖
                 Переключить или вернуться в главное меню?
               data:
@@ -195,23 +201,23 @@ telegram:
               message: |
                 {{"\U0001F6E1"}} Безопасность в квартире:
                 ➖➖➖➖➖➖➖➖➖➖➖➖
-                {{"\U0001F3D8"}} Входная дверь: {% if is_state("binary_sensor.corridor_entrance_door_contact","off") %}Закрыта {{"\U0001F512"}}{%else%}Открыта {{"\U0001F513"}}{%endif%}
+                {{"\U0001F3D8"}} Присутствие: {% if is_state("group.family","home") %}{{"\U0001F468\U0000200D\U0001F469\U0000200D\U0001F466\U0000200D\U0001F466"}} Дома {%else%}Не дома {%endif%}
 
+                {{"\U0001F6AA"}} Входная дверь: {% if is_state("binary_sensor.corridor_entrance_door_contact","off") %}Закрыта {{"\U0001F512"}}{%else%}Открыта {{"\U0001F513"}}{%endif%}
                 {{"\U0001F6AA"}} Дверь в Гостинной на Лоджию: {% if is_state("binary_sensor.living_room_loggia_door_contact","off") %}Закрыта {{"\U0001F512"}}{%else%}Открыта {{"\U0001F513"}}{%endif%}
 
                 {{"\U0001FA9F"}} Окно в Спальне: 
                 - Левая  створка: {% if is_state("binary_sensor.bedroom_window_left_contact","off") %}Закрыта {{"\U0001F512"}}{%else%}Открыта {{"\U0001F513"}}{%endif%}
                 - Правая створка: {% if is_state("binary_sensor.bedroom_window_right_contact","off") %}Закрыта {{"\U0001F512"}}{%else%}Открыта {{"\U0001F513"}}{%endif%}
-
                 {{"\U0001FA9F"}} Окно в Кухне: {% if is_state("binary_sensor.kitchen_window_contact","off") %}Закрыто {{"\U0001F512"}}{%else%}Открыто {{"\U0001F513"}}{%endif%}
                 
-                {{"\U0001F4A7"}} Датчики протечки в Ванной:  
-                - под ванной {{"\U0001F6C1"}}: {% if is_state("binary_sensor.bathroom_water_leak_under_the_bath_water_leak","off") %}Сухо {{"\U00002714"}}{%else%}{{"\U000026A0"}} Протечка{{"\U0000203C"}}{%endif%}
-                - под машинкой {{"\U0001F9FA"}}: {% if is_state("binary_sensor.bathroom_water_leak_under_washing_machine_water_leak","off") %}Сухо {{"\U00002714"}}{%else%}{{"\U000026A0"}} Протечка{{"\U0000203C"}}{%endif%} 
+                {{"\U0001F6B1"}} Датчики протечки 
+                - в Ванной {{"\U0001F4A7"}}:
+                  - под ванной {{"\U0001F6C1"}}: {% if is_state("binary_sensor.bathroom_water_leak_under_the_bath_water_leak","off") %}Сухо {{"\U00002705"}}{%else%}{{"\U000026A0"}} Протечка{{"\U0000203C"}}{%endif%}
+                  - под машинкой {{"\U0001F9FA"}}: {% if is_state("binary_sensor.bathroom_water_leak_under_washing_machine_water_leak","off") %}Сухо {{"\U00002705"}}{%else%}{{"\U000026A0"}} Протечка{{"\U0000203C"}}{%endif%} 
+                - в Кухне {{"\U0001F37D"}}: {% if is_state("binary_sensor.kitchen_water_leak_sensor_water_leak","off") %}Сухо {{"\U00002705"}}{%else%}{{"\U000026A0"}} Протечка{{"\U0000203C"}}{%endif%}
 
-                {{"\U0001F4A7"}} Датчик протечки в Кухне: {% if is_state("binary_sensor.kitchen_water_leak_sensor_water_leak","off") %}Сухо {{"\U00002714"}}{%else%}{{"\U000026A0"}} Протечка{{"\U0000203C"}}{%endif%}
-
-                {{"\U0001F6AD"}} Детектор Дыма в Кухне: {% if is_state("binary_sensor.kitchen_smoke_detector_smoke","off") %}Без Дыма {{"\U00002714"}}{%else%}{{"\U000026A0"}} Дым Обнаружен{{"\U0000203C"}}{%endif%}
+                {{"\U0001F6AD"}} Детектор Дыма в Кухне: {% if is_state("binary_sensor.kitchen_smoke_detector_smoke","off") %}Без Дыма {{"\U00002705"}}{%else%}{{"\U000026A0"}} Дым Обнаружен{{"\U0000203C"}}{%endif%}
               data: 
                 inline_keyboard:  
                   - "Статус:/status, Климат:/climate, Освещение:/lights"

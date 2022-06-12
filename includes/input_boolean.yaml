@@ -13,7 +13,7 @@
 
     disable_climate:
       name: Disable Climate Automation
-      icon: mdi:thermostat-box
+      icon: mdi:hvac-off
 
     disable_startup_notifications:
       name: Disable Startup Notifications
@@ -27,6 +27,10 @@
       name: Enable Manual Control of Heaters
       icon: mdi:radiator
 
+    enable_manual_control_ac:
+      name: 'Enable Manual Control of A/C'
+      icon: mdi:air-conditioner
+
     enable_manual_control_lights:
       name: Enable Manual Control of Lights
       icon: mdi:lightbulb-group-outline
@@ -36,8 +40,20 @@
       icon: mdi:fishbowl-outline
 
     heating_status:
-      name: Heating status
+      name: Heating Status
       icon: mdi:radiator
+
+    ac_status:
+      name: 'A/C Status'
+      icon: mdi:air-conditioner
+
+    bedroom_ac_status:
+      name: 'Bedroom A/C Status'
+      icon: mdi:toggle-switch-off-outline
+
+    living_room_ac_status:
+      name: 'Living Room A/C Status'
+      icon: mdi:toggle-switch-off-outline
 
     # enable_manual_control_garlands:
     #   name: Enable Manual Control of Garlands

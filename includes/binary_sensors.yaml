@@ -4,9 +4,6 @@
           device_class: occupancy
           friendly_name: 'Anyone Home'
           value_template: "{{ states.person | selectattr('state','eq','home') | list | count > 0 }}"
-
-    - platform: template
-      sensors:
         ups_battery_low:
           device_class: problem
           friendly_name: "Состояние батареи UPS"
@@ -24,3 +21,17 @@
             {% else %}
             mdi:battery-high
             {% endif %}
+        rpi_ac_power_status:
+          device_class: power
+          friendly_name: "Источник внешнего питания"
+          value_template: '{{ states("sensor.file_ac_power_status") }}'
+
+    - platform: threshold
+      entity_id: sensor.bedroom_air_conditioner_socket_power
+      upper: 8
+      name: bedroom_air_conditioner_socket_power
+
+    - platform: threshold
+      entity_id: sensor.living_room_air_conditioner_socket_power
+      upper: 8
+      name: living_room_air_conditioner_socket_power

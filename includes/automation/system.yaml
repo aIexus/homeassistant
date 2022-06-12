@@ -21,11 +21,13 @@
     - service: homeassistant.turn_off
       target:
         entity_id:
+          - switch.bedroom_air_conditioner_socket
           - switch.bedroom_light_switch
           - switch.bedroom_socket_heating
-          - switch.kitchen_socket_heating
+          - switch.living_room_air_conditioner_socket
           - switch.living_room_aquarium_main_lighting
           - switch.living_room_aquarium_moonlight
-          - switch.living_room_light_switch
           - switch.living_room_socket_heating
-          - switch.tuya_socket_plug_1
+          - switch.living_room_light_switch
+          - switch.kitchen_socket_heating
+

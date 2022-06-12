@@ -54,3 +54,21 @@
       minutes: 3
     initial_hvac_mode: "heat"
     precision: 0.1
+
+  - platform: smartir
+    name: Bedroom AC
+    unique_id: bedroom_ac
+    device_code: 1180
+    controller_data: remote.broadlink_bedroom_rm4mini_remote
+    temperature_sensor: sensor.bedroom_lumi_weather_temperature
+    humidity_sensor: sensor.bedroom_lumi_weather_humidity
+    power_sensor: binary_sensor.bedroom_air_conditioner_socket_power
+
+  - platform: smartir
+    name: Living Room AC
+    unique_id: living_room_ac
+    device_code: 1385
+    controller_data: remote.broadlink_living_room_rm4mini_remote
+    temperature_sensor: sensor.living_room_lumi_weather_temperature
+    humidity_sensor: sensor.living_room_lumi_weather_humidity
+    power_sensor: binary_sensor.living_room_air_conditioner_socket_power

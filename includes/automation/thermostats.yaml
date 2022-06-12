@@ -1,3 +1,5 @@
+# =================== Heaters Automations ===================
+
     - alias: climate_turn_on_heaters
       description: 'Включение обогревателей'
       trigger:
@@ -9,8 +11,43 @@
           entity_id: group.heaters
           state: 'off'
       action:
-        - service: homeassistant.turn_on
-          entity_id: group.heaters
+        - choose: # living_room
+            - conditions:
+                - condition: state
+                  entity_id: binary_sensor.living_room_loggia_door_contact
+                  state: 'off'
+              sequence: 
+                - service: climate.turn_on
+                  entity_id: climate.living_room_heater
+        - choose: # kitchen
+            - conditions: 
+                - condition: state
+                  entity_id: binary_sensor.kitchen_window_contact
+                  state: 'off'
+              sequence:
+                - service: climate.turn_on
+                  entity_id: climate.kitchen_heater
+        - choose: # bedroom
+            - conditions:
+                - condition: and
+                  conditions: 
+                    - condition: state
+                      entity_id: binary_sensor.bedroom_window_right_contact
+                      state: 'off'
+                    - condition: state
+                      entity_id: binary_sensor.bedroom_window_left_contact
+                      state: 'off'
+              sequence:
+                - service: climate.turn_on
+                  entity_id: climate.bedroom_heater
+        - choose: # check A/C to be off
+            - conditions:
+                - condition: state
+                  entity_id: input_boolean.ac_status
+                  state: 'on'
+              sequence: 
+                - service: input_boolean.turn_off
+                  entity_id: input_boolean.ac_status
 
     - alias: climate_turn_off_heaters
       description: 'Выключение обогревателей'
@@ -18,13 +55,16 @@
         - platform: state
           entity_id: input_boolean.heating_status
           to: 'off'
-      condition:
-        - condition: state
-          entity_id: group.heaters
-          state: 'on'
+    #   condition:
+    #     - condition: state
+    #       entity_id: group.heaters
+    #       state: 'on'
       action:
-        - service: homeassistant.turn_off
+        - service: climate.turn_off
           entity_id: group.heaters
+        # Enable A/C
+        - service: input_boolean.turn_on
+          entity_id: input_boolean.ac_status
 
     - alias: climate_winter_turn_on_heaters
       description: 'Наступила зима, обогреватели включены'
@@ -39,11 +79,8 @@
         - condition: state
           entity_id: input_boolean.heating_status
           state: 'off'
-        # - condition: state
-        #   entity_id: group.heaters
-        #   state: 'off'
       action:
-        - service: homeassistant.turn_on
+        - service: input_boolean.turn_on
           entity_id: input_boolean.heating_status
         - condition: state
           entity_id: input_boolean.disable_climate_notifications
@@ -68,11 +105,8 @@
         - condition: state
           entity_id: input_boolean.heating_status
           state: 'on'
-        # - condition: state
-        #   entity_id: group.heaters
-        #   state: 'on'
       action:
-        - service: homeassistant.turn_off
+        - service: input_boolean.turn_off
           entity_id: input_boolean.heating_status
         - condition: state
           entity_id: input_boolean.disable_climate_notifications
@@ -88,14 +122,11 @@
       description: 'Включение термостатов отопления весной/осенью при наружной температуре ниже 15'
       trigger:
         - platform: numeric_state
-          entity_id: sensor.outdoor_temperature
-          below: 15
+          entity_id: sensor.outdoor_mean_temperature
+          below: 10
           for:
             hours: 3
       condition:
-        # - condition: state
-        #   entity_id: group.heaters
-        #   state: 'off'
         - condition: state
           entity_id: input_boolean.disable_climate
           state: 'off'
@@ -111,7 +142,7 @@
             entity_id: sensor.season
             state: 'autumn'
       action:
-        - service: homeassistant.turn_on
+        - service: input_boolean.turn_on
           entity_id: input_boolean.heating_status
         - condition: state
           entity_id: input_boolean.disable_climate_notifications
@@ -127,14 +158,11 @@
       description: 'Выключение термостатов отопления весной/осенью при наружной температуре выше 15'
       trigger:
         - platform: numeric_state
-          entity_id: sensor.outdoor_temperature
-          above: 15
+          entity_id: sensor.outdoor_mean_temperature
+          above: 10
           for:
-            hours: 6
+            hours: 3
       condition:
-        # - condition: state
-        #   entity_id: group.heaters
-        #   state: 'on'
         - condition: state
           entity_id: input_boolean.disable_climate
           state: 'off'
@@ -150,7 +178,7 @@
             entity_id: sensor.season
             state: 'autumn'
       action:
-        - service: homeassistant.turn_off
+        - service: input_boolean.turn_off
           entity_id: input_boolean.heating_status
         - condition: state
           entity_id: input_boolean.disable_climate_notifications
@@ -163,7 +191,7 @@
               Наружная температура выше 15{{"\U00002103"}}, обогреватели отключены.
 
     - alias: climate_heating_thermostats_away
-      description: 'Переключение термостатов отопления в режим - away'
+      description: 'Переключение термостатов в режим - away'
       trigger:
       - entity_id: group.family
         platform: state
@@ -175,12 +203,6 @@
         - condition: state
           entity_id: input_boolean.disable_climate
           state: 'off'
-        - condition: state
-          entity_id: input_boolean.heating_status
-          state: 'on'
-        # - condition: state
-        #   entity_id: group.heaters
-        #   state: 'on'
         - condition: not
           conditions:
           - condition: state
@@ -189,10 +211,7 @@
       action:
         - service: climate.set_preset_mode
           target:
-            entity_id: 
-              - climate.bedroom_heater
-              - climate.kitchen_heater
-              - climate.living_room_heater
+            entity_id: group.heaters
           data:
             preset_mode: 'away'
         - condition: state
@@ -207,7 +226,7 @@
               Обогреватели переключены в режим экономии ({{ state_attr("climate.living_room_heater","temperature") }}{{"\U00002103"}}).
 
     - alias: climate_heating_thermostats_home
-      description: 'Переключение термостатов отопления в режим - home'
+      description: 'Переключение термостатов в режим - home'
       trigger:
       - entity_id: group.family
         platform: state
@@ -220,21 +239,12 @@
           entity_id: input_boolean.disable_climate
           state: 'off'
         - condition: state
-          entity_id: input_boolean.heating_status
-          state: 'on'
-        # - condition: state
-        #   entity_id: group.heaters
-        #   state: 'on'
-        - condition: state
           entity_id: group.family
           state: 'home'
       action:
         - service: climate.set_preset_mode
           target:
-            entity_id: 
-              - climate.bedroom_heater
-              - climate.kitchen_heater
-              - climate.living_room_heater
+            entity_id: group.heaters 
           data:
             preset_mode: 'none'
         - condition: state
@@ -468,3 +478,557 @@
               ➖➖➖➖➖➖➖➖➖➖➖➖
               Обогреватель в Спальне включен{{"\U0000203C"}}
 
+    - alias: climate_heaters_settings_on_statrup
+      description: 'Установки термостатов при старте системы'
+      trigger: 
+        - platform: homeassistant
+          event: start
+      condition: 
+        - condition: state
+          entity_id: input_boolean.disable_climate
+          state: 'off'
+      action:
+        - service: automation.trigger
+          entity_id: automation.climate_turn_off_heaters
+        - condition: state
+          entity_id: input_boolean.heating_status
+          state: 'on'
+        - delay: 
+            minutes: 3
+        - service: automation.trigger
+          entity_id: automation.climate_turn_on_heaters
+
+# =================== A/C Automations ===================
+
+    - alias: climate_enable_ac
+      description: 'Использование кондиционирования разрешено'
+      trigger:
+        - platform: state
+          entity_id: input_boolean.ac_status
+          to: 'on'
+      action:
+        - choose: # check if Heating to be off
+            - conditions:
+                - condition: state
+                  entity_id: input_boolean.heating_status
+                  state: 'on'
+              sequence: 
+                - service: input_boolean.turn_off
+                  entity_id: input_boolean.heating_status
+
+    - alias: climate_turn_on_ac
+      description: 'Включение кондиционеров при температуре в помещении выше 26'
+      trigger:
+        - platform: time_pattern
+          minutes: "/5"
+      condition:
+        - condition: time
+          after: "08:00:00"
+          before: "23:00:00"
+        - condition: or
+          conditions:
+            - condition: numeric_state
+              entity_id: sensor.living_room_lumi_weather_temperature
+              above: 26
+            - condition: numeric_state
+              entity_id: sensor.bedroom_lumi_weather_temperature
+              above: 26
+        - condition: state
+          entity_id: input_boolean.disable_climate
+          state: 'off'
+        - condition: state
+          entity_id: input_boolean.ac_status
+          state: 'on'
+        - condition: state
+          entity_id: group.family
+          state: 'home'
+      action:
+        - choose: # living_room
+            - conditions:
+                - condition: state
+                  entity_id: binary_sensor.living_room_loggia_door_contact
+                  state: 'off'
+                - condition: state
+                  entity_id: binary_sensor.living_room_air_conditioner_socket_power
+                  state: 'off'
+                - condition: numeric_state
+                  entity_id: sensor.living_room_lumi_weather_temperature
+                  above: 26
+              sequence: 
+                - service: switch.turn_on
+                  entity_id: switch.living_room_air_conditioner_socket
+                - delay: 20
+                - service: climate.turn_on
+                  entity_id: climate.living_room_ac
+                - condition: state
+                  entity_id: input_boolean.disable_climate_notifications
+                  state: 'off'
+                - service: notify.alexus
+                  data:
+                    title: '{{"\U0001F975"}} Жарко{{"\U0000203C"}}'
+                    message: |
+                      ➖➖➖➖➖➖➖➖➖➖➖➖
+                      Температура в Гостинной {{ states("sensor.living_room_lumi_weather_temperature") | round(1) }}{{"\U00002103"}}, кондиционер включен{{"\U0000203C"}}
+        - choose: # bedroom
+            - conditions:
+                - condition: and
+                  conditions: 
+                    - condition: state
+                      entity_id: binary_sensor.bedroom_window_right_contact
+                      state: 'off'
+                    - condition: state
+                      entity_id: binary_sensor.bedroom_window_left_contact
+                      state: 'off'
+                - condition: state
+                  entity_id: binary_sensor.bedroom_air_conditioner_socket_power
+                  state: 'off'
+                - condition: numeric_state
+                  entity_id: sensor.bedroom_lumi_weather_temperature
+                  above: 26
+              sequence:
+                - service: switch.turn_on
+                  entity_id: switch.bedroom_air_conditioner_socket
+                - delay: 20
+                - service: climate.turn_on
+                  entity_id: climate.bedroom_ac
+                - condition: state
+                  entity_id: input_boolean.disable_climate_notifications
+                  state: 'off'
+                - service: notify.alexus
+                  data:
+                    title: '{{"\U0001F975"}} Жарко{{"\U0000203C"}}'
+                    message: |
+                      ➖➖➖➖➖➖➖➖➖➖➖➖
+                      Температура в Спальне {{ states("sensor.bedroom_lumi_weather_temperature") | round(1) }}{{"\U00002103"}}, кондиционер включен{{"\U0000203C"}}
+
+    - alias: climate_turn_off_ac
+      description: 'Выключение кондиционеров при внутренней температуре ниже 24'
+      trigger:
+        - platform: time_pattern
+          minutes: "/5"
+      condition:
+        - condition: time
+          after: "08:00:00"
+          before: "23:00:00"
+        - condition: or
+          conditions:
+            - condition: numeric_state
+              entity_id: sensor.living_room_lumi_weather_temperature
+              below: 24
+            - condition: numeric_state
+              entity_id: sensor.bedroom_lumi_weather_temperature
+              below: 24
+        - condition: state
+          entity_id: input_boolean.disable_climate
+          state: 'off'
+        - condition: state
+          entity_id: input_boolean.ac_status
+          state: 'on'
+        - condition: state
+          entity_id: group.air_conditioners
+          state: 'on'
+      action:
+        - choose: # living_room
+            - conditions:
+                - condition: state
+                  entity_id: binary_sensor.living_room_air_conditioner_socket_power
+                  state: 'on'
+                - condition: numeric_state
+                  entity_id: sensor.living_room_lumi_weather_temperature
+                  below: 24
+              sequence: 
+                - service: climate.turn_off
+                  entity_id: climate.living_room_ac
+                - delay: 20
+                - service: switch.turn_off
+                  entity_id: switch.living_room_air_conditioner_socket
+                - service: input_boolean.turn_off
+                  entity_id: input_boolean.living_room_ac_status
+                - condition: state
+                  entity_id: input_boolean.disable_climate_notifications
+                  state: 'off'
+                - service: notify.alexus
+                  data:
+                    title: '{{"\U0001F976"}} Прохладно{{"\U0000203C"}}'
+                    message: |
+                      ➖➖➖➖➖➖➖➖➖➖➖➖
+                      Температура в Гостинной {{ states("sensor.living_room_lumi_weather_temperature") | round(1) }}{{"\U00002103"}}, кондиционер выключен{{"\U0000203C"}}
+        - choose: # bedroom
+            - conditions:
+                - condition: state
+                  entity_id: binary_sensor.bedroom_air_conditioner_socket_power
+                  state: 'on'
+                - condition: numeric_state
+                  entity_id: sensor.bedroom_lumi_weather_temperature
+                  below: 24
+              sequence:
+                - service: climate.turn_off
+                  entity_id: climate.bedroom_ac
+                - delay: 20
+                - service: switch.turn_off
+                  entity_id: switch.bedroom_air_conditioner_socket
+                - service: input_boolean.turn_off
+                  entity_id: input_boolean.bedroom_ac_status
+                - condition: state
+                  entity_id: input_boolean.disable_climate_notifications
+                  state: 'off'
+                - service: notify.alexus
+                  data:
+                    title: '{{"\U0001F976"}} Прохладно{{"\U0000203C"}}'
+                    message: |
+                      ➖➖➖➖➖➖➖➖➖➖➖➖
+                      Температура в Спальне {{ states("sensor.bedroom_lumi_weather_temperature") | round(1) }}{{"\U00002103"}}, кондиционер выключен{{"\U0000203C"}}
+
+    - alias: climate_night_turn_off_ac
+      description: 'Выключение кондиционеров на ночь'
+      trigger:
+        - platform: time
+          at: '23:00:00'
+      condition:
+        - condition: state
+          entity_id: input_boolean.disable_climate
+          state: 'off'
+        - condition: state
+          entity_id: input_boolean.ac_status
+          state: 'on'
+        - condition: state
+          entity_id: group.air_conditioners
+          state: 'on'
+      action:
+        - service: climate.turn_off
+          entity_id: group.air_conditioners
+        - delay: 20
+        - service: switch.turn_off
+          target:
+            entity_id: 
+              - switch.bedroom_air_conditioner_socket
+              - switch.living_room_air_conditioner_socket
+        - service: input_boolean.turn_off
+          entity_id:
+            - input_boolean.living_room_ac_status
+            - input_boolean.bedroom_ac_status
+        - condition: state
+          entity_id: input_boolean.disable_climate_notifications
+          state: 'off'
+        - service: notify.alexus
+          data:
+            title: '{{"\U0001F634"}} Спокойной ночи{{"\U0000203C"}}'
+            message: |
+              ➖➖➖➖➖➖➖➖➖➖➖➖
+              Кондиционеры выключены на ночь{{"\U0000203C"}}
+
+    - alias: climate_loggia_door_opened_turn_off_ac
+      description: 'Выключение кондиционера в гостинной при открытой двери на лоджию'
+      trigger:
+        - type: opened
+          platform: device
+          device_id: 19904350a3cc7a64c7db5fe737b6d044
+          entity_id: binary_sensor.living_room_loggia_door_contact
+          domain: binary_sensor
+          for:
+            minutes: 3
+      condition:
+        - condition: time
+          after: "08:00:00"
+          before: "23:00:00"
+        - condition: state
+          entity_id: input_boolean.disable_climate
+          state: 'off'
+        - condition: state
+          entity_id: input_boolean.ac_status
+          state: 'on'
+        - not:
+            - condition: state
+              entity_id: climate.living_room_ac
+              state: 'off'
+      action:
+        - service: input_boolean.turn_on
+          entity_id: input_boolean.living_room_ac_status
+        - service: climate.turn_off
+          entity_id: climate.living_room_ac
+        - delay: 20
+        - service: switch.turn_off
+          entity_id: switch.living_room_air_conditioner_socket
+        - condition: state
+          entity_id: input_boolean.disable_climate_notifications
+          state: 'off'
+        - service: notify.alexus
+          data:
+            title: '{{"\U0001F6AA"}} Открыта дверь на лоджию{{"\U0000203C"}}'
+            message: |
+              ➖➖➖➖➖➖➖➖➖➖➖➖
+              Кондиционер в Гостинной выключен{{"\U0000203C"}}
+              Текущая температура: {{ states("sensor.living_room_lumi_weather_temperature") | round(1) }}{{"\U00002103"}}
+
+    - alias: climate_loggia_door_closed_turn_on_ac
+      description: 'Включение кондиционера в гостинной при закрытой двери на лоджию'
+      trigger:
+        - type: not_opened
+          platform: device
+          device_id: 19904350a3cc7a64c7db5fe737b6d044
+          entity_id: binary_sensor.living_room_loggia_door_contact
+          domain: binary_sensor
+          for:
+            minutes: 1
+      condition:
+        - condition: time
+          after: "08:00:00"
+          before: "23:00:00"
+        - condition: state
+          entity_id: input_boolean.disable_climate
+          state: 'off'
+        - condition: state
+          entity_id: input_boolean.ac_status
+          state: 'on'
+        - condition: state
+          entity_id: climate.living_room_ac
+          state: 'off'
+        - condition: state
+          entity_id: input_boolean.living_room_ac_status
+          state: 'on'
+      action:
+        - service: switch.turn_on
+          entity_id: switch.living_room_air_conditioner_socket
+        - delay: 20
+        - service: climate.turn_on
+          entity_id: climate.living_room_ac
+        - service: input_boolean.turn_off
+          entity_id: input_boolean.living_room_ac_status
+        - condition: state
+          entity_id: input_boolean.disable_climate_notifications
+          state: 'off'
+        - service: notify.alexus
+          data:
+            title: '{{"\U0001F6AA"}} Дверь на лоджию закрыта{{"\U0000203C"}}'
+            message: |
+              ➖➖➖➖➖➖➖➖➖➖➖➖
+              Кондиционер в Гостинной снова включен{{"\U0000203C"}}
+              Текущая температура: {{ states("sensor.living_room_lumi_weather_temperature") | round(1) }}{{"\U00002103"}}
+
+    - alias: climate_bedroom_window_opened_turn_off_ac
+      description: 'Выключение кондициорена в спальне при открытых окнах'
+      trigger:
+        - type: opened
+          platform: device
+          device_id: 2f6082b7e9590a817b9d0c38250da1c2
+          entity_id: binary_sensor.bedroom_window_left_contact
+          domain: binary_sensor
+          for:
+            minutes: 3
+        - type: opened
+          platform: device
+          device_id: 23c37395cdf6111e45519ee000fcd250
+          entity_id: binary_sensor.bedroom_window_right_contact
+          domain: binary_sensor
+          for:
+            minutes: 3
+      condition:
+        - condition: time
+          after: "08:00:00"
+          before: "23:00:00"
+        - condition: state
+          entity_id: input_boolean.disable_climate
+          state: 'off'
+        - condition: state
+          entity_id: input_boolean.ac_status
+          state: 'on'
+        - not:
+            - condition: state
+              entity_id: climate.bedroom_ac
+              state: 'off'
+      action:
+        - service: input_boolean.turn_on
+          entity_id: input_boolean.bedroom_ac_status
+        - service: climate.turn_off
+          entity_id: climate.bedroom_ac
+        - delay: 20
+        - service: switch.turn_off
+          entity_id: switch.bedroom_air_conditioner_socket
+        - condition: state
+          entity_id: input_boolean.disable_climate_notifications
+          state: 'off'
+        - service: notify.alexus
+          data:
+            title: '{{"\U0001FA9F"}}{{"\U0001FA9F"}} Открыто окно в спальне{{"\U0000203C"}}'
+            message: |
+              ➖➖➖➖➖➖➖➖➖➖➖➖
+              Кондиционер в Спальне выключен{{"\U0000203C"}}
+              Текущая температура: {{ states("sensor.bedroom_lumi_weather_temperature") | round(1) }}{{"\U00002103"}}
+
+    - alias: climate_bedroom_windows_closed_turn_on_ac
+      description: 'Включение кондиционера в спальне при закрытых окнах'
+      trigger:
+        - type: not_opened
+          platform: device
+          device_id: 2f6082b7e9590a817b9d0c38250da1c2
+          entity_id: binary_sensor.bedroom_window_left_contact
+          domain: binary_sensor
+          for:
+            minutes: 1
+        - type: not_opened
+          platform: device
+          device_id: 23c37395cdf6111e45519ee000fcd250
+          entity_id: binary_sensor.bedroom_window_right_contact
+          domain: binary_sensor
+          for:
+            minutes: 1
+      condition:
+        - condition: time
+          after: "08:00:00"
+          before: "23:00:00"
+        - condition: state
+          entity_id: input_boolean.disable_climate
+          state: 'off'
+        - condition: state
+          entity_id: input_boolean.ac_status
+          state: 'on'
+        - condition: state
+          entity_id: input_boolean.bedroom_ac_status
+          state: 'on'
+        - condition: and
+          conditions:
+          - condition: state
+            entity_id: binary_sensor.bedroom_window_left_contact
+            state: 'off'
+          - condition: state
+            entity_id: binary_sensor.bedroom_window_right_contact
+            state: 'off'
+        - condition: state
+          entity_id: climate.bedroom_ac
+          state: 'off'
+      action:
+        - service: switch.turn_on
+          entity_id: switch.bedroom_air_conditioner_socket
+        - delay: 20
+        - service: climate.turn_on
+          entity_id: climate.bedroom_ac
+        - service: input_boolean.turn_off
+          entity_id: input_boolean.bedroom_ac_status
+        - condition: state
+          entity_id: input_boolean.disable_climate_notifications
+          state: 'off'
+        - service: notify.alexus
+          data:
+            title: '{{"\U0001FA9F"}}{{"\U0001FA9F"}} Окна в спальне закрыты{{"\U0000203C"}}'
+            message: |
+              ➖➖➖➖➖➖➖➖➖➖➖➖
+              Кондиционер в Спальне снова включен{{"\U0000203C"}}
+              Текущая температура: {{ states("sensor.bedroom_lumi_weather_temperature") | round(1) }}{{"\U00002103"}}
+
+    - alias: climate_ac_turn_off_away
+      description: 'Выключение кондиционеров если никого нет дома'
+      trigger:
+      - entity_id: group.family
+        platform: state
+        to: not_home
+      condition: 
+        - condition: time
+          after: "08:00:00"
+          before: "23:00:00"
+        - condition: state
+          entity_id: input_boolean.disable_home_away
+          state: 'off'
+        - condition: state
+          entity_id: input_boolean.disable_climate
+          state: 'off'
+        - condition: state
+          entity_id: input_boolean.ac_status
+          state: 'on'
+        - condition: state
+          entity_id: group.air_conditioners
+          state: 'on'
+        - condition: not
+          conditions:
+          - condition: state
+            entity_id: group.family
+            state: 'home'
+      action:
+        - service: climate.turn_off
+          entity_id: group.air_conditioners
+        - delay: 20
+        - service: switch.turn_off
+          target:
+            entity_id: 
+              - switch.bedroom_air_conditioner_socket
+              - switch.living_room_air_conditioner_socket
+        - service: input_boolean.turn_off
+          entity_id:
+            - input_boolean.living_room_ac_status
+            - input_boolean.bedroom_ac_status
+        - condition: state
+          entity_id: input_boolean.disable_climate_notifications
+          state: 'off'
+        # Уведомление о смене режима кондиционирования
+        - service: notify.alexus
+          data:
+            title: '{{"\U0001F3E0"}} Все покинули Дом{{"\U0000203C"}}'
+            message: |
+              ➖➖➖➖➖➖➖➖➖➖➖➖
+              Кондиционеры выключены{{"\U0000203C"}}
+
+    - alias: climate_living_room_ac_turn_on_manual
+      description: 'Включение кондиционера в Гостинной в ручном режиме'
+      trigger:
+        - platform: state
+          entity_id: climate.living_room_ac
+          from: 'off'
+      condition:
+        - condition: state
+          entity_id: switch.living_room_air_conditioner_socket
+          state: 'off'
+        - condition: state
+          entity_id: input_boolean.ac_status
+          state: 'on'
+        - condition: state
+          entity_id: binary_sensor.living_room_loggia_door_contact
+          state: 'off'
+      action:
+        - service: switch.turn_on
+          entity_id: switch.living_room_air_conditioner_socket
+        - delay: 20
+        - service: climate.turn_on
+          entity_id: climate.living_room_ac
+        # Уведомление о смене режима кондиционирования
+        - service: notify.alexus
+          data:
+            title: '{{"\U0001F3E0"}} Уведомление{{"\U0000203C"}}'
+            message: |
+              ➖➖➖➖➖➖➖➖➖➖➖➖
+              Кондиционер в Гостинной включен в ручном режиме{{"\U0000203C"}}
+              Текущая температура: {{ states("sensor.living_room_lumi_weather_temperature") | round(1) }}{{"\U00002103"}}
+
+    - alias: climate_bedroom_ac_turn_on_manual
+      description: 'Включение кондиционера в Спальне в ручном режиме'
+      trigger:
+        - platform: state
+          entity_id: climate.bedroom_ac
+          from: 'off'
+      condition:
+        - condition: state
+          entity_id: switch.bedroom_air_conditioner_socket
+          state: 'off'
+        - condition: state
+          entity_id: input_boolean.ac_status
+          state: 'on'
+        - condition: and
+          conditions:
+          - condition: state
+            entity_id: binary_sensor.bedroom_window_left_contact
+            state: 'off'
+          - condition: state
+            entity_id: binary_sensor.bedroom_window_right_contact
+            state: 'off'
+      action:
+        - service: switch.turn_on
+          entity_id: switch.bedroom_air_conditioner_socket
+        - delay: 20
+        - service: climate.turn_on
+          entity_id: climate.bedroom_ac
+        # Уведомление о смене режима кондиционирования
+        - service: notify.alexus
+          data:
+            title: '{{"\U0001F3E0"}} Уведомление{{"\U0000203C"}}'
+            message: |
+              ➖➖➖➖➖➖➖➖➖➖➖➖
+              Кондиционер в Спальне включен в ручном режиме{{"\U0000203C"}}
+              Текущая температура: {{ states("sensor.bedroom_lumi_weather_temperature") | round(1) }}{{"\U00002103"}}
