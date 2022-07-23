@@ -61,7 +61,7 @@ telegram:
                 SSD: {{ states("sensor.disk_use_percent") }}{{"\U00000025"}} Usage, {{ states("sensor.disk_free") }} Gb Free
                 
                 External IP: {{ states("sensor.archer_c80_router_external_ip") }}
-                Speedtest(Mbps): {{"\U000023EC"}}{{ states("sensor.speedtest_download") }}/{{"\U000023EB"}}{{ states("sensor.speedtest_upload") }}
+              # Speedtest(Mbps): {{"\U000023EC"}}{{ states("sensor.speedtest_download") }}/{{"\U000023EB"}}{{ states("sensor.speedtest_upload") }}
               data: 
                 inline_keyboard: 
                   - "Статус:/status, Климат:/climate, Освещение:/lights"
@@ -201,7 +201,7 @@ telegram:
               message: |
                 {{"\U0001F6E1"}} Безопасность в квартире:
                 ➖➖➖➖➖➖➖➖➖➖➖➖
-                {{"\U0001F3D8"}} Присутствие: {% if is_state("group.family","home") %}{{"\U0001F468\U0000200D\U0001F469\U0000200D\U0001F466\U0000200D\U0001F466"}} Дома {%else%}Не дома {%endif%}
+                {{"\U0001F3D8"}} Присутствие: {% if is_state("group.family","home") %}{% set Str = '' %}{% if is_state("person.alexus","home") %}{% set Str = '\U0001F468\U0000200D' %}{% endif %}{% if is_state("person.inna","home") %}{% set Str = Str + "\U0001F469\U0000200D" %}{% endif %}{% if is_state("person.vova","home") %}{% set Str = Str + "\U0001F466\U0000200D" %}{% endif %}{% if is_state("person.ivan","home") %}{% set Str = Str + "\U0001F466" %}{% endif %}{{ Str }} Дома {%else%}Не дома {%endif%}
 
                 {{"\U0001F6AA"}} Входная дверь: {% if is_state("binary_sensor.corridor_entrance_door_contact","off") %}Закрыта {{"\U0001F512"}}{%else%}Открыта {{"\U0001F513"}}{%endif%}
                 {{"\U0001F6AA"}} Дверь в Гостинной на Лоджию: {% if is_state("binary_sensor.living_room_loggia_door_contact","off") %}Закрыта {{"\U0001F512"}}{%else%}Открыта {{"\U0001F513"}}{%endif%}
@@ -222,7 +222,6 @@ telegram:
                 inline_keyboard:  
                   - "Статус:/status, Климат:/climate, Освещение:/lights"
                   - "Безопасность:/security, Меню:/menu"
-
 
         - alias: telegram_menu_geo
           trigger:

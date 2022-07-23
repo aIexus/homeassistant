@@ -15,6 +15,18 @@
             message:  |
               ➖➖➖➖➖➖➖➖➖➖➖➖
               {{"\U0001F4A7"}} Обнаружена протечка в ванной комнате под ванной{{"\U0000203C"}}
+        - condition: state
+          entity_id: input_boolean.disable_voice_notifications
+          state: 'off'
+        - condition: state
+          entity_id: binary_sensor.anyone_home
+          state: 'on'
+        - service: script.sonos_say
+          data: 
+            sonos_entity: media_player.sonos_living_room
+            volume: 0.4
+            message: 'ВНИМАНИЕ!!! Обнаружена протечка в ванной комнате под ванной!'
+            delay_secs: 4
 
     - alias: bathroom_notify_about_water_leak_under_washing_machine
       description: 'Уведомление о протечке воды в ванной под стиральной машиной'
@@ -33,6 +45,46 @@
             message:  |
               ➖➖➖➖➖➖➖➖➖➖➖➖
               {{"\U0001F4A7"}} Обнаружена протечка в ванной комнате под стиральной машиной{{"\U0000203C"}}
+        - condition: state
+          entity_id: input_boolean.disable_voice_notifications
+          state: 'off'
+        - condition: state
+          entity_id: binary_sensor.anyone_home
+          state: 'on'
+        - service: script.sonos_say
+          data: 
+            sonos_entity: media_player.sonos_living_room
+            volume: 0.4
+            message: 'ВНИМАНИЕ!!! Обнаружена протечка в ванной комнате под стиральной машиной!'
+            delay_secs: 4
+
+    - alias: bathroom_notify_about_washing_machine_cycle_finihed
+      description: 'Уведомление об окончании цикла стирки'
+      mode: single
+      trigger:
+        - platform: state
+          entity_id: binary_sensor.bathroom_washing_machine_socket_power
+          to: 'off'
+      condition: []
+      action:
+        - service: notify.alexus
+          data:
+            title: '{{"\U0001F504"}} Стиральная Машина{{"\U0000203C"}}'
+            message:  |
+              ➖➖➖➖➖➖➖➖➖➖➖➖
+              {{"\U0001F9FA"}} Программа стирки завершена{{"\U0000203C"}}
+        - condition: state
+          entity_id: input_boolean.disable_voice_notifications
+          state: 'off'
+        - condition: state
+          entity_id: binary_sensor.anyone_home
+          state: 'on'
+        - service: script.sonos_say
+          data: 
+            sonos_entity: media_player.sonos_living_room
+            volume: 0.3
+            message: 'Стиральная машина завершила программу!'
+            delay_secs: 4
 
     - alias: kitchen_notify_about_water_leak
       description: 'Уведомление о протечке воды в кухне'
@@ -51,6 +103,18 @@
             message: |
               ➖➖➖➖➖➖➖➖➖➖➖➖
               {{"\U0001F4A7"}} Обнаружена протечка в кухне под мойкой{{"\U0000203C"}}
+        - condition: state
+          entity_id: input_boolean.disable_voice_notifications
+          state: 'off'
+        - condition: state
+          entity_id: binary_sensor.anyone_home
+          state: 'on'
+        - service: script.sonos_say
+          data: 
+            sonos_entity: media_player.sonos_living_room
+            volume: 0.4
+            message: 'ВНИМАНИЕ!!! Обнаружена протечка в кухне под мойкой!'
+            delay_secs: 4
 
     - alias: kitchen_notify_about_smoke_detection
       description: 'Уведомление об обнаружении дыма в кухне'
@@ -68,7 +132,19 @@
             title: '{{"\U000026A0"}} ВНИМАНИЕ{{"\U0000203C"}}'
             message: |
               ➖➖➖➖➖➖➖➖➖➖➖➖
-              {{"\U0001F525"}} Обнаружен дым в кухне{{"\U0000203C"}}
+              {{"\U0001F525"}} Обнаружен дым на кухне{{"\U0000203C"}}
+        - condition: state
+          entity_id: input_boolean.disable_voice_notifications
+          state: 'off'
+        - condition: state
+          entity_id: binary_sensor.anyone_home
+          state: 'on'
+        - service: script.sonos_say
+          data: 
+            sonos_entity: media_player.sonos_living_room
+            volume: 0.4
+            message: 'ВНИМАНИЕ!!! Обнаружен дым на кухне!'
+            delay_secs: 4
 
     - alias: home_assistant_startup_notification
       trigger:
@@ -102,6 +178,52 @@
               ➖➖➖➖➖➖➖➖➖➖➖➖
               Сервер Home Assistant выключается{{"\U0000203C"}}
 
+    - id: home_assistant_update_notification
+      alias: 'Notify about Home Assistant Updates'
+      description: "Send notification about Home Assistant Updates"
+      trigger:
+        - platform: state
+          entity_id: update.home_assistant_core_update
+          from: 'off'
+          to: 'on'
+        - platform: state
+          entity_id: update.home_assistant_supervisor_update
+          from: 'off'
+          to: 'on'
+        - platform: state
+          entity_id: update.zigbee2mqtt_update
+          from: 'off'
+          to: 'on'
+        - platform: state
+          entity_id: update.terminal_ssh_update
+          from: 'off'
+          to: 'on'
+        - platform: state
+          entity_id: update.mosquitto_broker_update
+          from: 'off'
+          to: 'on'
+        - platform: state
+          entity_id: update.mariadb_update
+          from: 'off'
+          to: 'on'
+        - platform: state
+          entity_id: update.home_assistant_google_drive_backup_update
+          from: 'off'
+          to: 'on'
+        - platform: state
+          entity_id: update.file_editor_update
+          from: 'off'
+          to: 'on'
+      action:
+        - service: notify.alexus
+          data:
+            title: '{{"\U0001F199"}} {{ trigger.to_state.attributes.friendly_name }}{{"\U0000203C"}}'
+            message:  |
+              ➖➖➖➖➖➖➖➖➖➖➖➖
+              Доступно {{ trigger.to_state.attributes.friendly_name }}
+                Установленно: {{ trigger.to_state.attributes.installed_version }}
+                Доступно: {{ trigger.to_state.attributes.latest_version }}
+
     - alias: rpi_ac_power_failure_notification
       trigger:
         - platform: state
@@ -114,6 +236,20 @@
             message: |
               ➖➖➖➖➖➖➖➖➖➖➖➖
               Внешнее питание: {{"\U0001F50C"}} {% if is_state("binary_sensor.rpi_ac_power_status", "on") %}Подключено{% else %}Отключено{% endif %}
+              
+              {{"\U0001F50B"}} UPS Battery Status: ({% if is_state("binary_sensor.ups_battery_low","off") %}OK{%else%}Low{{"\U0000203C"}}{%endif%}) {{ states("sensor.ups_battery_capacity") }}% / {{ states("sensor.ups_battery_voltage") }}V
+        - condition: state
+          entity_id: input_boolean.disable_voice_notifications
+          state: 'off'
+        - condition: state
+          entity_id: binary_sensor.anyone_home
+          state: 'on'
+        - service: script.sonos_say
+          data: 
+            sonos_entity: media_player.sonos_living_room
+            volume: 0.4
+            message: 'ВНИМАНИЕ!!! Внешнее питание {% if is_state("binary_sensor.rpi_ac_power_status", "on") %}подключено{% else %}отключено{% endif %}!'
+            delay_secs: 4
 
     - alias: ups_battery_low_level_notification
       trigger:
@@ -135,6 +271,22 @@
               Внешнее питание: {{"\U0001F50C"}} {% if is_state("binary_sensor.rpi_ac_power_status", "on") %}Подключено{% else %}Отключено{% endif %}
               
               {{"\U0000203C"}}Через некоторое время сервер RPi будет остановлен{{"\U0000203C"}}
+        - condition: state
+          entity_id: input_boolean.disable_voice_notifications
+          state: 'off'
+        - condition: state
+          entity_id: binary_sensor.anyone_home
+          state: 'on'
+        - service: script.sonos_say
+          data: 
+            sonos_entity: media_player.sonos_living_room
+            volume: 0.4
+            message: |
+              ВНИМАНИЕ!!! 
+              Низкий уровень заряда батареи UPS: {{ states("sensor.ups_battery_capacity") }} процентов.
+              Внешнее питание {% if is_state("binary_sensor.rpi_ac_power_status", "on") %}подключено{% else %}отключено{% endif %}!
+              Через некоторое время сервер будет остановлен!
+            delay_secs: 15
 
     - alias: ups_battery_full_level_notification
       trigger:
@@ -187,16 +339,24 @@
           for:
             minutes: 2
       condition: []
-      #  - condition: state
-      #    entity_id: binary_sensor.anyone_home
-      #    state: 'on'
       action:
         - service: notify.alexus
           data:
             title: '{{"\U000026A0"}} ВНИМАНИЕ{{"\U0000203C"}}'
             message: |
-              ➖➖➖➖➖➖➖➖➖➖➖➖
-              Входная дверь не закрыта более двух минут{{"\U0000203C"}}
+              Входная дверь открыта более двух минут{{"\U0000203C"}}
+        - condition: state
+          entity_id: input_boolean.disable_voice_notifications
+          state: 'off'
+        - condition: state
+          entity_id: binary_sensor.anyone_home
+          state: 'on'
+        - service: script.sonos_say
+          data: 
+            sonos_entity: media_player.sonos_living_room
+            volume: 0.4
+            message: 'ВНИМАНИЕ!!! Входная дверь открыта более двух минут!'
+            delay_secs: 5
 
     - alias: zone_notifications
       trigger:
@@ -319,12 +479,25 @@
           - person.vova
         zone: zone.epicentr
         event: leave
+      - platform: zone
+        entity_id:
+          - person.alexus
+          - person.inna
+          - person.ivan
+          - person.vova
+        zone: zone.novomoskovsk
+        event: leave
+      - platform: zone
+        entity_id:
+          - person.alexus
+          - person.inna
+          - person.ivan
+          - person.vova
+        zone: zone.novomoskovsk
+        event: enter
       condition:
         - condition: state
           entity_id: input_boolean.disable_zone_notifications
-          state: 'off'
-        - condition: state
-          entity_id: input_boolean.disable_home_away
           state: 'off'
       action:
         - service: notify.alexus

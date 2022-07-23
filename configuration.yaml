@@ -19,11 +19,18 @@ lovelace:
       type: module
     - url: /hacsfiles/lovelace-multiple-entity-row/multiple-entity-row.js
       type: module
-
+    - url: /hacsfiles/mini-media-player/mini-media-player-bundle.js
+      type: module
+                
 # Text to speech
 tts:
 
     - platform: google_translate
+
+    - platform: reversotts
+      language: 'Alyona-Russian'
+      pitch: "100"
+      bitrate: "128k"
 
 smartir:
 

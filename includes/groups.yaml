@@ -1,22 +1,22 @@
-    Family:
+    family:
       - person.alexus
       - person.inna
       - person.ivan
       - person.vova
 
-    Interior Lights:
+    interior_lights:
       - switch.bedroom_light_switch
       - switch.living_room_light_switch
 
-    Occupancy:
+    occupancy:
       - binary_sensor.bedroom_lumi_sensor_motion_occupancy
       - binary_sensor.living_room_lumi_sensor_motion_occupancy
 
-    Heaters:
+    heaters:
       - climate.bedroom_heater
       - climate.kitchen_heater
       - climate.living_room_heater
 
-    Air_Conditioners:
+    air_conditioners:
       - climate.living_room_ac
       - climate.bedroom_ac

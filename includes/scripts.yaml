@@ -1,0 +1,59 @@
+sonos_say:
+    alias: "Sonos TTS script"
+    sequence:
+     - service: sonos.snapshot
+       data_template:
+         entity_id: "{{ sonos_entity }}"
+     - service: media_player.unjoin
+       data_template:
+         entity_id: "{{ sonos_entity }}"
+     - service: media_player.volume_set
+       data_template:
+         entity_id: "{{ sonos_entity }}"
+         volume_level: "{{ volume }}"
+     - service: tts.reversotts_say
+       data_template:
+         entity_id: "{{ sonos_entity }}"
+         message: "{{ message }}"
+     - delay: 
+         seconds: "{{ delay_secs }}"
+     - service: sonos.restore
+       data_template:
+         entity_id: "{{ sonos_entity }}"
+
+# sonos_play_file:
+#     alias: "Sonos Play File script"
+#     sequence:
+#      - service: sonos.snapshot
+#       data:
+#          entity_id: media_player.sonos_living_room
+#      - service: media_player.play_media
+#       target:
+#          entity_id: media_player.sonos_living_room
+#       data:
+#          media_content_id: '/media/local/alerts/Sound_17898.mp3'
+#          media_content_type: music
+#      - service: sonos.restore
+#       data:
+#          entity_id: media_player.sonos_living_room
+
+sonos_play_file:
+    alias: "Sonos Play File script"
+    sequence:
+     - service: sonos.snapshot
+       data_template:
+         entity_id: "{{ sonos_entity }}"
+     - service: media_player.volume_set
+       data_template:
+         entity_id: "{{ sonos_entity }}"
+         volume_level: "{{ volume }}"
+     - service: media_player.play_media
+       data_template:
+         entity_id: "{{ sonos_entity }}"
+         media_content_id: "{{ music_file }}"
+         media_content_type: music
+     - delay: 
+         seconds: "{{ delay_secs }}"
+     - service: sonos.restore
+       data_template:
+         entity_id: "{{ sonos_entity }}"

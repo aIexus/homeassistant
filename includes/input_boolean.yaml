@@ -1,4 +1,8 @@
 
+    disable_climate:
+      name: Disable Climate Automation
+      icon: mdi:hvac-off
+
     disable_occupancy:
       name: Disable Occupancy Automation
       icon: mdi:eye-off
@@ -7,13 +11,17 @@
       name: Disable Home/Away Automation
       icon: mdi:map-marker-off
 
+    disable_alerts_notifications:
+      name: Disable Alert Notifications
+      icon: mdi:alarm-light-off
+
+    disable_voice_notifications:
+      name: Disable Voice Notifications
+      icon: mdi:speaker-off
+
     disable_zone_notifications:
       name: Disable Zone Notifications
       icon: mdi:message-bulleted-off
-
-    disable_climate:
-      name: Disable Climate Automation
-      icon: mdi:hvac-off
 
     disable_startup_notifications:
       name: Disable Startup Notifications
