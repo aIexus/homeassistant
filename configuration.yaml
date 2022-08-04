@@ -1,27 +1,27 @@
 homeassistant:
-  name: Home
-  latitude: !secret home_latitude
-  longitude: !secret home_longitude
-  elevation: 64
-  unit_system: metric
-  time_zone: Europe/Kiev
-  packages: !include_dir_merge_named includes/packages
-  customize: !include includes/customize.yaml
-  allowlist_external_dirs: "/config/files/"
+    name: Home
+    latitude: !secret home_latitude
+    longitude: !secret home_longitude
+    elevation: 64
+    unit_system: metric
+    time_zone: Europe/Kiev
+    packages: !include_dir_merge_named includes/packages
+    customize: !include includes/customize.yaml
+    allowlist_external_dirs: "/config/files/"
 
 # Configure a default setup of Home Assistant (frontend, api, etc)
 default_config:
 
 lovelace:
-  mode: yaml
-  resources:
-    - url: /hacsfiles/lovelace-auto-entities/auto-entities.js
-      type: module
-    - url: /hacsfiles/lovelace-multiple-entity-row/multiple-entity-row.js
-      type: module
-    - url: /hacsfiles/mini-media-player/mini-media-player-bundle.js
-      type: module
-                
+    mode: yaml
+    resources:
+        - url: /hacsfiles/lovelace-auto-entities/auto-entities.js
+          type: module
+        - url: /hacsfiles/lovelace-multiple-entity-row/multiple-entity-row.js
+          type: module
+        - url: /hacsfiles/mini-media-player/mini-media-player-bundle.js
+          type: module
+
 # Text to speech
 tts:
 
@@ -37,7 +37,6 @@ smartir:
 # Include External Files
 binary_sensor: !include includes/binary_sensors.yaml
 input_boolean: !include includes/input_boolean.yaml
-climate: !include includes/climate.yaml
 group: !include includes/groups.yaml
 script: !include includes/scripts.yaml
 scene: !include includes/scenes.yaml

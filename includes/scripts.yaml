@@ -21,22 +21,6 @@ sonos_say:
        data_template:
          entity_id: "{{ sonos_entity }}"
 
-# sonos_play_file:
-#     alias: "Sonos Play File script"
-#     sequence:
-#      - service: sonos.snapshot
-#       data:
-#          entity_id: media_player.sonos_living_room
-#      - service: media_player.play_media
-#       target:
-#          entity_id: media_player.sonos_living_room
-#       data:
-#          media_content_id: '/media/local/alerts/Sound_17898.mp3'
-#          media_content_type: music
-#      - service: sonos.restore
-#       data:
-#          entity_id: media_player.sonos_living_room
-
 sonos_play_file:
     alias: "Sonos Play File script"
     sequence:

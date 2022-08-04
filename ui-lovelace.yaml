@@ -89,12 +89,29 @@ views:
              name: 'Living Room: Sonos One'
              artwork: cover
              state_label: true
-            #  tts:
-            #   entity_id: media_player.sonos_living_room
-            #   platform: sonos
-            #   volume: 0.25
              hide:
                power: true
+            #  shortcuts:
+            #     columns: 4 
+            #     buttons:
+            #       # Start predefined playlist
+            #       - name: Rock Your Body
+            #         type: script
+            #         # id: spotify:user:31btn5tswjqya34vyszn6fcdbcxu:playlist:37i9dQZF1DXbFRZSqP41al
+            #         id: script.sonos_play_spotify_playlist
+            #         data:
+            #           sonos_entity: media_player.sonos_living_room
+            #           playlist_id: 37i9dQZF1DXbFRZSqP41al
+            #       - name: Rock Me Up
+            #         type: 'music'
+            #         id: 'https://open.spotify.com/playlist/37i9dQZF1DX0wiundViT27'
+            #       - name: TEST
+            #         type: service
+            #         id: media_player.play_media
+            #         data:
+            #           entity_id: media_player.sonos_living_room
+            #           media_content_id: https://open.spotify.com/playlist/37i9dQZF1DX0wiundViT27
+            #           media_content_type: music
             #  speaker_group:
             #   platform: sonos
             #   show_group_count: true
@@ -231,7 +248,7 @@ views:
               card:
                 type: grid
                 columns: 2
-                title: Кодиционеры
+                title: Кондиционеры
                 cards:
                   - type: thermostat
                     entity: climate.living_room_ac

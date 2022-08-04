@@ -36,7 +36,7 @@
       icon: mdi:radiator
 
     enable_manual_control_ac:
-      name: 'Enable Manual Control of A/C'
+      name: Enable Manual Control of A/C
       icon: mdi:air-conditioner
 
     enable_manual_control_lights:
@@ -52,15 +52,15 @@
       icon: mdi:radiator
 
     ac_status:
-      name: 'A/C Status'
+      name: A/C Status
       icon: mdi:air-conditioner
 
     bedroom_ac_status:
-      name: 'Bedroom A/C Status'
+      name: Bedroom A/C Status
       icon: mdi:toggle-switch-off-outline
 
     living_room_ac_status:
-      name: 'Living Room A/C Status'
+      name: Living Room A/C Status
       icon: mdi:toggle-switch-off-outline
 
     # enable_manual_control_garlands:
