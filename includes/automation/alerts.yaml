@@ -1,4 +1,22 @@
-    - alias: alert_novomoskovsk_air_on
+    - alias: "Alert: Disable Voice Notifications when Alert Notifications are Disabled"
+      id: alert_disable_mode
+      description: 'При запрете тревоги, выключать голосовую тревогу'
+      mode: single
+      trigger:
+        - platform: state
+          entity_id: input_boolean.disable_alerts_notifications
+          from: 'off'
+          to: 'on'
+      condition:
+        - condition: state
+          entity_id: input_boolean.disable_voice_alerts
+          state: 'off'
+      action:
+        - service: input_boolean.turn_on
+          entity_id: input_boolean.disable_voice_alerts
+
+    - alias: "Alert: Notification about Active Air Alert in Novomoskovsk"
+      id: alert_novomoskovsk_air_on
       description: 'Воздушная тревога, Новомосковск'
       mode: single
       trigger:
@@ -18,7 +36,7 @@
                 ➖➖➖➖➖➖➖➖➖➖➖➖
                 {{"\U00002708"}}{{"\U0001F680"}} ОБЪЯВЛЕНА ВОЗДУШНАЯ ТРЕВОГА{{"\U0000203C"}}{{"\U0000203C"}}
           - condition: state
-            entity_id: input_boolean.disable_voice_notifications
+            entity_id: input_boolean.disable_voice_alerts
             state: 'off'
           - condition: state
             entity_id: binary_sensor.anyone_home
@@ -34,9 +52,10 @@
               sonos_entity: media_player.sonos_living_room
               volume: 0.4
               message: 'ВНИМАНИЕ!!! ОБЪЯВЛЕНА ВОЗДУШНАЯ ТРЕВОГА!'
-              delay_secs: 5
 
-    - alias: alert_novomoskovsk_air_off
+
+    - alias: "Alert: Notification about Not Active Air Alert in Novomoskovsk"
+      id: alert_novomoskovsk_air_off
       description: 'Воздушная тревога - отбой, Новомосковск'
       mode: single
       trigger:
@@ -56,7 +75,7 @@
                 ➖➖➖➖➖➖➖➖➖➖➖➖
                 {{"\U00002705"}}{{"\U00002705"}}{{"\U00002705"}} ОТБОЙ ВОЗДУШНОЙ ТРЕВОГИ {{"\U00002705"}}{{"\U00002705"}}{{"\U00002705"}}
           - condition: state
-            entity_id: input_boolean.disable_voice_notifications
+            entity_id: input_boolean.disable_voice_alerts
             state: 'off'
           - condition: state
             entity_id: binary_sensor.anyone_home
@@ -66,9 +85,9 @@
               sonos_entity: media_player.sonos_living_room
               volume: 0.4
               message: 'ВНИМАНИЕ!!! Отбой воздушной тревоги!'
-              delay_secs: 5
 
-    - alias: alert_novomoskovsk_artillery_on
+    - alias: "Alert: Notification about Active Artillery Alert in Novomoskovsk"
+      id: alert_novomoskovsk_artillery_on
       description: 'Угроза артилерийского обстрела, Новомосковск'
       mode: single
       trigger:
@@ -88,7 +107,7 @@
                 ➖➖➖➖➖➖➖➖➖➖➖➖
                 {{"\U0001F4A5"}}{{"\U0001F4A5"}} УГРОЗА АРТИЛЛЕРИЙСКОГО ОБСТРЕЛА{{"\U0000203C"}}{{"\U0000203C"}}
           - condition: state
-            entity_id: input_boolean.disable_voice_notifications
+            entity_id: input_boolean.disable_voice_alerts
             state: 'off'
           - condition: state
             entity_id: binary_sensor.anyone_home
@@ -104,9 +123,9 @@
               sonos_entity: media_player.sonos_living_room
               volume: 0.4
               message: 'ВНИМАНИЕ!!! УГРОЗА АРТИЛЛЕРИЙСКОГО ОБСТРЕЛА!'
-              delay_secs: 5
 
-    - alias: alert_novomoskovsk_artillery_off
+    - alias: "Alert: Notification about Not Active Artillery Alert in Novomoskovsk"
+      id: alert_novomoskovsk_artillery_off
       description: 'Угроза артилерийского обстрела - отмена, Новомосковск'
       mode: single
       trigger:
@@ -126,7 +145,7 @@
                 ➖➖➖➖➖➖➖➖➖➖➖➖
                 {{"\U00002705"}}{{"\U00002705"}}{{"\U00002705"}} ОТМЕНА УГРОЗЫ АРТИЛЛЕРИЙСКОГО ОБСТРЕЛА {{"\U00002705"}}{{"\U00002705"}}{{"\U00002705"}}
           - condition: state
-            entity_id: input_boolean.disable_voice_notifications
+            entity_id: input_boolean.disable_voice_alerts
             state: 'off'
           - condition: state
             entity_id: binary_sensor.anyone_home
@@ -136,9 +155,9 @@
               sonos_entity: media_player.sonos_living_room
               volume: 0.4
               message: 'ВНИМАНИЕ!!! Отмена угрозы артиллерийского обстрела!'
-              delay_secs: 5
 
-    - alias: alert_novomoskovsk_urban_fights_on
+    - alias: "Alert: Notification about Active Urban Fights Alert in Novomoskovsk"
+      id: alert_novomoskovsk_urban_fights_on
       description: 'Угроза городских боев, Новомосковск'
       mode: single
       trigger:
@@ -158,7 +177,7 @@
                 ➖➖➖➖➖➖➖➖➖➖➖➖
                 {{"\U0001F4A5"}}{{"\U0001F4A5"}} УГРОЗА ГОРОДСКИХ БОЁВ{{"\U0000203C"}}{{"\U0000203C"}}
           - condition: state
-            entity_id: input_boolean.disable_voice_notifications
+            entity_id: input_boolean.disable_voice_alerts
             state: 'off'
           - condition: state
             entity_id: binary_sensor.anyone_home
@@ -174,9 +193,9 @@
               sonos_entity: media_player.sonos_living_room
               volume: 0.4
               message: 'ВНИМАНИЕ!!! УГРОЗА ГОРОДСКИХ БОЁВ!'
-              delay_secs: 5
 
-    - alias: alert_novomoskovsk_urban_fights_off
+    - alias: "Alert: Notification about Not Active Urban Fights Alert in Novomoskovsk"
+      id: alert_novomoskovsk_urban_fights_off
       description: 'Угроза городских боев - отмена, Новомосковск'
       mode: single
       trigger:
@@ -196,7 +215,7 @@
                 ➖➖➖➖➖➖➖➖➖➖➖➖
                 {{"\U00002705"}}{{"\U00002705"}}{{"\U00002705"}} ОТМЕНА УГРОЗЫ ГОРОДСКИХ БОЁВ {{"\U00002705"}}{{"\U00002705"}}{{"\U00002705"}}
           - condition: state
-            entity_id: input_boolean.disable_voice_notifications
+            entity_id: input_boolean.disable_voice_alerts
             state: 'off'
           - condition: state
             entity_id: binary_sensor.anyone_home
@@ -206,9 +225,9 @@
               sonos_entity: media_player.sonos_living_room
               volume: 0.4
               message: 'ВНИМАНИЕ!!! Отмена угрозы городских боёв!'
-              delay_secs: 5
 
-    - alias: alert_novomoskovsk_unknown_on
+    - alias: "Alert: Notification about Active Unknown Alert in Novomoskovsk"
+      id: alert_novomoskovsk_unknown_on
       description: 'Неизвестная угроза, Новомосковск'
       mode: single
       trigger:
@@ -228,7 +247,7 @@
                 ➖➖➖➖➖➖➖➖➖➖➖➖
                 {{"\U000026A0"}}{{"\U000026A0"}} НЕИЗВЕСТНАЯ УГРОЗА {{"\U0000203C"}}{{"\U0000203C"}}
           - condition: state
-            entity_id: input_boolean.disable_voice_notifications
+            entity_id: input_boolean.disable_voice_alerts
             state: 'off'
           - condition: state
             entity_id: binary_sensor.anyone_home
@@ -244,9 +263,9 @@
               sonos_entity: media_player.sonos_living_room
               volume: 0.4
               message: 'ВНИМАНИЕ!!! НЕИЗВЕСТНАЯ УГРОЗА!'
-              delay_secs: 5
 
-    - alias: alert_novomoskovsk_unknown_off
+    - alias: "Alert: Notification about Not Active Unknown Alert in Novomoskovsk"
+      id: alert_novomoskovsk_unknown_off
       description: 'Неизвестная угроза - отмена, Новомосковск'
       mode: single
       trigger:
@@ -266,7 +285,7 @@
                 ➖➖➖➖➖➖➖➖➖➖➖➖
                 {{"\U00002705"}}{{"\U00002705"}}{{"\U00002705"}} ОТМЕНА НЕИЗВЕСТНОЙ УГРОЗЫ {{"\U00002705"}}{{"\U00002705"}}{{"\U00002705"}}
           - condition: state
-            entity_id: input_boolean.disable_voice_notifications
+            entity_id: input_boolean.disable_voice_alerts
             state: 'off'
           - condition: state
             entity_id: binary_sensor.anyone_home
@@ -276,4 +295,3 @@
               sonos_entity: media_player.sonos_living_room
               volume: 0.4
               message: 'ВНИМАНИЕ!!! Отмена неизвестной угрозы!'
-              delay_secs: 5

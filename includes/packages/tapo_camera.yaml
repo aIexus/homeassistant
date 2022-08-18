@@ -1,0 +1,204 @@
+tapo_camera_package:
+
+    automation:
+
+        - alias: "TAPO Camera Privacy Mode Change"
+          id: tapo_camera_privacy_mode_change
+          trigger:
+            - platform: state
+              entity_id: input_boolean.tapo_camera_privacy_mode
+              from: 'off'
+              to: 'on'
+            - platform: state
+              entity_id: input_boolean.tapo_camera_privacy_mode
+              from: 'on'
+              to: 'off'
+          condition: 
+            - condition: template
+              value_template: '{{ states.camera.tapo_camera_sd.attributes.privacy_mode != states.input_boolean.tapo_camera_privacy_mode.state }}'
+          action:
+            - choose:
+                - conditions:
+                    - condition: state
+                      entity_id: input_boolean.tapo_camera_privacy_mode
+                      state: 'on'
+                  sequence:
+                    - service: script.tapo_camera_set_privacy_mode
+                      data:
+                        tapo_camera_id: camera.tapo_camera_sd
+                        privacy: 'on'
+                - conditions:
+                    - condition: state
+                      entity_id: input_boolean.tapo_camera_privacy_mode
+                      state: 'off'
+                  sequence:
+                    - service: script.tapo_camera_set_privacy_mode
+                      data:
+                        tapo_camera_id: camera.tapo_camera_sd
+                        privacy: 'off'
+          mode: queued
+            
+    script:
+
+        tapo_camera_test:
+            alias: "TAPO Camera Test"
+            sequence:
+                # - service: script.tapo_camera_set_privacy_mode
+                #   data:
+                #      tapo_camera_id: camera.tapo_camera_sd
+                #      privacy: 'off'
+                # - service: script.tapo_camera_select_preset
+                #   data:
+                #      tapo_camera_id: camera.tapo_camera_sd
+                #      preset_name: 'Living Room'
+                # - service: script.tapo_camera_save_snapshot
+                #   data:
+                #      tapo_camera_id: camera.tapo_camera_hd
+                #      file_name: "/config/files/camera/snapshot_1.jpg"
+                # - service: script.tapo_camera_save_record
+                #   data:
+                #      tapo_camera_id: camera.tapo_camera_hd
+                #      time_duration: 15
+                # - service: script.tapo_camera_save_snapshot
+                #   data:
+                #      tapo_camera_id: camera.tapo_camera_hd
+                # - service: script.tapo_camera_select_preset
+                #   data:
+                #      tapo_camera_id: camera.tapo_camera_sd
+                #      preset_name: 'Bathroom'
+                # - service: script.tapo_camera_save_snapshot
+                #   data:
+                #      tapo_camera_id: camera.tapo_camera_hd
+                # - service: script.tapo_camera_select_preset
+                #   data:
+                #      tapo_camera_id: camera.tapo_camera_sd
+                #      preset_name: 'Entrance'
+                # - service: script.tapo_camera_save_snapshot
+                #   data:
+                #      tapo_camera_id: camera.tapo_camera_hd
+                # - variables:
+                #     snapshot_file_name: |
+                #       {{ "/config/files/camera/" + state_attr('camera.tapo_camera_hd', 'friendly_name') +  "/snapshot_" + now().strftime('%Y%m%d-%H%M%S') + ".jpg" }}
+                # - service: script.tapo_camera_save_snapshot
+                #   data:
+                #     tapo_camera_id: camera.tapo_camera_hd
+                #     filename: '{{ snapshot_file_name }}'
+                # - service: telegram_bot.send_photo
+                #   data_template:
+                #     target: !secret telegram_user_1
+                #     file: '{{ snapshot_file_name }}'
+                #     caption: Тревога!
+                # - variables:
+                #     record_file_name: |
+                #       {{ "/config/files/camera/" + state_attr('camera.tapo_camera_hd', 'friendly_name') +  "/record_" + now().strftime('%Y%m%d-%H%M%S') + ".mp4" }}
+                # - service: script.tapo_camera_save_record
+                #   data:
+                #     tapo_camera_id: camera.tapo_camera_hd
+                #     filename: '{{ record_file_name }}'
+                #     time_duration: 15
+                # - delay: '00:00:03'
+                # - service: telegram_bot.send_video
+                #   data_template:
+                #     target: !secret telegram_user_1
+                #     file: '{{ record_file_name }}'
+                #     caption: Тревога!
+                # - service: script.tapo_camera_set_privacy_mode
+                #   data:
+                #      tapo_camera_id: camera.tapo_camera_sd
+                #      privacy: 'on'
+            mode: single
+
+        tapo_camera_select_preset:
+            alias: "TAPO Camera: Select Preset"
+            fields:
+              tapo_camera_id:
+                description: The entity of the TAPO Camera
+                example: camera.tapo_01
+                default: camera.tapo_camera_sd
+              preset_name:
+                description: The name of preset
+                example: Entrance
+                default: Entrance
+            sequence: 
+              - service: tapo_control.ptz
+                data_template:
+                  preset: "{{ preset_name }}"
+                  entity_id: "{{ tapo_camera_id }}"
+              - delay: '00:00:05'
+            mode: queued
+        
+        tapo_camera_set_privacy_mode:
+            alias: "TAPO Camera: Set Privacy Mode"
+            fields:
+              tapo_camera_id:
+                description: The entity of the TAPO Camera
+                example: camera.tapo_01
+                default: camera.tapo_camera_sd
+              privacy:
+                description: The value for Privacy Mode
+                example: on
+                default: on
+            sequence: 
+              - service: tapo_control.set_privacy_mode
+                data_template:
+                  privacy_mode: '{{ privacy }}'
+                  entity_id: '{{ tapo_camera_id }}'
+              - delay: '00:00:03'
+            mode: queued
+
+        tapo_camera_save_record:
+            alias: "TAPO Camera: Save Record"
+            fields:
+              tapo_camera_id:
+                description: The entity of the TAPO Camera
+                example: camera.tapo_01
+                default: camera.tapo_camera_sd
+              file_name:
+                description: The path/name of saved file
+                example: '/config/files/camera/record01.mp4'
+              time_duration:
+                description: The time for saved record in seconds
+                example: 5
+                default: 15
+            sequence:
+              - variables:
+                  record_file_name: |
+                    {% if (file_name is not defined) %}
+                      {% set file_name = "/config/files/camera/" + state_attr(tapo_camera_id, 'friendly_name') +  "/record_" + now().strftime('%Y%m%d-%H%M%S') + ".mp4" %}
+                    {% endif %}
+                    {{ file_name }}
+              - service: camera.record
+                target:
+                  entity_id: '{{ tapo_camera_id }}'
+                data_template:
+                  filename: '{{ record_file_name }}'
+                  duration: '{{ time_duration }}'
+              - delay: '00:00:07'
+              - delay: >-
+                  {% set time_duration = time_duration // 5 | int(0) %} 
+                  {{ [0, 0, time_duration ]|join(':') }}
+            mode: queued
+
+        tapo_camera_save_snapshot:
+            alias: "TAPO Camera: Save Snapshot"
+            fields:
+              tapo_camera_id:
+                description: The entity of the TAPO Camera
+                example: camera.tapo_01
+                default: camera.tapo_camera_sd
+              file_name:
+                description: The path/name of saved file
+                example: '/config/files/camera/snapshot01.jpg'
+            sequence:
+              - variables:
+                  snapshot_file_name: |
+                    {% if (file_name is not defined) %}
+                      {% set file_name = "/config/files/camera/" + state_attr(tapo_camera_id, 'friendly_name') + "/snapshot_" + now().strftime('%Y%m%d-%H%M%S') +".jpg" %}
+                    {% endif %}
+                    {{ file_name }}
+              - service: camera.snapshot
+                data_template:
+                  entity_id: '{{ tapo_camera_id }}'
+                  filename: '{{ snapshot_file_name }}'
+              - delay: '00:00:03'
+            mode: queued

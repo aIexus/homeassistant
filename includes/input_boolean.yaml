@@ -15,6 +15,10 @@
       name: Disable Alert Notifications
       icon: mdi:alarm-light-off
 
+    disable_voice_alerts:
+      name: Disable Voice Alerts
+      icon: mdi:volume-off
+
     disable_voice_notifications:
       name: Disable Voice Notifications
       icon: mdi:speaker-off
@@ -62,6 +66,10 @@
     living_room_ac_status:
       name: Living Room A/C Status
       icon: mdi:toggle-switch-off-outline
+
+    tapo_camera_privacy_mode:
+      name: TAPO Camera Privacy Mode
+      icon: mdi:cctv-off
 
     # enable_manual_control_garlands:
     #   name: Enable Manual Control of Garlands

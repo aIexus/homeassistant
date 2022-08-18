@@ -1,0 +1,117 @@
+sonos_package:
+
+    script:
+
+        sonos_say:
+            alias: "Sonos TTS script"
+            fields:
+              sonos_entity:
+                description: The entity or group of the sonos
+                example: group.intrusion_media_players
+                default: media_player.sonos_living_room
+              message:
+                description: The message content
+                example: The alarm is on!
+                default: The alarm is on!
+              volume:
+                description: The volume
+                example: '0.5'
+                default: '0.5'    
+            sequence:
+              - variables:
+                  sonos_volume: "{{ states[sonos_entity].attributes.volume_level }}"
+            #   - service: sonos.snapshot
+            #     data_template:
+            #       entity_id: "{{ sonos_entity }}"
+            #   - service: media_player.unjoin
+            #     data_template:
+            #       entity_id: "{{ sonos_entity }}"
+              - service: media_player.volume_set
+                data_template:
+                  entity_id: "{{ sonos_entity }}"
+                  volume_level: "{{ volume }}"
+              - service: tts.reversotts_say
+                data_template:
+                  entity_id: "{{ sonos_entity }}"
+                  message: "{{ message }}"
+              - delay: '00:00:01'
+              - delay: >-
+                  {% set duration = state_attr(sonos_entity, 'media_duration') | int(1) %} 
+                  {% if duration > 0 %}
+                    {% set duration = duration - 1 %}
+                  {% endif %} 
+                  {% set seconds = duration % 60 %} 
+                  {% set minutes = (duration / 60)|int % 60 %} 
+                  {% set hours = (duration / 3600)|int %} 
+                  {{ [hours, minutes, seconds]|join(':') }}
+              - delay: '00:00:01'
+            #   - service: sonos.restore
+            #     data_template:
+            #       entity_id: "{{ sonos_entity }}"
+              - service: media_player.volume_set
+                data_template:
+                  entity_id: "{{ sonos_entity }}"
+                  volume_level: "{{ sonos_volume }}"
+            mode: queued
+
+        sonos_play_file:
+            alias: "Sonos Play File script"
+            fields:
+              sonos_entity:
+                description: The entity or group of the sonos
+                example: group.intrusion_media_players
+                default: media_player.sonos_living_room
+              music_file:
+                description: The path to music file
+                example: '/media/local/alerts/Car_Alarm_01.mp3'
+                default: ''
+              volume:
+                description: The volume
+                example: '0.5'
+                default: '0.5'
+            sequence:
+              - variables:
+                  sonos_volume: "{{ states[sonos_entity].attributes.volume_level }}"
+            #   - service: sonos.snapshot
+            #     data_template:
+            #       entity_id: "{{ sonos_entity }}"
+            #   - service: media_player.unjoin
+            #     data_template:
+            #       entity_id: "{{ sonos_entity }}"
+              - service: media_player.volume_set
+                data_template:
+                  entity_id: "{{ sonos_entity }}"
+                  volume_level: "{{ volume }}"
+              - service: media_player.play_media
+                data_template:
+                  entity_id: "{{ sonos_entity }}"
+                  media_content_id: "{{ music_file }}"
+                  media_content_type: music
+              - delay: '00:00:01'
+              - delay: >-
+                  {% set duration = state_attr(sonos_entity, 'media_duration') | int(1) %} 
+                  {% if duration > 0 %}
+                    {% set duration = duration - 1 %}
+                  {% endif %} 
+                  {% set seconds = duration % 60 %} 
+                  {% set minutes = (duration / 60)|int % 60 %} 
+                  {% set hours = (duration / 3600)|int %} 
+                  {{ [hours, minutes, seconds]|join(':') }}
+            #   - service: sonos.restore
+            #     data_template:
+            #       entity_id: "{{ sonos_entity }}"
+              - service: media_player.volume_set
+                data_template:
+                  entity_id: "{{ sonos_entity }}"
+                  volume_level: "{{ sonos_volume }}"
+            mode: queued
+
+        sonos_tts_test:
+            alias: "Sonos TTS Test"
+            sequence:
+              - service: script.sonos_say
+                data: 
+                  sonos_entity: media_player.sonos_living_room
+                  volume: 0.2
+                  message: 'ПРЕДУПРЕЖДЕНИЕ! Снимите систему с охраны СЕЙЧАС, если Вы хотите предотвратить активацию сирены!!'
+            mode: single

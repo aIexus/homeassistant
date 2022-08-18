@@ -1,4 +1,5 @@
-    - alias: living_room_aquarium_main_lighting_on
+    - alias: "Living Room: Turn ON main light by Schedule"
+      id: living_room_aquarium_main_lighting_on
       description: 'Аквариум - Включение основного освещения'
       mode: single
       trigger:
@@ -18,7 +19,8 @@
           entity_id: switch.living_room_aquarium_main_lighting
           domain: switch
 
-    - alias: living_room_aquarium_main_lighting_off
+    - alias: "Living Room: Turn OFF main light by Schedule"
+      id: living_room_aquarium_main_lighting_off
       description: 'Аквариум - Выключение основного освещения'
       mode: single
       trigger:
@@ -38,7 +40,8 @@
           entity_id: switch.living_room_aquarium_main_lighting
           domain: switch
 
-    - alias: living_room_aquarioum_moonlight_on
+    - alias: "Living Room: Turn ON Moonlight by Schedule"
+      id: living_room_aquarioum_moonlight_on
       description: 'Аквариум - Включение лунного света'
       mode: single
       trigger:
@@ -54,7 +57,8 @@
           entity_id: switch.living_room_aquarium_moonlight
           domain: switch
 
-    - alias: living_room_aquarioum_moonlight_off
+    - alias: "Living Room: Turn OFF Moonlight by Schedule"
+      id: living_room_aquarioum_moonlight_off
       description: 'Аквариум - Выключение лунного света'
       mode: single
       trigger:

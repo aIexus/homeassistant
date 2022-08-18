@@ -1,5 +1,5 @@
-- id: Сжатие БД
-  alias: purge_everyday
+- id: purge_db_everyday
+  alias: "System: Purge DB Everyday"
   initial_state: true
   trigger:
     - platform: time
@@ -7,12 +7,13 @@
   action:
     - service: recorder.purge
       data:
-          keep_days: 7
+          keep_days: 5
           repack: true
-
-- alias: HomeAssistant_shutdown_turn_off_switches
-  description: 'Отключение всех устройств при отключении инстанса'
   mode: single
+
+- alias: "System: Turn OFF switches on Shutdown"
+  id: HomeAssistant_shutdown_turn_off_switches
+  description: 'Отключение всех устройств при отключении инстанса'
   trigger:
     - platform: homeassistant
       event: shutdown
@@ -30,4 +31,4 @@
           - switch.living_room_socket_heating
           - switch.living_room_light_switch
           - switch.kitchen_socket_heating
-
+  mode: single

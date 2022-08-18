@@ -1,4 +1,5 @@
-    - alias: bathroom_notify_about_water_leak_under_the_bath
+    - alias: "Bathroom: Notification about Water Leakage under Bath"
+      id: bathroom_notify_about_water_leak_under_the_bath
       description: 'Уведомление о протечке воды под ванной'
       mode: single
       trigger:
@@ -26,9 +27,9 @@
             sonos_entity: media_player.sonos_living_room
             volume: 0.4
             message: 'ВНИМАНИЕ!!! Обнаружена протечка в ванной комнате под ванной!'
-            delay_secs: 4
 
-    - alias: bathroom_notify_about_water_leak_under_washing_machine
+    - alias: "Bathroom: Notification about Water Leakage under Washing Machine"
+      id: bathroom_notify_about_water_leak_under_washing_machine
       description: 'Уведомление о протечке воды в ванной под стиральной машиной'
       mode: single
       trigger:
@@ -56,14 +57,14 @@
             sonos_entity: media_player.sonos_living_room
             volume: 0.4
             message: 'ВНИМАНИЕ!!! Обнаружена протечка в ванной комнате под стиральной машиной!'
-            delay_secs: 4
 
-    - alias: bathroom_notify_about_washing_machine_cycle_finihed
+    - alias: "Bathroom: Notification about finished programm by washing machine"
+      id: bathroom_notify_about_washing_machine_cycle_finihed
       description: 'Уведомление об окончании цикла стирки'
       mode: single
       trigger:
         - platform: state
-          entity_id: binary_sensor.bathroom_washing_machine_socket_power
+          entity_id: binary_sensor.bathroom_washing_machine_socket_status
           to: 'off'
       condition: []
       action:
@@ -84,9 +85,9 @@
             sonos_entity: media_player.sonos_living_room
             volume: 0.3
             message: 'Стиральная машина завершила программу!'
-            delay_secs: 4
 
-    - alias: kitchen_notify_about_water_leak
+    - alias: "Kitchen: Notification about water leakage"
+      id: kitchen_notify_about_water_leak
       description: 'Уведомление о протечке воды в кухне'
       mode: single
       trigger:
@@ -114,9 +115,9 @@
             sonos_entity: media_player.sonos_living_room
             volume: 0.4
             message: 'ВНИМАНИЕ!!! Обнаружена протечка в кухне под мойкой!'
-            delay_secs: 4
 
-    - alias: kitchen_notify_about_smoke_detection
+    - alias: "Kitchen: Notification about Smoke Detection"
+      id: kitchen_notify_about_smoke_detection
       description: 'Уведомление об обнаружении дыма в кухне'
       mode: single
       trigger:
@@ -142,11 +143,11 @@
         - service: script.sonos_say
           data: 
             sonos_entity: media_player.sonos_living_room
-            volume: 0.4
+            volume: 0.5
             message: 'ВНИМАНИЕ!!! Обнаружен дым на кухне!'
-            delay_secs: 4
 
-    - alias: home_assistant_startup_notification
+    - alias: "System: Notification about finished Startup"
+      id: home_assistant_startup_notification
       trigger:
         - platform: homeassistant
           event: start
@@ -162,7 +163,8 @@
               ➖➖➖➖➖➖➖➖➖➖➖➖
               Сервер Home Assistant был перезапущен{{"\U0000203C"}}
 
-    - alias: home_assistant_shutdown_notification
+    - alias: "System: Notification about initiated Shutdown"
+      id: home_assistant_shutdown_notification
       trigger:
         - platform: homeassistant
           event: shutdown
@@ -178,8 +180,8 @@
               ➖➖➖➖➖➖➖➖➖➖➖➖
               Сервер Home Assistant выключается{{"\U0000203C"}}
 
-    - id: home_assistant_update_notification
-      alias: 'Notify about Home Assistant Updates'
+    - alias: 'System: Notification about Home Assistant Updates'
+      id: home_assistant_update_notification
       description: "Send notification about Home Assistant Updates"
       trigger:
         - platform: state
@@ -214,6 +216,10 @@
           entity_id: update.file_editor_update
           from: 'off'
           to: 'on'
+        - platform: state
+          entity_id: update.phpmyadmin_update
+          from: 'off'
+          to: 'on'
       action:
         - service: notify.alexus
           data:
@@ -221,13 +227,20 @@
             message:  |
               ➖➖➖➖➖➖➖➖➖➖➖➖
               Доступно {{ trigger.to_state.attributes.friendly_name }}
-                Установленно: {{ trigger.to_state.attributes.installed_version }}
+                Установлено: {{ trigger.to_state.attributes.installed_version }}
                 Доступно: {{ trigger.to_state.attributes.latest_version }}
 
-    - alias: rpi_ac_power_failure_notification
+    - alias: "System: Notification about RPi Power Failure"
+      id: rpi_ac_power_failure_notification
       trigger:
         - platform: state
           entity_id: binary_sensor.rpi_ac_power_status
+          not_from:
+            - "unknown"
+            - "unavailable"
+          not_to:
+            - "unknown"
+            - "unavailable"
       condition: []
       action:
         - service: notify.alexus
@@ -235,7 +248,7 @@
             title: '{{"\U000026A0"}} ВНИМАНИЕ{{"\U0000203C"}}'
             message: |
               ➖➖➖➖➖➖➖➖➖➖➖➖
-              Внешнее питание: {{"\U0001F50C"}} {% if is_state("binary_sensor.rpi_ac_power_status", "on") %}Подключено{% else %}Отключено{% endif %}
+              Внешнее питание: {{"\U0001F50C"}} {% if is_state("binary_sensor.rpi_ac_power_status", "on") %}Подключено{% elif is_state("binary_sensor.rpi_ac_power_status", "off") %}Отключено{% else %}Недоступно{% endif %}
               
               {{"\U0001F50B"}} UPS Battery Status: ({% if is_state("binary_sensor.ups_battery_low","off") %}OK{%else%}Low{{"\U0000203C"}}{%endif%}) {{ states("sensor.ups_battery_capacity") }}% / {{ states("sensor.ups_battery_voltage") }}V
         - condition: state
@@ -248,10 +261,10 @@
           data: 
             sonos_entity: media_player.sonos_living_room
             volume: 0.4
-            message: 'ВНИМАНИЕ!!! Внешнее питание {% if is_state("binary_sensor.rpi_ac_power_status", "on") %}подключено{% else %}отключено{% endif %}!'
-            delay_secs: 4
+            message: 'ВНИМАНИЕ!!! Внешнее питание {% if is_state("binary_sensor.rpi_ac_power_status", "on") %}Подключено{% elif is_state("binary_sensor.rpi_ac_power_status", "off") %}Отключено{% else %}Недоступно{% endif %}!'
 
-    - alias: ups_battery_low_level_notification
+    - alias: "System: Notification about UPS Low Battery Level"
+      id: ups_battery_low_level_notification
       trigger:
         - platform: state
           entity_id: binary_sensor.ups_battery_low
@@ -286,9 +299,9 @@
               Низкий уровень заряда батареи UPS: {{ states("sensor.ups_battery_capacity") }} процентов.
               Внешнее питание {% if is_state("binary_sensor.rpi_ac_power_status", "on") %}подключено{% else %}отключено{% endif %}!
               Через некоторое время сервер будет остановлен!
-            delay_secs: 15
 
-    - alias: ups_battery_full_level_notification
+    - alias: "System: Notification about Full UPS Battery Level"
+      id: ups_battery_full_level_notification
       trigger:
         - platform: numeric_state
           entity_id: sensor.ups_battery_capacity
@@ -306,28 +319,8 @@
               Батарея UPS полностью заряжена: {{ states("sensor.ups_battery_capacity") }}% / {{ states("sensor.ups_battery_voltage") }}V{{"\U0000203C"}}
               Внешнее питание: {{"\U0001F50C"}} {% if is_state("binary_sensor.rpi_ac_power_status", "on") %}Подключено{% else %}Отключено{% endif %}
 
-    - alias: corridor_notify_entrance_door_opened_no_one_at_home
-      description: 'Тревога - входная дверь открылась, но дома никого нет'
-      mode: single
-      trigger:
-        - type: opened
-          platform: device
-          device_id: 8bdd25d1820505d01332c5ac3780dee1
-          entity_id: binary_sensor.corridor_entrance_door_contact
-          domain: binary_sensor
-      condition:
-        - condition: state
-          entity_id: binary_sensor.anyone_home
-          state: 'off'
-      action:
-        - service: notify.alexus
-          data:
-            title: '{{"\U000026A0"}} ТРЕВОГА{{"\U0000203C"}}'
-            message: |
-              ➖➖➖➖➖➖➖➖➖➖➖➖
-              {{"\U0001F6A8"}}Открылась входная дверь, но дома никого нет{{"\U0000203C"}}
-
-    - alias: corridor_notify_entrance_door_opened_two_minutes
+    - alias: "Entrance: Notification about Opened Door for more than 3 minutes"
+      id: entrance_notify_about_opened_door_for_3_minutes
       description: 'Предупреждение о незакрытой входной двери'
       mode: single
       trigger:
@@ -337,14 +330,14 @@
           entity_id: binary_sensor.corridor_entrance_door_contact
           domain: binary_sensor
           for:
-            minutes: 2
+            minutes: 3
       condition: []
       action:
         - service: notify.alexus
           data:
             title: '{{"\U000026A0"}} ВНИМАНИЕ{{"\U0000203C"}}'
             message: |
-              Входная дверь открыта более двух минут{{"\U0000203C"}}
+              Входная дверь открыта более трёх минут{{"\U0000203C"}}
         - condition: state
           entity_id: input_boolean.disable_voice_notifications
           state: 'off'
@@ -355,10 +348,11 @@
           data: 
             sonos_entity: media_player.sonos_living_room
             volume: 0.4
-            message: 'ВНИМАНИЕ!!! Входная дверь открыта более двух минут!'
-            delay_secs: 5
+            message: 'ВНИМАНИЕ!!! Входная дверь открыта более трёх минут!'
 
-    - alias: zone_notifications
+    - alias: "Zones: Notification about changed Zone for persones"
+      id: zone_notifications
+      mode: queued
       trigger:
        # Дом
       - platform: zone

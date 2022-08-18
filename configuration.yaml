@@ -32,8 +32,6 @@ tts:
       pitch: "100"
       bitrate: "128k"
 
-smartir:
-
 # Include External Files
 binary_sensor: !include includes/binary_sensors.yaml
 input_boolean: !include includes/input_boolean.yaml
@@ -46,16 +44,3 @@ device_tracker: !include includes/device_tracker.yaml
 # Include External Folders
 sensor: !include_dir_merge_list includes/sensors
 automation: !include_dir_merge_list includes/automation
-
-#Telegram-bot
-telegram_bot:
-    - platform: polling
-      api_key: !secret telegramm_bot_token
-      allowed_chat_ids:
-        - !secret telegram_user_1
-    #   - ID пользователя 2   
-
-notify:
-    - name: alexus
-      platform: telegram
-      chat_id: !secret telegram_user_1

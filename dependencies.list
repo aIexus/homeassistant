@@ -1,0 +1,29 @@
+integrations:
+    - Broadlink
+    - HACS
+    - Home Assistant Companion
+    - Home Assistant Supervisor
+    - Meteorologisk institutt (Met.no)
+    - Raspberry Pi Power Supply Checker
+    - Sonos
+    - Ukraine Alarm
+    - UPnP/IGD
+
+addons:
+    - File Editor
+    - Home Assistant Google Drive Backup
+    - MariaDB
+    - Mosquitto broker
+    - phpMyAdmin
+    - Terminal & SSH
+    - Zigbee2MQTT
+
+HACS:
+  integrations:
+    - Tapo: Cameras Control
+    - ReversoTTS
+    - SmartIR
+  interface:
+    - multiple-entity-row
+    - Mini Media Player
+    - auto-entities

@@ -72,7 +72,9 @@
 
     automation:
 
-        - alias: bedroom_auto_light_off
+        # Автоматизация выключения света в спальне
+        - alias: "Light: Turn OFF light in Bedroom by timer"
+          id: bedroom_auto_light_off
           description: 'Автоматическое Выключение освещения в спальне'
           mode: single
           trigger:
@@ -90,7 +92,8 @@
               entity_id: switch.bedroom_light_switch
 
         # Таймер автоотключения
-        - alias: bedroom_light_off_timer_start
+        - alias: "Light: Start light-off Timer for Bedroom"
+          id: bedroom_light_off_timer_start
           description: 'Активация таймера автоотключения в спальне'
           initial_state: true
           trigger:
@@ -116,7 +119,8 @@
                    {% endif %} 
 
         # Сброс таймера при выключении
-        - alias: bedroom_light_off_timer_cancel
+        - alias: "Light: Cancel light-off Timer for Bedroom"
+          id: bedroom_light_off_timer_cancel
           initial_state: true
           trigger:
           - platform: state
@@ -130,7 +134,8 @@
             entity_id: timer.bedroom_light_off_timer
 
         # Автоматизация выключения света в гостинной
-        - alias: living_room_auto_light_off
+        - alias: "Light: Turn OFF light in Living Room by timer"
+          id: living_room_auto_light_off
           description: 'Автоматическое Выключение освещения в гостинной'
           mode: single
           trigger:
@@ -148,7 +153,8 @@
               entity_id: switch.living_room_light_switch
 
         # Таймер автоотключения
-        - alias: living_room_light_off_timer_start
+        - alias: "Light: Start light-off Timer for Living Room"
+          id: living_room_light_off_timer_start
           description: 'Активация таймера автоотключения в гостинной'
           initial_state: true
           trigger:
@@ -174,7 +180,8 @@
                    {% endif %} 
 
         # Сброс таймера при выключении света в гостинной
-        - alias: living_room_light_off_timer_cancel
+        - alias: "Light: Cancel light-off Timer for Living Room"
+          id: living_room_light_off_timer_cancel
           initial_state: true
           trigger:
           - platform: state

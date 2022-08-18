@@ -8,10 +8,6 @@
       - switch.bedroom_light_switch
       - switch.living_room_light_switch
 
-    occupancy:
-      - binary_sensor.bedroom_lumi_sensor_motion_occupancy
-      - binary_sensor.living_room_lumi_sensor_motion_occupancy
-
     heaters:
       - climate.bedroom_heater
       - climate.kitchen_heater

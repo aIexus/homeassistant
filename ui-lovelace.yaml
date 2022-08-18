@@ -84,6 +84,69 @@ views:
                 show_state: false
                 title: Сейчас Дома
 
+        #   - type: picture-glance
+        #      title: Living Room
+        #      camera_image: camera.tapo_camera_sd
+        #      camera_view: live
+        #      entities:
+        #       - entity: camera.tapo_camera_sd
+        #         icon: 'mdi:arrow-left-drop-circle-outline'
+        #         tap_action:
+        #           action: call-service
+        #           service: tapo_control.ptz
+        #           service_data:
+        #             entity_id: camera.tapo_camera_sd
+        #             pan: LEFT
+        #       - entity: camera.tapo_camera_sd
+        #         icon: 'mdi:arrow-up-drop-circle-outline'
+        #         tap_action:
+        #           action: call-service
+        #           service: tapo_control.ptz
+        #           service_data:
+        #             entity_id: camera.tapo_camera_sd
+        #             tilt: UP
+        #       - entity: camera.tapo_camera_sd
+        #         icon: 'mdi:arrow-down-drop-circle-outline'
+        #         tap_action:
+        #           action: call-service
+        #           service: tapo_control.ptz
+        #           service_data:
+        #             entity_id: camera.tapo_camera_sd
+        #             tilt: DOWN
+        #       - entity: camera.tapo_camera_sd
+        #         icon: 'mdi:arrow-right-drop-circle-outline'
+        #         tap_action:
+        #           action: call-service
+        #           service: tapo_control.ptz
+        #           service_data:
+        #             entity_id: camera.tapo_camera_sd
+        #             pan: RIGHT
+        #       - entity: camera.tapo_camera_sd
+        #         icon: 'mdi:eye-outline'
+        #         tap_action:
+        #           action: call-service
+        #           service: tapo_control.set_privacy_mode
+        #           service_data:
+        #             entity_id: camera.tapo_camera_sd
+        #             privacy_mode: 'off'
+        #       - entity: camera.tapo_camera_sd
+        #         icon: 'mdi:eye-off-outline'
+        #         tap_action:
+        #           action: call-service
+        #           service: tapo_control.set_privacy_mode
+        #           service_data:
+        #             entity_id: camera.tapo_camera_sd
+        #             privacy_mode: 'on'
+        #       - entity: camera.tapo_camera_sd
+        #         icon: 'mdi:power'
+        #         tap_action:
+        #           action: call-service
+        #           service: tapo_control.reboot
+        #           service_data:
+        #             entity_id: camera.tapo_camera_sd
+        #      hold_action:
+        #         action: more-info
+
            - type: 'custom:mini-media-player'
              entity: media_player.sonos_living_room
              name: 'Living Room: Sonos One'
@@ -204,7 +267,7 @@ views:
                 # - type: button
                 #   tap_action:
                 #     action: none
-                #   entity: binary_sensor.bathroom_washing_machine_socket_power
+                #   entity: binary_sensor.bathroom_washing_machine_socket_status
                 #   show_state: false
                 #   show_name: false
                 #   hold_action:
@@ -466,6 +529,9 @@ views:
        - type: vertical-stack
          cards:
           - entities:
+              - entity: input_boolean.disable_alerts_notifications
+              - entity: input_boolean.disable_voice_alerts
+              - type: divider
               - entity: input_boolean.ac_status
               - entity: input_boolean.heating_status
               - type: divider
@@ -473,7 +539,6 @@ views:
               - entity: input_boolean.disable_home_away
               - entity: input_boolean.disable_occupancy
               - type: divider
-              - entity: input_boolean.disable_alerts_notifications
               - entity: input_boolean.disable_climate_notifications
               - entity: input_boolean.disable_voice_notifications
               - entity: input_boolean.disable_startup_notifications
@@ -548,7 +613,7 @@ views:
                       name: За месяц
                       unit: 'kW*h'
 
-                - entity: binary_sensor.living_room_socket_heating_power
+                - entity: binary_sensor.living_room_socket_heating_status
                   type: custom:multiple-entity-row
                   name: Обогреватель
                   secondary_info: last-changed
@@ -565,7 +630,7 @@ views:
                       name: За месяц
                       unit: 'kW*h'
 
-                - entity: binary_sensor.living_room_air_conditioner_socket_power
+                - entity: binary_sensor.living_room_air_conditioner_socket_status
                   type: custom:multiple-entity-row
                   name: Кондиционер
                   secondary_info: last-changed
@@ -630,7 +695,7 @@ views:
                     - entity: sensor.bedroom_lumi_weather_humidity
                       name: Влажность
 
-                - entity: binary_sensor.bedroom_socket_heating_power
+                - entity: binary_sensor.bedroom_socket_heating_status
                   type: custom:multiple-entity-row
                   name: Обогреватель
                   secondary_info: last-changed
@@ -647,7 +712,7 @@ views:
                       name: За месяц
                       unit: 'kW*h'
 
-                - entity: binary_sensor.bedroom_air_conditioner_socket_power
+                - entity: binary_sensor.bedroom_air_conditioner_socket_status
                   type: custom:multiple-entity-row
                   name: Кондиционер
                   secondary_info: last-changed
@@ -712,7 +777,7 @@ views:
                     - entity: sensor.kitchen_lumi_weather_humidity
                       name: Влажность
 
-                - entity: binary_sensor.kitchen_socket_heating_power
+                - entity: binary_sensor.kitchen_socket_heating_status
                   type: custom:multiple-entity-row
                   name: Обогреватель
                   secondary_info: last-changed
@@ -767,7 +832,7 @@ views:
                     - entity: sensor.bathroom_lumi_weather_humidity
                       name: Влажность
 
-                - entity: binary_sensor.bathroom_washing_machine_socket_power
+                - entity: binary_sensor.bathroom_washing_machine_socket_status
                   type: custom:multiple-entity-row
                   name: Стиральная машина
                   secondary_info: last-changed
@@ -799,6 +864,7 @@ views:
                   entities:
                     - entity: sensor.corridor_entrance_door_battery
                       name: Батарея
+                - entity: binary_sensor.tapo_camera_motion
 
        - type: vertical-stack
          title: Лоджия
@@ -835,7 +901,7 @@ views:
          
            - type: history-graph
              title: "Температура"
-             hours_to_show: 72
+             hours_to_show: 168
              entities:
                - entity: sensor.living_room_lumi_weather_temperature
                  name:  Гостинная
@@ -852,7 +918,7 @@ views:
          cards:
            - type: history-graph
              title: "Внешняя Температура"
-             hours_to_show: 72
+             hours_to_show: 168
              entities:
                - sensor.outdoor_temperature
                - sensor.outdoor_mean_temperature
