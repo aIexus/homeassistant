@@ -31,4 +31,5 @@
           - switch.living_room_socket_heating
           - switch.living_room_light_switch
           - switch.kitchen_socket_heating
+          - light.hallway_rgb_bulb
   mode: single

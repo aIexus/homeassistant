@@ -3,7 +3,7 @@ sonos_package:
     script:
 
         sonos_say:
-            alias: "Sonos TTS script"
+            alias: "Sonos: TTS script"
             fields:
               sonos_entity:
                 description: The entity or group of the sonos
@@ -18,6 +18,8 @@ sonos_package:
                 example: '0.5'
                 default: '0.5'    
             sequence:
+              - condition: template
+                value_template: "{{ not is_state(sonos_entity,'unavailable') }}"
               - variables:
                   sonos_volume: "{{ states[sonos_entity].attributes.volume_level }}"
             #   - service: sonos.snapshot
@@ -55,7 +57,7 @@ sonos_package:
             mode: queued
 
         sonos_play_file:
-            alias: "Sonos Play File script"
+            alias: "Sonos: Play File script"
             fields:
               sonos_entity:
                 description: The entity or group of the sonos
@@ -70,6 +72,8 @@ sonos_package:
                 example: '0.5'
                 default: '0.5'
             sequence:
+              - condition: template
+                value_template: "{{ not is_state(sonos_entity,'unavailable') }}"
               - variables:
                   sonos_volume: "{{ states[sonos_entity].attributes.volume_level }}"
             #   - service: sonos.snapshot
@@ -107,8 +111,10 @@ sonos_package:
             mode: queued
 
         sonos_tts_test:
-            alias: "Sonos TTS Test"
+            alias: "Sonos: Test"
             sequence:
+              - condition: template
+                value_template: "{{ not is_state(sonos_entity,'unavailable') }}"
               - service: script.sonos_say
                 data: 
                   sonos_entity: media_player.sonos_living_room

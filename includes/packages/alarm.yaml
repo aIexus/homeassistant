@@ -23,7 +23,7 @@ home_alarm_settings:
           description: 'Срабатывание триггеров при статусе охраны Armed_Away'
           trigger:
             - platform: state
-              entity_id: binary_sensor.corridor_entrance_door_contact
+              entity_id: binary_sensor.hallway_entrance_door_contact
               from: 'off'
               to: 'on'
             - platform: state
@@ -57,7 +57,7 @@ home_alarm_settings:
             - choose:
                 - conditions:
                     - condition: template
-                      value_template: "{{ trigger_area_name == 'Entrance' }}"
+                      value_template: "{{ trigger_area_name == 'Hallway' }}"
                   sequence:
                     - service: script.tapo_camera_select_preset
                       data:
@@ -79,6 +79,7 @@ home_alarm_settings:
                       data:
                         tapo_camera_id: camera.tapo_camera_hd
                         preset_name: 'Living Room'
+            # notification about alarm triggering
             - service: notify.alexus
               data:
                 title: '{{"\U000026A0"}} ВНИМАНИЕ{{"\U0000203C"}}'
@@ -88,23 +89,32 @@ home_alarm_settings:
                     Триггер: {{ trigger.to_state.attributes.friendly_name }}
                     Пространство:  {{ trigger_area_name }} 
                     Время: {{ states('sensor.date') }}, {{ states('sensor.time') }}
+            # take snapshot from detected area
             - service: script.tapo_camera_save_snapshot
               data:
                 tapo_camera_id: camera.tapo_camera_hd
                 file_name: '{{ snapshot_file_name }}'
-            - service: telegram_bot.send_photo
-              data_template:
-                target: !secret telegram_user_1
-                file: '{{ snapshot_file_name }}'
+            # send snapshot to alexus mobile/telegram
+            - service: notify.alexus
+              data:
+                message: '{{ trigger_area_name }}'
+                data:
+                  photo:
+                    - file: '{{ snapshot_file_name }}'
+                      caption: 'Фото: {{ trigger_area_name }}'
+            # record short video from detected area
             - service: script.tapo_camera_save_record
               data:
                 tapo_camera_id: camera.tapo_camera_hd
                 file_name: '{{ record_file_name }}'
                 time_duration: 15
-            - service: telegram_bot.send_video
-              data_template:
-                target: !secret telegram_user_1
-                file: '{{ record_file_name }}'
+            - service: notify.alexus
+              data:
+                message: '{{ trigger_area_name }}'
+                data:
+                  video:
+                    - file: '{{ record_file_name }}'
+                      caption: 'Видео: {{ trigger_area_name }}'
           mode: single
 
         - alias: "Alarm: Triggers in ARMED_HOME mode"
@@ -112,7 +122,7 @@ home_alarm_settings:
           description: 'Определение триггеров при статусе охраны Armed_Home'
           trigger:
             - platform: state
-              entity_id: binary_sensor.corridor_entrance_door_contact
+              entity_id: binary_sensor.hallway_entrance_door_contact
               from: 'off'
               to: 'on'
           condition:
@@ -143,6 +153,23 @@ home_alarm_settings:
                         sonos_entity: media_player.sonos_living_room
                         volume: 0.7
                         music_file: '/media/local/alerts/Car_Arm.mp3'
+                    - service: light.turn_on
+                      target:
+                        entity_id: light.hallway_rgb_bulb
+                      data: 
+                        brightness: 100
+                        rgb_color: [255, 254, 72]
+                - conditions:
+                    - condition: time
+                      before:  '08:00:00'
+                      after: '22:00:00' 
+                  sequence:
+                    - service: light.turn_on
+                      target:
+                        entity_id: light.hallway_rgb_bulb
+                      data: 
+                        brightness: 13
+                        rgb_color: [5, 69, 255]
             - service: notify.alexus
               data:
                 title: '{{"\U0001F6A8"}} СИГНАЛИЗАЦИЯ{{"\U0000203C"}}'
@@ -209,6 +236,14 @@ home_alarm_settings:
               entity_id: alarm_control_panel.home_alarm
               to: 'disarmed'
           action:
+            - service: script.turn_on
+              target:
+                entity_id: script.rgb_bulb_flashing_x_times
+              data:
+                variables:
+                  rgb_bulb_entity_id: light.hallway_rgb_bulb
+                  count: 2
+                  color: 'green'
             - choose:
                 - conditions:
                     - condition: time
@@ -246,6 +281,21 @@ home_alarm_settings:
                     - service: input_boolean.turn_on
                       entity_id: input_boolean.tapo_camera_privacy_mode
                     - delay: '00:00:06'
+            - wait_template: |
+                {{ is_state('script.rgb_bulb_flashing_while_condition', 'off') and 
+                   is_state('script.rgb_bulb_flashing_x_times', 'off')
+                }}
+            # - service: scene.turn_on
+            #   entity_id: scene.scene_rgb_bulb_white
+            # - delay: '00:00:01'
+            - choose:
+                - conditions:
+                    - condition: state
+                      entity_id: light.hallway_rgb_bulb
+                      state: 'on'
+                  sequence:
+                    - service: light.turn_off
+                      entity_id: light.hallway_rgb_bulb
           mode: single
 
         - alias: "Alarm: Set ARMED_HOME if anyone home at 22:00"
@@ -304,20 +354,21 @@ home_alarm_settings:
                   inline_keyboard: 
                     - "{{'\U0001F694'}} Снять с охраны {{'\U0001F6A8'}} [ТРЕВОГА]:/cancel_alarm"
                     - "{{'\U0001F6E1'}} Безопасность:/security, {{'\U0001F4D1'}} Меню:/menu"
+            - service: script.turn_on
+              target:
+                entity_id: script.rgb_bulb_flashing_while_condition
+              data:
+                variables:
+                  rgb_bulb_entity_id: light.hallway_rgb_bulb
+                  condition_entity_id: alarm_control_panel.home_alarm
+                  repeat_while_state: 'triggered'
+                  color: 'red'
             - repeat:
                 until: 
                   - condition: state
                     entity_id: alarm_control_panel.home_alarm
                     state: 'disarmed'
                 sequence:
-                    - condition: state
-                      entity_id: alarm_control_panel.home_alarm
-                      state: 'triggered'
-                    - service: switch.turn_on
-                      entity_id: switch.bedroom_light_switch
-                    - condition: state
-                      entity_id: alarm_control_panel.home_alarm
-                      state: 'triggered'
                     - service: script.sonos_say
                       data: 
                         sonos_entity: media_player.sonos_living_room
@@ -326,26 +377,11 @@ home_alarm_settings:
                     - condition: state
                       entity_id: alarm_control_panel.home_alarm
                       state: 'triggered'
-                    - service: switch.turn_off
-                      entity_id: switch.bedroom_light_switch
-                    - condition: state
-                      entity_id: alarm_control_panel.home_alarm
-                      state: 'triggered'
-                    - service: switch.turn_on
-                      entity_id: switch.living_room_light_switch
-                    - condition: state
-                      entity_id: alarm_control_panel.home_alarm
-                      state: 'triggered'
                     - service: script.sonos_play_file
                       data: 
                         sonos_entity: media_player.sonos_living_room
                         volume: '{{ speaker_volume }}'
                         music_file: '/media/local/alerts/Car_Alarm_02.mp3'
-                    - condition: state
-                      entity_id: alarm_control_panel.home_alarm
-                      state: 'triggered'
-                    - service: switch.turn_off
-                      entity_id: switch.living_room_light_switch
           mode: single
 
         - alias: "Alarm: Actions on ARMING"
@@ -357,6 +393,15 @@ home_alarm_settings:
               from: 'disarmed'
               to: 'arming'
           action:
+            - service: script.turn_on
+              target:
+                entity_id: script.rgb_bulb_flashing_while_condition
+              data:
+                variables:
+                  rgb_bulb_entity_id: light.hallway_rgb_bulb
+                  condition_entity_id: alarm_control_panel.home_alarm
+                  repeat_while_state: 'arming'
+                  color: 'yellow'
             - repeat:
                 until: 
                   - condition: or
@@ -395,6 +440,15 @@ home_alarm_settings:
                   inline_keyboard: 
                     - "{{'\U0001F694'}} Снять с охраны {% if (trigger.from_state.state == 'armed_away') %}{{'\U0001F534'}} [Не Дома]{% elif (trigger.from_state.state == 'armed_home') %}{{'\U0001F7E1'}} [ Дома ]{% endif%}:/cancel_alarm"
                     - "{{'\U0001F6E1'}} Безопасность:/security, {{'\U0001F4D1'}} Меню:/menu"
+            - service: script.turn_on
+              target:
+                entity_id: script.rgb_bulb_flashing_while_condition
+              data:
+                variables:
+                  rgb_bulb_entity_id: light.hallway_rgb_bulb
+                  condition_entity_id: alarm_control_panel.home_alarm
+                  repeat_while_state: 'pending'
+                  color: 'yellow'
             - repeat:
                 until: 
                   - condition: or
@@ -406,9 +460,6 @@ home_alarm_settings:
                         entity_id: alarm_control_panel.home_alarm
                         state: 'triggered'
                 sequence:
-                  - condition: state
-                    entity_id: alarm_control_panel.home_alarm
-                    state: 'pending'
                   - service: script.sonos_say
                     data: 
                       sonos_entity: media_player.sonos_living_room
@@ -496,13 +547,13 @@ home_alarm_settings:
             - choose:
                 - conditions:
                     - condition: template
-                      value_template: "{{ trigger.to_state.state == 'single' }}"
+                      value_template: "{{ trigger.to_state.attributes.action == 'single' }}"
                   sequence:
                     - service: alarm_control_panel.alarm_arm_away
                       entity_id: alarm_control_panel.home_alarm
                 - conditions:
                     - condition: template
-                      value_template: "{{ trigger.to_state.state == 'hold' }}"
+                      value_template: "{{ trigger.to_state.attributes.action == 'hold' }}"
                   sequence:
                     - service: alarm_control_panel.alarm_arm_home
                       entity_id: alarm_control_panel.home_alarm

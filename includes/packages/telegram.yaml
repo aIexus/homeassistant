@@ -13,6 +13,27 @@ telegram:
           platform: telegram
           chat_id: !secret telegram_user_1
 
+    script:
+
+        telegram_test:
+          alias: "Telegram: Test Message"
+          sequence:
+            - service: notify.alexus
+              data:
+                title: 'title'
+                message: 'message'
+                # data:
+                #   photo: 
+                #     - file: '/config/files/camera/Tapo Camera - HD/snapshot_20220817-150840.jpg'
+                #       caption: 'photo'
+                #   video:
+                #     - file: '/config/files/camera/Tapo Camera - HD/record_20220816-205155.mp4'
+                #       caption: 'video'
+                #   location:
+                #     latitude: 32.87336
+                #     longitude: 117.22743
+          mode: single
+
     automation:
 
         - alias: "Telegram: Start Menu"
@@ -32,6 +53,7 @@ telegram:
               data:
                 inline_keyboard: 
                   - "{{'\U0001F4D1'}} Меню:/menu, {{'\U0001F5FA'}} Геолокация:/geo"
+          mode: single
 
         - alias: "Telegram: Main Menu"
           id: telegram_menu_main
@@ -41,10 +63,14 @@ telegram:
             event_data:
               command: '/menu'
           action:
+          - service: telegram_bot.delete_message
+            data:
+              message_id: 'last'
+              chat_id: !secret telegram_user_1
           - service: notify.alexus
             data:
               message: |
-                  Главное меню
+                  {{'\U0001F4D1'}} Главное меню
                   ➖➖➖➖➖➖➖➖➖➖➖➖
                   Выберите раздел:
               data: 
@@ -52,6 +78,7 @@ telegram:
                   - "{{'\U00002139'}} Статус:/status, {{'\U0001F6E1'}} Безопасность:/security"
                   - "{{'\U0001F321'}} Климат:/climate, {{'\U0001F4A1'}} Освещение:/lights" 
                   - "{{'\U0001F5FA'}} Геолокация:/geo, {{'\U0001F4D1'}} Меню:/menu"
+          mode: single
 
         - alias: "Telegram: System Status Menu"
           id: telegram_menu_status
@@ -62,28 +89,33 @@ telegram:
             event_data:
               data: '/status'
           action:
+          - service: telegram_bot.delete_message
+            data:
+              message_id: 'last'
+              chat_id: !secret telegram_user_1
           - service: notify.alexus
             data:
-              message: |
-                {{"\U0001F4C5"}} {{ states("sensor.date") }} {{"\U0001F551"}} {{ states("sensor.time") }}
+              message: &system_status_body |
+                {{'\U00002139'}} {{ states("sensor.date") }} {{"\U0001F551"}} {{ states("sensor.time") }}
                 ➖➖➖➖➖➖➖➖➖➖➖➖
                 {{"\U0001F4BB"}} RPi Power status: {% if is_state("binary_sensor.rpi_ac_power_status",'on') %}{{"\U0001F50C"}}{% else%}{{"\U0001F50B"}}{% endif %}
                 {{"\U0001F4C6"}} RPi Last Boot: {{ states("sensor.last_boot_custom") }} ago
                 {{"\U0001F199"}} HA Uptime: {{ states("sensor.online_custom") }}
                 {{"\U0001F4C5"}} Last Success BackUp: {{ states("sensor.last_google_backup_train") }}
 
-                {{"\U0001F50B"}} UPS Battery Status: ({% if is_state("binary_sensor.ups_battery_low","off") %}OK{%else%}Low{{"\U0000203C"}}{%endif%}) {{ states("sensor.ups_battery_capacity") }}% / {{ states("sensor.ups_battery_voltage") }}V
-                
+                {% if is_state("binary_sensor.ups_battery_low","off") %}{{"\U0001F50B"}} UPS Battery Status: (OK){%else%}{{"\U0001FAAB"}} UPS Battery Status: (Low){{"\U0000203C"}}{%endif%} {{ states("sensor.ups_battery_capacity") }}% / {{ states("sensor.ups_battery_voltage") }}V
+
                 CPU: {{"\U0001F321"}} {{ states("sensor.processor_temperature") }}{{"\U00002103"}}, {{"\U0001F4C8"}}: {{ states("sensor.processor_use") }}{{"\U00000025"}}
                 RAM: {{ states("sensor.memory_use_percent") }}{{"\U00000025"}} Usage
                 SSD: {{ states("sensor.disk_use_percent") }}{{"\U00000025"}} Usage, {{ states("sensor.disk_free") }} Gb Free
-                
+
                 External IP: {{ states("sensor.archer_c80_router_external_ip") }}
               data: 
                 inline_keyboard: 
                   - "{{'\U00002139'}} Статус:/status, {{'\U0001F6E1'}} Безопасность:/security"
                   - "{{'\U0001F321'}} Климат:/climate, {{'\U0001F4A1'}} Освещение:/lights" 
                   - "{{'\U0001F5FA'}} Геолокация:/geo, {{'\U0001F4D1'}} Меню:/menu"
+          mode: single
 
         - alias: "Telegram: Climate Menu"
           id: telegram_menu_climate
@@ -94,16 +126,20 @@ telegram:
             event_data:
               data: '/climate'
           action:
+          - service: telegram_bot.delete_message
+            data:
+              message_id: 'last'
+              chat_id: !secret telegram_user_1
           - service: notify.alexus
             data:
-              message: |
-                Показатели климата в квартире:
+              message: &climate_body |
+                {{'\U0001F321'}} Показатели климата в квартире:
                 ➖➖➖➖➖➖➖➖➖➖➖➖
                 {{"\U0001F6CB"}} Гостинная {{"\U0001F321"}}: {{ states("sensor.living_room_lumi_weather_temperature") | round(1) }}{{"\U00002103"}}   {{"\U0001F4A6"}}: {{ states("sensor.living_room_lumi_weather_humidity") | round(1) }} %
                 {% if is_state('input_boolean.heating_status','on') %}Отопление: {% if state_attr('climate.living_room_heater', 'hvac_action') == "off" %}{{"\U0001F4F4"}}{%endif%}
                 - {{"\U0001F525"}}: {{ states("switch.living_room_socket_heating") }}, >{{"\U0001F321"}}: {{ state_attr('climate.living_room_heater', 'temperature') }}{{"\U00002103"}}
                 - {{"\U0001F50C"}}: ({{ states("sensor.living_room_socket_heating_voltage") }} V | {{ states("sensor.living_room_socket_heating_current") | round(1) }} A | {{ states("sensor.living_room_socket_heating_power") }} W | {{ states("sensor.living_room_socket_heating_meter") | round(1) }} kWh)
-                {% elif is_state('input_boolean.ac_status','on') %}Кондиционер: {% if is_state('climate.living_room_ac', 'off') %}{{"\U0001F4F4"}}{% elif is_state('climate.living_room_ac', 'cool') %}{{"\U00002744"}}{% elif is_state('climate.living_room_ac', 'heat') %}{{"\U0001F525"}}{% elif is_state('climate.living_room_ac', 'dry') %}{{"\U0001F4A7"}}{% else %}{{"\U0001F504"}}{%endif%}
+                {% elif is_state('input_boolean.ac_status','on') %}Кондиционер: {% if is_state('climate.living_room_ac', 'off') %}{{"\U0001F4F4"}}{% elif is_state('climate.living_room_ac', 'cool') %}{{"\U00002744"}}{% elif is_state('climate.living_room_ac', 'heat') %}{{"\U00002600"}}{% elif is_state('climate.living_room_ac', 'dry') %}{{"\U0001F4A7"}}{% else %}{{"\U0001F504"}}{%endif%}
                 - {{"\U0001F321"}}: {{ state_attr('climate.living_room_ac','temperature') }}{{"\U00002103"}} | {{"\U0001F32C"}}: {{ state_attr('climate.living_room_ac','fan_mode') }}
                 - {{"\U0001F50C"}}: ({{ states("sensor.living_room_air_conditioner_socket_voltage") }} V | {{ states("sensor.living_room_air_conditioner_socket_current") | round(1) }} A | {{ states("sensor.living_room_air_conditioner_socket_power") }} W | {{ states("sensor.living_room_air_conditioner_socket_meter") | round(1) }} kWh)
                 {% endif %}
@@ -111,7 +147,7 @@ telegram:
                 {% if is_state('input_boolean.heating_status','on') %}Отопление: {% if state_attr('climate.bedroom_heater', 'hvac_action') == "off" %}{{"\U0001F4F4"}}{%endif%}
                 - {{"\U0001F525"}}: {{ states("switch.bedroom_socket_heating") }}, >{{"\U0001F321"}}: {{ state_attr('climate.bedroom_heater', 'temperature') }}{{"\U00002103"}}
                 - {{"\U0001F50C"}}: ({{ states("sensor.bedroom_socket_heating_voltage") }} V | {{ states("sensor.bedroom_socket_heating_current") | round(1) }} A | {{ states("sensor.bedroom_socket_heating_power") }} W | {{ states("sensor.bedroom_socket_heating_meter") | round(1) }} kWh)
-                {% elif is_state('input_boolean.ac_status','on') %}Кондиционер: {% if is_state('climate.bedroom_ac', 'off') %}{{"\U0001F4F4"}}{% elif is_state('climate.bedroom_ac', 'cool') %}{{"\U00002744"}}{% elif is_state('climate.bedroom_ac', 'heat') %}{{"\U0001F525"}}{% elif is_state('climate.bedroom_ac', 'dry') %}{{"\U0001F4A7"}}{% elif is_state('climate.bedroom_ac', 'fan_only') %}{{"\U0001F32C"}}{% else %}{{"\U0001F504"}}{%endif%}
+                {% elif is_state('input_boolean.ac_status','on') %}Кондиционер: {% if is_state('climate.bedroom_ac', 'off') %}{{"\U0001F4F4"}}{% elif is_state('climate.bedroom_ac', 'cool') %}{{"\U00002744"}}{% elif is_state('climate.bedroom_ac', 'heat') %}{{"\U00002600"}}{% elif is_state('climate.bedroom_ac', 'dry') %}{{"\U0001F4A7"}}{% elif is_state('climate.bedroom_ac', 'fan_only') %}{{"\U0001F32C"}}{% else %}{{"\U0001F504"}}{%endif%}
                 - {{"\U0001F321"}}: {{ state_attr('climate.bedroom_ac','temperature') }}{{"\U00002103"}} | {{"\U0001F32C"}}: {{ state_attr('climate.bedroom_ac','fan_mode') }}
                 - {{"\U0001F50C"}}: ({{ states("sensor.bedroom_air_conditioner_socket_voltage") }} V | {{ states("sensor.bedroom_air_conditioner_socket_current") | round(1) }} A | {{ states("sensor.bedroom_air_conditioner_socket_power") }} W | {{ states("sensor.bedroom_air_conditioner_socket_meter") | round(1) }} kWh)
                 {% endif %}
@@ -121,16 +157,222 @@ telegram:
                 - {{"\U0001F50C"}}: ({{ states("sensor.kitchen_socket_heating_voltage") }} V | {{ states("sensor.kitchen_socket_heating_current") | round(1) }} A | {{ states("sensor.kitchen_socket_heating_power") }} W | {{ states("sensor.kitchen_socket_heating_meter") | round(1) }} kWh)
                 {% endif %}
                 {{"\U0001F6C0"}} Ванная {{"\U0001F321"}}: {{ states("sensor.bathroom_lumi_weather_temperature") | round(1) }}{{"\U00002103"}}   {{"\U0001F4A6"}}: {{ states("sensor.bathroom_lumi_weather_humidity") | round(1) }} %
-
                 {{"\U0001FA9F"}} Лоджия {{"\U0001F321"}}: {{ states("sensor.loggia_tuya_weather_temperature") | round(1) }}{{"\U00002103"}}   {{"\U0001F4A6"}}: {{ states("sensor.loggia_tuya_weather_humidity") | round(1) }} %
-                ➖➖➖➖➖➖➖➖➖➖➖➖
                 {{"\U0001F3DE"}} Улица {{"\U0001F321"}}: {{ states("sensor.outdoor_temperature") | round(1) }}{{"\U00002103"}}   {{"\U0001F4A6"}}: {{ states("sensor.outdoor_humidity") | round(1) }} %
-
               data: 
-                inline_keyboard:  
-                  - "{{'\U00002139'}} Статус:/status, {{'\U0001F6E1'}} Безопасность:/security"
-                  - "{{'\U0001F321'}} Климат:/climate, {{'\U0001F4A1'}} Освещение:/lights" 
-                  - "{{'\U0001F5FA'}} Геолокация:/geo, {{'\U0001F4D1'}} Меню:/menu"
+                inline_keyboard:
+                  - "{% if is_state('input_boolean.ac_status','on') %}{{'\U00002744'}}/{{'\U00002600'}} Управление Кондиционерами:/ac_control{% elif is_state('input_boolean.heating_status','on') %}{{'\U00002668'}} Управление обогревателями:/heaters_control{% endif %}"
+                  - "{{'\U0001F4D1'}} Меню:/menu"
+          mode: single
+
+        - alias: "Telegram: AC Control"
+          id: telegram_menu_ac_control
+          initial_state: true
+          trigger:
+            platform: event
+            event_type: telegram_callback
+            event_data:
+              data: '/ac_control'
+          action:
+          - service: telegram_bot.delete_message
+            data:
+              message_id: 'last'
+              chat_id: !secret telegram_user_1
+          - service: notify.alexus
+            data:
+              message: *climate_body
+              data: 
+                inline_keyboard:
+                  - "{{'\U0001F6CB'}} Гостинная {% if is_state('input_boolean.ac_status','on') %}{% if is_state('climate.living_room_ac','off') %}{{'\U0001F4F4'}} - Включить{% else %}{% if is_state('climate.living_room_ac','cool') %}{{'\U00002744'}}{% elif is_state('climate.living_room_ac','heat') %}{{'\U00002600'}}{% elif is_state('climate.living_room_ac','dry') %}{{'\U0001F4A7'}}{% else %}{{'\U0001F504'}}{%endif%} - Выключить{% endif %}:/toggle_ac_living_room{% elif is_state('input_boolean.heating_status','on') %}{{'\U00002668'}} Управление обогревателями:/heaters_control{% endif %}"
+                  - "{{'\U0001F6CC'}} Спальня {% if is_state('input_boolean.ac_status','on') %}{% if is_state('climate.bedroom_ac','off') %}{{'\U0001F4F4'}} - Включить{% else %}{% if is_state('climate.bedroom_ac','cool') %}{{'\U00002744'}}{% elif is_state('climate.bedroom_ac','heat') %}{{'\U00002600'}}{% elif is_state('climate.bedroom_ac','dry') %}{{'\U0001F4A7'}}{% elif is_state('climate.bedroom_ac','fan_only') %}{{'\U0001F32C'}}{% else %}{{'\U0001F504'}}{% endif %} - Выключить{% endif %}:/toggle_ac_bedroom{% elif is_state('input_boolean.heating_status','on') %}{{'\U00002668'}} Управление обогревателями:/heaters_control{% endif %}"
+                  - "{{'\U0001F4D1'}} Меню:/menu"
+          mode: single
+
+        - alias: "Telegram: Toggle AC in Living Room"
+          id: telegram_menu_toggle_ac_living_room
+          initial_state: true
+          trigger:
+            platform: event
+            event_type: telegram_callback
+            event_data:
+              data: '/toggle_ac_living_room'
+          action:
+          - variables:
+              status_before_action: '{{ states.binary_sensor.living_room_air_conditioner_socket_status.state }}'
+          - choose:
+              - conditions:
+                  - condition: state
+                    entity_id: climate.living_room_ac
+                    state: 'off'
+                  - condition: state
+                    entity_id: input_boolean.ac_status
+                    state: 'on'
+                  - condition: state
+                    entity_id: binary_sensor.living_room_loggia_door_contact
+                    state: 'off'
+                sequence:
+                  - service: notify.alexus
+                    data:
+                      message: "Включение кондиционера в Гостинной ..."
+                  - choose: # turn on socket for Living_Room_AC
+                      - conditions:
+                          - condition: state
+                            entity_id: switch.living_room_air_conditioner_socket
+                            state: 'off'
+                        sequence:
+                          - service: switch.turn_on
+                            entity_id: switch.living_room_air_conditioner_socket
+                          - delay: 20
+                  - repeat:
+                      until:
+                        - condition: or
+                          conditions:
+                            - condition: state
+                              entity_id: binary_sensor.living_room_air_conditioner_socket_status
+                              state: 'on'
+                            - condition: state
+                              entity_id: input_boolean.ac_status
+                              state: 'off'
+                            - condition: state
+                              entity_id: binary_sensor.living_room_loggia_door_contact
+                              state: 'on'
+                      sequence:
+                        - service: climate.turn_on
+                          entity_id: climate.living_room_ac
+                        - delay: '00:00:30'
+              - conditions:
+                  - condition: state
+                    entity_id: input_boolean.ac_status
+                    state: 'on'
+                  - not:
+                      - condition: state
+                        entity_id: climate.living_room_ac
+                        state: 'off'
+                sequence:
+                  - service: notify.alexus
+                    data:
+                      message: "Выключение кондиционера в Гостинной ..."
+                  - service: climate.turn_off
+                    entity_id: climate.living_room_ac
+                  - delay: 20
+                  - service: switch.turn_off
+                    entity_id: switch.living_room_air_conditioner_socket
+                  - wait_template: "{{ is_state('binary_sensor.living_room_air_conditioner_socket_status','off') }}" 
+          - choose:
+              - conditions:
+                  - condition: template
+                    value_template: '{{ status_before_action != states.binary_sensor.living_room_air_conditioner_socket_status.state }}'
+                sequence:
+                  - service: telegram_bot.delete_message
+                    data:
+                      message_id: 'last'
+                      chat_id: !secret telegram_user_1
+          - service: telegram_bot.delete_message
+            data:
+              message_id: 'last'
+              chat_id: !secret telegram_user_1
+          - service: notify.alexus
+            data:
+              message: *climate_body
+              data: 
+                inline_keyboard:
+                  - "{{'\U0001F6CB'}} Гостинная {% if is_state('input_boolean.ac_status','on') %}{% if is_state('climate.living_room_ac','off') %}{{'\U0001F4F4'}} - Включить{% else %}{% if is_state('climate.living_room_ac','cool') %}{{'\U00002744'}}{% elif is_state('climate.living_room_ac','heat') %}{{'\U00002600'}}{% elif is_state('climate.living_room_ac','dry') %}{{'\U0001F4A7'}}{% else %}{{'\U0001F504'}}{%endif%} - Выключить{% endif %}:/toggle_ac_living_room{% elif is_state('input_boolean.heating_status','on') %}{{'\U00002668'}} Управление обогревателями:/heaters_control{% endif %}"
+                  - "{{'\U0001F6CC'}} Спальня {% if is_state('input_boolean.ac_status','on') %}{% if is_state('climate.bedroom_ac','off') %}{{'\U0001F4F4'}} - Включить{% else %}{% if is_state('climate.bedroom_ac','cool') %}{{'\U00002744'}}{% elif is_state('climate.bedroom_ac','heat') %}{{'\U00002600'}}{% elif is_state('climate.bedroom_ac','dry') %}{{'\U0001F4A7'}}{% elif is_state('climate.bedroom_ac','fan_only') %}{{'\U0001F32C'}}{% else %}{{'\U0001F504'}}{% endif %} - Выключить{% endif %}:/toggle_ac_bedroom{% elif is_state('input_boolean.heating_status','on') %}{{'\U00002668'}} Управление обогревателями:/heaters_control{% endif %}"
+                  - "{{'\U0001F4D1'}} Меню:/menu"
+          mode: single
+
+        - alias: "Telegram: Toggle AC in Bedoom"
+          id: telegram_menu_toggle_ac_bedroom
+          initial_state: true
+          trigger:
+            platform: event
+            event_type: telegram_callback
+            event_data:
+              data: '/toggle_ac_bedroom'
+          action:
+          - variables:
+              status_before_action: '{{ states.binary_sensor.bedroom_air_conditioner_socket_status.state }}'
+          - choose:
+              - conditions:
+                  - condition: state
+                    entity_id: climate.bedroom_ac
+                    state: 'off'
+                  - condition: state
+                    entity_id: input_boolean.ac_status
+                    state: 'on'
+                  - condition: state
+                    entity_id: binary_sensor.bedroom_windows
+                    state: 'off'
+                sequence:
+                  - service: notify.alexus
+                    data:
+                      message: "Включение кондиционера в Спальне ..."
+                  - choose: # turn on socket for Bedroom_AC
+                      - conditions:
+                          - condition: state
+                            entity_id: switch.bedroom_air_conditioner_socket
+                            state: 'off'
+                        sequence:
+                          - service: switch.turn_on
+                            entity_id: switch.bedroom_air_conditioner_socket
+                          - delay: 20
+                  - repeat:
+                      until:
+                        - condition: or
+                          conditions:
+                            - condition: state
+                              entity_id: binary_sensor.bedroom_air_conditioner_socket_status
+                              state: 'on'
+                            - condition: state
+                              entity_id: input_boolean.ac_status
+                              state: 'off'
+                            - condition: state
+                              entity_id: binary_sensor.bedroom_windows
+                              state: 'on'
+                      sequence:
+                        - service: climate.turn_on
+                          entity_id: climate.bedroom_ac
+                        - delay: '00:00:30'
+              - conditions:
+                  - condition: state
+                    entity_id: input_boolean.ac_status
+                    state: 'on'
+                  - not:
+                      - condition: state
+                        entity_id: climate.bedroom_ac
+                        state: 'off'
+                sequence:
+                  - service: notify.alexus
+                    data:
+                      message: "Выключение кондиционера в Спальне ..."
+                  - service: climate.turn_off
+                    entity_id: climate.bedroom_ac
+                  - delay: 20
+                  - service: switch.turn_off
+                    entity_id: switch.bedroom_air_conditioner_socket
+                  - wait_template: "{{ is_state('binary_sensor.bedroom_air_conditioner_socket_status','off') }}" 
+          - choose:
+              - conditions:
+                  - condition: template
+                    value_template: '{{ status_before_action != states.binary_sensor.bedroom_air_conditioner_socket_status.state }}'
+                sequence:
+                  - service: telegram_bot.delete_message
+                    data:
+                      message_id: 'last'
+                      chat_id: !secret telegram_user_1
+          - service: telegram_bot.delete_message
+            data:
+              message_id: 'last'
+              chat_id: !secret telegram_user_1
+          - service: notify.alexus
+            data:
+              message: *climate_body
+              data: 
+                inline_keyboard:
+                  - "{{'\U0001F6CB'}} Гостинная {% if is_state('input_boolean.ac_status','on') %}{% if is_state('climate.living_room_ac','off') %}{{'\U0001F4F4'}} - Включить{% else %}{% if is_state('climate.living_room_ac','cool') %}{{'\U00002744'}}{% elif is_state('climate.living_room_ac','heat') %}{{'\U00002600'}}{% elif is_state('climate.living_room_ac','dry') %}{{'\U0001F4A7'}}{% else %}{{'\U0001F504'}}{%endif%} - Выключить{% endif %}:/toggle_ac_living_room{% elif is_state('input_boolean.heating_status','on') %}{{'\U00002668'}} Управление обогревателями:/heaters_control{% endif %}"
+                  - "{{'\U0001F6CC'}} Спальня {% if is_state('input_boolean.ac_status','on') %}{% if is_state('climate.bedroom_ac','off') %}{{'\U0001F4F4'}} - Включить{% else %}{% if is_state('climate.bedroom_ac','cool') %}{{'\U00002744'}}{% elif is_state('climate.bedroom_ac','heat') %}{{'\U00002600'}}{% elif is_state('climate.bedroom_ac','dry') %}{{'\U0001F4A7'}}{% elif is_state('climate.bedroom_ac','fan_only') %}{{'\U0001F32C'}}{% else %}{{'\U0001F504'}}{% endif %} - Выключить{% endif %}:/toggle_ac_bedroom{% elif is_state('input_boolean.heating_status','on') %}{{'\U00002668'}} Управление обогревателями:/heaters_control{% endif %}"
+                  - "{{'\U0001F4D1'}} Меню:/menu"
+          mode: single
 
         - alias: "Telegram: Light Menu"
           id: telegram_menu_lights
@@ -141,13 +383,17 @@ telegram:
             event_data:
               data: '/lights'
           action:
+          - service: telegram_bot.delete_message
+            data:
+              message_id: 'last'
+              chat_id: !secret telegram_user_1
           - service: notify.alexus
             data:
-              message: |
-                Освещение в квартире {{"\U0001F4A1"}}:
+              message: &light_status_body |
+                {{'\U0001F4A1'}} Освещение в квартире:
                 ➖➖➖➖➖➖➖➖➖➖➖➖
-                {{"\U0001F6CB"}} Гостинная: {% if is_state("switch.living_room_light_switch","on") %}{{"\U00002705"}} Включено{% else %}{{"\U0000274C"}} Выключено{% endif %}
-                {{"\U0001F6CC"}} Спальня: {% if is_state("switch.bedroom_light_switch","on") %}{{"\U00002705"}} Включено{% else %}{{"\U0000274C"}} Выключено{% endif %}
+                {{"\U0001F6CB"}} Гостинная: {% if is_state("switch.living_room_light_switch","on") %}{{"\U0001F534"}} Включено{% else %}{{"\U0001F7E2"}} Выключено{% endif %}
+                {{"\U0001F6CC"}} Спальня: {% if is_state("switch.bedroom_light_switch","on") %}{{"\U0001F534"}} Включено{% else %}{{"\U0001F7E2"}} Выключено{% endif %}
                 {{"\U0001F37D"}} Кухня:
                 {{"\U0001F6C0"}} Ванная:
                 {{"\U0001F6AA"}} Коридор:
@@ -155,9 +401,10 @@ telegram:
                 Переключить или вернуться в главное меню?
               data:
                   inline_keyboard: 
-                    - "{{'\U0001F6CB'}} Гостинная:/toggle_living_room_light, {{'\U0001F6CC'}} Спальня:/toggle_bedroom_light, {{'\U0001F37D'}} Кухня:/toggle_kitchen_light"
-                    - "{{'\U0001F6C0'}} Ванная:/toggle_bathroom_light, {{'\U0001F6AA'}} Коридор:/toggle_corridor_light"
+                    - "{{'\U0001F6CB'}} Гостинная {% if is_state('switch.living_room_light_switch','on') %}{{'\U0001F534'}}{% else %}{{'\U0001F7E2'}}{% endif %}:/toggle_living_room_light, {{'\U0001F6CC'}} Спальня {% if is_state('switch.bedroom_light_switch','on') %}{{'\U0001F534'}}{% else %}{{'\U0001F7E2'}}{% endif %}:/toggle_bedroom_light"
+                    - "{{'\U0001F37D'}} Кухня:/toggle_kitchen_light, {{'\U0001F6C0'}} Ванная:/toggle_bathroom_light, {{'\U0001F6AA'}} Коридор:/toggle_corridor_light"
                     - "{{'\U0001F4D1'}} Меню:/menu"
+          mode: single
 
         - alias: "Telegram: Toggle Light in Bedroom"
           id: telegram_menu_toggle_light_in_bedroom
@@ -173,17 +420,22 @@ telegram:
                 entity_id: switch.bedroom_light_switch
           - delay:
               seconds: 5
+          - service: telegram_bot.delete_message
+            data:
+              message_id: 'last'
+              chat_id: !secret telegram_user_1
           - service: notify.alexus
             data:
               message: |
-                Результат действия:
+                {{'\U0001F4A1'}} Результат действия:
                 ➖➖➖➖➖➖➖➖➖➖➖➖
                 Освещение в Спальне: {% if is_state("switch.bedroom_light_switch","on") %}{{"\U00002705"}} Включено{% else %}{{"\U0000274C"}} Выключено{% endif %}
               data:
                   inline_keyboard:  
-                    - "{{'\U0001F6CB'}} Гостинная:/toggle_living_room_light, {{'\U0001F6CC'}} Спальня:/toggle_bedroom_light, {{'\U0001F37D'}} Кухня:/toggle_kitchen_light"
-                    - "{{'\U0001F6C0'}} Ванная:/toggle_bathroom_light, {{'\U0001F6AA'}} Коридор:/toggle_corridor_light"
+                    - "{{'\U0001F6CB'}} Гостинная {% if is_state('switch.living_room_light_switch','on') %}{{'\U0001F534'}}{% else %}{{'\U0001F7E2'}}{% endif %}:/toggle_living_room_light, {{'\U0001F6CC'}} Спальня {% if is_state('switch.bedroom_light_switch','on') %}{{'\U0001F534'}}{% else %}{{'\U0001F7E2'}}{% endif %}:/toggle_bedroom_light"
+                    - "{{'\U0001F37D'}} Кухня:/toggle_kitchen_light, {{'\U0001F6C0'}} Ванная:/toggle_bathroom_light, {{'\U0001F6AA'}} Коридор:/toggle_corridor_light"
                     - "{{'\U0001F4D1'}} Меню:/menu"
+          mode: single
 
         - alias: "Telegram: Toggle Light in Living Room"
           id: telegram_menu_toggle_light_in_living_room
@@ -199,17 +451,22 @@ telegram:
                 entity_id: switch.living_room_light_switch
           - delay:
               seconds: 5
+          - service: telegram_bot.delete_message
+            data:
+              message_id: 'last'
+              chat_id: !secret telegram_user_1
           - service: notify.alexus
             data:
               message: |
-                Результат действия:
+                {{'\U0001F4A1'}} Результат действия:
                 ➖➖➖➖➖➖➖➖➖➖➖➖
                 Освещение в Гостинной: {% if is_state("switch.living_room_light_switch","on") %}{{"\U00002705"}} Включено{% else %}{{"\U0000274C"}} Выключено{% endif %}
               data:
                   inline_keyboard:  
-                    - "{{'\U0001F6CB'}} Гостинная:/toggle_living_room_light, {{'\U0001F6CC'}} Спальня:/toggle_bedroom_light, {{'\U0001F37D'}} Кухня:/toggle_kitchen_light"
-                    - "{{'\U0001F6C0'}} Ванная:/toggle_bathroom_light, {{'\U0001F6AA'}} Коридор:/toggle_corridor_light"
+                    - "{{'\U0001F6CB'}} Гостинная {% if is_state('switch.living_room_light_switch','on') %}{{'\U0001F534'}}{% else %}{{'\U0001F7E2'}}{% endif %}:/toggle_living_room_light, {{'\U0001F6CC'}} Спальня {% if is_state('switch.bedroom_light_switch','on') %}{{'\U0001F534'}}{% else %}{{'\U0001F7E2'}}{% endif %}:/toggle_bedroom_light"
+                    - "{{'\U0001F37D'}} Кухня:/toggle_kitchen_light, {{'\U0001F6C0'}} Ванная:/toggle_bathroom_light, {{'\U0001F6AA'}} Коридор:/toggle_corridor_light"
                     - "{{'\U0001F4D1'}} Меню:/menu"
+          mode: single
 
         - alias: "Telegram: Security Menu"
           id: telegram_menu_security
@@ -220,34 +477,39 @@ telegram:
             event_data:
               data: '/security'
           action:
+          - service: telegram_bot.delete_message
+            data:
+              message_id: 'last'
+              chat_id: !secret telegram_user_1
           - service: notify.alexus
             data:
-              message: |
+              message: &security_status |
                 {{"\U0001F6E1"}} Безопасность в квартире:
                 ➖➖➖➖➖➖➖➖➖➖➖➖
                 {{"\U0001F3D8"}} Присутствие: {% if is_state("group.family","home") %}{% set Str = '' %}{% if is_state("person.alexus","home") %}{% set Str = '\U0001F468\U0000200D' %}{% endif %}{% if is_state("person.inna","home") %}{% set Str = Str + "\U0001F469\U0000200D" %}{% endif %}{% if is_state("person.vova","home") %}{% set Str = Str + "\U0001F466\U0000200D" %}{% endif %}{% if is_state("person.ivan","home") %}{% set Str = Str + "\U0001F466" %}{% endif %}{{ Str }} Дома {%else%}Не дома {%endif%}
 
                 {{"\U0001F694"}} Сигнализация: {% if is_state("alarm_control_panel.home_alarm","disarmed") %}{{"\U0001F7E2"}} Отключена{% elif is_state("alarm_control_panel.home_alarm","armed_home") %}{{"\U0001F7E1"}} Охрана(Дома){% elif is_state("alarm_control_panel.home_alarm","armed_away") %}{{"\U0001F534"}} Охрана(Не Дома){% elif is_state("alarm_control_panel.home_alarm","triggered") %}{{"\U0001F6A8"}} ТРЕВОГА{{"\U0000203C"}}{% elif is_state("alarm_control_panel.home_alarm","pending") %}{{"\U0001F536"}} ОЖИДАНИЕ{{"\U00002049"}}{% elif is_state("alarm_control_panel.home_alarm","arming") %}{{"\U0001F550"}} ПОСТАНОВКА...{% endif %}
 
-                {{"\U0001F6AA"}} Входная дверь: {% if is_state("binary_sensor.corridor_entrance_door_contact","off") %}Закрыта {{"\U0001F512"}}{%else%}Открыта {{"\U0001F513"}}{%endif%}
-                {{"\U0001F6AA"}} Дверь в Гостинной на Лоджию: {% if is_state("binary_sensor.living_room_loggia_door_contact","off") %}Закрыта {{"\U0001F512"}}{%else%}Открыта {{"\U0001F513"}}{%endif%}
+                {{"\U0001F6AA"}} Входная дверь: {% if is_state("binary_sensor.hallway_entrance_door_contact","off") %}{{"\U0001F7E2"}} Закрыта{%else%}{{"\U0001F534"}} Открыта{%endif%}
+                {{"\U0001F6AA"}} Дверь на Лоджию: {% if is_state("binary_sensor.living_room_loggia_door_contact","off") %}{{"\U0001F7E2"}} Закрыта{%else%}{{"\U0001F534"}} Открыта{%endif%}
 
                 {{"\U0001FA9F"}} Окно в Спальне: 
-                - Левая  створка: {% if is_state("binary_sensor.bedroom_window_left_contact","off") %}Закрыта {{"\U0001F512"}}{%else%}Открыта {{"\U0001F513"}}{%endif%}
-                - Правая створка: {% if is_state("binary_sensor.bedroom_window_right_contact","off") %}Закрыта {{"\U0001F512"}}{%else%}Открыта {{"\U0001F513"}}{%endif%}
-                {{"\U0001FA9F"}} Окно в Кухне: {% if is_state("binary_sensor.kitchen_window_contact","off") %}Закрыто {{"\U0001F512"}}{%else%}Открыто {{"\U0001F513"}}{%endif%}
+                - Левая створка: {% if is_state("binary_sensor.bedroom_window_left_contact","off") %}{{"\U0001F7E2"}} Закрыта{%else%}{{"\U0001F534"}} Открыта{%endif%}
+                - Правая створка: {% if is_state("binary_sensor.bedroom_window_right_contact","off") %}{{"\U0001F7E2"}} Закрыта{%else%}{{"\U0001F534"}} Открыта{%endif%}
+                {{"\U0001FA9F"}} Окно в Кухне: {% if is_state("binary_sensor.kitchen_window_contact","off") %}{{"\U0001F7E2"}} Закрыто{%else%}{{"\U0001F534"}} Открыто{%endif%}
                 
                 {{"\U0001F6B1"}} Датчики протечки 
                 - в Ванной {{"\U0001F4A7"}}:
-                  - под ванной {{"\U0001F6C1"}}: {% if is_state("binary_sensor.bathroom_water_leak_under_the_bath_water_leak","off") %}Сухо {{"\U00002705"}}{%else%}{{"\U000026A0"}} Протечка{{"\U0000203C"}}{%endif%}
-                  - под машинкой {{"\U0001F9FA"}}: {% if is_state("binary_sensor.bathroom_water_leak_under_washing_machine_water_leak","off") %}Сухо {{"\U00002705"}}{%else%}{{"\U000026A0"}} Протечка{{"\U0000203C"}}{%endif%} 
-                - в Кухне {{"\U0001F37D"}}: {% if is_state("binary_sensor.kitchen_water_leak_sensor_water_leak","off") %}Сухо {{"\U00002705"}}{%else%}{{"\U000026A0"}} Протечка{{"\U0000203C"}}{%endif%}
+                  - под ванной {{"\U0001F6C1"}}: {% if is_state("binary_sensor.bathroom_water_leak_under_the_bath_water_leak","off") %}{{"\U0001F7E2"}} Сухо{%else%}{{"\U0001F534"}}{{"\U000026A0"}} Протечка{{"\U0000203C"}}{%endif%}
+                  - под машинкой {{"\U0001F9FA"}}: {% if is_state("binary_sensor.bathroom_water_leak_under_washing_machine_water_leak","off") %}{{"\U0001F7E2"}} Сухо{%else%}{{"\U000026A0"}} Протечка{{"\U0000203C"}}{%endif%} 
+                - в Кухне {{"\U0001F37D"}}: {% if is_state("binary_sensor.kitchen_water_leak_sensor_water_leak","off") %}{{"\U0001F7E2"}} Сухо{%else%}{{"\U000026A0"}} Протечка{{"\U0000203C"}}{%endif%}
 
-                {{"\U0001F6AD"}} Детектор Дыма в Кухне: {% if is_state("binary_sensor.kitchen_smoke_detector_smoke","off") %}Без Дыма {{"\U00002705"}}{%else%}{{"\U000026A0"}} Дым Обнаружен{{"\U0000203C"}}{%endif%}
+                {{"\U0001F6AD"}} Дым на Кухне: {% if is_state("binary_sensor.kitchen_smoke_detector_smoke","off") %}{{"\U0001F7E2"}} Без Дыма{%else%}{{"\U000026A0"}} Дым Обнаружен{{"\U0000203C"}}{%endif%}
               data: 
                 inline_keyboard:  
                   - "{% if is_state('alarm_control_panel.home_alarm','disarmed') %}{{'\U0001F694'}} Поставить на охрану {{'\U0001F534'}}:/set_alarm{% else %}{{'\U0001F694'}} Снять с охраны {{'\U0001F7E2'}}:/cancel_alarm{% endif%}"
-                  - "{{'\U0001F6E1'}} Безопасность:/security, {{'\U0001F4D1'}} Меню:/menu"
+                  - "{{'\U0001F4D1'}} Меню:/menu"
+          mode: single
 
         - alias: "Telegram: Set Alarm Menu"
           id: telegram_menu_set_alarm
@@ -257,6 +519,10 @@ telegram:
             event_data:
               command: '/set_alarm'
           action:
+            - service: telegram_bot.delete_message
+              data:
+                message_id: 'last'
+                chat_id: !secret telegram_user_1
             - service: notify.alexus
               data:
                 title: '{{"\U0001F6A8"}} СИГНАЛИЗАЦИЯ{{"\U0000203C"}}'
@@ -266,7 +532,8 @@ telegram:
                 data: 
                   inline_keyboard: 
                     - "{{'\U0001F534'}} Не Дома:/set_alarm_away, {{'\U0001F7E1'}} Дома:/set_alarm_home"
-                    - "{{'\U0001F6E1'}} Безопасность:/security, {{'\U0001F4D1'}} Меню:/menu"
+                    - "{{'\U0001F4D1'}} Меню:/menu"
+          mode: single
 
         - alias: "Telegram: Set ALARM_HOME mode for Alarm"
           id: telegram_menu_set_alarm_home
@@ -278,6 +545,7 @@ telegram:
           action:
             - service: alarm_control_panel.alarm_arm_home
               entity_id: alarm_control_panel.home_alarm
+          mode: single
 
         - alias: "Telegram: Set ALARM_AWAY mode for Alarm"
           id: telegram_menu_set_alarm_away
@@ -289,6 +557,7 @@ telegram:
           action:
             - service: alarm_control_panel.alarm_arm_away
               entity_id: alarm_control_panel.home_alarm
+          mode: single
 
         - alias: "Telegram: Cancel Alarm"
           id: telegram_menu_cancel_alarm
@@ -302,6 +571,7 @@ telegram:
               entity_id: alarm_control_panel.home_alarm
               data: 
                 code: !secret alarm_panel_code
+          mode: single
 
         - alias: "Telegram: Geolocation Menu"
           id: telegram_menu_geo
@@ -311,6 +581,10 @@ telegram:
             event_data:
               command: '/geo'
           action:
+          - service: telegram_bot.delete_message
+            data:
+              message_id: 'last'
+              chat_id: !secret telegram_user_1
           - service: notify.alexus
             data:
               message: |
@@ -321,6 +595,7 @@ telegram:
                 inline_keyboard: 
                   - "{{'\U0001F469'}} Инна:/inna, {{'\U0001F466'}} Вова:/vova, {{'\U0001F466'}} Иван:/ivan"
                   - "{{'\U0001F4D1'}} Меню:/menu"
+          mode: single
 
         - alias: "Telegram: Geolocation for Ivan"
           id: telegram_menu_geo_ivan
@@ -331,16 +606,24 @@ telegram:
             event_data:
               data: '/ivan'
           action:
-            - service: telegram_bot.send_location
-              data_template:
-                target: !secret telegram_user_1
-                latitude: '{{ state_attr("device_tracker.google_maps_116201395133676470264","latitude") }}'
-                longitude: '{{ state_attr("device_tracker.google_maps_116201395133676470264","longitude") }}'
             - service: notify.alexus
               data:
                 message: |
                     Иван сейчас находится здесь:
                     ➖➖➖➖➖➖➖➖➖➖➖➖
+            - service: notify.alexus
+              data:
+                message: 'Местоположение Ивана'
+                data:
+                  location:
+                    latitude: '{{ state_attr("device_tracker.google_maps_116201395133676470264","latitude") }}'
+                    longitude: '{{ state_attr("device_tracker.google_maps_116201395133676470264","longitude") }}'
+                  inline_keyboard: 
+                    - "{{'\U0001F469'}} Инна:/inna, {{'\U0001F466'}} Вова:/vova, {{'\U0001F466'}} Иван:/ivan"
+                    - "{{'\U0001F4D1'}} Меню:/menu"
+            - service: notify.alexus
+              data:
+                message: |
                     Адрес {{"\U0001F3E1"}}: {{ state_attr("device_tracker.google_maps_116201395133676470264","address") }}
                     Батарея {{"\U0001F50B"}}: {{ state_attr("device_tracker.google_maps_116201395133676470264","battery_level") }}%{% if state_attr("device_tracker.google_maps_116201395133676470264","battery_charging") %} {{"\U0001F50C"}} Charging{%endif%}
                     Обновленно: {{ as_timestamp(state_attr("device_tracker.google_maps_116201395133676470264","last_seen")) | timestamp_custom("\U0001F4C5 %d.%m.%Y \U0001F551 %H:%M", default = 0) }}
@@ -348,6 +631,7 @@ telegram:
                   inline_keyboard: 
                     - "{{'\U0001F469'}} Инна:/inna, {{'\U0001F466'}} Вова:/vova, {{'\U0001F466'}} Иван:/ivan"
                     - "{{'\U0001F4D1'}} Меню:/menu"
+          mode: single
 
         - alias: "Telegram: Geolocation for Inna"
           id: telegram_menu_geo_inna
@@ -358,16 +642,21 @@ telegram:
             event_data:
               data: '/inna'
           action:
-            - service: telegram_bot.send_location
-              data_template:
-                target: !secret telegram_user_1
-                latitude: '{{ state_attr("device_tracker.google_maps_104258358112460913017","latitude") }}'
-                longitude: '{{ state_attr("device_tracker.google_maps_104258358112460913017","longitude") }}'
             - service: notify.alexus
               data:
                 message: |
                     Инна сейчас находится здесь:
                     ➖➖➖➖➖➖➖➖➖➖➖➖
+            - service: notify.alexus
+              data:
+                message: 'Местоположение Инны'
+                data:
+                  location:
+                    latitude: '{{ state_attr("device_tracker.google_maps_104258358112460913017","latitude") }}'
+                    longitude: '{{ state_attr("device_tracker.google_maps_104258358112460913017","longitude") }}'
+            - service: notify.alexus
+              data:
+                message: |
                     Адрес {{"\U0001F3E1"}}: {{ state_attr("device_tracker.google_maps_104258358112460913017","address") }}
                     Батарея {{"\U0001F50B"}}: {{ state_attr("device_tracker.google_maps_104258358112460913017","battery_level") }}%{% if state_attr("device_tracker.google_maps_104258358112460913017","battery_charging") %} {{"\U0001F50C"}} Charging{%endif%}
                     Обновленно: {{ as_timestamp(state_attr("device_tracker.google_maps_104258358112460913017","last_seen")) | timestamp_custom("\U0001F4C5 %d.%m.%Y \U0001F551 %H:%M", default = 0) }}
@@ -375,6 +664,7 @@ telegram:
                   inline_keyboard: 
                     - "{{'\U0001F469'}} Инна:/inna, {{'\U0001F466'}} Вова:/vova, {{'\U0001F466'}} Иван:/ivan"
                     - "{{'\U0001F4D1'}} Меню:/menu"
+          mode: single
 
         - alias: "Telegram: Geolocation for Vova"
           id: telegram_menu_geo_vova
@@ -385,16 +675,21 @@ telegram:
             event_data:
               data: '/vova'
           action:
-            - service: telegram_bot.send_location
-              data_template:
-                target: !secret telegram_user_1
-                latitude: '{{ state_attr("device_tracker.google_maps_105010208332419299900","latitude") }}'
-                longitude: '{{ state_attr("device_tracker.google_maps_105010208332419299900","longitude") }}'
             - service: notify.alexus
               data:
                 message: |
                     Вова сейчас находится здесь:
                     ➖➖➖➖➖➖➖➖➖➖➖➖
+            - service: notify.alexus
+              data:
+                message: 'Местоположение Вовы'
+                data:
+                  location:
+                    latitude: '{{ state_attr("device_tracker.google_maps_105010208332419299900","latitude") }}'
+                    longitude: '{{ state_attr("device_tracker.google_maps_105010208332419299900","longitude") }}'
+            - service: notify.alexus
+              data:
+                message: |
                     Адрес {{"\U0001F3E1"}}: {{ state_attr("device_tracker.google_maps_105010208332419299900","address") }}
                     Батарея {{"\U0001F50B"}}: {{ state_attr("device_tracker.google_maps_105010208332419299900","battery_level") }}%{% if state_attr("device_tracker.google_maps_105010208332419299900","battery_charging") %} {{"\U0001F50C"}} Charging{%endif%}
                     Обновленно: {{ as_timestamp(state_attr("device_tracker.google_maps_105010208332419299900","last_seen")) | timestamp_custom("\U0001F4C5 %d.%m.%Y \U0001F551 %H:%M", default = 0) }}
@@ -402,3 +697,4 @@ telegram:
                   inline_keyboard: 
                     - "{{'\U0001F469'}} Инна:/inna, {{'\U0001F466'}} Вова:/vova, {{'\U0001F466'}} Иван:/ivan"
                     - "{{'\U0001F4D1'}} Меню:/menu"
+          mode: single

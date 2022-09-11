@@ -26,7 +26,7 @@ views:
                   state: 'off'
              card:
                 type: grid
-                columns: 4
+                columns: 3
                 title: Тревога
                 cards:
                    - type: button
@@ -59,6 +59,24 @@ views:
                    - type: button
                      tap_action:
                        action: more-info
+                     entity: binary_sensor.m_novomoskovsk_ta_novomoskovska_teritorialna_gromada_chemical
+                     show_state: false
+                     show_name: false
+                     hold_action:
+                       action: none
+
+                   - type: button
+                     tap_action:
+                       action: more-info
+                     entity: binary_sensor.m_novomoskovsk_ta_novomoskovska_teritorialna_gromada_nuclear
+                     show_state: false
+                     show_name: false
+                     hold_action:
+                       action: none
+
+                   - type: button
+                     tap_action:
+                       action: more-info
                      entity: binary_sensor.m_novomoskovsk_ta_novomoskovska_teritorialna_gromada_unknown
                      show_state: false
                      show_name: false
@@ -83,69 +101,6 @@ views:
                 type: glance
                 show_state: false
                 title: Сейчас Дома
-
-        #   - type: picture-glance
-        #      title: Living Room
-        #      camera_image: camera.tapo_camera_sd
-        #      camera_view: live
-        #      entities:
-        #       - entity: camera.tapo_camera_sd
-        #         icon: 'mdi:arrow-left-drop-circle-outline'
-        #         tap_action:
-        #           action: call-service
-        #           service: tapo_control.ptz
-        #           service_data:
-        #             entity_id: camera.tapo_camera_sd
-        #             pan: LEFT
-        #       - entity: camera.tapo_camera_sd
-        #         icon: 'mdi:arrow-up-drop-circle-outline'
-        #         tap_action:
-        #           action: call-service
-        #           service: tapo_control.ptz
-        #           service_data:
-        #             entity_id: camera.tapo_camera_sd
-        #             tilt: UP
-        #       - entity: camera.tapo_camera_sd
-        #         icon: 'mdi:arrow-down-drop-circle-outline'
-        #         tap_action:
-        #           action: call-service
-        #           service: tapo_control.ptz
-        #           service_data:
-        #             entity_id: camera.tapo_camera_sd
-        #             tilt: DOWN
-        #       - entity: camera.tapo_camera_sd
-        #         icon: 'mdi:arrow-right-drop-circle-outline'
-        #         tap_action:
-        #           action: call-service
-        #           service: tapo_control.ptz
-        #           service_data:
-        #             entity_id: camera.tapo_camera_sd
-        #             pan: RIGHT
-        #       - entity: camera.tapo_camera_sd
-        #         icon: 'mdi:eye-outline'
-        #         tap_action:
-        #           action: call-service
-        #           service: tapo_control.set_privacy_mode
-        #           service_data:
-        #             entity_id: camera.tapo_camera_sd
-        #             privacy_mode: 'off'
-        #       - entity: camera.tapo_camera_sd
-        #         icon: 'mdi:eye-off-outline'
-        #         tap_action:
-        #           action: call-service
-        #           service: tapo_control.set_privacy_mode
-        #           service_data:
-        #             entity_id: camera.tapo_camera_sd
-        #             privacy_mode: 'on'
-        #       - entity: camera.tapo_camera_sd
-        #         icon: 'mdi:power'
-        #         tap_action:
-        #           action: call-service
-        #           service: tapo_control.reboot
-        #           service_data:
-        #             entity_id: camera.tapo_camera_sd
-        #      hold_action:
-        #         action: more-info
 
            - type: 'custom:mini-media-player'
              entity: media_player.sonos_living_room
@@ -335,6 +290,8 @@ views:
                     name: Гостинная
                   - entity: switch.bedroom_light_switch
                     name: Спальня
+                  - entity: light.hallway_rgb_bulb
+                    name: Коридор
 
             - type: conditional
               conditions:
@@ -514,18 +471,6 @@ views:
                - entity: sensor.maria_db_size
              name: Maria DB
 
-    #   - type: vertical-stack
-    #      title: Интернет  Соединение
-    #      cards:
-    #       - type: entity
-    #          entity: sensor.archer_c80_router_external_ip
-    #       - type: sensor
-    #          entity: sensor.speedtest_download
-    #          graph: line
-    #       - type: sensor
-    #          entity: sensor.speedtest_upload
-    #          graph: line
-
        - type: vertical-stack
          cards:
           - entities:
@@ -534,6 +479,7 @@ views:
               - type: divider
               - entity: input_boolean.ac_status
               - entity: input_boolean.heating_status
+              - entity: input_number.climate_target_temperature
               - type: divider
               - entity: input_boolean.disable_climate
               - entity: input_boolean.disable_home_away
@@ -561,8 +507,8 @@ views:
               state_color: true
               entities:
 
-                - entity: binary_sensor.living_room_loggia_door_contact
-                  type: custom:multiple-entity-row
+                - type: custom:multiple-entity-row
+                  entity: binary_sensor.living_room_loggia_door_contact
                   secondary_info: last-changed
                   state_header: Состояние
                   state_color: true
@@ -571,8 +517,8 @@ views:
                     - entity: sensor.living_room_loggia_door_battery
                       name: Батарея
                       
-                - entity: binary_sensor.living_room_lumi_sensor_motion_occupancy
-                  type: custom:multiple-entity-row
+                - type: custom:multiple-entity-row
+                  entity: binary_sensor.living_room_lumi_sensor_motion_occupancy
                   name: Датчик движения
                   secondary_info: last-changed
                   state_header: Состояние
@@ -583,20 +529,22 @@ views:
                     - entity: sensor.living_room_lumi_sensor_motion_illuminance_lux
                       name: Освещенность
                   
-                - entity: sensor.living_room_lumi_weather_temperature
-                  type: custom:multiple-entity-row
+                - type: custom:multiple-entity-row
+                  entity: sensor.living_room_lumi_weather_temperature
                   icon: mdi:home-thermometer
                   name: Климат
                   secondary_info: last-changed
                   state_header: Температура
                   entities:
+                    - entity: sensor.living_room_lumi_weather_battery
+                      name: Батарея
                     - entity: sensor.living_room_lumi_weather_pressure
                       name: Давление
                     - entity: sensor.living_room_lumi_weather_humidity
                       name: Влажность
 
-                - entity: switch.living_room_aquarium_main_lighting
-                  type: custom:multiple-entity-row
+                - type: custom:multiple-entity-row
+                  entity: switch.living_room_aquarium_main_lighting
                   icon: mdi:fishbowl-outline
                   name: Аквариум
                   secondary_info: last-changed
@@ -613,8 +561,8 @@ views:
                       name: За месяц
                       unit: 'kW*h'
 
-                - entity: binary_sensor.living_room_socket_heating_status
-                  type: custom:multiple-entity-row
+                - type: custom:multiple-entity-row
+                  entity: binary_sensor.living_room_socket_heating_status
                   name: Обогреватель
                   secondary_info: last-changed
                   state_color: true
@@ -630,8 +578,8 @@ views:
                       name: За месяц
                       unit: 'kW*h'
 
-                - entity: binary_sensor.living_room_air_conditioner_socket_status
-                  type: custom:multiple-entity-row
+                - type: custom:multiple-entity-row
+                  entity: binary_sensor.living_room_air_conditioner_socket_status
                   name: Кондиционер
                   secondary_info: last-changed
                   state_color: true
@@ -654,14 +602,18 @@ views:
               state_color: true
               entities:
 
-                - entity: binary_sensor.bedroom_windows
-                  type: custom:multiple-entity-row
+                - type: custom:multiple-entity-row
+                  entity: binary_sensor.bedroom_windows
                   name: Окно
                   state_header: Состояние
                   secondary_info: last-changed
                   state_color: true
                   show_state: true
                   entities:
+                    - entity: sensor.bedroom_window_left_battery
+                      name: Батарея-Л
+                    - entity: sensor.bedroom_window_right_battery
+                      name: Батарея-П
                     - entity: binary_sensor.bedroom_window_left_contact
                       name: Левое
                       icon: true
@@ -671,32 +623,34 @@ views:
                       icon: true
                       state_color: true
 
-                - entity: binary_sensor.bedroom_lumi_sensor_motion_occupancy
-                  type: custom:multiple-entity-row
+                - type: custom:multiple-entity-row
+                  entity: binary_sensor.bedroom_lumi_sensor_motion_occupancy
                   name: Датчик движения
                   secondary_info: last-changed
                   state_header: Состояние
                   state_color: true
                   entities:
                     - entity: sensor.bedroom_lumi_sensor_motion_battery
-                      name: Батарея                    
+                      name: Батарея
                     - entity: sensor.bedroom_lumi_sensor_motion_illuminance_lux
                       name: Освещенность
 
-                - entity: sensor.bedroom_lumi_weather_temperature
-                  type: custom:multiple-entity-row
+                - type: custom:multiple-entity-row
+                  entity: sensor.bedroom_lumi_weather_temperature
                   icon: mdi:home-thermometer
                   name: Климат
                   secondary_info: last-changed
                   state_header: Температура
                   entities:
+                    - entity: sensor.bedroom_lumi_weather_battery
+                      name: Батарея
                     - entity: sensor.bedroom_lumi_weather_pressure
                       name: Давление
                     - entity: sensor.bedroom_lumi_weather_humidity
                       name: Влажность
 
-                - entity: binary_sensor.bedroom_socket_heating_status
-                  type: custom:multiple-entity-row
+                - type: custom:multiple-entity-row
+                  entity: binary_sensor.bedroom_socket_heating_status
                   name: Обогреватель
                   secondary_info: last-changed
                   state_color: true
@@ -712,8 +666,8 @@ views:
                       name: За месяц
                       unit: 'kW*h'
 
-                - entity: binary_sensor.bedroom_air_conditioner_socket_status
-                  type: custom:multiple-entity-row
+                - type: custom:multiple-entity-row
+                  entity: binary_sensor.bedroom_air_conditioner_socket_status
                   name: Кондиционер
                   secondary_info: last-changed
                   state_color: true
@@ -735,8 +689,8 @@ views:
             - type: entities
               state_color: true
               entities:
-                - entity: binary_sensor.kitchen_window_contact
-                  type: custom:multiple-entity-row
+                - type: custom:multiple-entity-row
+                  entity: binary_sensor.kitchen_window_contact
                   secondary_info: last-changed
                   state_header: Состояние
                   state_color: true
@@ -745,8 +699,8 @@ views:
                     - entity: sensor.kitchen_window_battery
                       name: Батарея
 
-                - entity: binary_sensor.kitchen_smoke_detector_smoke
-                  type: custom:multiple-entity-row
+                - type: custom:multiple-entity-row
+                  entity: binary_sensor.kitchen_smoke_detector_smoke
                   name: Датчик дыма
                   secondary_info: last-changed
                   state_header: Состояние
@@ -755,8 +709,8 @@ views:
                     - entity: sensor.kitchen_smoke_detector_battery
                       name: Батарея
 
-                - entity: binary_sensor.kitchen_water_leak_sensor_water_leak
-                  type: custom:multiple-entity-row
+                - type: custom:multiple-entity-row
+                  entity: binary_sensor.kitchen_water_leak_sensor_water_leak
                   name: Датчик протечки
                   secondary_info: last-changed
                   state_header: Состояние
@@ -765,20 +719,22 @@ views:
                     - entity: sensor.kitchen_water_leak_sensor_battery
                       name: Батарея
 
-                - entity: sensor.kitchen_lumi_weather_temperature
-                  type: custom:multiple-entity-row
+                - type: custom:multiple-entity-row
+                  entity: sensor.kitchen_lumi_weather_temperature
                   icon: mdi:home-thermometer
                   name: Климат
                   secondary_info: last-changed
                   state_header: Температура
                   entities:
+                    - entity: sensor.kitchen_lumi_weather_battery
+                      name: Батарея
                     - entity: sensor.kitchen_lumi_weather_pressure
                       name: Давление
                     - entity: sensor.kitchen_lumi_weather_humidity
                       name: Влажность
 
-                - entity: binary_sensor.kitchen_socket_heating_status
-                  type: custom:multiple-entity-row
+                - type: custom:multiple-entity-row
+                  entity: binary_sensor.kitchen_socket_heating_status
                   name: Обогреватель
                   secondary_info: last-changed
                   state_color: true
@@ -800,8 +756,8 @@ views:
             - type: entities
               state_color: true
               entities: 
-                - entity: binary_sensor.bathroom_water_leak_under_the_bath_water_leak
-                  type: custom:multiple-entity-row
+                - type: custom:multiple-entity-row
+                  entity: binary_sensor.bathroom_water_leak_under_the_bath_water_leak
                   secondary_info: last-changed
                   state_header: Состояние
                   state_color: true
@@ -810,8 +766,8 @@ views:
                     - entity: sensor.bathroom_water_leak_under_the_bath_battery
                       name: Батарея
 
-                - entity: binary_sensor.bathroom_water_leak_under_washing_machine_water_leak
-                  type: custom:multiple-entity-row
+                - type: custom:multiple-entity-row
+                  entity: binary_sensor.bathroom_water_leak_under_washing_machine_water_leak
                   secondary_info: last-changed
                   state_header: Состояние
                   state_color: true
@@ -820,20 +776,22 @@ views:
                     - entity: sensor.bathroom_water_leak_under_washing_machine_battery
                       name: Батарея
 
-                - entity: sensor.bathroom_lumi_weather_temperature
-                  type: custom:multiple-entity-row
+                - type: custom:multiple-entity-row
+                  entity: sensor.bathroom_lumi_weather_temperature
                   icon: mdi:home-thermometer
                   name: Климат
                   secondary_info: last-changed
                   state_header: Температура
                   entities:
+                    - entity: sensor.bathroom_lumi_weather_battery
+                      name: Батарея
                     - entity: sensor.bathroom_lumi_weather_pressure
                       name: Давление
                     - entity: sensor.bathroom_lumi_weather_humidity
                       name: Влажность
 
-                - entity: binary_sensor.bathroom_washing_machine_socket_status
-                  type: custom:multiple-entity-row
+                - type: custom:multiple-entity-row
+                  entity: binary_sensor.bathroom_washing_machine_socket_status
                   name: Стиральная машина
                   secondary_info: last-changed
                   state_color: true
@@ -855,16 +813,19 @@ views:
             - type: entities
               state_color: true
               entities:
-                - entity: binary_sensor.corridor_entrance_door_contact
-                  type: custom:multiple-entity-row
+                - type: custom:multiple-entity-row
+                  entity: binary_sensor.hallway_entrance_door_contact
                   secondary_info: last-changed
                   state_header: Состояние
                   state_color: true
                   name: Входная дверь
                   entities:
-                    - entity: sensor.corridor_entrance_door_battery
+                    - entity: sensor.hallway_entrance_door_battery
                       name: Батарея
+                - entity: light.hallway_rgb_bulb
+                  name: Коридор, сигнальная лампа
                 - entity: binary_sensor.tapo_camera_motion
+                  name: Датчик Движения, Камера
 
        - type: vertical-stack
          title: Лоджия
@@ -872,8 +833,8 @@ views:
             - type: entities
               state_color: true
               entities:
-                - entity: sensor.loggia_tuya_weather_temperature
-                  type: custom:multiple-entity-row
+                - type: custom:multiple-entity-row
+                  entity: sensor.loggia_tuya_weather_temperature
                   icon: mdi:home-thermometer
                   name: Климат
                   secondary_info: last-changed
@@ -883,24 +844,25 @@ views:
                       name: Батарея
                     - entity: sensor.loggia_tuya_weather_humidity
                       name: Влажность
-                    
-       - type: vertical-stack
-         title: Улица
-         cards:
-           - type: entities
-             state_color: true
-             entities:
-               - entity: sensor.season
-                 name: 'Сезон'
-               - entity: sensor.outdoor_humidity
-               - entity: sensor.outdoor_temperature
-               - entity: sensor.outdoor_mean_temperature
+
+    #   - type: vertical-stack
+    #      title: Улица
+    #      cards:
+    #       - type: entities
+    #          state_color: true
+    #          entities:
+    #           - entity: sensor.season
+    #              name: 'Сезон'
+    #           - entity: sensor.outdoor_humidity
+    #           - entity: sensor.outdoor_temperature
+    #           - entity: sensor.outdoor_mean_temperature
 
        - type: vertical-stack
+         title: 'Температурные Графики'
          cards:
          
            - type: history-graph
-             title: "Температура"
+             title: "Квартира"
              hours_to_show: 168
              entities:
                - entity: sensor.living_room_lumi_weather_temperature
@@ -913,12 +875,25 @@ views:
                  name: Ванная
                - entity: sensor.loggia_tuya_weather_temperature
                  name: Лоджия
-                 
-       - type: vertical-stack
-         cards:
+
+    #   - type: vertical-stack
+    #      cards:
            - type: history-graph
              title: "Внешняя Температура"
              hours_to_show: 168
              entities:
                - sensor.outdoor_temperature
                - sensor.outdoor_mean_temperature
+
+       - type: vertical-stack
+         title: Статус Батареи
+         cards:
+           - type: custom:auto-entities
+             card:
+               type: entities
+             filter:
+               include:
+                - entity_id: sensor.*battery
+             sort:
+               method: state
+               numeric: true

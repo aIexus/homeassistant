@@ -17,4 +17,4 @@
       entity_id: sensor.outdoor_temperature
       state_characteristic: mean
       max_age:
-        hours: 24
+        hours: 48

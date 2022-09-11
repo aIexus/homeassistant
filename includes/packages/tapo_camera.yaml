@@ -2,7 +2,7 @@ tapo_camera_package:
 
     automation:
 
-        - alias: "TAPO Camera Privacy Mode Change"
+        - alias: "TAPO Camera: Privacy Mode Change"
           id: tapo_camera_privacy_mode_change
           trigger:
             - platform: state
@@ -41,7 +41,7 @@ tapo_camera_package:
     script:
 
         tapo_camera_test:
-            alias: "TAPO Camera Test"
+            alias: "TAPO Camera: Test"
             sequence:
                 # - service: script.tapo_camera_set_privacy_mode
                 #   data:

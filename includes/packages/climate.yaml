@@ -2,6 +2,14 @@ climate_configuration:
 
     smartir:
 
+    input_number:
+        climate_target_temperature:
+          name: 'Climate Target Temperature'
+          mode: slider
+          min: 18
+          max: 28
+          unit_of_measurement: '°C'
+
     climate: 
 
         - platform: generic_thermostat
@@ -80,6 +88,24 @@ climate_configuration:
           power_sensor: binary_sensor.living_room_air_conditioner_socket_status
 
     automation:
+
+    # =================== Set Climate Target Temperature =======
+
+        - alias: "Climate: Set Target Temperature"
+          trigger:
+            platform: state
+            entity_id: input_number.climate_target_temperature
+          action:
+            - service: climate.set_temperature
+              target:
+                entity_id: 
+                    - climate.kitchen_heater
+                    - climate.bedroom_heater
+                    - climate.living_room_heater
+                    - climate.bedroom_ac
+                    - climate.living_room_ac
+              data:
+                temperature: "{{ states('input_number.climate_target_temperature') | int }}"
 
     # =================== Heaters Automations ===================
 
@@ -217,7 +243,7 @@ climate_configuration:
 
         - alias: "Climate: Turn ON Heating Mode on Spring/Fall season if outdoor temperature below 10'C"
           id: climate_spring_fall_turn_on_heaters
-          description: 'Включение термостатов отопления весной/осенью при наружной температуре ниже 15'
+          description: 'Включение термостатов отопления весной/осенью при наружной температуре ниже 10'
           trigger:
             - platform: numeric_state
               entity_id: sensor.outdoor_mean_temperature
@@ -250,7 +276,7 @@ climate_configuration:
                 title: '{{"\U0001F927"}} Похолодало{{"\U0000203C"}}'
                 message: |
                   ➖➖➖➖➖➖➖➖➖➖➖➖
-                  Наружная температура ниже 15{{"\U00002103"}}, обогреватели включены.
+                  Наружная температура ниже 10{{"\U00002103"}}, обогреватели включены.
 
         - alias: "Climate: Turn OFF Heating Mode on Spring/Fall season if outdoor temperature above 15'C"
           id: climate_spring_fall_turn_off_heaters
@@ -369,11 +395,14 @@ climate_configuration:
           id: climate_living_room_turn_off_heater_when_loggia_door_opened
           description: 'Выключение обогревателя в гостинной при открытой двери на лоджию'
           trigger:
-            - type: opened
-              platform: device
-              device_id: 19904350a3cc7a64c7db5fe737b6d044
+            - platform: state
               entity_id: binary_sensor.living_room_loggia_door_contact
-              domain: binary_sensor
+              to: 'on'
+            # - type: opened
+            #   platform: device
+            #   device_id: 19904350a3cc7a64c7db5fe737b6d044
+            #   entity_id: binary_sensor.living_room_loggia_door_contact
+            #   domain: binary_sensor
               for:
                 minutes: 5
           condition:
@@ -403,11 +432,14 @@ climate_configuration:
           id: climate_living_room_turn_on_heater_when_loggia_door_closed
           description: 'Включение обогревателя в гостинной при закрытой двери на лоджию'
           trigger:
-            - type: not_opened
-              platform: device
-              device_id: 19904350a3cc7a64c7db5fe737b6d044
+            - platform: state
               entity_id: binary_sensor.living_room_loggia_door_contact
-              domain: binary_sensor
+              to: 'off'
+            # - type: not_opened
+            #   platform: device
+            #   device_id: 19904350a3cc7a64c7db5fe737b6d044
+            #   entity_id: binary_sensor.living_room_loggia_door_contact
+            #   domain: binary_sensor
               for:
                 minutes: 1
           condition:
@@ -437,11 +469,14 @@ climate_configuration:
           id: climate_kitchen_turn_off_heater_window_opened
           description: 'Выключение обогревателя в кухне при открытом окне'
           trigger:
-            - type: opened
-              platform: device
-              device_id: 1302f3abc6e95ef58820671b5a312ef9
+            - platform: state
               entity_id: binary_sensor.kitchen_window_contact
-              domain: binary_sensor
+              to: 'on'
+            # - type: opened
+            #   platform: device
+            #   device_id: 1302f3abc6e95ef58820671b5a312ef9
+            #   entity_id: binary_sensor.kitchen_window_contact
+            #   domain: binary_sensor
               for:
                 minutes: 5
           condition:
@@ -471,11 +506,14 @@ climate_configuration:
           id: climate_kitchen_turn_on_heater_window_closed
           description: 'Включение обогревателя в кухне при закрытом окне'
           trigger:
-            - type: not_opened
-              platform: device
-              device_id: 1302f3abc6e95ef58820671b5a312ef9
+            - platform: state
               entity_id: binary_sensor.kitchen_window_contact
-              domain: binary_sensor
+              to: 'off'
+            # - type: not_opened
+            #   platform: device
+            #   device_id: 1302f3abc6e95ef58820671b5a312ef9
+            #   entity_id: binary_sensor.kitchen_window_contact
+            #   domain: binary_sensor
               for:
                 minutes: 1
           condition:
@@ -608,9 +646,9 @@ climate_configuration:
                     - service: input_boolean.turn_off
                       entity_id: input_boolean.heating_status
 
-        - alias: "Climate: Turn ON 'A/C Cooling' mode when temperature above 26'C"
+        - alias: "Climate: Turn ON 'A/C Cooling' mode when temperature above Target on 2'C"
           id: climate_ac_cooling_mode_turn_on
-          description: 'Включение кондиционеров на охлаждение при температуре в помещении выше 26'
+          description: 'Включение кондиционеров на охлаждение при температуре в помещении выше целевой на 2 градуса'
           trigger:
             - platform: time_pattern
               minutes: "/5"
@@ -620,12 +658,10 @@ climate_configuration:
               before: "23:00:00"
             - condition: or
               conditions:
-                - condition: numeric_state
-                  entity_id: sensor.living_room_lumi_weather_temperature
-                  above: 26
-                - condition: numeric_state
-                  entity_id: sensor.bedroom_lumi_weather_temperature
-                  above: 26
+                - condition: template
+                  value_template: "{{ states('sensor.living_room_lumi_weather_temperature') | float > state_attr('climate.living_room_ac','temperature') + 2 }}"
+                - condition: template
+                  value_template: "{{ states('sensor.bedroom_lumi_weather_temperature') | float > state_attr('climate.bedroom_ac','temperature') + 2 }}"
             - condition: state
               entity_id: input_boolean.disable_climate
               state: 'off'
@@ -653,9 +689,8 @@ climate_configuration:
                     - condition: state
                       entity_id: switch.living_room_air_conditioner_socket
                       state: 'off'
-                    - condition: numeric_state
-                      entity_id: sensor.living_room_lumi_weather_temperature
-                      above: 26
+                    - condition: template
+                      value_template: "{{ states('sensor.living_room_lumi_weather_temperature') | float > state_attr('climate.living_room_ac','temperature') + 2 }}"
                     - condition: state
                       entity_id: binary_sensor.living_room_loggia_door_contact
                       state: 'off'
@@ -670,9 +705,8 @@ climate_configuration:
                         - condition: state
                           entity_id: climate.living_room_ac
                           state: 'cool'
-                    - condition: numeric_state
-                      entity_id: sensor.living_room_lumi_weather_temperature
-                      above: 26
+                    - condition: template
+                      value_template: "{{ states('sensor.living_room_lumi_weather_temperature') | float > state_attr('climate.living_room_ac','temperature') + 2 }}"
                     - condition: state
                       entity_id: binary_sensor.living_room_loggia_door_contact
                       state: 'off'
@@ -697,9 +731,8 @@ climate_configuration:
                     - condition: state
                       entity_id: switch.bedroom_air_conditioner_socket
                       state: 'off'
-                    - condition: numeric_state
-                      entity_id: sensor.bedroom_lumi_weather_temperature
-                      above: 26
+                    - condition: template
+                      value_template: "{{ states('sensor.bedroom_lumi_weather_temperature') | float > state_attr('climate.bedroom_ac','temperature') + 2 }}"
                     - condition: state
                       entity_id: binary_sensor.bedroom_windows
                       state: 'off'
@@ -717,9 +750,8 @@ climate_configuration:
                     - condition: state
                       entity_id: binary_sensor.bedroom_windows
                       state: 'off'
-                    - condition: numeric_state
-                      entity_id: sensor.bedroom_lumi_weather_temperature
-                      above: 26
+                    - condition: template
+                      value_template: "{{ states('sensor.bedroom_lumi_weather_temperature') | float > state_attr('climate.bedroom_ac','temperature') + 2 }}"
                   sequence:
                     - service: climate.set_hvac_mode
                       target:
@@ -737,9 +769,9 @@ climate_configuration:
                           Температура в Спальне {{ states("sensor.bedroom_lumi_weather_temperature") | round(1) }}{{"\U00002103"}}{{"\U0000203C"}}
                           Включение кондиционера в режим охлаждения...
 
-        - alias: "Climate: Turn ON 'A/C Heating' mode when temperature below 21'C"
+        - alias: "Climate: Turn ON 'A/C Heating' mode when temperature below Target on 2'C"
           id: climate_ac_heating_mode_turn_on
-          description: 'Включение кондиционеров на обогрев при температуре в помещении ниже 21'
+          description: 'Включение кондиционеров на обогрев при температуре в помещении ниже целевой на 2 градуса'
           trigger:
             - platform: time_pattern
               minutes: "/5"
@@ -749,12 +781,16 @@ climate_configuration:
               before: "23:00:00"
             - condition: or
               conditions:
-                - condition: numeric_state
-                  entity_id: sensor.living_room_lumi_weather_temperature
-                  below: 21
-                - condition: numeric_state
-                  entity_id: sensor.bedroom_lumi_weather_temperature
-                  below: 21
+                - condition: template
+                  value_template: "{{ states('sensor.living_room_lumi_weather_temperature') | float < state_attr('climate.living_room_ac','temperature') - 2 }}"
+                - condition: template
+                  value_template: "{{ states('sensor.bedroom_lumi_weather_temperature') | float < state_attr('climate.bedroom_ac','temperature') - 2 }}"
+            #     - condition: numeric_state
+            #       entity_id: sensor.living_room_lumi_weather_temperature
+            #       below: 21
+            #     - condition: numeric_state
+            #       entity_id: sensor.bedroom_lumi_weather_temperature
+            #       below: 21
             - condition: state
               entity_id: input_boolean.disable_climate
               state: 'off'
@@ -782,9 +818,8 @@ climate_configuration:
                     - condition: state
                       entity_id: switch.living_room_air_conditioner_socket
                       state: 'off'
-                    - condition: numeric_state
-                      entity_id: sensor.living_room_lumi_weather_temperature
-                      below: 21
+                    - condition: template
+                      value_template: "{{ states('sensor.living_room_lumi_weather_temperature') | float < state_attr('climate.living_room_ac','temperature') - 2 }}"
                     - condition: state
                       entity_id: binary_sensor.living_room_loggia_door_contact
                       state: 'off'
@@ -799,9 +834,11 @@ climate_configuration:
                         - condition: state
                           entity_id: climate.living_room_ac
                           state: 'heat'
-                    - condition: numeric_state
-                      entity_id: sensor.living_room_lumi_weather_temperature
-                      below: 21
+                        - condition: template
+                          value_template: "{{ states('sensor.living_room_lumi_weather_temperature') | float < state_attr('climate.living_room_ac','temperature') - 2 }}"
+                    # - condition: numeric_state
+                    #   entity_id: sensor.living_room_lumi_weather_temperature
+                    #   below: 21
                     - condition: state
                       entity_id: binary_sensor.living_room_loggia_door_contact
                       state: 'off'
@@ -826,9 +863,11 @@ climate_configuration:
                     - condition: state
                       entity_id: switch.bedroom_air_conditioner_socket
                       state: 'off'
-                    - condition: numeric_state
-                      entity_id: sensor.bedroom_lumi_weather_temperature
-                      below: 21
+                    - condition: template
+                      value_template: "{{ states('sensor.bedroom_lumi_weather_temperature') | float < state_attr('climate.bedroom_ac','temperature') - 2 }}"
+                    # - condition: numeric_state
+                    #   entity_id: sensor.bedroom_lumi_weather_temperature
+                    #   below: 21
                     - condition: state
                       entity_id: binary_sensor.bedroom_windows
                       state: 'off'
@@ -846,9 +885,11 @@ climate_configuration:
                     - condition: state
                       entity_id: binary_sensor.bedroom_windows
                       state: 'off'
-                    - condition: numeric_state
-                      entity_id: sensor.bedroom_lumi_weather_temperature
-                      below: 21
+                    - condition: template
+                      value_template: "{{ states('sensor.bedroom_lumi_weather_temperature') | float < state_attr('climate.bedroom_ac','temperature') - 2 }}"
+                    # - condition: numeric_state
+                    #   entity_id: sensor.bedroom_lumi_weather_temperature
+                    #   below: 21
                   sequence:
                     - service: climate.set_hvac_mode
                       target:
@@ -866,9 +907,9 @@ climate_configuration:
                           Температура в Спальне {{ states("sensor.bedroom_lumi_weather_temperature") | round(1) }}{{"\U00002103"}}{{"\U0000203C"}}
                           Включение кондиционера в режим обогрева...
 
-        - alias: "Climate: Turn OFF 'A/C Cooling' mode when temperature below 24'C"
+        - alias: "Climate: Turn OFF 'A/C Cooling' mode when temperature below Target"
           id: climate_ac_cooling_mode_turn_off
-          description: 'Выключение кондиционеров при внутренней температуре ниже 24'
+          description: 'Выключение кондиционеров при внутренней температуре ниже целевой'
           trigger:
             - platform: time_pattern
               minutes: "/5"
@@ -878,12 +919,16 @@ climate_configuration:
               before: "23:00:00"
             - condition: or
               conditions:
-                - condition: numeric_state
-                  entity_id: sensor.living_room_lumi_weather_temperature
-                  below: 24
-                - condition: numeric_state
-                  entity_id: sensor.bedroom_lumi_weather_temperature
-                  below: 24
+                - condition: template
+                  value_template: "{{ states('sensor.living_room_lumi_weather_temperature') | float < state_attr('climate.living_room_ac','temperature') }}"
+                - condition: template
+                  value_template: "{{ states('sensor.bedroom_lumi_weather_temperature') | float < state_attr('climate.bedroom_ac','temperature') }}"
+                # - condition: numeric_state
+                #   entity_id: sensor.living_room_lumi_weather_temperature
+                #   below: 24
+                # - condition: numeric_state
+                #   entity_id: sensor.bedroom_lumi_weather_temperature
+                #   below: 24
             - condition: state
               entity_id: input_boolean.disable_climate
               state: 'off'
@@ -910,9 +955,11 @@ climate_configuration:
                     - condition: state
                       entity_id: climate.living_room_ac
                       state: 'cool'
-                    - condition: numeric_state
-                      entity_id: sensor.living_room_lumi_weather_temperature
-                      below: 24
+                    - condition: template
+                      value_template: "{{ states('sensor.living_room_lumi_weather_temperature') | float < state_attr('climate.living_room_ac','temperature') }}"
+                    # - condition: numeric_state
+                    #   entity_id: sensor.living_room_lumi_weather_temperature
+                    #   below: 24
                   sequence: 
                     - service: climate.turn_off
                       entity_id: climate.living_room_ac
@@ -939,9 +986,11 @@ climate_configuration:
                     - condition: state
                       entity_id: climate.bedroom_ac
                       state: 'cool'
-                    - condition: numeric_state
-                      entity_id: sensor.bedroom_lumi_weather_temperature
-                      below: 24
+                    - condition: template
+                      value_template: "{{ states('sensor.bedroom_lumi_weather_temperature') | float < state_attr('climate.bedroom_ac','temperature') }}"
+                    # - condition: numeric_state
+                    #   entity_id: sensor.bedroom_lumi_weather_temperature
+                    #   below: 24
                   sequence:
                     - service: climate.turn_off
                       entity_id: climate.bedroom_ac
@@ -961,9 +1010,9 @@ climate_configuration:
                           Температура в Спальне {{ states("sensor.bedroom_lumi_weather_temperature") | round(1) }}{{"\U00002103"}}{{"\U0000203C"}}
                           Выключение кондиционера...
 
-        - alias: "Climate: Turn OFF 'A/C Heating' mode when temperature above 23'C"
+        - alias: "Climate: Turn OFF 'A/C Heating' mode when temperature above Target"
           id: climate_ac_heating_mode_turn_off
-          description: 'Выключение кондиционеров при внутренней температуре выше 23'
+          description: 'Выключение кондиционеров при внутренней температуре выше целевой'
           trigger:
             - platform: time_pattern
               minutes: "/5"
@@ -973,12 +1022,16 @@ climate_configuration:
               before: "23:00:00"
             - condition: or
               conditions:
-                - condition: numeric_state
-                  entity_id: sensor.living_room_lumi_weather_temperature
-                  above: 23
-                - condition: numeric_state
-                  entity_id: sensor.bedroom_lumi_weather_temperature
-                  above: 23
+                - condition: template
+                  value_template: "{{ states('sensor.living_room_lumi_weather_temperature') | float > state_attr('climate.living_room_ac','temperature') }}"
+                - condition: template
+                  value_template: "{{ states('sensor.bedroom_lumi_weather_temperature') | float > state_attr('climate.bedroom_ac','temperature') }}"
+                # - condition: numeric_state
+                #   entity_id: sensor.living_room_lumi_weather_temperature
+                #   above: 23
+                # - condition: numeric_state
+                #   entity_id: sensor.bedroom_lumi_weather_temperature
+                #   above: 23
             - condition: state
               entity_id: input_boolean.disable_climate
               state: 'off'
@@ -1005,9 +1058,11 @@ climate_configuration:
                     - condition: state
                       entity_id: climate.living_room_ac
                       state: 'heat'
-                    - condition: numeric_state
-                      entity_id: sensor.living_room_lumi_weather_temperature
-                      above: 23
+                    - condition: template
+                      value_template: "{{ states('sensor.living_room_lumi_weather_temperature') | float > state_attr('climate.living_room_ac','temperature') }}"
+                    # - condition: numeric_state
+                    #   entity_id: sensor.living_room_lumi_weather_temperature
+                    #   above: 23
                   sequence: 
                     - service: climate.turn_off
                       entity_id: climate.living_room_ac
@@ -1034,9 +1089,11 @@ climate_configuration:
                     - condition: state
                       entity_id: climate.bedroom_ac
                       state: 'heat'
-                    - condition: numeric_state
-                      entity_id: sensor.bedroom_lumi_weather_temperature
-                      above: 23
+                    - condition: template
+                      value_template: "{{ states('sensor.bedroom_lumi_weather_temperature') | float > state_attr('climate.bedroom_ac','temperature') }}"
+                    # - condition: numeric_state
+                    #   entity_id: sensor.bedroom_lumi_weather_temperature
+                    #   above: 23
                   sequence:
                     - service: climate.turn_off
                       entity_id: climate.bedroom_ac
@@ -1062,6 +1119,10 @@ climate_configuration:
           trigger:
             - platform: time
               at: '23:00:00'
+            - platform: time
+              at: '23:15:00'
+            - platform: time
+              at: '23:30:00'
           condition:
             - condition: state
               entity_id: input_boolean.disable_climate
@@ -1099,17 +1160,17 @@ climate_configuration:
           id: climate_ac_living_room_turn_off_when_loggia_door_opened
           description: 'Выключение кондиционера в гостинной при открытой двери на лоджию'
           trigger:
-            - type: opened
-              platform: device
-              device_id: 19904350a3cc7a64c7db5fe737b6d044
+            - platform: state
               entity_id: binary_sensor.living_room_loggia_door_contact
-              domain: binary_sensor
+              to: 'on'
+            # - type: opened
+            #   platform: device
+            #   device_id: 19904350a3cc7a64c7db5fe737b6d044
+            #   entity_id: binary_sensor.living_room_loggia_door_contact
+            #   domain: binary_sensor
               for:
                 minutes: 3
           condition:
-            - condition: time
-              after: "08:00:00"
-              before: "23:00:00"
             - condition: state
               entity_id: input_boolean.disable_climate
               state: 'off'
@@ -1143,11 +1204,14 @@ climate_configuration:
           id: climate_ac_living_room_turn_on_when_loggia_door_closed
           description: 'Включение кондиционера в гостинной при закрытой двери на лоджию'
           trigger:
-            - type: not_opened
-              platform: device
-              device_id: 19904350a3cc7a64c7db5fe737b6d044
+            - platform: state
               entity_id: binary_sensor.living_room_loggia_door_contact
-              domain: binary_sensor
+              to: 'off'
+            # - type: not_opened
+            #   platform: device
+            #   device_id: 19904350a3cc7a64c7db5fe737b6d044
+            #   entity_id: binary_sensor.living_room_loggia_door_contact
+            #   domain: binary_sensor
               for:
                 minutes: 1
           condition:
@@ -1195,9 +1259,6 @@ climate_configuration:
               for:
                 minutes: 3
           condition:
-            - condition: time
-              after: "08:00:00"
-              before: "23:00:00"
             - condition: state
               entity_id: input_boolean.disable_climate
               state: 'off'
@@ -1282,9 +1343,9 @@ climate_configuration:
             platform: state
             to: not_home
           condition: 
-            - condition: time
-              after: "08:00:00"
-              before: "23:00:00"
+            # - condition: time
+            #   after: "08:00:00"
+            #   before: "23:00:00"
             - condition: state
               entity_id: input_boolean.disable_home_away
               state: 'off'
@@ -1374,6 +1435,40 @@ climate_configuration:
             - service: climate.turn_on
               entity_id: climate.bedroom_ac
 
+        - alias: "Climate: Turn OFF AC Socket in Bedroom if Not Active"
+          id: climate_ac_bedroom_turn_off_socket
+          description: 'Выключение розетки для Кондиционера в Спальне'
+          trigger:
+            - platform: state
+              entity_id: binary_sensor.bedroom_air_conditioner_socket_status
+              to: 'off'
+              for: '00:00:05'
+          condition:
+            - condition: state
+              entity_id: switch.bedroom_air_conditioner_socket
+              state: 'on'
+          action:
+            - service: switch.turn_off
+              entity_id: switch.bedroom_air_conditioner_socket
+          mode: single
+
+        - alias: "Climate: Turn OFF AC Socket in Living Room if Not Active"
+          id: climate_ac_living_room_turn_off_socket
+          description: 'Выключение розетки для Кондиционера в Гостинной'
+          trigger:
+            - platform: state
+              entity_id: binary_sensor.living_room_air_conditioner_socket_status
+              to: 'off'
+              for: '00:00:05'
+          condition:
+            - condition: state
+              entity_id: switch.living_room_air_conditioner_socket
+              state: 'on'
+          action:
+            - service: switch.turn_off
+              entity_id: switch.living_room_air_conditioner_socket
+          mode: single
+
         - alias: "Climate: Notification about A/C status in Bedroom"
           id: climate_ac_bedroom_status_notification
           description: 'Сообщение о статусе кондиционера в Спальне'
@@ -1411,4 +1506,3 @@ climate_configuration:
                   ➖➖➖➖➖➖➖➖➖➖➖➖
                   Кондиционер в Гостинной {% if is_state("binary_sensor.living_room_air_conditioner_socket_status","on") %} включен в режиме {% if is_state('climate.living_room_ac', 'cool') %}{{"\U00002744"}} охлаждения{% elif is_state('climate.living_room_ac', 'heat') %}{{"\U0001F525"}} нагрева{% elif is_state('climate.living_room_ac', 'dry') %}{{"\U0001F4A7"}} осушения{% else %} Авто{%endif%}{% else %} выключен{% endif %}{{"\U0000203C"}}
                   Текущая температура: {{ states("sensor.living_room_lumi_weather_temperature") | round(1) }}{{"\U00002103"}}
-

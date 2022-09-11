@@ -280,7 +280,7 @@
             title: '{{"\U0001F50B"}} ВНИМАНИЕ{{"\U0000203C"}}'
             message: |
               ➖➖➖➖➖➖➖➖➖➖➖➖
-              Низкий уровень заряда батареи UPS: {{ states("sensor.ups_battery_capacity") }}% / {{ states("sensor.ups_battery_voltage") }}V {{"\U0000203C"}}
+              Низкий уровень заряда батареи сервера Home Assistant: {{ states("sensor.ups_battery_capacity") }}% / {{ states("sensor.ups_battery_voltage") }}V {{"\U0000203C"}}
               Внешнее питание: {{"\U0001F50C"}} {% if is_state("binary_sensor.rpi_ac_power_status", "on") %}Подключено{% else %}Отключено{% endif %}
               
               {{"\U0000203C"}}Через некоторое время сервер RPi будет остановлен{{"\U0000203C"}}
@@ -296,7 +296,7 @@
             volume: 0.4
             message: |
               ВНИМАНИЕ!!! 
-              Низкий уровень заряда батареи UPS: {{ states("sensor.ups_battery_capacity") }} процентов.
+              Низкий уровень заряда батареи сервера Home Assistant: {{ states("sensor.ups_battery_capacity") }} процентов.
               Внешнее питание {% if is_state("binary_sensor.rpi_ac_power_status", "on") %}подключено{% else %}отключено{% endif %}!
               Через некоторое время сервер будет остановлен!
 
@@ -327,7 +327,7 @@
         - type: opened
           platform: device
           device_id: 8bdd25d1820505d01332c5ac3780dee1
-          entity_id: binary_sensor.corridor_entrance_door_contact
+          entity_id: binary_sensor.hallway_entrance_door_contact
           domain: binary_sensor
           for:
             minutes: 3

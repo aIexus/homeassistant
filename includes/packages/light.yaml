@@ -1,195 +1,327 @@
- light_settings:
+light_settings:
 
-    sensor:
-      - platform: template
-        sensors:
-          period_of_day:
-            friendly_name: 'Period of the day'
-            value_template: >-
-              {% set elevation = state_attr('sun.sun', 'elevation') %}
-              {% set rising = state_attr('sun.sun', 'rising') %}
-              {%- if elevation <= -12 -%}
+    template:
+
+      - sensor:
+          - name: period_of_day
+            unique_id: sensor_period_of_day
+            state: >-
+                {% set elevation = state_attr('sun.sun', 'elevation') %}
+                {% set rising = state_attr('sun.sun', 'rising') %}
+                {%- if elevation <= -12 -%}
                 night
-              {%- elif ( -12 < elevation) and (elevation <= -6) -%}
+                {%- elif ( -12 < elevation) and (elevation <= -6) -%}
                 {{ 'dawn' if rising else 'dusk' }}
-              {%- else -%}
+                {%- else -%}
                 day
-              {%- endif -%}light
-            icon_template: >-
-              {% set elevation = state_attr('sun.sun', 'elevation') %}
-              {% set rising = state_attr('sun.sun', 'rising') %}
-              {%- if elevation <= -12 -%}
+                {%- endif -%}light
+            icon: >-
+                {% set elevation = state_attr('sun.sun', 'elevation') %}
+                {% set rising = state_attr('sun.sun', 'rising') %}
+                {%- if elevation <= -12 -%}
                 mdi:weather-night
-              {%- elif ( -12 < elevation) and (elevation <= -6) -%}
+                {%- elif ( -12 < elevation) and (elevation <= -6) -%}
                 mdi:weather-sunset-{{ 'up' if rising else 'down' }}
-              {% else %}
+                {% else %}
                 mdi:weather-sunny
-              {% endif %}
+                {% endif %}
 
-    binary_sensor:
-      # Сенсор автоотключения света в спальне
-      - platform: template
-        sensors:
-          bedroom_auto_light_off_sensor:
-            friendly_name: "Автоотключение Света в Спальне"
-            value_template: >-
-              {{ is_state('switch.bedroom_light_switch', 'on')  
-                 and is_state('binary_sensor.bedroom_lumi_sensor_motion_occupancy', 'off')
-                 and is_state('input_boolean.disable_occupancy','off') }}
-            icon_template: >-
-              {% if is_state("binary_sensor.bedroom_auto_light_off_sensor", "on") %}
-              mdi:timer
-              {% else %}
-              mdi:timer-off
-              {% endif %}
+      - binary_sensor:
+          - name: bedroom_auto_light_off_sensor
+            unique_id: binary_sensor_bedroom_auto_light_off_sensor
+            state: >-
+                {{ is_state('switch.bedroom_light_switch', 'on') and
+                   is_state('binary_sensor.bedroom_lumi_sensor_motion_occupancy', 'off') and
+                   is_state('input_boolean.disable_occupancy','off') }}
+            icon: >-
+                {% if is_state("binary_sensor.bedroom_auto_light_off_sensor", "on") %}
+                mdi:timer
+                {% else %}
+                mdi:timer-off
+                {% endif %}
 
-      # Сенсор автоотключения света в гостинной
-      - platform: template
-        sensors:
-          living_room_auto_light_off_sensor:
-            friendly_name: "Автоотключение Света в Гостинной"
-            value_template: >-
-              {{ is_state('switch.living_room_light_switch', 'on')  
-                 and is_state('binary_sensor.living_room_lumi_sensor_motion_occupancy', 'off')
-                 and is_state('input_boolean.disable_occupancy','off') }}
-            icon_template: >-
-              {% if is_state("binary_sensor.living_room_auto_light_off_sensor", "on") %}
-              mdi:timer
-              {% else %}
-              mdi:timer-off
-              {% endif %}
+          - name:  living_room_auto_light_off_sensor
+            unique_id: binary_sensor_living_room_auto_light_off_sensor
+            state: >-
+                {{ is_state('switch.living_room_light_switch', 'on') and
+                   is_state('binary_sensor.living_room_lumi_sensor_motion_occupancy', 'off') and
+                   is_state('input_boolean.disable_occupancy','off') }}
+            icon: >-
+                {% if is_state("binary_sensor.living_room_auto_light_off_sensor", "on") %}
+                mdi:timer
+                {% else %}
+                mdi:timer-off
+                {% endif %}
 
     timer:
-          # Таймер отключения света в спальне
-          bedroom_light_off_timer:
+        # Таймер отключения света в спальне
+        bedroom_light_off_timer:
             name: Время до отключения света в спальне
             duration: '00:10:00'
 
-          # Таймер отключения света в гостинной
-          living_room_light_off_timer:
+        # Таймер отключения света в гостинной
+        living_room_light_off_timer:
             name: Время до отключения света в гостинной
             duration: '00:10:00'
 
+    script:
+
+        light_rgb_test:
+            alias: "Light: RGB Test"
+            sequence:
+              - service: light.toggle
+                target:
+                    entity_id: light.hallway_rgb_bulb
+                data:
+                    brightness: 140
+                    color_temp: 155
+              - delay: '00:00:01'
+              - service: scene.create
+                data:
+                  scene_id: scene_rgb_bulb_white
+                  snapshot_entities:
+                    - light.hallway_rgb_bulb
+            #   - service: script.turn_on
+            #     target:
+            #         entity_id: script.rgb_bulb_flashing_while_condition
+            #     data:
+            #         variables:
+            #             rgb_bulb_entity_id: light.hallway_rgb_bulb
+            #             condition_entity_id: switch.living_room_light_switch
+            #             repeat_while_state: 'on'
+            #             color: 'red'
+            #   - service: script.turn_on
+            #     target: 
+            #         entity_id: script.rgb_bulb_flashing_x_times
+            #     data:
+            #         variables:
+            #             rgb_bulb_entity_id: light.hallway_rgb_bulb
+            #             count: 3
+            #             color: 'green'
+            mode: single
+
+
+        rgb_bulb_flashing_while_condition:
+            alias: "Light: Flashing RGB Bulb with Color While Condition"
+            sequence:
+              - wait_template: "{{ is_state('script.rgb_bulb_flashing_x_times', 'off') }}"
+              - service: scene.create
+                data:
+                  scene_id: scene_old
+                  snapshot_entities:
+                    - '{{ rgb_bulb_entity_id }}'
+              - delay: '00:00:01'
+              - repeat:
+                    while:
+                      - condition: template
+                        value_template: "{{ states[condition_entity_id].state == repeat_while_state }}"
+                      - condition: template
+                        value_template: '{{ repeat.index <= 500 }}'
+                    sequence:
+                      - service: light.toggle
+                        target:
+                            entity_id: '{{ rgb_bulb_entity_id }}'
+                        data:
+                            color_name: '{{ color }}'
+                            brightness: 255
+                      - delay: '00:00:01'
+              - service: scene.turn_on
+                entity_id: scene.scene_old
+              - delay: '00:00:01'
+            mode: single
+
+        rgb_bulb_flashing_x_times:
+            alias: "Light: Flashing RGB Bulb X times with Color"
+            sequence:
+              - wait_template: "{{ is_state('script.rgb_bulb_flashing_while_condition', 'off') }}"
+              - service: scene.create
+                data:
+                  scene_id: scene_old
+                  snapshot_entities:
+                    - '{{ rgb_bulb_entity_id }}'
+              - delay: '00:00:01'
+              - repeat:
+                    count: '{{ count | int * 2 }}'
+                    sequence:
+                      - service: light.toggle
+                        target:
+                            entity_id: '{{ rgb_bulb_entity_id }}'
+                        data:
+                            color_name: '{{ color }}'
+                            brightness: 255
+                      - delay: '00:00:01'
+              - service: scene.turn_on
+                entity_id: scene.scene_old
+              - delay: '00:00:01'
+            mode: single
+
     automation:
 
-        # Автоматизация выключения света в спальне
-        - alias: "Light: Turn OFF light in Bedroom by timer"
-          id: bedroom_auto_light_off
-          description: 'Автоматическое Выключение освещения в спальне'
-          mode: single
-          trigger:
-          # По Таймеру
-            - platform: event
-              event_type: timer.finished
-              event_data:
+      # Автоматизация выключения света в спальне
+      - alias: "Light: Turn OFF light in Bedroom by timer"
+        id: bedroom_auto_light_off
+        description: 'Автоматическое Выключение освещения в спальне'
+        trigger:
+        # По Таймеру
+          - platform: event
+            event_type: timer.finished
+            event_data:
                 entity_id: timer.bedroom_light_off_timer
-          condition:
-            - condition: state
-              entity_id: switch.bedroom_light_switch
-              state: 'on'
-          action:
-            - service: switch.turn_off
-              entity_id: switch.bedroom_light_switch
+        condition:
+          - condition: state
+            entity_id: switch.bedroom_light_switch
+            state: 'on'
+        action:
+          - service: switch.turn_off
+            entity_id: switch.bedroom_light_switch
+        mode: single
 
         # Таймер автоотключения
-        - alias: "Light: Start light-off Timer for Bedroom"
-          id: bedroom_light_off_timer_start
-          description: 'Активация таймера автоотключения в спальне'
-          initial_state: true
-          trigger:
-          # Условия для запуска таймера освещения
-            - platform: state
-              entity_id: binary_sensor.bedroom_auto_light_off_sensor
-              to: 'on'
-          condition:
-            - condition: state
-              entity_id: input_boolean.disable_occupancy
-              state: 'off'
-          action:
-              service: timer.start
-              entity_id: timer.bedroom_light_off_timer
-              data_template: 
-                  duration: > 
-                   {%- if states("sensor.period_of_day") == 'nightlight' -%}
-                   00:20:00
-                   {%- elif states("sensor.period_of_day") == 'daylight'  -%}
-                   00:10:00
-                   {%- else -%}
-                   00:15:00
-                   {% endif %} 
+      - alias: "Light: Start light-off Timer for Bedroom"
+        id: bedroom_light_off_timer_start
+        description: 'Активация таймера автоотключения в спальне'
+        initial_state: true
+        trigger:
+        # Условия для запуска таймера освещения
+          - platform: state
+            entity_id: binary_sensor.bedroom_auto_light_off_sensor
+            to: 'on'
+        condition:
+          - condition: state
+            entity_id: input_boolean.disable_occupancy
+            state: 'off'
+        action:
+          - service: timer.start
+            entity_id: timer.bedroom_light_off_timer
+            data_template: 
+                duration: > 
+                    {%- if states("sensor.period_of_day") == 'nightlight' -%}
+                    00:20:00
+                    {%- elif states("sensor.period_of_day") == 'daylight'  -%}
+                    00:10:00
+                    {%- else -%}
+                    00:15:00
+                    {% endif %} 
+        mode: single
 
-        # Сброс таймера при выключении
-        - alias: "Light: Cancel light-off Timer for Bedroom"
-          id: bedroom_light_off_timer_cancel
-          initial_state: true
-          trigger:
+      # Сброс таймера при выключении
+      - alias: "Light: Cancel light-off Timer for Bedroom"
+        id: bedroom_light_off_timer_cancel
+        initial_state: true
+        trigger:
           - platform: state
             entity_id: binary_sensor.bedroom_auto_light_off_sensor
             to: 'off'
           - platform: state
             entity_id: input_boolean.disable_occupancy
             to: 'on'
-          action:
+        action:
           - service: timer.cancel
             entity_id: timer.bedroom_light_off_timer
+        mode: restart
 
-        # Автоматизация выключения света в гостинной
-        - alias: "Light: Turn OFF light in Living Room by timer"
-          id: living_room_auto_light_off
-          description: 'Автоматическое Выключение освещения в гостинной'
-          mode: single
-          trigger:
-          # По Таймеру
-            - platform: event
-              event_type: timer.finished
-              event_data:
+      # Автоматизация выключения света в гостинной
+      - alias: "Light: Turn OFF light in Living Room by timer"
+        id: living_room_auto_light_off
+        description: 'Автоматическое Выключение освещения в гостинной'
+        trigger:
+        # По Таймеру
+          - platform: event
+            event_type: timer.finished
+            event_data:
                 entity_id: timer.living_room_light_off_timer
-          condition:
-            - condition: state
-              entity_id: switch.living_room_light_switch
-              state: 'on'
-          action:
-            - service: switch.turn_off
-              entity_id: switch.living_room_light_switch
+        condition:
+          - condition: state
+            entity_id: switch.living_room_light_switch
+            state: 'on'
+        action:
+          - service: switch.turn_off
+            entity_id: switch.living_room_light_switch
+        mode: single
 
         # Таймер автоотключения
-        - alias: "Light: Start light-off Timer for Living Room"
-          id: living_room_light_off_timer_start
-          description: 'Активация таймера автоотключения в гостинной'
-          initial_state: true
-          trigger:
-          # Условия для запуска таймера освещения
-            - platform: state
-              entity_id: binary_sensor.living_room_auto_light_off_sensor
-              to: 'on'
-          condition:
-            - condition: state
-              entity_id: input_boolean.disable_occupancy
-              state: 'off'
-          action:
-              service: timer.start
-              entity_id: timer.living_room_light_off_timer
-              data_template: 
-                  duration: > 
-                   {%- if states("sensor.period_of_day") == 'nightlight' -%}
-                   00:20:00
-                   {%- elif states("sensor.period_of_day") == 'daylight'  -%}
-                   00:10:00
-                   {%- else -%}
-                   00:15:00
-                   {% endif %} 
+      - alias: "Light: Start light-off Timer for Living Room"
+        id: living_room_light_off_timer_start
+        description: 'Активация таймера автоотключения в гостинной'
+        initial_state: true
+        trigger:
+        # Условия для запуска таймера освещения
+          - platform: state
+            entity_id: binary_sensor.living_room_auto_light_off_sensor
+            to: 'on'
+        condition:
+          - condition: state
+            entity_id: input_boolean.disable_occupancy
+            state: 'off'
+        action:
+          - service: timer.start
+            entity_id: timer.living_room_light_off_timer
+            data_template: 
+                duration: > 
+                    {%- if states("sensor.period_of_day") == 'nightlight' -%}
+                    00:20:00
+                    {%- elif states("sensor.period_of_day") == 'daylight'  -%}
+                    00:10:00
+                    {%- else -%}
+                    00:15:00
+                    {% endif %} 
+        mode: single
 
-        # Сброс таймера при выключении света в гостинной
-        - alias: "Light: Cancel light-off Timer for Living Room"
-          id: living_room_light_off_timer_cancel
-          initial_state: true
-          trigger:
+      # Сброс таймера при выключении света в гостинной
+      - alias: "Light: Cancel light-off Timer for Living Room"
+        id: living_room_light_off_timer_cancel
+        initial_state: true
+        trigger:
           - platform: state
             entity_id: binary_sensor.living_room_auto_light_off_sensor
             to: 'off'
           - platform: state
             entity_id: input_boolean.disable_occupancy
             to: 'on'
-          action:
+        action:
           - service: timer.cancel
             entity_id: timer.living_room_light_off_timer
+        mode: restart
+
+      - alias: "Light: Hallway RGB Bulb Manual Control"
+        id: hallway_light_rgb_bulb_manual_control
+        trigger:
+          - platform: state
+            entity_id: sensor.hallway_rgb_bulb_switch_action
+            attribute: action
+            to:
+              - single
+              - double
+              - hold
+        action:
+          - choose:
+              - conditions:
+                  - condition: template
+                    value_template: "{{ trigger.to_state.attributes.action == 'single' }}"
+                sequence:
+                #   - service: scene.create
+                #     data:
+                #       scene_id: scene_rgb_bulb_old
+                #       snapshot_entities:
+                #         - light.hallway_rgb_bulb
+                  - service: light.toggle
+                    target:
+                        entity_id: light.hallway_rgb_bulb
+                    data:
+                        brightness: 140
+                        color_temp: 155
+                  - delay: '00:00:01'
+                #   - service: scene.turn_on
+                #     entity_id: scene.scene_rgb_bulb_old
+            #   - conditions:
+            #       - condition: template
+            #         value_template: "{{ trigger.to_state.attributes.action == 'double' }}"
+            #     sequence:
+            #       - service: scene.turn_on
+            #         entity_id: scene.scene_rgb_bulb_white
+            #   - conditions:
+            #       - condition: template
+            #         value_template: "{{ trigger.to_state.attributes.action == 'hold'   }}"
+            #     sequence:
+            #       - delay: '00:00:01'
+        mode: single
