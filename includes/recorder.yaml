@@ -5,3 +5,8 @@ exclude:
     - telegram_bot
   entity_globs:
     - sensor.time*
+    - sensor.date*
+    - sensor.*_custom
+    - sensor.last_boot*
+    - sensor.*_google*
+    - sensor.snapshots*

@@ -283,8 +283,41 @@ light_settings:
             entity_id: timer.living_room_light_off_timer
         mode: restart
 
-      - alias: "Light: Hallway RGB Bulb Manual Control"
-        id: hallway_light_rgb_bulb_manual_control
+
+      - alias: "Light: Hallway RGB Bulb ON/OFF by Input Boolean"
+        id: hallway_light_rgb_buld_on_off_by_input_boolean
+        trigger:
+          - platform: state
+            entity_id: input_boolean.hallway_rgb_bulb_switch_single_status
+        action:
+          - choose: 
+              - conditions:
+                  - condition: state
+                    entity_id: input_boolean.hallway_rgb_bulb_switch_single_status
+                    state: 'on'
+                sequence:
+                  - service: scene.create
+                    data:
+                      scene_id: scene_rgb_bulb_before_switch
+                      snapshot_entities:
+                        - light.hallway_rgb_bulb
+                  - service: light.turn_on
+                    target:
+                        entity_id: light.hallway_rgb_bulb
+                    data:
+                        brightness: 140
+                        color_temp: 155
+              - conditions:
+                  - condition: state
+                    entity_id: input_boolean.hallway_rgb_bulb_switch_single_status
+                    state: 'off'
+                sequence:
+                  - service: scene.turn_on
+                    entity_id: scene.scene_rgb_bulb_before_switch
+        mode: single
+
+      - alias: "Light: Hallway RGB Bulb Manual Switch Actions"
+        id: hallway_light_rgb_bulb_manual_switch_actions
         trigger:
           - platform: state
             entity_id: sensor.hallway_rgb_bulb_switch_action
@@ -299,29 +332,16 @@ light_settings:
                   - condition: template
                     value_template: "{{ trigger.to_state.attributes.action == 'single' }}"
                 sequence:
-                #   - service: scene.create
-                #     data:
-                #       scene_id: scene_rgb_bulb_old
-                #       snapshot_entities:
-                #         - light.hallway_rgb_bulb
-                  - service: light.toggle
-                    target:
-                        entity_id: light.hallway_rgb_bulb
-                    data:
-                        brightness: 140
-                        color_temp: 155
-                  - delay: '00:00:01'
-                #   - service: scene.turn_on
-                #     entity_id: scene.scene_rgb_bulb_old
-            #   - conditions:
-            #       - condition: template
-            #         value_template: "{{ trigger.to_state.attributes.action == 'double' }}"
-            #     sequence:
-            #       - service: scene.turn_on
-            #         entity_id: scene.scene_rgb_bulb_white
-            #   - conditions:
-            #       - condition: template
-            #         value_template: "{{ trigger.to_state.attributes.action == 'hold'   }}"
-            #     sequence:
-            #       - delay: '00:00:01'
+                  - service: input_boolean.toggle
+                    entity_id: input_boolean.hallway_rgb_bulb_switch_single_status
+              - conditions:
+                  - condition: template
+                    value_template: "{{ trigger.to_state.attributes.action == 'double' }}"
+                sequence:
+            #       some actions
+              - conditions:
+                  - condition: template
+                    value_template: "{{ trigger.to_state.attributes.action == 'hold'   }}"
+                sequence:
+            #       some actions
         mode: single

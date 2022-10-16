@@ -22,15 +22,6 @@
         - binary_sensor.living_room_lumi_sensor_motion_occupancy
         - binary_sensor.tapo_camera_motion
 
-    - platform: group
-      name: m_novomoskovsk_alerts
-      device_class: safety
-      entities:
-        - binary_sensor.m_novomoskovsk_ta_novomoskovska_teritorialna_gromada_air
-        - binary_sensor.m_novomoskovsk_ta_novomoskovska_teritorialna_gromada_artillery
-        - binary_sensor.m_novomoskovsk_ta_novomoskovska_teritorialna_gromada_urban_fights
-        - binary_sensor.m_novomoskovsk_ta_novomoskovska_teritorialna_gromada_unknown
-
     - platform: template
       sensors:
 
@@ -103,7 +94,7 @@
         bedroom_air_conditioner_socket_status:
           friendly_name: "Кондиционер в Спальне"
           value_template: >-
-            {% if (states("sensor.bedroom_air_conditioner_socket_power") | int(0) > 8) %}
+            {% if (states("sensor.bedroom_air_conditioner_socket_power") | int(0) > 5) %}
             on
             {% else %}
             off
@@ -118,7 +109,7 @@
         living_room_air_conditioner_socket_status:
           friendly_name: "Кондиционер в Гостинной"
           value_template: >-
-            {% if (states("sensor.living_room_air_conditioner_socket_power") | int(0) > 8) %}
+            {% if (states("sensor.living_room_air_conditioner_socket_power") | int(0) > 5) %}
             on
             {% else %}
             off
@@ -132,7 +123,6 @@
 
         bedroom_socket_heating_status:
           friendly_name: "Обогреватель в Спальне"
-        # {% if is_state("input_boolean.heating_status","on") and is_state("switch.bedroom_socket_heating","on") %}
           value_template: >-
             {% if (states("sensor.bedroom_socket_heating_power") | int(0) > 0) %}
             on
@@ -142,7 +132,7 @@
           icon_template: >-
             {% if is_state("binary_sensor.bedroom_socket_heating_status","on") %}
             mdi:radiator
-            {% elif is_state("input_boolean.heating_status","off") %}
+            {% elif is_state("input_boolean.heating_status","off") or is_state("climate.bedroom_heater","off") %}
             mdi:radiator-off
             {% else %}
             mdi:radiator-disabled
@@ -150,7 +140,6 @@
 
         living_room_socket_heating_status:
           friendly_name: "Обогреватель в Гостинной"
-            # {% if is_state("input_boolean.heating_status","on") and is_state("switch.living_room_socket_heating","on") %}
           value_template: >-
             {% if (states("sensor.living_room_socket_heating_power") | int(0) > 0) %}
             on
@@ -160,7 +149,7 @@
           icon_template: >-
             {% if is_state("binary_sensor.living_room_socket_heating_status","on") %}
             mdi:radiator
-            {% elif is_state("input_boolean.heating_status","off") %}
+            {% elif is_state("input_boolean.heating_status","off") or is_state("climate.living_room_heater","off") %}
             mdi:radiator-off
             {% else %}
             mdi:radiator-disabled
@@ -168,7 +157,6 @@
 
         kitchen_socket_heating_status:
           friendly_name: "Обогреватель в Кухне"
-            # {% if is_state("input_boolean.heating_status","on") and is_state("switch.kitchen_socket_heating","on") %}
           value_template: >-
             {% if (states("sensor.kitchen_socket_heating_power") | int(0) > 0) %}
             on
@@ -178,7 +166,7 @@
           icon_template: >-
             {% if is_state("binary_sensor.kitchen_socket_heating_status","on") %}
             mdi:radiator
-            {% elif is_state("input_boolean.heating_status","off") %}
+            {% elif is_state("input_boolean.heating_status","off") or is_state("climate.kitchen_heater","off") %}
             mdi:radiator-off
             {% else %}
             mdi:radiator-disabled

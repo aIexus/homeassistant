@@ -1,47 +1,56 @@
     sensor.outdoor_mean_temperature:
         friendly_name: 'Среднесуточная (24ч)'
 
-    binary_sensor.corridor_entrance_door_contact:
-        friendly_name: 'Входная дверь'
+    sensor.period_of_day:
+        friendly_name: "Период Суток"
 
-    binary_sensor.bathroom_water_leak_under_washing_machine_water_leak:
-        friendly_name: 'Датчик протечки, Стиральная Машина'
+    binary_sensor.living_room_auto_light_off_sensor:
+        friendly_name: "Автоотключение Света в Гостинной"
 
-    binary_sensor.bathroom_water_leak_under_the_bath_water_leak:
-        friendly_name: 'Датчик протечки, Ванная'
+    binary_sensor.bedroom_auto_light_off_sensor:
+        friendly_name: "Автоотключение Света в Спальне"
 
-    binary_sensor.bedroom_lumi_sensor_motion_occupancy:
-        friendly_name: 'Датчик движения, Спальня'
-
-    binary_sensor.bedroom_window_right_contact:
-        friendly_name: 'Правое окно, Спальня'
-
-    binary_sensor.bedroom_window_left_contact:
-        friendly_name: 'Левое окно, Спальня'
-
-    binary_sensor.kitchen_water_leak_sensor_water_leak:
-        friendly_name: 'Датчик протечки, Кухня'
-
-    binary_sensor.kitchen_smoke_detector_smoke:
-        friendly_name: 'Датчик дыма, Кухня'
-
-    binary_sensor.kitchen_window_contact:
-        friendly_name: 'Окно, Кухня'
-
-    binary_sensor.living_room_lumi_sensor_motion_occupancy:
-        friendly_name: 'Датчик движения, Гостинная'
+    binary_sensor.hallway_entrance_door_contact:
+        friendly_name: 'Входная Дверь'
 
     binary_sensor.living_room_loggia_door_contact:
-        friendly_name: 'Дверь на лоджию, Гостинная'
+        friendly_name: 'Дверь на Лоджию, Гостинная'
 
-    binary_sensor.bedroom_windows:
-        friendly_name: 'Окна, Спальня'
+    binary_sensor.bathroom_water_leak_under_washing_machine_water_leak:
+        friendly_name: 'Датчик Протечки, Стиральная Машина'
 
-    binary_sensor.home_windows:
-        friendly_name: 'Окна, Квартира'
+    binary_sensor.bathroom_water_leak_under_the_bath_water_leak:
+        friendly_name: 'Датчик Протечки, Ванная'
+
+    binary_sensor.kitchen_water_leak_sensor_water_leak:
+        friendly_name: 'Датчик Протечки, Кухня'
+
+    binary_sensor.kitchen_smoke_detector_smoke:
+        friendly_name: 'Датчик Дыма, Кухня'
 
     binary_sensor.motion_sensors:
         friendly_name: 'Движение, Квартира'
 
+    binary_sensor.bedroom_lumi_sensor_motion_occupancy:
+        friendly_name: 'Датчик Движения, Спальня'
+
+    binary_sensor.living_room_lumi_sensor_motion_occupancy:
+        friendly_name: 'Датчик Движения, Гостинная'
+
     binary_sensor.tapo_camera_motion:
         friendly_name: 'Движение, Камера в Коридоре'
+
+    binary_sensor.home_windows:
+        friendly_name: 'Окна, Квартира'
+
+    binary_sensor.bedroom_windows:
+        friendly_name: 'Окна, Спальня'
+
+    binary_sensor.bedroom_window_right_contact:
+        friendly_name: 'Правое Окно, Спальня'
+
+    binary_sensor.bedroom_window_left_contact:
+        friendly_name: 'Левое Окно, Спальня'
+
+    binary_sensor.kitchen_window_contact:
+        friendly_name: 'Окно, Кухня'

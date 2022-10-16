@@ -1,6 +1,6 @@
 
-    - platform: uptime
-      name: online
+    # - platform: uptime
+    #   name: online
 
     - platform: time_date
       display_options:

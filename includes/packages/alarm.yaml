@@ -26,18 +26,18 @@ home_alarm_settings:
               entity_id: binary_sensor.hallway_entrance_door_contact
               from: 'off'
               to: 'on'
-            - platform: state
-              entity_id: binary_sensor.bedroom_lumi_sensor_motion_occupancy
-              from: 'off'
-              to: 'on'
-            - platform: state
-              entity_id: binary_sensor.living_room_lumi_sensor_motion_occupancy
-              from: 'off'
-              to: 'on'
-            - platform: state
-              entity_id: binary_sensor.tapo_camera_motion
-              from: 'off'
-              to: 'on'
+            # - platform: state
+            #   entity_id: binary_sensor.bedroom_lumi_sensor_motion_occupancy
+            #   from: 'off'
+            #   to: 'on'
+            # - platform: state
+            #   entity_id: binary_sensor.living_room_lumi_sensor_motion_occupancy
+            #   from: 'off'
+            #   to: 'on'
+            # - platform: state
+            #   entity_id: binary_sensor.tapo_camera_motion
+            #   from: 'off'
+            #   to: 'on'
           condition:
             - condition: state
               entity_id: alarm_control_panel.home_alarm
@@ -562,11 +562,15 @@ home_alarm_settings:
         - alias: "Alarm: DISARMING by Smart Button"
           id: alarm_disarming_by_smart_button
           description: 'Снятие с охраны двойным нажатием'
-          trigger:
+          trigger: 
+            - platform: state
+              entity_id: sensor.hallway_rgb_bulb_switch_action
+              attribute: action
+              to: double 
             - platform: state
               entity_id: sensor.tuya_smart_button_action
               attribute: action
-              to: double
+              to: double 
           condition:
             - condition: not
               conditions:

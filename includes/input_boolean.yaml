@@ -1,15 +1,15 @@
 
     disable_climate:
       name: Disable Climate Automation
-      icon: mdi:hvac-off
+      icon: mdi:thermometer-off
 
     disable_occupancy:
       name: Disable Occupancy Automation
-      icon: mdi:eye-off
+      icon: mdi:motion-sensor-off
 
     disable_home_away:
       name: Disable Home/Away Automation
-      icon: mdi:map-marker-off
+      icon: mdi:home-off
 
     disable_alerts_notifications:
       name: Disable Alert Notifications
@@ -25,7 +25,7 @@
 
     disable_zone_notifications:
       name: Disable Zone Notifications
-      icon: mdi:message-bulleted-off
+      icon: mdi:map-marker-off
 
     disable_startup_notifications:
       name: Disable Startup Notifications
@@ -65,6 +65,10 @@
 
     living_room_ac_status:
       name: Living Room A/C Status
+      icon: mdi:toggle-switch-off-outline
+
+    hallway_rgb_bulb_switch_single_status:
+      name: Hallway RGB Bulb Switch Status
       icon: mdi:toggle-switch-off-outline
 
     tapo_camera_privacy_mode:

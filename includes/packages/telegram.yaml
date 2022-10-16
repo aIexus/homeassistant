@@ -63,10 +63,6 @@ telegram:
             event_data:
               command: '/menu'
           action:
-          - service: telegram_bot.delete_message
-            data:
-              message_id: 'last'
-              chat_id: !secret telegram_user_1
           - service: notify.alexus
             data:
               message: |
@@ -89,10 +85,6 @@ telegram:
             event_data:
               data: '/status'
           action:
-          - service: telegram_bot.delete_message
-            data:
-              message_id: 'last'
-              chat_id: !secret telegram_user_1
           - service: notify.alexus
             data:
               message: &system_status_body |
@@ -126,10 +118,6 @@ telegram:
             event_data:
               data: '/climate'
           action:
-          - service: telegram_bot.delete_message
-            data:
-              message_id: 'last'
-              chat_id: !secret telegram_user_1
           - service: notify.alexus
             data:
               message: &climate_body |
@@ -161,7 +149,225 @@ telegram:
                 {{"\U0001F3DE"}} Улица {{"\U0001F321"}}: {{ states("sensor.outdoor_temperature") | round(1) }}{{"\U00002103"}}   {{"\U0001F4A6"}}: {{ states("sensor.outdoor_humidity") | round(1) }} %
               data: 
                 inline_keyboard:
-                  - "{% if is_state('input_boolean.ac_status','on') %}{{'\U00002744'}}/{{'\U00002600'}} Управление Кондиционерами:/ac_control{% elif is_state('input_boolean.heating_status','on') %}{{'\U00002668'}} Управление обогревателями:/heaters_control{% endif %}"
+                  - "{% if is_state('input_boolean.ac_status','on') %}{{'\U00002744'}}/{{'\U00002600'}} Управление Кондиционерами:/ac_control{% elif is_state('input_boolean.heating_status','on') %}{{'\U00002668'}} Управление Обогревателями:/heaters_control{% else %}{{'\U00002139'}} Статус:/status, {{'\U0001F6E1'}} Безопасность:/security{% endif %}"
+                  - "{% if is_state('input_boolean.ac_status','on') %}{{'\U00002668'}} Включить Отопление:/turn_on_heaters{% elif is_state('input_boolean.heating_status','on') %}{{'\U00002744'}}/{{'\U00002600'}} Включить Кондиционирование:/turn_on_ac{% else %}{{'\U0001F321'}} Климат:/climate, {{'\U0001F4A1'}} Освещение:/lights{% endif %}"
+                  - "{{'\U0001F4D1'}} Меню:/menu"
+          mode: single
+
+        - alias: "Telegram: Turn ON/OFF Heating"
+          id: telegram_menu_turn_on_off_heating
+          initial_state: true
+          trigger:
+          - platform: event
+            event_type: telegram_callback
+            event_data:
+              data: '/turn_on_heaters'
+          - platform: event
+            event_type: telegram_callback
+            event_data:
+              data: '/turn_off_heaters'
+          action:
+          - service: input_boolean.toggle
+            entity_id: input_boolean.heating_status
+          - delay: '00:00:01'
+          - service: notify.alexus
+            data:
+              message: *climate_body
+              data: 
+                inline_keyboard:
+                  - "{{'\U0001F6CB'}} Гостинная {% if is_state('climate.living_room_heater','off') %}{{'\U0001F4F4'}} - Включить{% else %}{{'\U0001F525'}} - Выключить{% endif %}:/toggle_heater_living_room"
+                  - "{{'\U0001F6CC'}} Спальня {% if is_state('climate.bedroom_heater','off') %}{{'\U0001F4F4'}} - Включить{% else %}{{'\U0001F525'}} - Выключить{% endif %}:/toggle_heater_bedroom"
+                  - "{{'\U0001F37D'}} Кухня:{% if is_state('climate.kitchen_heater','off') %}{{'\U0001F4F4'}} - Включить{% else %}{{'\U0001F525'}} - Выключить{% endif %}:/toggle_heater_kitchen"
+                  - "{% if is_state('input_boolean.heating_status','on') %}{{'\U00002668'}} Выключить отопление:/turn_off_heaters{% elif is_state('input_boolean.heating_status','off') %}{{'\U00002668'}} Включить отопление:/turn_on_heaters{% endif %}"
+                  - "{{'\U0001F4D1'}} Меню:/menu"
+          mode: single
+
+        - alias: "Telegram: Turn ON/OFF AC"
+          id: telegram_menu_turn_on_off_AC
+          initial_state: true
+          trigger:
+          - platform: event
+            event_type: telegram_callback
+            event_data:
+              data: '/turn_on_ac'
+          - platform: event
+            event_type: telegram_callback
+            event_data:
+              data: '/turn_off_ac'
+          action:
+          - service: input_boolean.toggle
+            entity_id: input_boolean.ac_status
+          - delay: '00:00:01'
+          - service: notify.alexus
+            data:
+              message: *climate_body
+              data: 
+                inline_keyboard:
+                  - "{{'\U0001F6CB'}} Гостинная {% if is_state('climate.living_room_ac','off') %}{{'\U0001F4F4'}} - Включить{% else %}{% if is_state('climate.living_room_ac','cool') %}{{'\U00002744'}}{% elif is_state('climate.living_room_ac','heat') %}{{'\U00002600'}}{% elif is_state('climate.living_room_ac','dry') %}{{'\U0001F4A7'}}{% else %}{{'\U0001F504'}}{%endif%} - Выключить{% endif %}:/toggle_ac_living_room"
+                  - "{{'\U0001F6CC'}} Спальня {% if is_state('climate.bedroom_ac','off') %}{{'\U0001F4F4'}} - Включить{% else %}{% if is_state('climate.bedroom_ac','cool') %}{{'\U00002744'}}{% elif is_state('climate.bedroom_ac','heat') %}{{'\U00002600'}}{% elif is_state('climate.bedroom_ac','dry') %}{{'\U0001F4A7'}}{% elif is_state('climate.bedroom_ac','fan_only') %}{{'\U0001F32C'}}{% else %}{{'\U0001F504'}}{% endif %} - Выключить{% endif %}:/toggle_ac_bedroom"
+                  - "{% if is_state('input_boolean.ac_status','on') %}{{'\U00002744'}}/{{'\U00002600'}} Выключить кондиционирование:/turn_off_ac{% elif is_state('input_boolean.ac_status','off') %}{{'\U00002744'}}/{{'\U00002600'}} Включить кондиционирование:/turn_on_ac{% endif %}"
+                  - "{{'\U0001F4D1'}} Меню:/menu"
+          mode: single
+
+        - alias: "Telegram: Heaters Control"
+          id: telegram_menu_heaters_control
+          initial_state: true
+          trigger:
+            platform: event
+            event_type: telegram_callback
+            event_data:
+              data: '/heaters_control'
+          action:
+          - service: notify.alexus
+            data:
+              message: *climate_body
+              data: 
+                inline_keyboard:
+                  - "{{'\U0001F6CB'}} Гостинная {% if is_state('climate.living_room_heater','off') %}{{'\U0001F4F4'}} - Включить{% else %}{{'\U0001F525'}} - Выключить{% endif %}:/toggle_heater_living_room"
+                  - "{{'\U0001F6CC'}} Спальня {% if is_state('climate.bedroom_heater','off') %}{{'\U0001F4F4'}} - Включить{% else %}{{'\U0001F525'}} - Выключить{% endif %}:/toggle_heater_bedroom"
+                  - "{{'\U0001F37D'}} Кухня:{% if is_state('climate.kitchen_heater','off') %}{{'\U0001F4F4'}} - Включить{% else %}{{'\U0001F525'}} - Выключить{% endif %}:/toggle_heater_kitchen"
+                  - "{% if is_state('input_boolean.heating_status','on') %}{{'\U00002668'}} Выключить отопление:/turn_off_heaters{% elif is_state('input_boolean.heating_status','off') %}{{'\U00002668'}} Включить отопление:/turn_on_heaters{% endif %}"
+                  - "{{'\U0001F4D1'}} Меню:/menu"
+          mode: single
+
+        - alias: "Telegram: Toggle Heater in Living Room"
+          id: telegram_menu_toggle_heater_living_room
+          initial_state: true
+          trigger:
+            platform: event
+            event_type: telegram_callback
+            event_data:
+              data: '/toggle_heater_living_room'
+          action:
+          - choose:
+              - conditions:
+                  - condition: state
+                    entity_id: climate.living_room_heater
+                    state: 'off'
+                  - condition: state
+                    entity_id: input_boolean.heating_status
+                    state: 'on'
+                  - condition: state
+                    entity_id: binary_sensor.living_room_loggia_door_contact
+                    state: 'off'
+                sequence:
+                  - service: climate.turn_on
+                    entity_id: climate.living_room_heater
+                  - delay: '00:00:02'
+              - conditions:
+                  - condition: state
+                    entity_id: input_boolean.heating_status
+                    state: 'on'
+                  - condition: state
+                    entity_id: climate.living_room_heater
+                    state: 'heat'
+                sequence:
+                  - service: climate.turn_off
+                    entity_id: climate.living_room_heater
+                  - delay: '00:00:02'
+          - service: notify.alexus
+            data:
+              message: *climate_body
+              data: 
+                inline_keyboard:
+                  - "{{'\U0001F6CB'}} Гостинная {% if is_state('climate.living_room_heater','off') %}{{'\U0001F4F4'}} - Включить{% else %}{{'\U0001F525'}} - Выключить{% endif %}:/toggle_heater_living_room"
+                  - "{{'\U0001F6CC'}} Спальня {% if is_state('climate.bedroom_heater','off') %}{{'\U0001F4F4'}} - Включить{% else %}{{'\U0001F525'}} - Выключить{% endif %}:/toggle_heater_bedroom"
+                  - "{{'\U0001F37D'}} Кухня:{% if is_state('climate.kitchen_heater','off') %}{{'\U0001F4F4'}} - Включить{% else %}{{'\U0001F525'}} - Выключить{% endif %}:/toggle_heater_kitchen"
+                  - "{% if is_state('input_boolean.heating_status','on') %}{{'\U00002668'}} Выключить отопление:/turn_off_heaters{% elif is_state('input_boolean.heating_status','off') %}{{'\U00002668'}} Включить отопление:/turn_on_heaters{% endif %}"
+                  - "{{'\U0001F4D1'}} Меню:/menu"
+          mode: single
+
+        - alias: "Telegram: Toggle Heater in Bedroom"
+          id: telegram_menu_toggle_heater_bedroom
+          initial_state: true
+          trigger:
+            platform: event
+            event_type: telegram_callback
+            event_data:
+              data: '/toggle_heater_bedroom'
+          action:
+          - choose:
+              - conditions:
+                  - condition: state
+                    entity_id: climate.bedroom_heater
+                    state: 'off'
+                  - condition: state
+                    entity_id: input_boolean.heating_status
+                    state: 'on'
+                  - condition: state
+                    entity_id: binary_sensor.bedroom_windows
+                    state: 'off'
+                sequence:
+                  - service: climate.turn_on
+                    entity_id: climate.bedroom_heater
+                  - delay: '00:00:02'
+              - conditions:
+                  - condition: state
+                    entity_id: input_boolean.heating_status
+                    state: 'on'
+                  - condition: state
+                    entity_id: climate.bedroom_heater
+                    state: 'heat'
+                sequence:
+                  - service: climate.turn_off
+                    entity_id: climate.bedroom_heater
+                  - delay: '00:00:02'
+          - service: notify.alexus
+            data:
+              message: *climate_body
+              data: 
+                inline_keyboard:
+                  - "{{'\U0001F6CB'}} Гостинная {% if is_state('climate.living_room_heater','off') %}{{'\U0001F4F4'}} - Включить{% else %}{{'\U0001F525'}} - Выключить{% endif %}:/toggle_heater_living_room"
+                  - "{{'\U0001F6CC'}} Спальня {% if is_state('climate.bedroom_heater','off') %}{{'\U0001F4F4'}} - Включить{% else %}{{'\U0001F525'}} - Выключить{% endif %}:/toggle_heater_bedroom"
+                  - "{{'\U0001F37D'}} Кухня:{% if is_state('climate.kitchen_heater','off') %}{{'\U0001F4F4'}} - Включить{% else %}{{'\U0001F525'}} - Выключить{% endif %}:/toggle_heater_kitchen"
+                  - "{% if is_state('input_boolean.heating_status','on') %}{{'\U00002668'}} Выключить отопление:/turn_off_heaters{% elif is_state('input_boolean.heating_status','off') %}{{'\U00002668'}} Включить отопление:/turn_on_heaters{% endif %}"
+                  - "{{'\U0001F4D1'}} Меню:/menu"
+          mode: single
+
+        - alias: "Telegram: Toggle Heater in Kitchen"
+          id: telegram_menu_toggle_heater_kitchen
+          initial_state: true
+          trigger:
+            platform: event
+            event_type: telegram_callback
+            event_data:
+              data: '/toggle_heater_kitchen'
+          action:
+          - choose:
+              - conditions:
+                  - condition: state
+                    entity_id: climate.kitchen_heater
+                    state: 'off'
+                  - condition: state
+                    entity_id: input_boolean.heating_status
+                    state: 'on'
+                  - condition: state
+                    entity_id: binary_sensor.kitchen_window_contact
+                    state: 'off'
+                sequence:
+                  - service: climate.turn_on
+                    entity_id: climate.kitchen_heater
+                  - delay: '00:00:02'
+              - conditions:
+                  - condition: state
+                    entity_id: input_boolean.heating_status
+                    state: 'on'
+                  - condition: state
+                    entity_id: climate.kitchen_heater
+                    state: 'heat'
+                sequence:
+                  - service: climate.turn_off
+                    entity_id: climate.kitchen_heater
+                  - delay: '00:00:02'
+          - service: notify.alexus
+            data:
+              message: *climate_body
+              data: 
+                inline_keyboard:
+                  - "{{'\U0001F6CB'}} Гостинная {% if is_state('climate.living_room_heater','off') %}{{'\U0001F4F4'}} - Включить{% else %}{{'\U0001F525'}} - Выключить{% endif %}:/toggle_heater_living_room"
+                  - "{{'\U0001F6CC'}} Спальня {% if is_state('climate.bedroom_heater','off') %}{{'\U0001F4F4'}} - Включить{% else %}{{'\U0001F525'}} - Выключить{% endif %}:/toggle_heater_bedroom"
+                  - "{{'\U0001F37D'}} Кухня:{% if is_state('climate.kitchen_heater','off') %}{{'\U0001F4F4'}} - Включить{% else %}{{'\U0001F525'}} - Выключить{% endif %}:/toggle_heater_kitchen"
+                  - "{% if is_state('input_boolean.heating_status','on') %}{{'\U00002668'}} Выключить отопление:/turn_off_heaters{% elif is_state('input_boolean.heating_status','off') %}{{'\U00002668'}} Включить отопление:/turn_on_heaters{% endif %}"
                   - "{{'\U0001F4D1'}} Меню:/menu"
           mode: single
 
@@ -174,17 +380,14 @@ telegram:
             event_data:
               data: '/ac_control'
           action:
-          - service: telegram_bot.delete_message
-            data:
-              message_id: 'last'
-              chat_id: !secret telegram_user_1
           - service: notify.alexus
             data:
               message: *climate_body
               data: 
                 inline_keyboard:
-                  - "{{'\U0001F6CB'}} Гостинная {% if is_state('input_boolean.ac_status','on') %}{% if is_state('climate.living_room_ac','off') %}{{'\U0001F4F4'}} - Включить{% else %}{% if is_state('climate.living_room_ac','cool') %}{{'\U00002744'}}{% elif is_state('climate.living_room_ac','heat') %}{{'\U00002600'}}{% elif is_state('climate.living_room_ac','dry') %}{{'\U0001F4A7'}}{% else %}{{'\U0001F504'}}{%endif%} - Выключить{% endif %}:/toggle_ac_living_room{% elif is_state('input_boolean.heating_status','on') %}{{'\U00002668'}} Управление обогревателями:/heaters_control{% endif %}"
-                  - "{{'\U0001F6CC'}} Спальня {% if is_state('input_boolean.ac_status','on') %}{% if is_state('climate.bedroom_ac','off') %}{{'\U0001F4F4'}} - Включить{% else %}{% if is_state('climate.bedroom_ac','cool') %}{{'\U00002744'}}{% elif is_state('climate.bedroom_ac','heat') %}{{'\U00002600'}}{% elif is_state('climate.bedroom_ac','dry') %}{{'\U0001F4A7'}}{% elif is_state('climate.bedroom_ac','fan_only') %}{{'\U0001F32C'}}{% else %}{{'\U0001F504'}}{% endif %} - Выключить{% endif %}:/toggle_ac_bedroom{% elif is_state('input_boolean.heating_status','on') %}{{'\U00002668'}} Управление обогревателями:/heaters_control{% endif %}"
+                  - "{{'\U0001F6CB'}} Гостинная {% if is_state('climate.living_room_ac','off') %}{{'\U0001F4F4'}} - Включить{% else %}{% if is_state('climate.living_room_ac','cool') %}{{'\U00002744'}}{% elif is_state('climate.living_room_ac','heat') %}{{'\U00002600'}}{% elif is_state('climate.living_room_ac','dry') %}{{'\U0001F4A7'}}{% else %}{{'\U0001F504'}}{%endif%} - Выключить{% endif %}:/toggle_ac_living_room"
+                  - "{{'\U0001F6CC'}} Спальня {% if is_state('climate.bedroom_ac','off') %}{{'\U0001F4F4'}} - Включить{% else %}{% if is_state('climate.bedroom_ac','cool') %}{{'\U00002744'}}{% elif is_state('climate.bedroom_ac','heat') %}{{'\U00002600'}}{% elif is_state('climate.bedroom_ac','dry') %}{{'\U0001F4A7'}}{% elif is_state('climate.bedroom_ac','fan_only') %}{{'\U0001F32C'}}{% else %}{{'\U0001F504'}}{% endif %} - Выключить{% endif %}:/toggle_ac_bedroom"
+                  - "{% if is_state('input_boolean.ac_status','on') %}{{'\U00002744'}}/{{'\U00002600'}} Выключить кондиционирование:/turn_off_ac{% elif is_state('input_boolean.ac_status','off') %}{{'\U00002744'}}/{{'\U00002600'}} Включить кондиционирование:/turn_on_ac{% endif %}"
                   - "{{'\U0001F4D1'}} Меню:/menu"
           mode: single
 
@@ -267,17 +470,14 @@ telegram:
                     data:
                       message_id: 'last'
                       chat_id: !secret telegram_user_1
-          - service: telegram_bot.delete_message
-            data:
-              message_id: 'last'
-              chat_id: !secret telegram_user_1
           - service: notify.alexus
             data:
               message: *climate_body
               data: 
                 inline_keyboard:
-                  - "{{'\U0001F6CB'}} Гостинная {% if is_state('input_boolean.ac_status','on') %}{% if is_state('climate.living_room_ac','off') %}{{'\U0001F4F4'}} - Включить{% else %}{% if is_state('climate.living_room_ac','cool') %}{{'\U00002744'}}{% elif is_state('climate.living_room_ac','heat') %}{{'\U00002600'}}{% elif is_state('climate.living_room_ac','dry') %}{{'\U0001F4A7'}}{% else %}{{'\U0001F504'}}{%endif%} - Выключить{% endif %}:/toggle_ac_living_room{% elif is_state('input_boolean.heating_status','on') %}{{'\U00002668'}} Управление обогревателями:/heaters_control{% endif %}"
-                  - "{{'\U0001F6CC'}} Спальня {% if is_state('input_boolean.ac_status','on') %}{% if is_state('climate.bedroom_ac','off') %}{{'\U0001F4F4'}} - Включить{% else %}{% if is_state('climate.bedroom_ac','cool') %}{{'\U00002744'}}{% elif is_state('climate.bedroom_ac','heat') %}{{'\U00002600'}}{% elif is_state('climate.bedroom_ac','dry') %}{{'\U0001F4A7'}}{% elif is_state('climate.bedroom_ac','fan_only') %}{{'\U0001F32C'}}{% else %}{{'\U0001F504'}}{% endif %} - Выключить{% endif %}:/toggle_ac_bedroom{% elif is_state('input_boolean.heating_status','on') %}{{'\U00002668'}} Управление обогревателями:/heaters_control{% endif %}"
+                  - "{{'\U0001F6CB'}} Гостинная {% if is_state('climate.living_room_ac','off') %}{{'\U0001F4F4'}} - Включить{% else %}{% if is_state('climate.living_room_ac','cool') %}{{'\U00002744'}}{% elif is_state('climate.living_room_ac','heat') %}{{'\U00002600'}}{% elif is_state('climate.living_room_ac','dry') %}{{'\U0001F4A7'}}{% else %}{{'\U0001F504'}}{%endif%} - Выключить{% endif %}:/toggle_ac_living_room"
+                  - "{{'\U0001F6CC'}} Спальня {% if is_state('climate.bedroom_ac','off') %}{{'\U0001F4F4'}} - Включить{% else %}{% if is_state('climate.bedroom_ac','cool') %}{{'\U00002744'}}{% elif is_state('climate.bedroom_ac','heat') %}{{'\U00002600'}}{% elif is_state('climate.bedroom_ac','dry') %}{{'\U0001F4A7'}}{% elif is_state('climate.bedroom_ac','fan_only') %}{{'\U0001F32C'}}{% else %}{{'\U0001F504'}}{% endif %} - Выключить{% endif %}:/toggle_ac_bedroom"
+                  - "{% if is_state('input_boolean.ac_status','on') %}{{'\U00002744'}}/{{'\U00002600'}} Выключить кондиционирование:/turn_off_ac{% elif is_state('input_boolean.ac_status','off') %}{{'\U00002744'}}/{{'\U00002600'}} Включить кондиционирование:/turn_on_ac{% endif %}"
                   - "{{'\U0001F4D1'}} Меню:/menu"
           mode: single
 
@@ -360,17 +560,14 @@ telegram:
                     data:
                       message_id: 'last'
                       chat_id: !secret telegram_user_1
-          - service: telegram_bot.delete_message
-            data:
-              message_id: 'last'
-              chat_id: !secret telegram_user_1
           - service: notify.alexus
             data:
               message: *climate_body
               data: 
                 inline_keyboard:
-                  - "{{'\U0001F6CB'}} Гостинная {% if is_state('input_boolean.ac_status','on') %}{% if is_state('climate.living_room_ac','off') %}{{'\U0001F4F4'}} - Включить{% else %}{% if is_state('climate.living_room_ac','cool') %}{{'\U00002744'}}{% elif is_state('climate.living_room_ac','heat') %}{{'\U00002600'}}{% elif is_state('climate.living_room_ac','dry') %}{{'\U0001F4A7'}}{% else %}{{'\U0001F504'}}{%endif%} - Выключить{% endif %}:/toggle_ac_living_room{% elif is_state('input_boolean.heating_status','on') %}{{'\U00002668'}} Управление обогревателями:/heaters_control{% endif %}"
-                  - "{{'\U0001F6CC'}} Спальня {% if is_state('input_boolean.ac_status','on') %}{% if is_state('climate.bedroom_ac','off') %}{{'\U0001F4F4'}} - Включить{% else %}{% if is_state('climate.bedroom_ac','cool') %}{{'\U00002744'}}{% elif is_state('climate.bedroom_ac','heat') %}{{'\U00002600'}}{% elif is_state('climate.bedroom_ac','dry') %}{{'\U0001F4A7'}}{% elif is_state('climate.bedroom_ac','fan_only') %}{{'\U0001F32C'}}{% else %}{{'\U0001F504'}}{% endif %} - Выключить{% endif %}:/toggle_ac_bedroom{% elif is_state('input_boolean.heating_status','on') %}{{'\U00002668'}} Управление обогревателями:/heaters_control{% endif %}"
+                  - "{{'\U0001F6CB'}} Гостинная {% if is_state('climate.living_room_ac','off') %}{{'\U0001F4F4'}} - Включить{% else %}{% if is_state('climate.living_room_ac','cool') %}{{'\U00002744'}}{% elif is_state('climate.living_room_ac','heat') %}{{'\U00002600'}}{% elif is_state('climate.living_room_ac','dry') %}{{'\U0001F4A7'}}{% else %}{{'\U0001F504'}}{%endif%} - Выключить{% endif %}:/toggle_ac_living_room"
+                  - "{{'\U0001F6CC'}} Спальня {% if is_state('climate.bedroom_ac','off') %}{{'\U0001F4F4'}} - Включить{% else %}{% if is_state('climate.bedroom_ac','cool') %}{{'\U00002744'}}{% elif is_state('climate.bedroom_ac','heat') %}{{'\U00002600'}}{% elif is_state('climate.bedroom_ac','dry') %}{{'\U0001F4A7'}}{% elif is_state('climate.bedroom_ac','fan_only') %}{{'\U0001F32C'}}{% else %}{{'\U0001F504'}}{% endif %} - Выключить{% endif %}:/toggle_ac_bedroom"
+                  - "{% if is_state('input_boolean.ac_status','on') %}{{'\U00002744'}}/{{'\U00002600'}} Выключить кондиционирование:/turn_off_ac{% elif is_state('input_boolean.ac_status','off') %}{{'\U00002744'}}/{{'\U00002600'}} Включить кондиционирование:/turn_on_ac{% endif %}"
                   - "{{'\U0001F4D1'}} Меню:/menu"
           mode: single
 
@@ -383,10 +580,6 @@ telegram:
             event_data:
               data: '/lights'
           action:
-          - service: telegram_bot.delete_message
-            data:
-              message_id: 'last'
-              chat_id: !secret telegram_user_1
           - service: notify.alexus
             data:
               message: &light_status_body |
@@ -420,10 +613,6 @@ telegram:
                 entity_id: switch.bedroom_light_switch
           - delay:
               seconds: 5
-          - service: telegram_bot.delete_message
-            data:
-              message_id: 'last'
-              chat_id: !secret telegram_user_1
           - service: notify.alexus
             data:
               message: |
@@ -451,10 +640,6 @@ telegram:
                 entity_id: switch.living_room_light_switch
           - delay:
               seconds: 5
-          - service: telegram_bot.delete_message
-            data:
-              message_id: 'last'
-              chat_id: !secret telegram_user_1
           - service: notify.alexus
             data:
               message: |
@@ -477,10 +662,6 @@ telegram:
             event_data:
               data: '/security'
           action:
-          - service: telegram_bot.delete_message
-            data:
-              message_id: 'last'
-              chat_id: !secret telegram_user_1
           - service: notify.alexus
             data:
               message: &security_status |
@@ -519,10 +700,6 @@ telegram:
             event_data:
               command: '/set_alarm'
           action:
-            - service: telegram_bot.delete_message
-              data:
-                message_id: 'last'
-                chat_id: !secret telegram_user_1
             - service: notify.alexus
               data:
                 title: '{{"\U0001F6A8"}} СИГНАЛИЗАЦИЯ{{"\U0000203C"}}'
@@ -581,10 +758,6 @@ telegram:
             event_data:
               command: '/geo'
           action:
-          - service: telegram_bot.delete_message
-            data:
-              message_id: 'last'
-              chat_id: !secret telegram_user_1
           - service: notify.alexus
             data:
               message: |

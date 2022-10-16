@@ -184,6 +184,9 @@ climate_configuration:
             - service: climate.turn_off
               entity_id: group.heaters
             # Enable A/C
+            - condition: state
+              entity_id: input_boolean.heating_status
+              state: 'off'
             - service: input_boolean.turn_on
               entity_id: input_boolean.ac_status
 
@@ -398,11 +401,6 @@ climate_configuration:
             - platform: state
               entity_id: binary_sensor.living_room_loggia_door_contact
               to: 'on'
-            # - type: opened
-            #   platform: device
-            #   device_id: 19904350a3cc7a64c7db5fe737b6d044
-            #   entity_id: binary_sensor.living_room_loggia_door_contact
-            #   domain: binary_sensor
               for:
                 minutes: 5
           condition:
@@ -435,11 +433,6 @@ climate_configuration:
             - platform: state
               entity_id: binary_sensor.living_room_loggia_door_contact
               to: 'off'
-            # - type: not_opened
-            #   platform: device
-            #   device_id: 19904350a3cc7a64c7db5fe737b6d044
-            #   entity_id: binary_sensor.living_room_loggia_door_contact
-            #   domain: binary_sensor
               for:
                 minutes: 1
           condition:
@@ -472,11 +465,6 @@ climate_configuration:
             - platform: state
               entity_id: binary_sensor.kitchen_window_contact
               to: 'on'
-            # - type: opened
-            #   platform: device
-            #   device_id: 1302f3abc6e95ef58820671b5a312ef9
-            #   entity_id: binary_sensor.kitchen_window_contact
-            #   domain: binary_sensor
               for:
                 minutes: 5
           condition:
@@ -509,11 +497,6 @@ climate_configuration:
             - platform: state
               entity_id: binary_sensor.kitchen_window_contact
               to: 'off'
-            # - type: not_opened
-            #   platform: device
-            #   device_id: 1302f3abc6e95ef58820671b5a312ef9
-            #   entity_id: binary_sensor.kitchen_window_contact
-            #   domain: binary_sensor
               for:
                 minutes: 1
           condition:
@@ -571,8 +554,8 @@ climate_configuration:
                   ➖➖➖➖➖➖➖➖➖➖➖➖
                   Обогреватель в Спальне выключен{{"\U0000203C"}}
 
-        - alias: "Climate: Turn ON Heater in Bedroom when Window is Opened"
-          id: climate_bedroom_turn_on_heater_window_opened
+        - alias: "Climate: Turn ON Heater in Bedroom when Window is Closed"
+          id: climate_bedroom_turn_on_heater_window_closed
           description: 'Включение обогревателя в спальне при закрытых окнах'
           trigger:
             - platform: state
