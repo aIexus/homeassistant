@@ -11,13 +11,11 @@
           at: '16:00'
       condition:
         - condition: state
-          entity_id: switch.living_room_aquarium_main_lighting
+          entity_id: switch.living_room_aquarium_power_strip_l3
           state: 'off'
       action:
-        - type: turn_on
-          device_id: c3218ed710034497f53afa86d75c815a
-          entity_id: switch.living_room_aquarium_main_lighting
-          domain: switch
+        - service: switch.turn_on
+          entity_id: switch.living_room_aquarium_power_strip_l3
 
     - alias: "Aquarium: Turn OFF main light by Schedule"
       id: living_room_aquarium_main_lighting_off
@@ -32,13 +30,11 @@
           at: '21:00'
       condition:
         - condition: state
-          entity_id: switch.living_room_aquarium_main_lighting
+          entity_id: switch.living_room_aquarium_power_strip_l3
           state: 'on'
       action:
-        - type: turn_off
-          device_id: c3218ed710034497f53afa86d75c815a
-          entity_id: switch.living_room_aquarium_main_lighting
-          domain: switch
+        - service: switch.turn_off
+          entity_id: switch.living_room_aquarium_power_strip_l3
 
     - alias: "Aquarium: Turn ON Moonlight by Schedule"
       id: living_room_aquarioum_moonlight_on
@@ -49,13 +45,11 @@
           at: '20:00'
       condition:
         - condition: state
-          entity_id: switch.living_room_aquarium_moonlight
+          entity_id: switch.living_room_aquarium_power_strip_l4
           state: 'off'
       action:
-        - type: turn_on
-          device_id: 16c7f7b50b7d19f8958142b5b72cd138
-          entity_id: switch.living_room_aquarium_moonlight
-          domain: switch
+        - service: switch.turn_on
+          entity_id: switch.living_room_aquarium_power_strip_l4
 
     - alias: "Aquarium: Turn OFF Moonlight by Schedule"
       id: living_room_aquarioum_moonlight_off
@@ -66,11 +60,8 @@
           at: '23:00'
       condition:
         - condition: state
-          entity_id: switch.living_room_aquarium_moonlight
+          entity_id: switch.living_room_aquarium_power_strip_l4
           state: 'on'
       action:
-        - type: turn_off
-          device_id: 16c7f7b50b7d19f8958142b5b72cd138
-          entity_id: switch.living_room_aquarium_moonlight
-          domain: switch
-
+        - service: switch.turn_off
+          entity_id: switch.living_room_aquarium_power_strip_l4

@@ -557,10 +557,16 @@ views:
                 icon: mdi:ceiling-light-multiple-outline
                 state_color: true
                 entities:
-                  - entity: switch.living_room_aquarium_main_lighting
+                  - entity: switch.living_room_aquarium_power_strip_l3
                     name: Основной свет
-                  - entity: switch.living_room_aquarium_moonlight
+                  - entity: switch.living_room_aquarium_power_strip_l4
                     name: Лунный свет
+                  - type: divider
+                  - entity: switch.living_room_aquarium_power_strip_l1
+                    name: Куллеры
+                  - entity: switch.living_room_aquarium_power_strip_l2
+                    name: Система фильтрации
+
 
             # - type: conditional
             #   conditions:
@@ -790,7 +796,7 @@ views:
                       name: Влажность
 
                 - type: custom:multiple-entity-row
-                  entity: switch.living_room_aquarium_main_lighting
+                  entity: switch.living_room_aquarium_power_strip_l3
                   icon: mdi:fishbowl-outline
                   name: Аквариум
                   secondary_info: last-changed

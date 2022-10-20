@@ -636,6 +636,9 @@ climate_configuration:
             - platform: time_pattern
               minutes: "/5"
           condition:
+            - condition: state
+              entity_id: input_boolean.ac_status
+              state: 'on'
             - condition: time
               after: "08:00:00"
               before: "23:00:00"
@@ -648,9 +651,6 @@ climate_configuration:
             - condition: state
               entity_id: input_boolean.disable_climate
               state: 'off'
-            - condition: state
-              entity_id: input_boolean.ac_status
-              state: 'on'
             - condition: or
               conditions: # Living_Room_AC OR Bedroom_AC NOT in 'cool' state
                 - condition: not
@@ -759,6 +759,9 @@ climate_configuration:
             - platform: time_pattern
               minutes: "/5"
           condition:
+            - condition: state
+              entity_id: input_boolean.ac_status
+              state: 'on'
             - condition: time
               after: "08:00:00"
               before: "23:00:00"
@@ -768,18 +771,9 @@ climate_configuration:
                   value_template: "{{ states('sensor.living_room_lumi_weather_temperature') | float < state_attr('climate.living_room_ac','temperature') - 2 }}"
                 - condition: template
                   value_template: "{{ states('sensor.bedroom_lumi_weather_temperature') | float < state_attr('climate.bedroom_ac','temperature') - 2 }}"
-            #     - condition: numeric_state
-            #       entity_id: sensor.living_room_lumi_weather_temperature
-            #       below: 21
-            #     - condition: numeric_state
-            #       entity_id: sensor.bedroom_lumi_weather_temperature
-            #       below: 21
             - condition: state
               entity_id: input_boolean.disable_climate
               state: 'off'
-            - condition: state
-              entity_id: input_boolean.ac_status
-              state: 'on'
             - condition: or
               conditions: # Living_Room_AC OR Bedroom_AC NOT in 'heat' state
                 - condition: not
@@ -819,9 +813,6 @@ climate_configuration:
                           state: 'heat'
                         - condition: template
                           value_template: "{{ states('sensor.living_room_lumi_weather_temperature') | float < state_attr('climate.living_room_ac','temperature') - 2 }}"
-                    # - condition: numeric_state
-                    #   entity_id: sensor.living_room_lumi_weather_temperature
-                    #   below: 21
                     - condition: state
                       entity_id: binary_sensor.living_room_loggia_door_contact
                       state: 'off'
@@ -848,9 +839,6 @@ climate_configuration:
                       state: 'off'
                     - condition: template
                       value_template: "{{ states('sensor.bedroom_lumi_weather_temperature') | float < state_attr('climate.bedroom_ac','temperature') - 2 }}"
-                    # - condition: numeric_state
-                    #   entity_id: sensor.bedroom_lumi_weather_temperature
-                    #   below: 21
                     - condition: state
                       entity_id: binary_sensor.bedroom_windows
                       state: 'off'
@@ -870,9 +858,6 @@ climate_configuration:
                       state: 'off'
                     - condition: template
                       value_template: "{{ states('sensor.bedroom_lumi_weather_temperature') | float < state_attr('climate.bedroom_ac','temperature') - 2 }}"
-                    # - condition: numeric_state
-                    #   entity_id: sensor.bedroom_lumi_weather_temperature
-                    #   below: 21
                   sequence:
                     - service: climate.set_hvac_mode
                       target:
@@ -897,6 +882,9 @@ climate_configuration:
             - platform: time_pattern
               minutes: "/5"
           condition:
+            - condition: state
+              entity_id: input_boolean.ac_status
+              state: 'on'
             - condition: time
               after: "08:00:00"
               before: "23:00:00"
@@ -906,18 +894,9 @@ climate_configuration:
                   value_template: "{{ states('sensor.living_room_lumi_weather_temperature') | float < state_attr('climate.living_room_ac','temperature') }}"
                 - condition: template
                   value_template: "{{ states('sensor.bedroom_lumi_weather_temperature') | float < state_attr('climate.bedroom_ac','temperature') }}"
-                # - condition: numeric_state
-                #   entity_id: sensor.living_room_lumi_weather_temperature
-                #   below: 24
-                # - condition: numeric_state
-                #   entity_id: sensor.bedroom_lumi_weather_temperature
-                #   below: 24
             - condition: state
               entity_id: input_boolean.disable_climate
               state: 'off'
-            - condition: state
-              entity_id: input_boolean.ac_status
-              state: 'on'
             - condition: state
               entity_id: group.air_conditioners
               state: 'on'
@@ -940,9 +919,6 @@ climate_configuration:
                       state: 'cool'
                     - condition: template
                       value_template: "{{ states('sensor.living_room_lumi_weather_temperature') | float < state_attr('climate.living_room_ac','temperature') }}"
-                    # - condition: numeric_state
-                    #   entity_id: sensor.living_room_lumi_weather_temperature
-                    #   below: 24
                   sequence: 
                     - service: climate.turn_off
                       entity_id: climate.living_room_ac
@@ -971,9 +947,6 @@ climate_configuration:
                       state: 'cool'
                     - condition: template
                       value_template: "{{ states('sensor.bedroom_lumi_weather_temperature') | float < state_attr('climate.bedroom_ac','temperature') }}"
-                    # - condition: numeric_state
-                    #   entity_id: sensor.bedroom_lumi_weather_temperature
-                    #   below: 24
                   sequence:
                     - service: climate.turn_off
                       entity_id: climate.bedroom_ac
@@ -1000,6 +973,9 @@ climate_configuration:
             - platform: time_pattern
               minutes: "/5"
           condition:
+            - condition: state
+              entity_id: input_boolean.ac_status
+              state: 'on'
             - condition: time
               after: "08:00:00"
               before: "23:00:00"
@@ -1009,18 +985,9 @@ climate_configuration:
                   value_template: "{{ states('sensor.living_room_lumi_weather_temperature') | float > state_attr('climate.living_room_ac','temperature') }}"
                 - condition: template
                   value_template: "{{ states('sensor.bedroom_lumi_weather_temperature') | float > state_attr('climate.bedroom_ac','temperature') }}"
-                # - condition: numeric_state
-                #   entity_id: sensor.living_room_lumi_weather_temperature
-                #   above: 23
-                # - condition: numeric_state
-                #   entity_id: sensor.bedroom_lumi_weather_temperature
-                #   above: 23
             - condition: state
               entity_id: input_boolean.disable_climate
               state: 'off'
-            - condition: state
-              entity_id: input_boolean.ac_status
-              state: 'on'
             - condition: state
               entity_id: group.air_conditioners
               state: 'on'
@@ -1043,9 +1010,6 @@ climate_configuration:
                       state: 'heat'
                     - condition: template
                       value_template: "{{ states('sensor.living_room_lumi_weather_temperature') | float > state_attr('climate.living_room_ac','temperature') }}"
-                    # - condition: numeric_state
-                    #   entity_id: sensor.living_room_lumi_weather_temperature
-                    #   above: 23
                   sequence: 
                     - service: climate.turn_off
                       entity_id: climate.living_room_ac
@@ -1074,9 +1038,6 @@ climate_configuration:
                       state: 'heat'
                     - condition: template
                       value_template: "{{ states('sensor.bedroom_lumi_weather_temperature') | float > state_attr('climate.bedroom_ac','temperature') }}"
-                    # - condition: numeric_state
-                    #   entity_id: sensor.bedroom_lumi_weather_temperature
-                    #   above: 23
                   sequence:
                     - service: climate.turn_off
                       entity_id: climate.bedroom_ac
@@ -1108,11 +1069,11 @@ climate_configuration:
               at: '23:30:00'
           condition:
             - condition: state
-              entity_id: input_boolean.disable_climate
-              state: 'off'
-            - condition: state
               entity_id: input_boolean.ac_status
               state: 'on'
+            - condition: state
+              entity_id: input_boolean.disable_climate
+              state: 'off'
             - condition: state
               entity_id: group.air_conditioners
               state: 'on'
@@ -1146,20 +1107,15 @@ climate_configuration:
             - platform: state
               entity_id: binary_sensor.living_room_loggia_door_contact
               to: 'on'
-            # - type: opened
-            #   platform: device
-            #   device_id: 19904350a3cc7a64c7db5fe737b6d044
-            #   entity_id: binary_sensor.living_room_loggia_door_contact
-            #   domain: binary_sensor
               for:
                 minutes: 3
           condition:
             - condition: state
-              entity_id: input_boolean.disable_climate
-              state: 'off'
-            - condition: state
               entity_id: input_boolean.ac_status
               state: 'on'
+            - condition: state
+              entity_id: input_boolean.disable_climate
+              state: 'off'
             - not:
                 - condition: state
                   entity_id: climate.living_room_ac
@@ -1190,23 +1146,18 @@ climate_configuration:
             - platform: state
               entity_id: binary_sensor.living_room_loggia_door_contact
               to: 'off'
-            # - type: not_opened
-            #   platform: device
-            #   device_id: 19904350a3cc7a64c7db5fe737b6d044
-            #   entity_id: binary_sensor.living_room_loggia_door_contact
-            #   domain: binary_sensor
               for:
                 minutes: 1
           condition:
+            - condition: state
+              entity_id: input_boolean.ac_status
+              state: 'on'
             - condition: time
               after: "08:00:00"
               before: "23:00:00"
             - condition: state
               entity_id: input_boolean.disable_climate
               state: 'off'
-            - condition: state
-              entity_id: input_boolean.ac_status
-              state: 'on'
             - condition: state
               entity_id: climate.living_room_ac
               state: 'off'
@@ -1243,11 +1194,11 @@ climate_configuration:
                 minutes: 3
           condition:
             - condition: state
-              entity_id: input_boolean.disable_climate
-              state: 'off'
-            - condition: state
               entity_id: input_boolean.ac_status
               state: 'on'
+            - condition: state
+              entity_id: input_boolean.disable_climate
+              state: 'off'
             - not:
                 - condition: state
                   entity_id: climate.bedroom_ac
@@ -1281,15 +1232,15 @@ climate_configuration:
               for:
                 minutes: 1
           condition:
+            - condition: state
+              entity_id: input_boolean.ac_status
+              state: 'on'
             - condition: time
               after: "08:00:00"
               before: "23:00:00"
             - condition: state
               entity_id: input_boolean.disable_climate
               state: 'off'
-            - condition: state
-              entity_id: input_boolean.ac_status
-              state: 'on'
             - condition: state
               entity_id: input_boolean.bedroom_ac_status
               state: 'on'
@@ -1326,18 +1277,15 @@ climate_configuration:
             platform: state
             to: not_home
           condition: 
-            # - condition: time
-            #   after: "08:00:00"
-            #   before: "23:00:00"
+            - condition: state
+              entity_id: input_boolean.ac_status
+              state: 'on'
             - condition: state
               entity_id: input_boolean.disable_home_away
               state: 'off'
             - condition: state
               entity_id: input_boolean.disable_climate
               state: 'off'
-            - condition: state
-              entity_id: input_boolean.ac_status
-              state: 'on'
             - condition: state
               entity_id: group.air_conditioners
               state: 'on'
@@ -1379,11 +1327,11 @@ climate_configuration:
               from: 'off'
           condition:
             - condition: state
-              entity_id: switch.living_room_air_conditioner_socket
-              state: 'off'
-            - condition: state
               entity_id: input_boolean.ac_status
               state: 'on'
+            - condition: state
+              entity_id: switch.living_room_air_conditioner_socket
+              state: 'off'
             - condition: state
               entity_id: binary_sensor.living_room_loggia_door_contact
               state: 'off'
@@ -1403,11 +1351,11 @@ climate_configuration:
               from: 'off'
           condition:
             - condition: state
-              entity_id: switch.bedroom_air_conditioner_socket
-              state: 'off'
-            - condition: state
               entity_id: input_boolean.ac_status
               state: 'on'
+            - condition: state
+              entity_id: switch.bedroom_air_conditioner_socket
+              state: 'off'
             - condition: state
               entity_id: binary_sensor.bedroom_windows
               state: 'off'
