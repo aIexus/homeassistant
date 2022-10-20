@@ -59,26 +59,38 @@ home_alarm_settings:
                     - condition: template
                       value_template: "{{ trigger_area_name == 'Hallway' }}"
                   sequence:
-                    - service: script.tapo_camera_select_preset
-                      data:
-                        tapo_camera_id: camera.tapo_camera_hd
-                        preset_name: 'Entrance'
+                    - service: select.select_option
+                      entity_id: select.tapo_camera_move_to_preset
+                      data: 
+                        option: 'Entrance'
+                    # - service: script.tapo_camera_select_preset
+                    #   data:
+                    #     tapo_camera_id: camera.tapo_camera_hd
+                    #     preset_name: 'Entrance'
                 - conditions:
                     - condition: template
                       value_template: "{{ trigger_area_name == 'Bedroom' }}"
                   sequence:
-                    - service: script.tapo_camera_select_preset
-                      data:
-                        tapo_camera_id: camera.tapo_camera_hd
-                        preset_name: 'Bedroom'
+                    - service: select.select_option
+                      entity_id: select.tapo_camera_move_to_preset
+                      data: 
+                        option: 'Bedroom'
+                    # - service: script.tapo_camera_select_preset
+                    #   data:
+                    #     tapo_camera_id: camera.tapo_camera_hd
+                    #     preset_name: 'Bedroom'
                 - conditions:
                     - condition: template
                       value_template: "{{ trigger_area_name == 'Living Room' }}"
                   sequence:
-                    - service: script.tapo_camera_select_preset
-                      data:
-                        tapo_camera_id: camera.tapo_camera_hd
-                        preset_name: 'Living Room'
+                    - service: select.select_option
+                      entity_id: select.tapo_camera_move_to_preset
+                      data: 
+                        option: 'Living Room'
+                    # - service: script.tapo_camera_select_preset
+                    #   data:
+                    #     tapo_camera_id: camera.tapo_camera_hd
+                    #     preset_name: 'Living Room'
             # notification about alarm triggering
             - service: notify.alexus
               data:
@@ -183,7 +195,7 @@ home_alarm_settings:
                     - "{{'\U0001F6E1'}} Безопасность:/security, {{'\U0001F4D1'}}Меню:/menu"
           mode: single
 
-        - alias: "Alarm: Actions when ARMED_AWAY"
+        - alias: "Alarm: ARMED_AWAY"
           id: alarm_armed_away
           description: 'Постановка на сигнализацию Armed_Away'
           trigger:
@@ -216,19 +228,26 @@ home_alarm_settings:
             - choose:
                 - conditions:
                     - condition: state
-                      entity_id: input_boolean.tapo_camera_privacy_mode
+                      entity_id: switch.tapo_camera_privacy
+                    #   entity_id: input_boolean.tapo_camera_privacy_mode
                       state: 'on'
                   sequence:
-                    - service: input_boolean.turn_off
-                      entity_id: input_boolean.tapo_camera_privacy_mode
+                    # - service: input_boolean.turn_off
+                    #   entity_id: input_boolean.tapo_camera_privacy_mode
+                    - service: switch.turn_off
+                      entity_id: switch.tapo_camera_privacy
                     - delay: '00:00:06'
-                    - service: script.tapo_camera_select_preset
-                      data:
-                        tapo_camera_id: camera.tapo_camera_sd
-                        preset_name: 'Entrance'
+                    - service: select.select_option
+                      entity_id: select.tapo_camera_move_to_preset
+                      data: 
+                        option: 'Entrance'
+                    # - service: script.tapo_camera_select_preset
+                    #   data:
+                    #     tapo_camera_id: camera.tapo_camera_sd
+                    #     preset_name: 'Entrance'
           mode: single
 
-        - alias: "Alarm: Actions when DISARMED"
+        - alias: "Alarm: DISARMED"
           id: alarm_disarmed
           description: 'Снятие с охраны'
           trigger:
@@ -271,23 +290,27 @@ home_alarm_settings:
             - choose:
                 - conditions:
                     - condition: state
-                      entity_id: input_boolean.tapo_camera_privacy_mode
+                      entity_id: switch.tapo_camera_privacy
+                    #   entity_id: input_boolean.tapo_camera_privacy_mode
                       state: 'off'
                   sequence:
-                    - service: script.tapo_camera_select_preset
-                      data:
-                        tapo_camera_id: camera.tapo_camera_sd
-                        preset_name: 'Entrance'
-                    - service: input_boolean.turn_on
-                      entity_id: input_boolean.tapo_camera_privacy_mode
-                    - delay: '00:00:06'
+                    - service: select.select_option
+                      entity_id: select.tapo_camera_move_to_preset
+                      data: 
+                        option: 'Entrance'
+                    # - service: script.tapo_camera_select_preset
+                    #   data:
+                    #     tapo_camera_id: camera.tapo_camera_sd
+                    #     preset_name: 'Entrance'
+                    # - service: input_boolean.turn_on
+                    #   entity_id: input_boolean.tapo_camera_privacy_mode
+                    - delay: '00:00:05'
+                    - service: switch.turn_on
+                      entity_id: switch.tapo_camera_privacy
             - wait_template: |
                 {{ is_state('script.rgb_bulb_flashing_while_condition', 'off') and 
                    is_state('script.rgb_bulb_flashing_x_times', 'off')
                 }}
-            # - service: scene.turn_on
-            #   entity_id: scene.scene_rgb_bulb_white
-            # - delay: '00:00:01'
             - choose:
                 - conditions:
                     - condition: state
@@ -298,7 +321,7 @@ home_alarm_settings:
                       entity_id: light.hallway_rgb_bulb
           mode: single
 
-        - alias: "Alarm: Set ARMED_HOME if anyone home at 22:00"
+        - alias: "Alarm: ARMED_HOME if anyone home at 22:00"
           id: alarm_auto_arm_if_anyone_home
           description: 'Автоматическая поставновка на охрану после 22:00, если дома кто-то есть'
           trigger:
@@ -384,7 +407,7 @@ home_alarm_settings:
                         music_file: '/media/local/alerts/Car_Alarm_02.mp3'
           mode: single
 
-        - alias: "Alarm: Actions on ARMING"
+        - alias: "Alarm: ARMING"
           id: alarm_arming_signal
           description: 'Звук таймера перед активацией сигнализации'
           trigger:
@@ -419,7 +442,7 @@ home_alarm_settings:
                       volume: 0.5
                       music_file: '/media/local/alerts/elearning-clock-ticking.mp3'
 
-        - alias: "Alarm: Actions on PENDING after ARMED_AWAY"
+        - alias: "Alarm: PENDING after ARMED_AWAY"
           id: alarm_pending_armed_away
           description: 'Проникновение: Предупреждение и ожидание снятия с охраны'
           trigger:

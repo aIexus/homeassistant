@@ -71,9 +71,9 @@
       name: Hallway RGB Bulb Switch Status
       icon: mdi:toggle-switch-off-outline
 
-    tapo_camera_privacy_mode:
-      name: TAPO Camera Privacy Mode
-      icon: mdi:cctv-off
+    # tapo_camera_privacy_mode:
+    #   name: TAPO Camera Privacy Mode
+    #   icon: mdi:cctv-off
 
     # enable_manual_control_garlands:
     #   name: Enable Manual Control of Garlands
