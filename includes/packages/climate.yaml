@@ -3,12 +3,121 @@ climate_configuration:
     smartir:
 
     input_number:
+
         climate_target_temperature:
           name: 'Climate Target Temperature'
           mode: slider
           min: 18
           max: 28
           unit_of_measurement: '°C'
+
+    input_boolean:
+
+        heating_status:
+          name: Heating Status
+          icon: mdi:radiator
+
+        ac_status:
+          name: A/C Status
+          icon: mdi:air-conditioner
+
+        bedroom_ac_status:
+          name: Bedroom A/C Status
+          icon: mdi:toggle-switch-off-outline
+
+        living_room_ac_status:
+          name: Living Room A/C Status
+          icon: mdi:toggle-switch-off-outline
+
+    group:
+
+        heaters:
+          - climate.bedroom_heater
+          - climate.kitchen_heater
+          - climate.living_room_heater
+
+        air_conditioners:
+          - climate.living_room_ac
+          - climate.bedroom_ac
+
+    template:
+
+      - binary_sensor:
+
+          - name: bedroom_air_conditioner_socket_status
+            state: >-
+                {% if (states("sensor.bedroom_air_conditioner_socket_power") | int(0) > 5) %}
+                on
+                {% else %}
+                off
+                {% endif %}
+            icon: >-
+                {% if is_state("binary_sensor.bedroom_air_conditioner_socket_status","on") %}
+                mdi:hvac
+                {% else %}
+                mdi:hvac-off
+                {% endif %}
+
+          - name: living_room_air_conditioner_socket_status
+            state: >-
+                {% if (states("sensor.living_room_air_conditioner_socket_power") | int(0) > 5) %}
+                on
+                {% else %}
+                off
+                {% endif %}
+            icon: >-
+                {% if is_state("binary_sensor.living_room_air_conditioner_socket_status","on") %}
+                mdi:hvac
+                {% else %}
+                mdi:hvac-off
+                {% endif %}
+          - name: bedroom_socket_heating_status
+            state: >-
+                {% if (states("sensor.bedroom_socket_heating_power") | int(0) > 0) %}
+                on
+                {% else %}
+                off
+                {% endif %}
+            icon: >-
+                {% if is_state("binary_sensor.bedroom_socket_heating_status","on") %}
+                mdi:radiator
+                {% elif is_state("input_boolean.heating_status","off") or is_state("climate.bedroom_heater","off") %}
+                mdi:radiator-off
+                {% else %}
+                mdi:radiator-disabled
+                {% endif %}
+
+          - name: living_room_socket_heating_status
+            state: >-
+                {% if (states("sensor.living_room_socket_heating_power") | int(0) > 0) %}
+                on
+                {% else %}
+                off
+                {% endif %}
+            icon: >-
+                {% if is_state("binary_sensor.living_room_socket_heating_status","on") %}
+                mdi:radiator
+                {% elif is_state("input_boolean.heating_status","off") or is_state("climate.living_room_heater","off") %}
+                mdi:radiator-off
+                {% else %}
+                mdi:radiator-disabled
+                {% endif %}
+
+          - name: kitchen_socket_heating_status
+            state: >-
+                {% if (states("sensor.kitchen_socket_heating_power") | int(0) > 0) %}
+                on
+                {% else %}
+                off
+                {% endif %}
+            icon: >-
+                {% if is_state("binary_sensor.kitchen_socket_heating_status","on") %}
+                mdi:radiator
+                {% elif is_state("input_boolean.heating_status","off") or is_state("climate.kitchen_heater","off") %}
+                mdi:radiator-off
+                {% else %}
+                mdi:radiator-disabled
+                {% endif %}
 
     climate: 
 

@@ -1,43 +1,5 @@
 tapo_camera_package:
 
-    # automation:
-
-        # - alias: "TAPO Camera: Privacy Mode Change"
-        #   id: tapo_camera_privacy_mode_change
-        #   trigger:
-        #     - platform: state
-        #       entity_id: input_boolean.tapo_camera_privacy_mode
-        #       from: 'off'
-        #       to: 'on'
-        #     - platform: state
-        #       entity_id: input_boolean.tapo_camera_privacy_mode
-        #       from: 'on'
-        #       to: 'off'
-        #   condition: 
-        #     - condition: template
-        #       value_template: '{{ states.camera.tapo_camera_sd.attributes.privacy_mode != states.input_boolean.tapo_camera_privacy_mode.state }}'
-        #   action:
-        #     - choose:
-        #         - conditions:
-        #             - condition: state
-        #               entity_id: input_boolean.tapo_camera_privacy_mode
-        #               state: 'on'
-        #           sequence:
-        #             - service: script.tapo_camera_set_privacy_mode
-        #               data:
-        #                 tapo_camera_id: camera.tapo_camera_sd
-        #                 privacy: 'on'
-        #         - conditions:
-        #             - condition: state
-        #               entity_id: input_boolean.tapo_camera_privacy_mode
-        #               state: 'off'
-        #           sequence:
-        #             - service: script.tapo_camera_set_privacy_mode
-        #               data:
-        #                 tapo_camera_id: camera.tapo_camera_sd
-        #                 privacy: 'off'
-        #   mode: queued
-            
     script:
 
         tapo_camera_test:
@@ -80,49 +42,11 @@ tapo_camera_package:
                 - service: select.select_option
                   entity_id: select.tapo_camera_move_to_preset
                   data: 
-                    option: 'Entrance'
+                    option: 'Parking'
                 - delay: '00:00:05'
                 - service: switch.turn_on
                   entity_id: switch.tapo_camera_privacy
             mode: single
-
-        # tapo_camera_select_preset:
-        #     alias: "TAPO Camera: Select Preset"
-        #     fields:
-        #       tapo_camera_id:
-        #         description: The entity of the TAPO Camera
-        #         example: camera.tapo_01
-        #         default: camera.tapo_camera_sd
-        #       preset_name:
-        #         description: The name of preset
-        #         example: Entrance
-        #         default: Entrance
-        #     sequence: 
-        #       - service: tapo_control.ptz
-        #         data_template:
-        #           preset: "{{ preset_name }}"
-        #           entity_id: "{{ tapo_camera_id }}"
-        #       - delay: '00:00:05'
-        #     mode: queued
-        
-        # tapo_camera_set_privacy_mode:
-        #     alias: "TAPO Camera: Set Privacy Mode"
-        #     fields:
-        #       tapo_camera_id:
-        #         description: The entity of the TAPO Camera
-        #         example: camera.tapo_01
-        #         default: camera.tapo_camera_sd
-        #       privacy:
-        #         description: The value for Privacy Mode
-        #         example: on
-        #         default: on
-        #     sequence: 
-        #       - service: tapo_control.set_privacy_mode
-        #         data_template:
-        #           privacy_mode: '{{ privacy }}'
-        #           entity_id: '{{ tapo_camera_id }}'
-        #       - delay: '00:00:03'
-        #     mode: queued
 
         tapo_camera_save_record:
             alias: "TAPO Camera: Save Record"

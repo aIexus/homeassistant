@@ -53,6 +53,24 @@ light_settings:
                 mdi:timer-off
                 {% endif %}
 
+          - name: hallway_rgb_bulb_control
+            state: >
+              {{ is_state('sensor.hallway_rgb_bulb_switch_action', 'single') or
+                 is_state('input_boolean.hallway_rgb_bulb_automation_control_status','on') or
+                 is_state('input_boolean.hallway_rgb_bulb_switch_single_status','on') }}
+            delay_off: '00:00:03'
+
+    input_boolean:
+
+        hallway_rgb_bulb_switch_single_status:
+          name: Hallway RGB Bulb Switch Status
+          icon: mdi:toggle-switch-off-outline
+    
+        hallway_rgb_bulb_automation_control_status:
+          name: Hallway RGB Bulb Automation Control Status
+          icon: mdi:toggle-switch-off-outline
+
+
     timer:
         # Таймер отключения света в спальне
         bedroom_light_off_timer:
@@ -69,24 +87,27 @@ light_settings:
         light_rgb_test:
             alias: "Light: RGB Test"
             sequence:
+              - service: input_boolean.turn_on
+                entity_id: input_boolean.hallway_rgb_bulb_automation_control_status
               - service: light.toggle
                 target:
                     entity_id: light.hallway_rgb_bulb
                 data:
                     brightness: 140
                     color_temp: 155
-              - delay: '00:00:01'
-              - service: scene.create
-                data:
-                  scene_id: scene_rgb_bulb_white
-                  snapshot_entities:
-                    - light.hallway_rgb_bulb
+            #   - delay: '00:00:01'
+            #   - service: scene.create
+            #     data:
+            #       scene_id: scene_rgb_bulb_white
+            #       snapshot_entities:
+            #         - light.hallway_rgb_bulb
             #   - service: script.turn_on
             #     target:
             #         entity_id: script.rgb_bulb_flashing_while_condition
             #     data:
             #         variables:
             #             rgb_bulb_entity_id: light.hallway_rgb_bulb
+            #             rgb_bulb_automation_control: input_boolean.hallway_rgb_bulb_automation_control_status
             #             condition_entity_id: switch.living_room_light_switch
             #             repeat_while_state: 'on'
             #             color: 'red'
@@ -96,8 +117,13 @@ light_settings:
             #     data:
             #         variables:
             #             rgb_bulb_entity_id: light.hallway_rgb_bulb
+            #             rgb_bulb_automation_control: input_boolean.hallway_rgb_bulb_automation_control_status
             #             count: 3
             #             color: 'green'
+              - delay: '00:00:04'
+              - service: input_boolean.turn_off
+                entity_id: input_boolean.hallway_rgb_bulb_automation_control_status
+
             mode: single
 
 
@@ -107,7 +133,7 @@ light_settings:
               - wait_template: "{{ is_state('script.rgb_bulb_flashing_x_times', 'off') }}"
               - service: scene.create
                 data:
-                  scene_id: scene_old
+                  scene_id: scene_before_flashing_while_condition
                   snapshot_entities:
                     - '{{ rgb_bulb_entity_id }}'
               - delay: '00:00:01'
@@ -118,6 +144,12 @@ light_settings:
                       - condition: template
                         value_template: '{{ repeat.index <= 500 }}'
                     sequence:
+                      - service: input_boolean.turn_off
+                        data_template:
+                            entity_id: '{{ rgb_bulb_automation_control }}' 
+                      - service: input_boolean.turn_on
+                        data_template:
+                            entity_id: '{{ rgb_bulb_automation_control }}'
                       - service: light.toggle
                         target:
                             entity_id: '{{ rgb_bulb_entity_id }}'
@@ -126,8 +158,11 @@ light_settings:
                             brightness: 255
                       - delay: '00:00:01'
               - service: scene.turn_on
-                entity_id: scene.scene_old
+                entity_id: scene.scene_before_flashing_while_condition
               - delay: '00:00:01'
+              - service: input_boolean.turn_off
+                data_template:
+                    entity_id: '{{ rgb_bulb_automation_control }}' 
             mode: single
 
         rgb_bulb_flashing_x_times:
@@ -136,13 +171,19 @@ light_settings:
               - wait_template: "{{ is_state('script.rgb_bulb_flashing_while_condition', 'off') }}"
               - service: scene.create
                 data:
-                  scene_id: scene_old
+                  scene_id: scene_before_flashing_x_times
                   snapshot_entities:
                     - '{{ rgb_bulb_entity_id }}'
               - delay: '00:00:01'
               - repeat:
                     count: '{{ count | int * 2 }}'
                     sequence:
+                      - service: input_boolean.turn_off
+                        data_template:
+                            entity_id: '{{ rgb_bulb_automation_control }}' 
+                      - service: input_boolean.turn_on
+                        data_template:
+                            entity_id: '{{ rgb_bulb_automation_control }}' 
                       - service: light.toggle
                         target:
                             entity_id: '{{ rgb_bulb_entity_id }}'
@@ -151,8 +192,11 @@ light_settings:
                             brightness: 255
                       - delay: '00:00:01'
               - service: scene.turn_on
-                entity_id: scene.scene_old
+                entity_id: scene.scene_before_flashing_x_times
               - delay: '00:00:01'
+              - service: input_boolean.turn_off
+                data_template:
+                    entity_id: '{{ rgb_bulb_automation_control }}' 
             mode: single
 
     automation:
@@ -345,3 +389,18 @@ light_settings:
                 sequence:
             #       some actions
         mode: single
+
+      - alias: "Light: Turn OFF Hallway RGB Bulb after power outage"
+        id: hallway_light_rgb_bulb_turn_off_after_power_outage
+        initial_state: true
+        trigger:
+        - platform: state
+          entity_id: light.hallway_rgb_bulb
+          to: 'on'
+        condition:
+        - condition: state
+          entity_id: binary_sensor.hallway_rgb_bulb_control
+          state: 'off'
+        action:
+        - service: light.turn_off
+          entity_id: light.hallway_rgb_bulb

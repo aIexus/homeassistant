@@ -2,13 +2,73 @@
         friendly_name: 'Среднесуточная (24ч)'
 
     sensor.period_of_day:
-        friendly_name: "Период Суток"
+        friendly_name: 'Период Суток'
+
+    sensor.snapshots_in_google_drive_train:
+        friendly_name: 'Снапшотов на Googe.Drive'
+
+    sensor.last_google_backup_train:
+        friendly_name: 'Последний удачный бэкап'
+
+    sensor.snapshots_in_hassio_train:
+        friendly_name: 'Снапшотов в HA'
+
+    sensor.ups_battery_voltage:
+        friendly_name: 'Напряжение на батареи UPS'
+
+    sensor.ups_battery_capacity:
+        friendly_name: 'Уровень заряда батареи UPS'
+
+    sensor.chassis_fan_speed:
+        friendly_name: 'Chassis Fan Speed'
+
+    sensor.last_boot_custom:
+        friendly_name: 'System Last Boot'
+
+    sensor.online_custom:
+        friendly_name: 'Home Assistant Uptime'
+
+    sensor.outdoor_humidity:
+        friendly_name: 'Наружная Влажность'
+
+    sensor.outdoor_temperature:
+        friendly_name: 'Наружная Температура'
+
+    binary_sensor.anyone_home:
+        friendly_name: 'Anyone Home'
+
+    binary_sensor.ups_battery_low:
+        friendly_name: 'Состояние батареи UPS'
+
+    binary_sensor.ups_fan_speed:
+        friendly_name: 'UPS Fan Speed'
+
+    binary_sensor.rpi_ac_power_status:
+        friendly_name: 'Источник внешнего питания'
+
+    binary_sensor.bathroom_washing_machine_socket_status:
+        friendly_name: 'Стиральная машина'
+
+    binary_sensor.bedroom_air_conditioner_socket_status:
+        friendly_name: 'Кондиционер в Спальне'
+
+    binary_sensor.living_room_air_conditioner_socket_status:
+        friendly_name: 'Кондиционер в Гостинной'
+
+    binary_sensor.bedroom_socket_heating_status:
+        friendly_name: 'Обогреватель в Спальне'
+
+    binary_sensor.living_room_socket_heating_status:
+        friendly_name: 'Обогреватель в Гостинной'
+
+    binary_sensor.kitchen_socket_heating_status:
+        friendly_name: 'Обогреватель в Кухне'
 
     binary_sensor.living_room_auto_light_off_sensor:
-        friendly_name: "Автоотключение Света в Гостинной"
+        friendly_name: 'Автоотключение Света в Гостинной'
 
     binary_sensor.bedroom_auto_light_off_sensor:
-        friendly_name: "Автоотключение Света в Спальне"
+        friendly_name: 'Автоотключение Света в Спальне'
 
     binary_sensor.hallway_entrance_door_contact:
         friendly_name: 'Входная Дверь'

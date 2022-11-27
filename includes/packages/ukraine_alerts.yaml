@@ -3,452 +3,480 @@ ukraine_alerts_package:
 
     binary_sensor:
 
-        - platform: group
-          name: m_novomoskovsk_alerts
-          device_class: safety
-          entities:
-            - binary_sensor.m_novomoskovsk_ta_novomoskovska_teritorialna_gromada_air
-            - binary_sensor.m_novomoskovsk_ta_novomoskovska_teritorialna_gromada_artillery
-            - binary_sensor.m_novomoskovsk_ta_novomoskovska_teritorialna_gromada_chemical
-            - binary_sensor.m_novomoskovsk_ta_novomoskovska_teritorialna_gromada_nuclear
-            - binary_sensor.m_novomoskovsk_ta_novomoskovska_teritorialna_gromada_urban_fights
-            - binary_sensor.m_novomoskovsk_ta_novomoskovska_teritorialna_gromada_unknown
+      - platform: group
+        name: m_novomoskovsk_alerts
+        device_class: safety
+        entities:
+          - binary_sensor.m_novomoskovsk_ta_novomoskovska_teritorialna_gromada_air
+          - binary_sensor.m_novomoskovsk_ta_novomoskovska_teritorialna_gromada_artillery
+          - binary_sensor.m_novomoskovsk_ta_novomoskovska_teritorialna_gromada_chemical
+          - binary_sensor.m_novomoskovsk_ta_novomoskovska_teritorialna_gromada_nuclear
+          - binary_sensor.m_novomoskovsk_ta_novomoskovska_teritorialna_gromada_urban_fights
+          - binary_sensor.m_novomoskovsk_ta_novomoskovska_teritorialna_gromada_unknown
 
     automation:
 
-        - alias: "Alert: Disable Voice Notifications when Alert Notifications are Disabled"
-          id: alert_disable_mode
-          description: 'При запрете тревоги, выключать голосовую тревогу'
-          mode: single
-          trigger:
-            - platform: state
-              entity_id: input_boolean.disable_alerts_notifications
-              from: 'off'
-              to: 'on'
-          condition:
-            - condition: state
-              entity_id: input_boolean.disable_voice_alerts
-              state: 'off'
-          action:
-            - service: input_boolean.turn_on
-              entity_id: input_boolean.disable_voice_alerts
+      - alias: "Alert: Disable Voice Notifications when Alert Notifications are Disabled"
+        id: alert_disable_mode
+        description: 'При запрете тревоги, выключать голосовую тревогу'
+        mode: single
+        trigger:
+          - platform: state
+            entity_id: input_boolean.disable_alerts_notifications
+            from: 'off'
+            to: 'on'
+        condition:
+          - condition: state
+            entity_id: input_boolean.disable_voice_alerts
+            state: 'off'
+        action:
+          - service: input_boolean.turn_on
+            entity_id: input_boolean.disable_voice_alerts
 
-        - alias: "Alert: Notification about Active Air Alert in Novomoskovsk"
-          id: alert_novomoskovsk_air_on
-          description: 'Воздушная тревога, Новомосковск'
-          mode: single
-          trigger:
-            - platform: state
-              entity_id: binary_sensor.m_novomoskovsk_ta_novomoskovska_teritorialna_gromada_air
-              from: 'off'
-              to: 'on'
-          condition:
-            - condition: state
-              entity_id: input_boolean.disable_alerts_notifications
-              state: 'off'
-          action:
-              - service: notify.alexus
-                data:
-                  title: '{{"\U0001F4E2"}} ВНИМАНИЕ{{"\U0000203C"}}'
-                  message:  |
-                    ➖➖➖➖➖➖➖➖➖➖➖➖
-                    {{"\U00002708"}}{{"\U0001F680"}} ОБЪЯВЛЕНА ВОЗДУШНАЯ ТРЕВОГА{{"\U0000203C"}}{{"\U0000203C"}}
-              - condition: state
-                entity_id: input_boolean.disable_voice_alerts
-                state: 'off'
-              - condition: state
-                entity_id: binary_sensor.anyone_home
-                state: 'on'
-              - service: script.sonos_play_file
-                data: 
-                  sonos_entity: media_player.sonos_living_room
-                  volume: 0.4
-                  music_file: '/media/local/alerts/Sound_17898.mp3'
-                #   delay_secs: 13
-              - service: script.sonos_say
-                data: 
-                  sonos_entity: media_player.sonos_living_room
-                  volume: 0.4
-                  message: 'ВНИМАНИЕ!!! ОБЪЯВЛЕНА ВОЗДУШНАЯ ТРЕВОГА!'
+      - alias: "Alert: Norification about Alert in Novomoskovsk"
+        id: alert_notification_about_status_in_novomoskovsk
+        description: 'Оповещение о статусе тревоги в Новомосковске'
+        trigger:
+          - platform: state
+            entity_id: binary_sensor.m_novomoskovsk_ta_novomoskovska_teritorialna_gromada_air
+            from: 'off'
+            to: 'on'
+          - platform: state
+            entity_id: binary_sensor.m_novomoskovsk_ta_novomoskovska_teritorialna_gromada_air
+            from: 'on'
+            to: 'off'
+          - platform: state
+            entity_id: binary_sensor.m_novomoskovsk_ta_novomoskovska_teritorialna_gromada_artillery
+            from: 'off'
+            to: 'on'
+          - platform: state
+            entity_id: binary_sensor.m_novomoskovsk_ta_novomoskovska_teritorialna_gromada_artillery
+            from: 'on'
+            to: 'off'
+          - platform: state
+            entity_id: binary_sensor.m_novomoskovsk_ta_novomoskovska_teritorialna_gromada_urban_fights
+            from: 'off'
+            to: 'on'
+          - platform: state
+            entity_id: binary_sensor.m_novomoskovsk_ta_novomoskovska_teritorialna_gromada_urban_fights
+            from: 'on'
+            to: 'off'
+          - platform: state
+            entity_id: binary_sensor.m_novomoskovsk_ta_novomoskovska_teritorialna_gromada_chemical
+            from: 'off'
+            to: 'on'
+          - platform: state
+            entity_id: binary_sensor.m_novomoskovsk_ta_novomoskovska_teritorialna_gromada_chemical
+            from: 'on'
+            to: 'off'
+          - platform: state
+            entity_id: binary_sensor.m_novomoskovsk_ta_novomoskovska_teritorialna_gromada_nuclear
+            from: 'off'
+            to: 'on'
+          - platform: state
+            entity_id: binary_sensor.m_novomoskovsk_ta_novomoskovska_teritorialna_gromada_nuclear
+            from: 'on'
+            to: 'off'
+          - platform: state
+            entity_id: binary_sensor.m_novomoskovsk_ta_novomoskovska_teritorialna_gromada_unknown
+            from: 'off'
+            to: 'on'
+          - platform: state
+            entity_id: binary_sensor.m_novomoskovsk_ta_novomoskovska_teritorialna_gromada_unknown
+            from: 'on'
+            to: 'off'
+        condition:
+          - condition: state
+            entity_id: input_boolean.disable_alerts_notifications
+            state: 'off'
+        action:
+          - choose:
+              - conditions:
+                    - condition: template
+                      value_template: '{{ trigger.entity_id == "binary_sensor.m_novomoskovsk_ta_novomoskovska_teritorialna_gromada_air" }}'
+                sequence:
+                  - choose:
+                      - conditions:
+                          - condition: state
+                            entity_id: binary_sensor.m_novomoskovsk_ta_novomoskovska_teritorialna_gromada_air
+                            state: 'on'
+                        sequence:
+                          - service: notify.alexus
+                            data:
+                                title: '{{"\U0001F4E2"}} ВНИМАНИЕ{{"\U0000203C"}}'
+                                message: |
+                                    ➖➖➖➖➖➖➖➖➖➖➖➖
+                                    {{"\U00002708"}}{{"\U0001F680"}} ОБЪЯВЛЕНА ВОЗДУШНАЯ ТРЕВОГА{{"\U0000203C"}}{{"\U0000203C"}}
+                          - condition: state
+                            entity_id: binary_sensor.anyone_home
+                            state: 'on'
+                          - condition: state
+                            entity_id: input_boolean.disable_voice_alerts
+                            state: 'off'
+                          - service: script.sonos_play_file
+                            data: 
+                                sonos_entity: media_player.sonos_living_room
+                                volume: 0.4
+                                music_file: '/media/local/alerts/Sound_17898.mp3'
+                          - service: script.sonos_say
+                            data: 
+                                sonos_entity: media_player.sonos_living_room
+                                volume: 0.4
+                                message: 'ВНИМАНИЕ!!! ОБЪЯВЛЕНА ВОЗДУШНАЯ ТРЕВОГА!'
+                      - conditions:
+                          - condition: state
+                            entity_id: binary_sensor.m_novomoskovsk_ta_novomoskovska_teritorialna_gromada_air
+                            state: 'off'
+                        sequence:
+                          - service: notify.alexus
+                            data:
+                                title: '{{"\U0001F4E2"}} ВНИМАНИЕ{{"\U0000203C"}}'
+                                message: |
+                                    ➖➖➖➖➖➖➖➖➖➖➖➖
+                                    {{"\U00002705"}}{{"\U00002705"}}{{"\U00002705"}} ОТБОЙ ВОЗДУШНОЙ ТРЕВОГИ {{"\U00002705"}}{{"\U00002705"}}{{"\U00002705"}}
+                          - condition: state
+                            entity_id: binary_sensor.anyone_home
+                            state: 'on'
+                          - condition: state
+                            entity_id: input_boolean.disable_voice_alerts
+                            state: 'off'
+                          - service: script.sonos_say
+                            data: 
+                                sonos_entity: media_player.sonos_living_room
+                                volume: 0.4
+                                message: 'ВНИМАНИЕ!!! Отбой воздушной тревоги!'
 
-        - alias: "Alert: Notification about Not Active Air Alert in Novomoskovsk"
-          id: alert_novomoskovsk_air_off
-          description: 'Воздушная тревога - отбой, Новомосковск'
-          mode: single
-          trigger:
-            - platform: state
-              entity_id: binary_sensor.m_novomoskovsk_ta_novomoskovska_teritorialna_gromada_air
-              from: 'on'
-              to: 'off'
-          condition:
-            - condition: state
-              entity_id: input_boolean.disable_alerts_notifications
-              state: 'off'
-          action:
-              - service: notify.alexus
-                data:
-                  title: '{{"\U0001F4E2"}} ВНИМАНИЕ{{"\U0000203C"}}'
-                  message:  |
-                    ➖➖➖➖➖➖➖➖➖➖➖➖
-                    {{"\U00002705"}}{{"\U00002705"}}{{"\U00002705"}} ОТБОЙ ВОЗДУШНОЙ ТРЕВОГИ {{"\U00002705"}}{{"\U00002705"}}{{"\U00002705"}}
-              - condition: state
-                entity_id: input_boolean.disable_voice_alerts
-                state: 'off'
-              - condition: state
-                entity_id: binary_sensor.anyone_home
-                state: 'on'
-              - service: script.sonos_say
-                data: 
-                  sonos_entity: media_player.sonos_living_room
-                  volume: 0.4
-                  message: 'ВНИМАНИЕ!!! Отбой воздушной тревоги!'
+              - conditions:
+                    - condition: template
+                      value_template: '{{ trigger.entity_id == "binary_sensor.m_novomoskovsk_ta_novomoskovska_teritorialna_gromada_artillery" }}'
+                sequence:
+                  - choose:
+                      - conditions:
+                          - condition: state
+                            entity_id: binary_sensor.m_novomoskovsk_ta_novomoskovska_teritorialna_gromada_artillery
+                            state: 'on'
+                        sequence:
+                          - service: notify.alexus
+                            data:
+                                title: '{{"\U0001F4E2"}} ВНИМАНИЕ{{"\U0000203C"}}'
+                                message: |
+                                    ➖➖➖➖➖➖➖➖➖➖➖➖
+                                    {{"\U0001F4A5"}}{{"\U0001F4A5"}} УГРОЗА АРТИЛЛЕРИЙСКОГО ОБСТРЕЛА{{"\U0000203C"}}{{"\U0000203C"}}
+                          - condition: state
+                            entity_id: binary_sensor.anyone_home
+                            state: 'on'
+                          - condition: state
+                            entity_id: input_boolean.disable_voice_alerts
+                            state: 'off'
+                          - service: script.sonos_play_file
+                            data: 
+                                sonos_entity: media_player.sonos_living_room
+                                volume: 0.4
+                                music_file: '/media/local/alerts/Sound_15028.mp3'
+                          - service: script.sonos_say
+                            data: 
+                                sonos_entity: media_player.sonos_living_room
+                                volume: 0.4
+                                message: 'ВНИМАНИЕ!!! УГРОЗА АРТИЛЛЕРИЙСКОГО ОБСТРЕЛА!'
+                      - conditions:
+                          - condition: state
+                            entity_id: binary_sensor.m_novomoskovsk_ta_novomoskovska_teritorialna_gromada_artillery
+                            state: 'off'
+                        sequence:
+                          - service: notify.alexus
+                            data:
+                                title: '{{"\U0001F4E2"}} ВНИМАНИЕ{{"\U0000203C"}}'
+                                message: |
+                                    ➖➖➖➖➖➖➖➖➖➖➖➖
+                                    {{"\U00002705"}}{{"\U00002705"}}{{"\U00002705"}} ОТМЕНА УГРОЗЫ АРТИЛЛЕРИЙСКОГО ОБСТРЕЛА {{"\U00002705"}}{{"\U00002705"}}{{"\U00002705"}}
+                          - condition: state
+                            entity_id: binary_sensor.anyone_home
+                            state: 'on'
+                          - condition: state
+                            entity_id: input_boolean.disable_voice_alerts
+                            state: 'off'
+                          - service: script.sonos_say
+                            data: 
+                                sonos_entity: media_player.sonos_living_room
+                                volume: 0.4
+                                message: 'ВНИМАНИЕ!!! Отмена угрозы артиллерийского обстрела!'
 
-        - alias: "Alert: Notification about Active Artillery Alert in Novomoskovsk"
-          id: alert_novomoskovsk_artillery_on
-          description: 'Угроза артилерийского обстрела, Новомосковск'
-          mode: single
-          trigger:
-            - platform: state
-              entity_id: binary_sensor.m_novomoskovsk_ta_novomoskovska_teritorialna_gromada_artillery
-              from: 'off'
-              to: 'on'
-          condition:
-            - condition: state
-              entity_id: input_boolean.disable_alerts_notifications
-              state: 'off'
-          action:
-              - service: notify.alexus
-                data:
-                  title: '{{"\U0001F4E2"}} ВНИМАНИЕ{{"\U0000203C"}}'
-                  message:  |
-                    ➖➖➖➖➖➖➖➖➖➖➖➖
-                    {{"\U0001F4A5"}}{{"\U0001F4A5"}} УГРОЗА АРТИЛЛЕРИЙСКОГО ОБСТРЕЛА{{"\U0000203C"}}{{"\U0000203C"}}
-              - condition: state
-                entity_id: input_boolean.disable_voice_alerts
-                state: 'off'
-              - condition: state
-                entity_id: binary_sensor.anyone_home
-                state: 'on'
-              - service: script.sonos_play_file
-                data: 
-                  sonos_entity: media_player.sonos_living_room
-                  volume: 0.4
-                  music_file: '/media/local/alerts/Sound_15028.mp3'
-                #   delay_secs: 12
-              - service: script.sonos_say
-                data: 
-                  sonos_entity: media_player.sonos_living_room
-                  volume: 0.4
-                  message: 'ВНИМАНИЕ!!! УГРОЗА АРТИЛЛЕРИЙСКОГО ОБСТРЕЛА!'
+              - conditions:
+                    - condition: template
+                      value_template: '{{ trigger.entity_id == "binary_sensor.m_novomoskovsk_ta_novomoskovska_teritorialna_gromada_urban_fights" }}'
+                sequence:
+                  - choose:
+                      - conditions:
+                          - condition: state
+                            entity_id: binary_sensor.m_novomoskovsk_ta_novomoskovska_teritorialna_gromada_urban_fights
+                            state: 'on'
+                        sequence:
+                          - service: notify.alexus
+                            data:
+                                title: '{{"\U0001F4E2"}} ВНИМАНИЕ{{"\U0000203C"}}'
+                                message: |
+                                    ➖➖➖➖➖➖➖➖➖➖➖➖
+                                    {{"\U0001F4A5"}}{{"\U0001F4A5"}} УГРОЗА ГОРОДСКИХ БОЁВ{{"\U0000203C"}}{{"\U0000203C"}}
+                          - condition: state
+                            entity_id: binary_sensor.anyone_home
+                            state: 'on'
+                          - condition: state
+                            entity_id: input_boolean.disable_voice_alerts
+                            state: 'off'
+                          - service: script.sonos_play_file
+                            data: 
+                                sonos_entity: media_player.sonos_living_room
+                                volume: 0.4
+                                music_file: '/media/local/alerts/Sound_15028.mp3'
+                          - service: script.sonos_say
+                            data: 
+                                sonos_entity: media_player.sonos_living_room
+                                volume: 0.4
+                                message: 'ВНИМАНИЕ!!! УГРОЗА ГОРОДСКИХ БОЁВ!'
+                      - conditions:
+                          - condition: state
+                            entity_id: binary_sensor.m_novomoskovsk_ta_novomoskovska_teritorialna_gromada_urban_fights
+                            state: 'off'
+                        sequence:
+                          - service: notify.alexus
+                            data:
+                                title: '{{"\U0001F4E2"}} ВНИМАНИЕ{{"\U0000203C"}}'
+                                message: |
+                                    ➖➖➖➖➖➖➖➖➖➖➖➖
+                                    {{"\U00002705"}}{{"\U00002705"}}{{"\U00002705"}} ОТМЕНА УГРОЗЫ ГОРОДСКИХ БОЁВ {{"\U00002705"}}{{"\U00002705"}}{{"\U00002705"}}
+                          - condition: state
+                            entity_id: binary_sensor.anyone_home
+                            state: 'on'
+                          - condition: state
+                            entity_id: input_boolean.disable_voice_alerts
+                            state: 'off'
+                          - service: script.sonos_say
+                            data: 
+                                sonos_entity: media_player.sonos_living_room
+                                volume: 0.4
+                                message: 'ВНИМАНИЕ!!! Отмена угрозы городских боёв!'
 
-        - alias: "Alert: Notification about Not Active Artillery Alert in Novomoskovsk"
-          id: alert_novomoskovsk_artillery_off
-          description: 'Угроза артилерийского обстрела - отмена, Новомосковск'
-          mode: single
-          trigger:
-            - platform: state
-              entity_id: binary_sensor.m_novomoskovsk_ta_novomoskovska_teritorialna_gromada_artillery
-              from: 'on'
-              to: 'off'
-          condition:
-            - condition: state
-              entity_id: input_boolean.disable_alerts_notifications
-              state: 'off'
-          action:
-              - service: notify.alexus
-                data:
-                  title: '{{"\U0001F4E2"}} ВНИМАНИЕ{{"\U0000203C"}}'
-                  message:  |
-                    ➖➖➖➖➖➖➖➖➖➖➖➖
-                    {{"\U00002705"}}{{"\U00002705"}}{{"\U00002705"}} ОТМЕНА УГРОЗЫ АРТИЛЛЕРИЙСКОГО ОБСТРЕЛА {{"\U00002705"}}{{"\U00002705"}}{{"\U00002705"}}
-              - condition: state
-                entity_id: input_boolean.disable_voice_alerts
-                state: 'off'
-              - condition: state
-                entity_id: binary_sensor.anyone_home
-                state: 'on'
-              - service: script.sonos_say
-                data: 
-                  sonos_entity: media_player.sonos_living_room
-                  volume: 0.4
-                  message: 'ВНИМАНИЕ!!! Отмена угрозы артиллерийского обстрела!'
+              - conditions:
+                    - condition: template
+                      value_template: '{{ trigger.entity_id == "binary_sensor.m_novomoskovsk_ta_novomoskovska_teritorialna_gromada_chemical" }}'
+                sequence:
+                  - choose:
+                      - conditions:
+                          - condition: state
+                            entity_id: binary_sensor.m_novomoskovsk_ta_novomoskovska_teritorialna_gromada_chemical
+                            state: 'on'
+                        sequence:
+                          - service: notify.alexus
+                            data:
+                                title: '{{"\U0001F4E2"}} ВНИМАНИЕ{{"\U0000203C"}}'
+                                message: |
+                                    ➖➖➖➖➖➖➖➖➖➖➖➖
+                                    {{"\U00002623\U00002623"}} ОБЪЯВЛЕНА ХИМИЧЕСКАЯ ТРЕВОГА{{"\U0000203C\U0000203C"}}
+                          - condition: state
+                            entity_id: binary_sensor.anyone_home
+                            state: 'on'
+                          - condition: state
+                            entity_id: input_boolean.disable_voice_alerts
+                            state: 'off'
+                          - service: script.sonos_play_file
+                            data: 
+                                sonos_entity: media_player.sonos_living_room
+                                volume: 0.4
+                                music_file: '/media/local/alerts/Chemical_Alert_Sound.mp3'
+                          - service: script.sonos_say
+                            data: 
+                                sonos_entity: media_player.sonos_living_room
+                                volume: 0.4
+                                message: 'ВНИМАНИЕ!!! ОБЪЯВЛЕНА ХИМИЧЕСКАЯ ТРЕВОГА!'
+                      - conditions:
+                          - condition: state
+                            entity_id: binary_sensor.m_novomoskovsk_ta_novomoskovska_teritorialna_gromada_chemical
+                            state: 'off'
+                        sequence:
+                          - service: notify.alexus
+                            data:
+                                title: '{{"\U0001F4E2"}} ВНИМАНИЕ{{"\U0000203C"}}'
+                                message: |
+                                    ➖➖➖➖➖➖➖➖➖➖➖➖
+                                    {{"\U00002705\U00002705\U00002705"}} ОТМЕНА ХИМИЧЕСКОЙ ТРЕВОГИ {{"\U00002705\U00002705\U00002705"}}
+                          - condition: state
+                            entity_id: binary_sensor.anyone_home
+                            state: 'on'
+                          - condition: state
+                            entity_id: input_boolean.disable_voice_alerts
+                            state: 'off'
+                          - service: script.sonos_say
+                            data: 
+                                sonos_entity: media_player.sonos_living_room
+                                volume: 0.4
+                                message: 'ВНИМАНИЕ!!! Отмена химической тревоги!'
 
-        - alias: "Alert: Notification about Active Urban Fights Alert in Novomoskovsk"
-          id: alert_novomoskovsk_urban_fights_on
-          description: 'Угроза городских боев, Новомосковск'
-          mode: single
-          trigger:
-            - platform: state
-              entity_id: binary_sensor.m_novomoskovsk_ta_novomoskovska_teritorialna_gromada_urban_fights
-              from: 'off'
-              to: 'on'
-          condition:
-            - condition: state
-              entity_id: input_boolean.disable_alerts_notifications
-              state: 'off'
-          action:
-              - service: notify.alexus
-                data:
-                  title: '{{"\U0001F4E2"}} ВНИМАНИЕ{{"\U0000203C"}}'
-                  message:  |
-                    ➖➖➖➖➖➖➖➖➖➖➖➖
-                    {{"\U0001F4A5"}}{{"\U0001F4A5"}} УГРОЗА ГОРОДСКИХ БОЁВ{{"\U0000203C"}}{{"\U0000203C"}}
-              - condition: state
-                entity_id: input_boolean.disable_voice_alerts
-                state: 'off'
-              - condition: state
-                entity_id: binary_sensor.anyone_home
-                state: 'on'
-              - service: script.sonos_play_file
-                data: 
-                  sonos_entity: media_player.sonos_living_room
-                  volume: 0.4
-                  music_file: '/media/local/alerts/Sound_15028.mp3'
-                #   delay_secs: 12
-              - service: script.sonos_say
-                data: 
-                  sonos_entity: media_player.sonos_living_room
-                  volume: 0.4
-                  message: 'ВНИМАНИЕ!!! УГРОЗА ГОРОДСКИХ БОЁВ!'
+              - conditions:
+                    - condition: template
+                      value_template: '{{ trigger.entity_id == "binary_sensor.m_novomoskovsk_ta_novomoskovska_teritorialna_gromada_nuclear" }}'
+                sequence:
+                  - choose:
+                      - conditions:
+                          - condition: state
+                            entity_id: binary_sensor.m_novomoskovsk_ta_novomoskovska_teritorialna_gromada_nuclear
+                            state: 'on'
+                        sequence:
+                          - service: notify.alexus
+                            data:
+                                title: '{{"\U0001F4E2"}} ВНИМАНИЕ{{"\U0000203C"}}'
+                                message: |
+                                    ➖➖➖➖➖➖➖➖➖➖➖➖
+                                    {{"\U00002622\U00002622"}} ОБЪЯВЛЕНА ЯДЕРНАЯ УГРОЗА{{"\U0000203C\U0000203C"}}
+                          - condition: state
+                            entity_id: binary_sensor.anyone_home
+                            state: 'on'
+                          - condition: state
+                            entity_id: input_boolean.disable_voice_alerts
+                            state: 'off'
+                          - service: script.sonos_play_file
+                            data: 
+                                sonos_entity: media_player.sonos_living_room
+                                volume: 0.4
+                                music_file: '/media/local/alerts/Nuclear_Alert_Sound.mp3'
+                          - service: script.sonos_say
+                            data: 
+                                sonos_entity: media_player.sonos_living_room
+                                volume: 0.4
+                                message: 'ВНИМАНИЕ!!! ОБЪЯВЛЕНА ЯДЕРНАЯ УГРОЗА!'
+                      - conditions:
+                          - condition: state
+                            entity_id: binary_sensor.m_novomoskovsk_ta_novomoskovska_teritorialna_gromada_nuclear
+                            state: 'on'
+                        sequence:
+                          - service: notify.alexus
+                            data:
+                                title: '{{"\U0001F4E2"}} ВНИМАНИЕ{{"\U0000203C"}}'
+                                message: |
+                                    ➖➖➖➖➖➖➖➖➖➖➖➖
+                                    {{"\U00002705\U00002705\U00002705"}} ОТМЕНА ЯДЕРНОЙ УГРОЗЫ {{"\U00002705\U00002705\U00002705"}}
+                          - condition: state
+                            entity_id: binary_sensor.anyone_home
+                            state: 'on'
+                          - condition: state
+                            entity_id: input_boolean.disable_voice_alerts
+                            state: 'off'
+                          - service: script.sonos_say
+                            data: 
+                                sonos_entity: media_player.sonos_living_room
+                                volume: 0.4
+                                message: 'ВНИМАНИЕ!!! Отмена ядерной угрозы!'
 
-        - alias: "Alert: Notification about Not Active Urban Fights Alert in Novomoskovsk"
-          id: alert_novomoskovsk_urban_fights_off
-          description: 'Угроза городских боев - отмена, Новомосковск'
-          mode: single
-          trigger:
-            - platform: state
-              entity_id: binary_sensor.m_novomoskovsk_ta_novomoskovska_teritorialna_gromada_urban_fights
-              from: 'on'
-              to: 'off'
-          condition:
-            - condition: state
-              entity_id: input_boolean.disable_alerts_notifications
-              state: 'off'
-          action:
-              - service: notify.alexus
-                data:
-                  title: '{{"\U0001F4E2"}} ВНИМАНИЕ{{"\U0000203C"}}'
-                  message:  |
-                    ➖➖➖➖➖➖➖➖➖➖➖➖
-                    {{"\U00002705"}}{{"\U00002705"}}{{"\U00002705"}} ОТМЕНА УГРОЗЫ ГОРОДСКИХ БОЁВ {{"\U00002705"}}{{"\U00002705"}}{{"\U00002705"}}
-              - condition: state
-                entity_id: input_boolean.disable_voice_alerts
-                state: 'off'
-              - condition: state
-                entity_id: binary_sensor.anyone_home
-                state: 'on'
-              - service: script.sonos_say
-                data: 
-                  sonos_entity: media_player.sonos_living_room
-                  volume: 0.4
-                  message: 'ВНИМАНИЕ!!! Отмена угрозы городских боёв!'
+              - conditions:
+                    - condition: template
+                      value_template: '{{ trigger.entity_id == "binary_sensor.m_novomoskovsk_ta_novomoskovska_teritorialna_gromada_unknown" }}'
+                sequence:
+                  - choose:
+                      - conditions:
+                          - condition: state
+                            entity_id: binary_sensor.m_novomoskovsk_ta_novomoskovska_teritorialna_gromada_unknown
+                            state: 'on'
+                        sequence:
+                          - service: notify.alexus
+                            data:
+                                title: '{{"\U0001F4E2"}} ВНИМАНИЕ{{"\U0000203C"}}'
+                                message: |
+                                    ➖➖➖➖➖➖➖➖➖➖➖➖
+                                    {{"\U000026A0"}}{{"\U000026A0"}} НЕИЗВЕСТНАЯ УГРОЗА {{"\U0000203C"}}{{"\U0000203C"}}
+                          - condition: state
+                            entity_id: binary_sensor.anyone_home
+                            state: 'on'
+                          - condition: state
+                            entity_id: input_boolean.disable_voice_alerts
+                            state: 'off'
+                          - service: script.sonos_play_file
+                            data: 
+                                sonos_entity: media_player.sonos_living_room
+                                volume: 0.4
+                                music_file: '/media/local/alerts/Sound_17898.mp3'
+                          - service: script.sonos_say
+                            data: 
+                                sonos_entity: media_player.sonos_living_room
+                                volume: 0.4
+                                message: 'ВНИМАНИЕ!!! НЕИЗВЕСТНАЯ УГРОЗА!'
+                      - conditions:
+                          - condition: state
+                            entity_id: binary_sensor.m_novomoskovsk_ta_novomoskovska_teritorialna_gromada_unknown
+                            state: 'off'
+                        sequence:
+                          - service: notify.alexus
+                            data:
+                                title: '{{"\U0001F4E2"}} ВНИМАНИЕ{{"\U0000203C"}}'
+                                message: |
+                                    ➖➖➖➖➖➖➖➖➖➖➖➖
+                                    {{"\U00002705"}}{{"\U00002705"}}{{"\U00002705"}} ОТМЕНА НЕИЗВЕСТНОЙ УГРОЗЫ {{"\U00002705"}}{{"\U00002705"}}{{"\U00002705"}}
+                          - condition: state
+                            entity_id: binary_sensor.anyone_home
+                            state: 'on'
+                          - condition: state
+                            entity_id: input_boolean.disable_voice_alerts
+                            state: 'off'
+                          - service: script.sonos_say
+                            data: 
+                                sonos_entity: media_player.sonos_living_room
+                                volume: 0.4
+                                message: 'ВНИМАНИЕ!!! Отмена неизвестной угрозы!'
+        mode: single
 
-        - alias: "Alert: Notification about Active Chemical Alert in Novomoskovsk"
-          id: alert_novomoskovsk_chemical_on
-          description: 'Угроза городских боев, Новомосковск'
-          mode: single
-          trigger:
-            - platform: state
-              entity_id: binary_sensor.m_novomoskovsk_ta_novomoskovska_teritorialna_gromada_chemical
-              from: 'off'
-              to: 'on'
-          condition:
-            - condition: state
-              entity_id: input_boolean.disable_alerts_notifications
-              state: 'off'
-          action:
-              - service: notify.alexus
-                data:
-                  title: '{{"\U0001F4E2"}} ВНИМАНИЕ{{"\U0000203C"}}'
-                  message:  |
-                    ➖➖➖➖➖➖➖➖➖➖➖➖
-                    {{"\U00002623\U00002623"}} ОБЪЯВЛЕНА ХИМИЧЕСКАЯ ТРЕВОГА{{"\U0000203C\U0000203C"}}
-              - condition: state
-                entity_id: input_boolean.disable_voice_alerts
-                state: 'off'
-              - condition: state
-                entity_id: binary_sensor.anyone_home
-                state: 'on'
-              - service: script.sonos_play_file
-                data: 
-                  sonos_entity: media_player.sonos_living_room
-                  volume: 0.4
-                  music_file: '/media/local/alerts/Chemical_Alert_Sound.mp3'
-                #   delay_secs: 12
-              - service: script.sonos_say
-                data: 
-                  sonos_entity: media_player.sonos_living_room
-                  volume: 0.4
-                  message: 'ВНИМАНИЕ!!! ОБЪЯВЛЕНА ХИМИЧЕСКАЯ ТРЕВОГА!'
-
-        - alias: "Alert: Notification about Not Active Chemical Alert in Novomoskovsk"
-          id: alert_novomoskovsk_chemical_off
-          description: 'Угроза городских боев - отмена, Новомосковск'
-          mode: single
-          trigger:
-            - platform: state
-              entity_id: binary_sensor.m_novomoskovsk_ta_novomoskovska_teritorialna_gromada_chemical
-              from: 'on'
-              to: 'off'
-          condition:
-            - condition: state
-              entity_id: input_boolean.disable_alerts_notifications
-              state: 'off'
-          action:
-              - service: notify.alexus
-                data:
-                  title: '{{"\U0001F4E2"}} ВНИМАНИЕ{{"\U0000203C"}}'
-                  message:  |
-                    ➖➖➖➖➖➖➖➖➖➖➖➖
-                    {{"\U00002705\U00002705\U00002705"}} ОТМЕНА ХИМИЧЕСКОЙ ТРЕВОГИ {{"\U00002705\U00002705\U00002705"}}
-              - condition: state
-                entity_id: input_boolean.disable_voice_alerts
-                state: 'off'
-              - condition: state
-                entity_id: binary_sensor.anyone_home
-                state: 'on'
-              - service: script.sonos_say
-                data: 
-                  sonos_entity: media_player.sonos_living_room
-                  volume: 0.4
-                  message: 'ВНИМАНИЕ!!! Отмена химической тревоги!'
-
-        - alias: "Alert: Notification about Active Nuclear Alert in Novomoskovsk"
-          id: alert_novomoskovsk_nuclear_on
-          description: 'Угроза городских боев, Новомосковск'
-          mode: single
-          trigger:
-            - platform: state
-              entity_id: binary_sensor.m_novomoskovsk_ta_novomoskovska_teritorialna_gromada_nuclear
-              from: 'off'
-              to: 'on'
-          condition:
-            - condition: state
-              entity_id: input_boolean.disable_alerts_notifications
-              state: 'off'
-          action:
-              - service: notify.alexus
-                data:
-                  title: '{{"\U0001F4E2"}} ВНИМАНИЕ{{"\U0000203C"}}'
-                  message:  |
-                    ➖➖➖➖➖➖➖➖➖➖➖➖
-                    {{"\U00002622\U00002622"}} ОБЪЯВЛЕНА ЯДЕРНАЯ ТРЕВОГА{{"\U0000203C\U0000203C"}}
-              - condition: state
-                entity_id: input_boolean.disable_voice_alerts
-                state: 'off'
-              - condition: state
-                entity_id: binary_sensor.anyone_home
-                state: 'on'
-              - service: script.sonos_play_file
-                data: 
-                  sonos_entity: media_player.sonos_living_room
-                  volume: 0.4
-                  music_file: '/media/local/alerts/Nuclear_Alert_Sound.mp3'
-                #   delay_secs: 12
-              - service: script.sonos_say
-                data: 
-                  sonos_entity: media_player.sonos_living_room
-                  volume: 0.4
-                  message: 'ВНИМАНИЕ!!! ОБЪЯВЛЕНА ЯДЕРНАЯ ТРЕВОГА!'
-
-        - alias: "Alert: Notification about Not Active Nuclear Alert in Novomoskovsk"
-          id: alert_novomoskovsk_nuclear_off
-          description: 'Угроза городских боев - отмена, Новомосковск'
-          mode: single
-          trigger:
-            - platform: state
-              entity_id: binary_sensor.m_novomoskovsk_ta_novomoskovska_teritorialna_gromada_nuclear
-              from: 'on'
-              to: 'off'
-          condition:
-            - condition: state
-              entity_id: input_boolean.disable_alerts_notifications
-              state: 'off'
-          action:
-              - service: notify.alexus
-                data:
-                  title: '{{"\U0001F4E2"}} ВНИМАНИЕ{{"\U0000203C"}}'
-                  message:  |
-                    ➖➖➖➖➖➖➖➖➖➖➖➖
-                    {{"\U00002705\U00002705\U00002705"}} ОТМЕНА ЯДЕРНОЙ ТРЕВОГИ {{"\U00002705\U00002705\U00002705"}}
-              - condition: state
-                entity_id: input_boolean.disable_voice_alerts
-                state: 'off'
-              - condition: state
-                entity_id: binary_sensor.anyone_home
-                state: 'on'
-              - service: script.sonos_say
-                data: 
-                  sonos_entity: media_player.sonos_living_room
-                  volume: 0.4
-                  message: 'ВНИМАНИЕ!!! Отмена ядерной тревоги!'
-
-        - alias: "Alert: Notification about Active Unknown Alert in Novomoskovsk"
-          id: alert_novomoskovsk_unknown_on
-          description: 'Неизвестная угроза, Новомосковск'
-          mode: single
-          trigger:
-            - platform: state
-              entity_id: binary_sensor.m_novomoskovsk_ta_novomoskovska_teritorialna_gromada_unknown
-              from: 'off'
-              to: 'on'
-          condition:
-            - condition: state
-              entity_id: input_boolean.disable_alerts_notifications
-              state: 'off'
-          action:
-              - service: notify.alexus
-                data:
-                  title: '{{"\U0001F4E2"}} ВНИМАНИЕ{{"\U0000203C"}}'
-                  message:  |
-                    ➖➖➖➖➖➖➖➖➖➖➖➖
-                    {{"\U000026A0"}}{{"\U000026A0"}} НЕИЗВЕСТНАЯ УГРОЗА {{"\U0000203C"}}{{"\U0000203C"}}
-              - condition: state
-                entity_id: input_boolean.disable_voice_alerts
-                state: 'off'
-              - condition: state
-                entity_id: binary_sensor.anyone_home
-                state: 'on'
-              - service: script.sonos_play_file
-                data: 
-                  sonos_entity: media_player.sonos_living_room
-                  volume: 0.4
-                  music_file: '/media/local/alerts/Sound_17898.mp3'
-                #   delay_secs: 13
-              - service: script.sonos_say
-                data: 
-                  sonos_entity: media_player.sonos_living_room
-                  volume: 0.4
-                  message: 'ВНИМАНИЕ!!! НЕИЗВЕСТНАЯ УГРОЗА!'
-
-        - alias: "Alert: Notification about Not Active Unknown Alert in Novomoskovsk"
-          id: alert_novomoskovsk_unknown_off
-          description: 'Неизвестная угроза - отмена, Новомосковск'
-          mode: single
-          trigger:
-            - platform: state
-              entity_id: binary_sensor.m_novomoskovsk_ta_novomoskovska_teritorialna_gromada_unknown
-              from: 'on'
-              to: 'off'
-          condition:
-            - condition: state
-              entity_id: input_boolean.disable_alerts_notifications
-              state: 'off'
-          action:
-              - service: notify.alexus
-                data:
-                  title: '{{"\U0001F4E2"}} ВНИМАНИЕ{{"\U0000203C"}}'
-                  message:  |
-                    ➖➖➖➖➖➖➖➖➖➖➖➖
-                    {{"\U00002705"}}{{"\U00002705"}}{{"\U00002705"}} ОТМЕНА НЕИЗВЕСТНОЙ УГРОЗЫ {{"\U00002705"}}{{"\U00002705"}}{{"\U00002705"}}
-              - condition: state
-                entity_id: input_boolean.disable_voice_alerts
-                state: 'off'
-              - condition: state
-                entity_id: binary_sensor.anyone_home
-                state: 'on'
-              - service: script.sonos_say
-                data: 
-                  sonos_entity: media_player.sonos_living_room
-                  volume: 0.4
-                  message: 'ВНИМАНИЕ!!! Отмена неизвестной угрозы!'
+      - alias: "Alert: Set alert indicator on RGB Bulb"
+        id: alert_set_light_indicator_on_rgb_bulb
+        description: 'При активной тревоге, включать световой индикатор на RGB лампе'
+        trigger:
+          - platform: state
+            entity_id: binary_sensor.m_novomoskovsk_alerts
+            from: 'off'
+            to: 'on'
+          - platform: state
+            entity_id: binary_sensor.m_novomoskovsk_alerts
+            from: 'on'
+            to: 'off'
+        condition:
+          - condition: state
+            entity_id: binary_sensor.anyone_home
+            state: 'on'
+        action:
+          - choose: 
+              - conditions:
+                  - condition: state
+                    entity_id: binary_sensor.m_novomoskovsk_alerts
+                    state: 'on'
+                sequence:
+                  - service: scene.create
+                    data:
+                        scene_id: scene_rgb_bulb_before_alert_indicator
+                        snapshot_entities:
+                          - light.hallway_rgb_bulb
+                  - service: script.rgb_bulb_flashing_x_times
+                    data:
+                        rgb_bulb_entity_id: light.hallway_rgb_bulb
+                        rgb_bulb_automation_control: input_boolean.hallway_rgb_bulb_automation_control_status
+                        count: 5
+                        color: 'orange'
+                  - service: input_boolean.turn_on
+                    entity_id: input_boolean.hallway_rgb_bulb_automation_control_status
+                  - service: light.turn_on
+                    target:
+                        entity_id: light.hallway_rgb_bulb
+                    data: 
+                        brightness: 13
+                        color_name: 'orange'
+                  - service: input_boolean.turn_off
+                    entity_id: input_boolean.hallway_rgb_bulb_automation_control_status
+              - conditions:
+                  - condition: state
+                    entity_id: binary_sensor.m_novomoskovsk_alerts
+                    state: 'off'
+                sequence:
+                  - service: script.rgb_bulb_flashing_x_times
+                    data:
+                        rgb_bulb_entity_id: light.hallway_rgb_bulb
+                        rgb_bulb_automation_control: input_boolean.hallway_rgb_bulb_automation_control_status
+                        count: 5
+                        color: 'green'
+                  - service: scene.turn_on
+                    entity_id: scene.scene_rgb_bulb_before_alert_indicator
+        mode: single

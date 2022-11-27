@@ -1,0 +1,784 @@
+system_config:
+
+    recorder:
+
+        db_url: mysql://homeassistant:homeassistant@core-mariadb/homeassistant?charset=utf8mb4
+        auto_purge: false
+        exclude: 
+          domains:
+            - telegram_bot
+          entity_globs:
+            - sensor.time*
+            - sensor.date*
+            - sensor.*_custom
+            - sensor.last_boot*
+            - sensor.*_google*
+            - sensor.snapshots*
+
+    sensor:
+
+      - platform: time_date
+        display_options:
+          - 'time'
+          - 'date'
+          - 'time_date'
+
+      - platform: systemmonitor
+        resources:
+          - type: processor_use
+          - type: processor_temperature
+          - type: disk_use_percent
+            arg: /
+          - type: disk_use
+          - type: disk_free
+            arg: /
+          - type: memory_use_percent
+          - type: memory_use
+          - type: memory_free
+          - type: swap_use_percent
+          - type: swap_use
+          - type: swap_free
+          - type: load_1m
+          - type: load_5m
+          - type: load_15m
+          - type: network_in
+            arg: eth0
+          - type: network_out
+            arg: eth0
+          - type: network_in
+            arg: wlan0
+          - type: network_out
+            arg: wlan0
+          - type: last_boot
+
+      - platform: statistics
+        name: outdoor_mean_temperature
+        entity_id: sensor.outdoor_temperature
+        state_characteristic: mean
+        sampling_size: 20
+        max_age:
+            hours: 48
+
+      - platform: min_max
+        name: average_sockets_voltage
+        type: mean
+        round_digits: 0
+        entity_ids:
+          - sensor.bathroom_washing_machine_socket_voltage
+          - sensor.bedroom_air_conditioner_socket_voltage
+          - sensor.bedroom_socket_heating_voltage
+          - sensor.kitchen_socket_heating_voltage
+          - sensor.living_room_air_conditioner_socket_voltage
+          # - sensor.living_room_aquarium_main_lighting_voltage
+          # - sensor.living_room_aquarium_moonlight_voltage
+          - sensor.living_room_socket_heating_voltage
+
+      - platform: file
+        name: file_battery_voltage
+        scan_interval: '00:01:00'
+        file_path: /config/files/ups_battery.json
+        value_template: '{{ value_json.voltage | default(4.00) }}'
+
+      - platform: file
+        name: file_battery_capacity
+        scan_interval: '00:01:05'
+        file_path: /config/files/ups_battery.json
+        value_template: '{{ value_json.capacity | default(100) }}'
+
+      - platform: file
+        name: file_chassis_fan_speed
+        scan_interval: '00:00:05'
+        file_path: /config/files/chassis_fan.json
+        value_template: '{{ value_json.fan_speed | default(0) }}'
+        unit_of_measurement: '%'
+
+      - platform: file
+        name: file_ups_fan_speed
+        scan_interval: '00:00:05'
+        file_path: /config/files/ups_fan.json
+        value_template: '{{ value_json.fan_speed | default(0) }}'
+
+      - platform: file
+        name: file_ac_power_status
+        scan_interval: '00:00:05'
+        file_path: /config/files/ac_power.json
+        value_template: '{{ value_json.status | default(2) }}'
+
+    binary_sensor:
+
+      - platform: group
+        name: bedroom_windows
+        device_class: window
+        entities:
+          - binary_sensor.bedroom_window_left_contact
+          - binary_sensor.bedroom_window_right_contact
+
+      - platform: group
+        name: home_windows
+        device_class: window
+        entities:
+          - binary_sensor.bedroom_window_left_contact
+          - binary_sensor.bedroom_window_right_contact
+          - binary_sensor.kitchen_window_contact
+          - binary_sensor.living_room_loggia_door_contact
+
+      - platform: group
+        name: motion_sensors
+        device_class: motion
+        entities:
+          - binary_sensor.bedroom_lumi_sensor_motion_occupancy
+          - binary_sensor.living_room_lumi_sensor_motion_occupancy
+          - binary_sensor.tapo_camera_motion
+
+    group:
+
+        family:
+          - person.alexus
+          - person.inna
+          - person.ivan
+          - person.vova
+
+    template:
+
+      - sensor:
+
+          - name: ups_battery_voltage
+            unit_of_measurement: 'V'
+            state: '{{ states("sensor.file_battery_voltage") | float(0) }}'
+            device_class: voltage
+
+          - name: ups_battery_capacity
+            unit_of_measurement: '%'
+            state: >
+                {% set capacity = states("sensor.file_battery_capacity") | int(0) %}
+                {% if capacity > 100 %}
+                   {% set capacity = 100 %}
+                {% endif %}
+                {{ capacity }}
+            device_class: battery
+
+          - name: chassis_fan_speed
+            state: '{{ states("sensor.file_chassis_fan_speed") | int(0) }}'
+            icon: >-
+                {% if   (states.sensor.chassis_fan_speed.state | int(0) == 0) %}
+                mdi:fan-off
+                {% elif (states.sensor.chassis_fan_speed.state | int(0) >  0) and (states.sensor.chassis_fan_speed.state | int(0) <=  40) %}
+                mdi:fan-speed-1
+                {% elif (states.sensor.chassis_fan_speed.state | int(0) > 40) and (states.sensor.chassis_fan_speed.state | int(0) <=  75) %}
+                mdi:fan-speed-2
+                {% elif (states.sensor.chassis_fan_speed.state | int(0) > 75) and (states.sensor.chassis_fan_speed.state | int(0) <= 100) %}
+                mdi:fan-speed-3
+                {% else %}
+                mdi:fan-alert
+                {% endif %}
+            unit_of_measurement: '%'
+
+          - name: last_boot_custom
+            icon: mdi:clock-start
+            state: >
+                {% set up_time =  as_timestamp(now()) - as_timestamp(states('sensor.last_boot')) %}
+                {% if up_time == 0 %}
+                    Just started...
+                {% else %}
+                    {% set minutes = (up_time // 60) | int %}
+                    {% set hours = (minutes // 60) %}
+                    {% set days = (hours // 24) %}
+                    {% set weeks = (days // 7) %}
+                    {% set minutes = (minutes % 60) %}
+                    {% set hours =  (hours % 24) %}
+                    {% set days = (days % 7) %}
+                    {% macro phrase(value, name) %}
+                        {%- set end = 's' if value > 1 else '' %}
+                        {{- '{} {}{}'.format(value, name, end) if value | int > 0 else '' }}
+                    {%- endmacro %}
+                    {% set text = [ phrase(weeks, 'week'), phrase(days, 'day'), phrase(hours, 'hr'), phrase(minutes, 'min') ] | select('!=','') | list | join(', ') %}
+                    {% set last_comma = text.rfind(',') %}
+                    {% if last_comma != -1 %}
+                        {% set text = text[:last_comma] + ' and' + text[last_comma + 1:] %}
+                    {% endif %}
+                    {{ text }}
+                {% endif %}
+
+          - name: online_custom
+            icon: mdi:clock-fast
+            state: >
+                {% set up_time =  as_timestamp(now()) - as_timestamp(states('sensor.online')) %}
+                {% if up_time == 0 %}
+                    Just started...
+                {% else %}
+                    {% set minutes = (up_time // 60) | int %}
+                    {% set hours = (minutes // 60) %}
+                    {% set days = (hours // 24) %}
+                    {% set weeks = (days // 7) %}
+                    {% set minutes = (minutes % 60) %}
+                    {% set hours =  (hours % 24) %}
+                    {% set days = (days % 7) %}
+                    {% macro phrase(value, name) %}
+                        {%- set end = 's' if value > 1 else '' %}
+                        {{- '{} {}{}'.format(value, name, end) if value | int > 0 else '' }}
+                    {%- endmacro %}
+                    {% set text = [ phrase(weeks, 'week'), phrase(days, 'day'), phrase(hours, 'hr'), phrase(minutes, 'min') ] | select('!=','') | list | join(', ') %}
+                    {% set last_comma = text.rfind(',') %}
+                    {% if last_comma != -1 %}
+                      {% set text = text[:last_comma] + ' and' + text[last_comma + 1:] %}
+                    {% endif %}
+                    {{ text }}
+                {% endif %}
+
+          - name: outdoor_humidity
+            state: "{{ state_attr('weather.home', 'humidity') }}"
+            device_class: humidity
+            unit_of_measurement: '%'
+
+          - name: outdoor_temperature
+            state: "{{ state_attr('weather.home', 'temperature') }}"
+            device_class: temperature
+            unit_of_measurement: '°C'
+
+      - binary_sensor:
+
+          - name: anyone_home
+            device_class: presence
+            state: "{{ states.person | selectattr('state','eq','home') | list | count > 0 }}"
+
+          - name: ups_battery_low
+            device_class: problem
+            state: >-
+                {% if (states("sensor.ups_battery_capacity") | int(0) < 25) or (states("sensor.ups_battery_voltage") | float(0) < 3.2) %}
+                on
+                {% else %}
+                off
+                {% endif %}
+            icon: >-
+                {% if is_state("binary_sensor.ups_battery_low", "on") %}
+                  {% if (states("sensor.ups_battery_voltage") | float(0) >= 4.21 ) %}
+                  mdi:battery-charging-low
+                  {% else %}
+                  mdi:battery-low
+                  {% endif %}
+                {% elif (states("sensor.ups_battery_capacity") | int(0) >=25) and (states("sensor.ups_battery_capacity") | int(0) < 75) %}
+                  {% if (states("sensor.ups_battery_voltage") | float(0) >= 4.21 ) %}
+                  mdi:battery-charging-medium
+                  {% else %}
+                  mdi:battery-medium
+                  {% endif %}
+                {% else %}
+                  {% if (states("sensor.ups_battery_voltage") | float(0) >= 4.21 ) %}
+                  mdi:battery-charging-high
+                  {% else %}
+                  mdi:battery-high
+                  {% endif %}
+                {% endif %}
+
+          - name: ups_fan_speed
+            state: >-
+                {% if is_state('sensor.file_ups_fan_speed','1') %}
+                on
+                {% else %}
+                off
+                {% endif %}
+            icon: >-
+                {% if is_state('binary_sensor.ups_fan_speed','on') %}
+                mdi:fan-plus
+                {% else %}
+                mdi:fan-minus
+                {% endif %}
+
+          - name: rpi_ac_power_status
+            device_class: plug
+            state: >- 
+                {% if   states.sensor.file_ac_power_status.state  == "1" %}
+                off
+                {% elif states.sensor.file_ac_power_status.state  == "2" %}
+                on
+                {% else %}
+                {{ none }} 
+                {% endif %}
+            # availability_template: >-
+            #     {{ not states.sensor.file_ac_power_status.state  == "" }}
+
+          - name: bathroom_washing_machine_socket_status
+            state: >-
+                {% if (states("sensor.bathroom_washing_machine_socket_power") | int(0) > 1) %}
+                on
+                {% else %}
+                off
+                {% endif %}
+            icon: >-
+                {% if is_state("binary_sensor.bathroom_washing_machine_socket_status","on") and (states("sensor.bathroom_washing_machine_socket_power") | int(0) > 3) %}
+                mdi:washing-machine
+                {% elif is_state("binary_sensor.bathroom_washing_machine_socket_status","on") and (states("sensor.bathroom_washing_machine_socket_power") | int(0) < 4) %}
+                mdi:washing-machine-alert
+                {% else %}
+                mdi:washing-machine-off
+                {% endif %}
+
+    automation:
+
+      - alias: "System: Purge DB Everyday"
+        id: purge_db_everyday
+        initial_state: true
+        trigger:
+          - platform: time
+            at: '01:00:00'
+        action:
+          - service: recorder.purge
+            data:
+                keep_days: 5
+                repack: true
+        mode: single
+
+      - alias: "System: Turn OFF switches on Shutdown"
+        id: HomeAssistant_shutdown_turn_off_switches
+        description: 'Отключение всех устройств при отключении инстанса'
+        trigger:
+          - platform: homeassistant
+            event: shutdown
+        condition: []
+        action:
+          - service: homeassistant.turn_off
+            target:
+                entity_id:
+                  - switch.bedroom_air_conditioner_socket
+                  - switch.bedroom_light_switch
+                  - switch.bedroom_socket_heating
+                  - switch.living_room_aquarium_power_strip_l1
+                #   - switch.living_room_aquarium_power_strip_l2
+                  - switch.living_room_aquarium_power_strip_l3
+                  - switch.living_room_aquarium_power_strip_l4
+                  - switch.living_room_air_conditioner_socket
+                #   - switch.living_room_aquarium_main_lighting
+                #   - switch.living_room_aquarium_moonlight
+                  - switch.living_room_socket_heating
+                  - switch.living_room_light_switch
+                  - switch.kitchen_socket_heating
+                  - light.hallway_rgb_bulb
+        mode: single
+
+      - alias: "System: Action on RPi Power Failure"
+        id: rpi_ac_power_failure_action
+        trigger:
+          - platform: state
+            entity_id: binary_sensor.rpi_ac_power_status
+            not_from:
+              - "unknown"
+              - "unavailable"
+            to:
+              - "off"
+        condition: []
+        action:
+          - service: switch.turn_off
+            entity_id: 
+              - switch.living_room_aquarium_power_strip_l1
+              - switch.living_room_aquarium_power_strip_l2
+              - switch.living_room_aquarium_power_strip_l3
+              - switch.living_room_aquarium_power_strip_l4
+          - service: automation.turn_off
+            entity_id:
+              - automation.living_room_turn_on_main_light_by_schedule
+              - automation.living_room_turn_on_moonlight_by_schedule
+        mode: single
+
+      - alias: "System: Action on RPi Power Restore"
+        id: rpi_ac_power_restore_action
+        trigger:
+          - platform: state
+            entity_id: binary_sensor.rpi_ac_power_status
+            not_from:
+              - "unknown"
+              - "unavailable"
+            to:
+              - "on"
+        condition: []
+        action:
+          - service: switch.turn_on
+            entity_id: 
+              - switch.living_room_aquarium_power_strip_l2
+          - service: automation.turn_on
+            entity_id:
+              - automation.living_room_turn_on_main_light_by_schedule
+              - automation.living_room_turn_on_moonlight_by_schedule
+        mode: single
+
+      - alias: "Interface: Switch Control Panels"
+        id: interface_switch_control_panels
+        description: 'Интерфейс - переключение Панелей Управления'
+        mode: single
+        trigger:
+          - platform: state
+            entity_id: input_boolean.enable_manual_control_heater
+            to: 'on'
+          - platform: state
+            entity_id: input_boolean.enable_manual_control_ac
+            to: 'on'
+          - platform: state
+            entity_id: input_boolean.enable_manual_control_lights
+            to: 'on'
+          - platform: state
+            entity_id: input_boolean.enable_manual_control_aqua_lights
+            to: 'on'
+        condition: []
+        action:
+          - choose:
+              - conditions:
+                  - condition: template
+                    value_template: "{{ trigger.entity_id == 'input_boolean.enable_manual_control_heater' }}"
+                sequence:
+                  - service: input_boolean.turn_off
+                    entity_id: 
+                        - input_boolean.enable_manual_control_lights
+                        - input_boolean.enable_manual_control_aqua_lights
+                        - input_boolean.enable_manual_control_ac
+              - conditions:
+                  - condition: template
+                    value_template: "{{ trigger.entity_id == 'input_boolean.enable_manual_control_ac' }}"
+                sequence:
+                  - service: input_boolean.turn_off
+                    entity_id: 
+                        - input_boolean.enable_manual_control_lights
+                        - input_boolean.enable_manual_control_aqua_lights
+                        - input_boolean.enable_manual_control_heater
+              - conditions:
+                  - condition: template
+                    value_template: "{{ trigger.entity_id == 'input_boolean.enable_manual_control_lights' }}"
+                sequence:
+                  - service: input_boolean.turn_off
+                    entity_id: 
+                        - input_boolean.enable_manual_control_heater
+                        - input_boolean.enable_manual_control_aqua_lights
+                        - input_boolean.enable_manual_control_ac
+              - conditions:
+                  - condition: template
+                    value_template: "{{ trigger.entity_id == 'input_boolean.enable_manual_control_aqua_lights' }}"
+                sequence:
+                  - service: input_boolean.turn_off
+                    entity_id: 
+                        - input_boolean.enable_manual_control_lights
+                        - input_boolean.enable_manual_control_heater
+                        - input_boolean.enable_manual_control_ac
+
+      - alias: "System: Notification about finished Startup"
+        id: home_assistant_startup_notification
+        trigger:
+          - platform: homeassistant
+            event: start
+        condition:
+          - condition: state
+            entity_id: input_boolean.disable_startup_notifications
+            state: 'off'
+        action:
+          - service: notify.alexus
+            data:
+                title: '{{"\U000026A0"}} ВНИМАНИЕ{{"\U0000203C"}}'
+                message: |
+                  ➖➖➖➖➖➖➖➖➖➖➖➖
+                  Сервер Home Assistant был перезапущен{{"\U0000203C"}}
+
+      - alias: "System: Notification about initiated Shutdown"
+        id: home_assistant_shutdown_notification
+        trigger:
+          - platform: homeassistant
+            event: shutdown
+        condition:
+          - condition: state
+            entity_id: input_boolean.disable_startup_notifications
+            state: 'off'
+        action:
+          - service: notify.alexus
+            data:
+                title: '{{"\U000026A0"}} ВНИМАНИЕ{{"\U0000203C"}}'
+                message: |
+                  ➖➖➖➖➖➖➖➖➖➖➖➖
+                  Сервер Home Assistant выключается{{"\U0000203C"}}
+    
+      - alias: 'System: Notification about Home Assistant Updates'
+        id: home_assistant_update_notification
+        description: "Send notification about Home Assistant Updates"
+        trigger:
+          - platform: state
+            entity_id: update.home_assistant_core_update
+            from: 'off'
+            to: 'on'
+          - platform: state
+            entity_id: update.home_assistant_supervisor_update
+            from: 'off'
+            to: 'on'
+          - platform: state
+            entity_id: update.zigbee2mqtt_update
+            from: 'off'
+            to: 'on'
+          - platform: state
+            entity_id: update.terminal_ssh_update
+            from: 'off'
+            to: 'on'
+          - platform: state
+            entity_id: update.mosquitto_broker_update
+            from: 'off'
+            to: 'on'
+          - platform: state
+            entity_id: update.mariadb_update
+            from: 'off'
+            to: 'on'
+          - platform: state
+            entity_id: update.home_assistant_google_drive_backup_update
+            from: 'off'
+            to: 'on'
+          - platform: state
+            entity_id: update.file_editor_update
+            from: 'off'
+            to: 'on'
+          - platform: state
+            entity_id: update.phpmyadmin_update
+            from: 'off'
+            to: 'on'
+        action:
+          - service: notify.alexus
+            data:
+                title: '{{"\U0001F199"}} {{ trigger.to_state.attributes.friendly_name }}{{"\U0000203C"}}'
+                message:  |
+                  ➖➖➖➖➖➖➖➖➖➖➖➖
+                  Доступно {{ trigger.to_state.attributes.friendly_name }}
+                    Установлено: {{ trigger.to_state.attributes.installed_version }}
+                    Доступно: {{ trigger.to_state.attributes.latest_version }}
+
+      - alias: "System: Notification about RPi Power Failure"
+        id: rpi_ac_power_failure_notification
+        trigger:
+          - platform: state
+            entity_id: binary_sensor.rpi_ac_power_status
+            not_from:
+              - "unknown"
+              - "unavailable"
+            not_to:
+              - "unknown"
+              - "unavailable"
+        condition: []
+        action:
+          - service: notify.alexus
+            data:
+                title: '{{"\U000026A0"}} ВНИМАНИЕ{{"\U0000203C"}}'
+                message: |
+                  ➖➖➖➖➖➖➖➖➖➖➖➖
+                  Внешнее питание: {{"\U0001F50C"}} {% if is_state("binary_sensor.rpi_ac_power_status", "on") %}Подключено{% elif is_state("binary_sensor.rpi_ac_power_status", "off") %}Отключено{% else %}Недоступно{% endif %}
+                  
+                  {{"\U0001F50B"}} UPS Battery Status: ({% if is_state("binary_sensor.ups_battery_low","off") %}OK{%else%}Low{{"\U0000203C"}}{%endif%}) {{ states("sensor.ups_battery_capacity") }}% / {{ states("sensor.ups_battery_voltage") }}V
+          - condition: state
+            entity_id: input_boolean.disable_voice_notifications
+            state: 'off'
+          - condition: state
+            entity_id: binary_sensor.anyone_home
+            state: 'on'
+          - service: script.sonos_say
+            data: 
+                sonos_entity: media_player.sonos_living_room
+                volume: 0.4
+                message: 'ВНИМАНИЕ!!! Внешнее питание {% if is_state("binary_sensor.rpi_ac_power_status", "on") %}Подключено{% elif is_state("binary_sensor.rpi_ac_power_status", "off") %}Отключено{% else %}Недоступно{% endif %}!'
+
+      - alias: "System: Notification about UPS Low Battery Level"
+        id: ups_battery_low_level_notification
+        trigger:
+          - platform: state
+            entity_id: binary_sensor.ups_battery_low
+            from: 'off'
+            to: 'on'
+        condition: 
+          - condition: state
+            entity_id: binary_sensor.ups_battery_low
+            state: 'on'
+        action:
+          - service: notify.alexus
+            data:
+                title: '{{"\U0001F50B"}} ВНИМАНИЕ{{"\U0000203C"}}'
+                message: |
+                  ➖➖➖➖➖➖➖➖➖➖➖➖
+                  Низкий уровень заряда батареи сервера Home Assistant: {{ states("sensor.ups_battery_capacity") }}% / {{ states("sensor.ups_battery_voltage") }}V {{"\U0000203C"}}
+                  Внешнее питание: {{"\U0001F50C"}} {% if is_state("binary_sensor.rpi_ac_power_status", "on") %}Подключено{% else %}Отключено{% endif %}
+                  
+                  {{"\U0000203C"}}Через некоторое время сервер RPi будет остановлен{{"\U0000203C"}}
+          - condition: state
+            entity_id: input_boolean.disable_voice_notifications
+            state: 'off'
+          - condition: state
+            entity_id: binary_sensor.anyone_home
+            state: 'on'
+          - service: script.sonos_say
+            data: 
+                sonos_entity: media_player.sonos_living_room
+                volume: 0.4
+                message: |
+                  ВНИМАНИЕ!!! 
+                  Низкий уровень заряда батареи сервера Home Assistant: {{ states("sensor.ups_battery_capacity") }} процентов.
+                  Внешнее питание {% if is_state("binary_sensor.rpi_ac_power_status", "on") %}подключено{% else %}отключено{% endif %}!
+                  Через некоторое время сервер будет остановлен!
+
+      - alias: "System: Notification about Full UPS Battery Level"
+        id: ups_battery_full_level_notification
+        trigger:
+          - platform: numeric_state
+            entity_id: sensor.ups_battery_capacity
+            above: 99
+        condition: 
+          - condition: state
+            entity_id: binary_sensor.ups_battery_low
+            state: 'off'
+        action:
+          - service: notify.alexus
+            data:
+                title: '{{"\U0001F50B"}} ВНИМАНИЕ{{"\U0000203C"}}'
+                message: |
+                  ➖➖➖➖➖➖➖➖➖➖➖➖
+                  Батарея UPS полностью заряжена: {{ states("sensor.ups_battery_capacity") }}% / {{ states("sensor.ups_battery_voltage") }}V{{"\U0000203C"}}
+                  Внешнее питание: {{"\U0001F50C"}} {% if is_state("binary_sensor.rpi_ac_power_status", "on") %}Подключено{% else %}Отключено{% endif %}
+
+      - alias: "System: Notification about changed Zone for persones"
+        id: zone_notifications
+        mode: queued
+        trigger:
+          # Дом
+          - platform: zone
+            entity_id: 
+              - person.alexus
+              - person.inna
+              - person.ivan
+              - person.vova
+            zone: zone.home
+            event: enter
+          - platform: zone
+            entity_id: 
+              - person.alexus
+              - person.inna
+              - person.ivan
+              - person.vova
+            zone: zone.home
+            event: leave
+            # Школа
+          - platform: zone
+            entity_id: 
+              - person.alexus
+              - person.inna
+              - person.ivan
+              - person.vova
+            zone: zone.school
+            event: enter
+          - platform: zone
+            entity_id: 
+              - person.alexus
+              - person.inna
+              - person.ivan
+              - person.vova
+            zone: zone.school
+            event: leave
+            # ISD
+          - platform: zone
+            entity_id: 
+              - person.alexus
+              - person.inna
+              - person.ivan
+              - person.vova
+            zone: zone.isd
+            event: enter
+          - platform: zone
+            entity_id: 
+              - person.alexus
+              - person.inna
+              - person.ivan
+              - person.vova
+            zone: zone.isd
+            event: leave
+            # Университет
+          - platform: zone
+            entity_id: 
+              - person.alexus
+              - person.inna
+              - person.ivan
+              - person.vova
+            zone: zone.university
+            event: enter
+          - platform: zone
+            entity_id: 
+              - person.alexus
+              - person.inna
+              - person.ivan
+              - person.vova
+            zone: zone.university
+            event: leave
+            # Караван
+          - platform: zone
+            entity_id: 
+              - person.alexus
+              - person.inna
+              - person.ivan
+              - person.vova
+            zone: zone.karavan
+            event: enter
+          - platform: zone
+            entity_id: 
+              - person.alexus
+              - person.inna
+              - person.ivan
+              - person.vova
+            zone: zone.karavan
+            event: leave
+            # METRO
+          - platform: zone
+            entity_id: 
+              - person.alexus
+              - person.inna
+              - person.ivan
+              - person.vova
+            zone: zone.metro
+            event: enter
+          - platform: zone
+            entity_id: 
+              - person.alexus
+              - person.inna
+              - person.ivan
+              - person.vova
+            zone: zone.metro
+            event: leave
+            # Эпицентр
+          - platform: zone
+            entity_id: 
+              - person.alexus
+              - person.inna
+              - person.ivan
+              - person.vova
+            zone: zone.epicentr
+            event: enter
+          - platform: zone
+            entity_id: 
+              - person.alexus
+              - person.inna
+              - person.ivan
+              - person.vova
+            zone: zone.epicentr
+            event: leave
+          - platform: zone
+            entity_id:
+              - person.alexus
+              - person.inna
+              - person.ivan
+              - person.vova
+            zone: zone.novomoskovsk
+            event: leave
+          - platform: zone
+            entity_id:
+              - person.alexus
+              - person.inna
+              - person.ivan
+              - person.vova
+            zone: zone.novomoskovsk
+            event: enter
+        condition:
+          - condition: state
+            entity_id: input_boolean.disable_zone_notifications
+            state: 'off'
+        action:
+          - service: notify.alexus
+            data:
+                title: '{{"\U0001F4CC"}} Изменение расположения{{"\U0000203C"}}'
+                message: |
+                  ➖➖➖➖➖➖➖➖➖➖➖➖
+                  {% if (trigger.event) == "leave" %}{{ states('sensor.time') }}: {{ trigger.to_state.name }} покинул(а) {{ trigger.zone.attributes.friendly_name }}!
+                  {% else %}{{ states('sensor.time') }}: {{ trigger.to_state.name }} прибыл(а) в {{ trigger.zone.attributes.friendly_name }}!
+                  {% endif %}

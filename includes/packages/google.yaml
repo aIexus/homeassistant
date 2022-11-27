@@ -1,0 +1,17 @@
+google_config:
+
+    template:
+ 
+      - sensor:
+
+          - name: last_google_backup_train
+            state: '{{ (as_timestamp(state_attr("sensor.backup_state","last_backup"), default = 0)) | timestamp_custom("%d.%m.%Y %H:%M", default = 0) }}'
+            icon: mdi:calendar-check-outline
+
+          - name: snapshots_in_google_drive_train
+            state: '{{ state_attr("sensor.backup_state","backups_in_google_drive") }}'
+            icon: mdi:folder-google-drive
+               
+          - name: snapshots_in_hassio_train
+            state: '{{ state_attr("sensor.backup_state","backups_in_home_assistant") }}'
+            icon: mdi:home-assistant

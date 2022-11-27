@@ -2,7 +2,7 @@
     disable_climate:
       name: Disable Climate Automation
       icon: mdi:thermometer-off
-
+ 
     disable_occupancy:
       name: Disable Occupancy Automation
       icon: mdi:motion-sensor-off
@@ -50,35 +50,3 @@
     enable_manual_control_aqua_lights:
       name: Enable Manual Control of Aquarium Lights
       icon: mdi:fishbowl-outline
-
-    heating_status:
-      name: Heating Status
-      icon: mdi:radiator
-
-    ac_status:
-      name: A/C Status
-      icon: mdi:air-conditioner
-
-    bedroom_ac_status:
-      name: Bedroom A/C Status
-      icon: mdi:toggle-switch-off-outline
-
-    living_room_ac_status:
-      name: Living Room A/C Status
-      icon: mdi:toggle-switch-off-outline
-
-    hallway_rgb_bulb_switch_single_status:
-      name: Hallway RGB Bulb Switch Status
-      icon: mdi:toggle-switch-off-outline
-
-    # tapo_camera_privacy_mode:
-    #   name: TAPO Camera Privacy Mode
-    #   icon: mdi:cctv-off
-
-    # enable_manual_control_garlands:
-    #   name: Enable Manual Control of Garlands
-    #   icon: mdi:string-lights
-
-    # vacation_mode:
-    #   name: Vacation Mode
-    #   icon: mdi:airplane
