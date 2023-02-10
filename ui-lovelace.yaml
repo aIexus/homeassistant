@@ -468,24 +468,6 @@ views:
                 hold_action:
                     action: none
 
-                # - type: button
-                #   tap_action:
-                #     action: none
-                #   entity: binary_sensor.bathroom_washing_machine_socket_status
-                #   show_state: false
-                #   show_name: false
-                #   hold_action:
-                #     action: none
-
-                # - type: button
-                #   tap_action:
-                #     action: toggle
-                #   entity: input_boolean.enable_manual_control_garlands
-                #   show_state: false
-                #   show_name: false
-                #   hold_action:
-                #     action: none
-
           - type: conditional
             conditions:
               - entity: input_boolean.enable_manual_control_heater
@@ -547,43 +529,48 @@ views:
 
           - type: conditional
             conditions:
+              - entity: input_boolean.enable_christmas_automations
+                state: 'on'
+              - entity: input_boolean.enable_manual_control_lights
+                state: 'on'
+            card:
+                type: entities
+                show_header_toggle: true
+                title: Гирлянды
+                icon: mdi:ceiling-light-multiple-outline
+                state_color: true
+                entities:
+                  - entity: switch.living_room_air_conditioner_socket
+                    name: Ёлочка
+                    icon: mdi:pine-tree
+                  - entity: switch.bedroom_air_conditioner_socket
+                    name: Гирлянда в Спальне 
+                    icon: mdi:string-lights
+
+          - type: conditional
+            conditions:
               - entity: input_boolean.enable_manual_control_aqua_lights
                 state: 'on'
             card:
                 type: entities
                 show_header_toggle: true
                 title: Аквариум
-                icon: mdi:ceiling-light-multiple-outline
+                icon: mdi:fishbowl
                 state_color: true
                 entities:
                   - entity: switch.living_room_aquarium_power_strip_l3
                     name: Основной свет
+                    icon: mdi:wall-sconce-flat
                   - entity: switch.living_room_aquarium_power_strip_l4
                     name: Лунный свет
+                    icon: mdi:weather-night
                   - type: divider
                   - entity: switch.living_room_aquarium_power_strip_l1
-                    name: Куллеры
+                    name: Аэрация
+                    icon: mdi:fish
                   - entity: switch.living_room_aquarium_power_strip_l2
-                    name: Система фильтрации
-
-
-            # - type: conditional
-            #   conditions:
-            #     - entity: input_boolean.enable_manual_control_garlands
-            #       state: 'on'
-            #   card:
-            #     type: entities
-            #     show_header_toggle: true
-            #     title: Гирлянды
-            #     icon: mdi:ceiling-light-multiple-outline
-            #     state_color: true
-            #     entities:
-            #       - entity: switch.living_room_christmas_tree
-            #         name: Ёлочная
-            #       - entity: switch.living_room_garland_curtain
-            #         name: Штора
-            #       - entity: switch.living_room_top_garland
-            #         name: Верхняя
+                    name: Фильтрация
+                    icon: mdi:air-filter
 
   - title: Система
     icon: mdi:tablet-dashboard
@@ -605,6 +592,12 @@ views:
               - entity: sensor.time_date
                 name: Время/Дата
               - type: section
+              - entity: binary_sensor.internet_connection_ping
+              - type: section
+                label: Питание
+              - entity: binary_sensor.rpi_ac_power_status
+              - entity: binary_sensor.ups_battery_low
+              - type: section
                 label: Последняя загрузка
               - entity: sensor.last_boot_custom
                 name: Last boot
@@ -617,23 +610,6 @@ views:
                 icon: mdi:home-assistant
               - entity: sensor.hacs
                 name: HACS
-              - type: section
-                label: Питание
-
-        #   - type: entities
-            #  show_header_toggle: false
-            #  state_color: true
-            #  title: Статус питания
-            #  entities:
-              - entity: binary_sensor.rpi_ac_power_status
-              - entity: binary_sensor.ups_battery_low
-            #   - entity: sensor.ups_battery_capacity
-            #   - entity: sensor.ups_battery_voltage
-
-        #   - type: entities
-        #     show_header_toggle: false
-        #     title: Резервное копирование
-        #     entities:
               - type: section
                 label: Резервные копии
               - entity: sensor.last_google_backup_train
@@ -904,6 +880,7 @@ views:
               - entity: input_boolean.disable_climate
               - entity: input_boolean.disable_home_away
               - entity: input_boolean.disable_occupancy
+              - entity: input_boolean.enable_christmas_automations
               - type: divider
               - entity: input_boolean.disable_climate_notifications
               - entity: input_boolean.disable_voice_notifications
@@ -1240,6 +1217,7 @@ views:
 
               - type: history-graph
                 title: 'Температура'
+                show_names: true
                 hours_to_show: 168
                 entities:
                   - entity: sensor.hallway_lumi_weather_temperature
@@ -1275,6 +1253,7 @@ views:
                     name: Среднесуточная 
           - type: history-graph
             hours_to_show: 168
+            show_names: true
             entities:
               - entity: sensor.outdoor_temperature
                 name: Наружная

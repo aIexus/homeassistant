@@ -28,7 +28,7 @@
     sensor.online_custom:
         friendly_name: 'Home Assistant Uptime'
 
-    sensor.outdoor_humidity:
+    sensor.outdoor_humidity:    
         friendly_name: 'Наружная Влажность'
 
     sensor.outdoor_temperature:
@@ -36,6 +36,9 @@
 
     binary_sensor.anyone_home:
         friendly_name: 'Anyone Home'
+
+    binary_sensor.internet_connection_ping:
+        friendly_name: 'Интернет соединение'
 
     binary_sensor.ups_battery_low:
         friendly_name: 'Состояние батареи UPS'

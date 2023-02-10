@@ -89,6 +89,9 @@ ukraine_alerts_package:
           - condition: state
             entity_id: input_boolean.disable_alerts_notifications
             state: 'off'
+          - condition: state
+            entity_id: binary_sensor.internet_connection_ping
+            state: 'on'
         action:
           - choose:
               - conditions:
@@ -106,7 +109,7 @@ ukraine_alerts_package:
                                 title: '{{"\U0001F4E2"}} ВНИМАНИЕ{{"\U0000203C"}}'
                                 message: |
                                     ➖➖➖➖➖➖➖➖➖➖➖➖
-                                    {{"\U00002708"}}{{"\U0001F680"}} ОБЪЯВЛЕНА ВОЗДУШНАЯ ТРЕВОГА{{"\U0000203C"}}{{"\U0000203C"}}
+                                    {{"\U0001F6EB\U0001F680 ОБЪЯВЛЕНА ВОЗДУШНАЯ ТРЕВОГА \U0000203C\U0000203C"}}
                           - condition: state
                             entity_id: binary_sensor.anyone_home
                             state: 'on'
@@ -420,63 +423,4 @@ ukraine_alerts_package:
                                 sonos_entity: media_player.sonos_living_room
                                 volume: 0.4
                                 message: 'ВНИМАНИЕ!!! Отмена неизвестной угрозы!'
-        mode: single
-
-      - alias: "Alert: Set alert indicator on RGB Bulb"
-        id: alert_set_light_indicator_on_rgb_bulb
-        description: 'При активной тревоге, включать световой индикатор на RGB лампе'
-        trigger:
-          - platform: state
-            entity_id: binary_sensor.m_novomoskovsk_alerts
-            from: 'off'
-            to: 'on'
-          - platform: state
-            entity_id: binary_sensor.m_novomoskovsk_alerts
-            from: 'on'
-            to: 'off'
-        condition:
-          - condition: state
-            entity_id: binary_sensor.anyone_home
-            state: 'on'
-        action:
-          - choose: 
-              - conditions:
-                  - condition: state
-                    entity_id: binary_sensor.m_novomoskovsk_alerts
-                    state: 'on'
-                sequence:
-                  - service: scene.create
-                    data:
-                        scene_id: scene_rgb_bulb_before_alert_indicator
-                        snapshot_entities:
-                          - light.hallway_rgb_bulb
-                  - service: script.rgb_bulb_flashing_x_times
-                    data:
-                        rgb_bulb_entity_id: light.hallway_rgb_bulb
-                        rgb_bulb_automation_control: input_boolean.hallway_rgb_bulb_automation_control_status
-                        count: 5
-                        color: 'orange'
-                  - service: input_boolean.turn_on
-                    entity_id: input_boolean.hallway_rgb_bulb_automation_control_status
-                  - service: light.turn_on
-                    target:
-                        entity_id: light.hallway_rgb_bulb
-                    data: 
-                        brightness: 13
-                        color_name: 'orange'
-                  - service: input_boolean.turn_off
-                    entity_id: input_boolean.hallway_rgb_bulb_automation_control_status
-              - conditions:
-                  - condition: state
-                    entity_id: binary_sensor.m_novomoskovsk_alerts
-                    state: 'off'
-                sequence:
-                  - service: script.rgb_bulb_flashing_x_times
-                    data:
-                        rgb_bulb_entity_id: light.hallway_rgb_bulb
-                        rgb_bulb_automation_control: input_boolean.hallway_rgb_bulb_automation_control_status
-                        count: 5
-                        color: 'green'
-                  - service: scene.turn_on
-                    entity_id: scene.scene_rgb_bulb_before_alert_indicator
         mode: single

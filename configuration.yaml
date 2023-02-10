@@ -5,6 +5,7 @@ homeassistant:
     elevation: 64
     unit_system: metric
     time_zone: Europe/Kiev
+    country: UA
     packages: !include_dir_merge_named includes/packages
     customize: !include includes/customize.yaml
     allowlist_external_dirs: "/config/files/"

@@ -39,10 +39,10 @@ telegram:
         - alias: "Telegram: Start Menu"
           id: telegram_menu_start
           trigger:
-            platform: event
-            event_type: telegram_command
-            event_data:
-              command: '/start'
+             -  platform: event
+                event_type: telegram_command
+                event_data:
+                  command: '/start'
           action:
           - service: notify.alexus
             data:
@@ -486,7 +486,7 @@ telegram:
                   - "{{'\U0001F4D1'}} Меню:/menu"
           mode: single
 
-        - alias: "Telegram: Toggle AC in Bedoom"
+        - alias: "Telegram: Toggle AC in Bedroom"
           id: telegram_menu_toggle_ac_bedroom
           initial_state: true
           trigger:
@@ -673,6 +673,25 @@ telegram:
                 {{"\U0001F6E1"}} Безопасность в квартире:
                 ➖➖➖➖➖➖➖➖➖➖➖➖
                 {{"\U0001F3D8"}} Присутствие: {% if is_state("group.family","home") %}{% set Str = '' %}{% if is_state("person.alexus","home") %}{% set Str = '\U0001F468\U0000200D' %}{% endif %}{% if is_state("person.inna","home") %}{% set Str = Str + "\U0001F469\U0000200D" %}{% endif %}{% if is_state("person.vova","home") %}{% set Str = Str + "\U0001F466\U0000200D" %}{% endif %}{% if is_state("person.ivan","home") %}{% set Str = Str + "\U0001F466" %}{% endif %}{{ Str }} Дома {%else%}Не дома {%endif%}
+
+                {%- if is_state('binary_sensor.m_novomoskovsk_alerts','on') %}
+                {{ '' }}
+                {{ '\U0000203C\U0000203C Внимание\U0000203C\U0000203C' }}
+                  {% if is_state('binary_sensor.m_novomoskovsk_ta_novomoskovska_teritorialna_gromada_air','on') %}
+                  {{- '\U0001F6EB \U0001F680 ВОЗДУШНАЯ ТРЕВОГА \U0001F680 \U0001F6EC' -}}
+                  {% elif is_state('binary_sensor.m_novomoskovsk_ta_novomoskovska_teritorialna_gromada_artillery','on') %}
+                  {{- '\U0001F680 УГРОЗА АРТОБСТРЕЛА \U0001F680' -}}
+                  {% elif is_state('binary_sensor.m_novomoskovsk_ta_novomoskovska_teritorialna_gromada_chemical','on') %}
+                  {{- '\U00002623 ХИМИЧЕСКАЯ УГРОЗА \U00002623' -}}
+                  {% elif is_state('binary_sensor.m_novomoskovsk_ta_novomoskovska_teritorialna_gromada_nuclear','on') %}
+                  {{- '\U00002622 ЯДЕРНАЯ УГРОЗА \U00002622' -}}
+                  {% elif is_state('binary_sensor.m_novomoskovsk_ta_novomoskovska_teritorialna_gromada_urban_fights','on') %}
+                  {{- '\U00002694 УГРОЗА УЛИЧНЫХ БОЕВ \U00002694' -}}
+                  {% else %}
+                  {{- '\U000026A0 НЕИЗВЕСТНАЯ УГРОЗА \U000026A0' -}}
+                  {% endif -%}
+                {% else -%}
+                {% endif %}
 
                 {{"\U0001F694"}} Сигнализация: {% if is_state("alarm_control_panel.home_alarm",'unavailable') %}{{"\U000026A0"}}Недоступен{% else %}{% if is_state("alarm_control_panel.home_alarm","disarmed") %}{{"\U0001F7E2"}} Отключена{% elif is_state("alarm_control_panel.home_alarm","armed_home") %}{{"\U0001F7E1"}} Охрана(Дома){% elif is_state("alarm_control_panel.home_alarm","armed_away") %}{{"\U0001F534"}} Охрана(Не Дома){% elif is_state("alarm_control_panel.home_alarm","triggered") %}{{"\U0001F6A8"}} ТРЕВОГА{{"\U0000203C"}}{% elif is_state("alarm_control_panel.home_alarm","pending") %}{{"\U0001F536"}} ОЖИДАНИЕ{{"\U00002049"}}{% elif is_state("alarm_control_panel.home_alarm","arming") %}{{"\U0001F550"}} ПОСТАНОВКА...{% endif %}{% endif %}
 

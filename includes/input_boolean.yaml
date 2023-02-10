@@ -1,15 +1,19 @@
 
     disable_climate:
-      name: Disable Climate Automation
+      name: Disable Climate Automations
       icon: mdi:thermometer-off
  
     disable_occupancy:
-      name: Disable Occupancy Automation
+      name: Disable Occupancy Automations
       icon: mdi:motion-sensor-off
 
     disable_home_away:
-      name: Disable Home/Away Automation
+      name: Disable Home/Away Automations
       icon: mdi:home-off
+
+    enable_christmas_automations:
+        name: Enable Christmas Automations
+        icon: mdi:pine-tree-box
 
     disable_alerts_notifications:
       name: Disable Alert Notifications

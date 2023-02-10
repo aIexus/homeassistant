@@ -10,7 +10,7 @@ light_settings:
                 {% set rising = state_attr('sun.sun', 'rising') %}
                 {%- if elevation <= -12 -%}
                 night
-                {%- elif ( -12 < elevation) and (elevation <= -6) -%}
+                {%- elif ( -12 < elevation) and (elevation <= -3) -%}
                 {{ 'dawn' if rising else 'dusk' }}
                 {%- else -%}
                 day
@@ -20,7 +20,7 @@ light_settings:
                 {% set rising = state_attr('sun.sun', 'rising') %}
                 {%- if elevation <= -12 -%}
                 mdi:weather-night
-                {%- elif ( -12 < elevation) and (elevation <= -6) -%}
+                {%- elif ( -12 < elevation) and (elevation <= -3) -%}
                 mdi:weather-sunset-{{ 'up' if rising else 'down' }}
                 {% else %}
                 mdi:weather-sunny
@@ -92,9 +92,9 @@ light_settings:
               - service: light.toggle
                 target:
                     entity_id: light.hallway_rgb_bulb
-                data:
-                    brightness: 140
-                    color_temp: 155
+                data_template:
+                    brightness_pct: '{{ 90 }}'
+                    color_temp: 400
             #   - delay: '00:00:01'
             #   - service: scene.create
             #     data:
@@ -200,6 +200,304 @@ light_settings:
             mode: single
 
     automation:
+
+      - alias: "Light: Set Hallway RGB Bulb indicator mode"
+        id: light_set_hallway_rgb_bulb_indicator_mode
+        description: 'При активной тревоге, сигнализации, освещении или восходе/закате солнца - включать световой индикатор на RGB лампе'
+        trigger:
+          - platform: homeassistant
+            event: start
+          - platform: state
+            entity_id: binary_sensor.m_novomoskovsk_alerts
+            from: 'off'
+            to: 'on'
+          - platform: state
+            entity_id: binary_sensor.m_novomoskovsk_alerts
+            from: 'on'
+            to: 'off'
+          - platform: state
+            entity_id: alarm_control_panel.home_alarm
+          - platform: state
+            entity_id: sun.sun
+            attribute: elevation
+          - platform: state
+            entity_id: input_boolean.hallway_rgb_bulb_switch_single_status
+        condition: []
+        action:
+          - choose:
+              - conditions:
+                  - condition: template
+                    value_template: '{{ trigger.entity_id == "input_boolean.hallway_rgb_bulb_switch_single_status" }}'
+                sequence:
+                  - choose: 
+                      - conditions:
+                          - condition: state
+                            entity_id: input_boolean.hallway_rgb_bulb_switch_single_status
+                            state: 'on'
+                        sequence:
+                          - service: light.turn_on
+                            target:
+                                entity_id: light.hallway_rgb_bulb
+                            data:
+                                brightness: 140
+                                color_temp: 155
+                      - conditions:
+                          - condition: state
+                            entity_id: input_boolean.hallway_rgb_bulb_switch_single_status
+                            state: 'off'
+                        sequence:
+                          - service: light.turn_off
+                            target:
+                                entity_id: light.hallway_rgb_bulb
+              - conditions:
+                  - condition: template
+                    value_template: '{{ trigger.entity_id == "binary_sensor.m_novomoskovsk_alerts" }}'
+                  - condition: state
+                    entity_id: binary_sensor.anyone_home
+                    state: 'on'
+                sequence:
+                  - choose:
+                      - conditions:
+                          - condition: template
+                            value_template: '{{ trigger.to_state.state == "on" }}'
+                        sequence:
+                          - service: script.rgb_bulb_flashing_x_times
+                            data:
+                                rgb_bulb_entity_id: light.hallway_rgb_bulb
+                                rgb_bulb_automation_control: input_boolean.hallway_rgb_bulb_automation_control_status
+                                count: 5
+                                color: 'red'
+                      - conditions:
+                          - condition: template
+                            value_template: '{{ trigger.to_state.state == "off" }}'
+                        sequence:
+                          - service: script.rgb_bulb_flashing_x_times
+                            data:
+                                rgb_bulb_entity_id: light.hallway_rgb_bulb
+                                rgb_bulb_automation_control: input_boolean.hallway_rgb_bulb_automation_control_status
+                                count: 5
+                                color: 'green'
+              - conditions:
+                  - condition: template
+                    value_template: '{{ trigger.entity_id == "alarm_control_panel.home_alarm" }}'
+                sequence:
+                  - choose:
+                        # armed_home
+                      - conditions:
+                          - condition: template
+                            value_template: '{{ trigger.to_state.state == "armed_home" }}'
+                          - condition: state
+                            entity_id: binary_sensor.anyone_home
+                            state: 'on'
+                        sequence:
+                          - choose:
+                              - conditions:
+                                  - condition: time
+                                    before: '05:30:00'
+                                    after:  '22:00:00' 
+                                sequence:
+                                  - service: script.rgb_bulb_flashing_x_times
+                                    data:
+                                        rgb_bulb_entity_id: light.hallway_rgb_bulb
+                                        rgb_bulb_automation_control: input_boolean.hallway_rgb_bulb_automation_control_status
+                                        count: 3
+                                        color: 'blue'
+                              - conditions:
+                                  - condition: time
+                                    after:  '05:30:00'
+                                    before: '22:00:00' 
+                                sequence:
+                                  - service: script.rgb_bulb_flashing_x_times
+                                    data:
+                                        rgb_bulb_entity_id: light.hallway_rgb_bulb
+                                        rgb_bulb_automation_control: input_boolean.hallway_rgb_bulb_automation_control_status
+                                        count: 3
+                                        color: 'yellow'
+                        # disarmed
+                      - conditions:
+                          - condition: template
+                            value_template: '{{ trigger.to_state.state == "disarmed" }}'
+                        sequence:
+                          - service: script.rgb_bulb_flashing_x_times
+                            data:
+                                rgb_bulb_entity_id: light.hallway_rgb_bulb
+                                rgb_bulb_automation_control: input_boolean.hallway_rgb_bulb_automation_control_status
+                                count: 3
+                                color: 'green'
+                        # arming
+                      - conditions:
+                          - condition: template
+                            value_template: '{{ trigger.from_state.state == "disarmed" }}'
+                          - condition: template
+                            value_template: '{{ trigger.to_state.state == "arming" }}'
+                        sequence:
+                          - service: script.rgb_bulb_flashing_while_condition
+                            data:
+                                rgb_bulb_entity_id: light.hallway_rgb_bulb
+                                rgb_bulb_automation_control: input_boolean.hallway_rgb_bulb_automation_control_status
+                                condition_entity_id: alarm_control_panel.home_alarm
+                                repeat_while_state: 'arming'
+                                color: 'yellow'
+                        # pending
+                      - conditions:
+                          - condition: template
+                            value_template: '{{ trigger.from_state.state == "armed_away" }}'
+                          - condition: template
+                            value_template: '{{ trigger.to_state.state == "pending" }}'
+                        sequence:
+                          - service: script.rgb_bulb_flashing_while_condition
+                            data:
+                                rgb_bulb_entity_id: light.hallway_rgb_bulb
+                                rgb_bulb_automation_control: input_boolean.hallway_rgb_bulb_automation_control_status
+                                condition_entity_id: alarm_control_panel.home_alarm
+                                repeat_while_state: 'pending'
+                                color: 'yellow'
+                      - conditions:
+                          - condition: template
+                            value_template: '{{ trigger.to_state.state == "triggered" }}'
+                        sequence:
+                          - service: script.rgb_bulb_flashing_while_condition
+                            data:
+                                rgb_bulb_entity_id: light.hallway_rgb_bulb
+                                rgb_bulb_automation_control: input_boolean.hallway_rgb_bulb_automation_control_status
+                                condition_entity_id: alarm_control_panel.home_alarm
+                                repeat_while_state: 'triggered'
+                                color: 'red'
+          - choose:
+              - conditions:
+                  - condition: state
+                    entity_id: binary_sensor.m_novomoskovsk_alerts
+                    state: 'on'
+                  - condition: state
+                    entity_id: binary_sensor.anyone_home
+                    state: 'on'
+                  - condition: state
+                    entity_id: input_boolean.hallway_rgb_bulb_switch_single_status
+                    state: 'off'
+                sequence:
+                  - service: input_boolean.turn_on
+                    entity_id: input_boolean.hallway_rgb_bulb_automation_control_status
+                  - service: light.turn_on
+                    target:
+                        entity_id: light.hallway_rgb_bulb
+                    data: 
+                        brightness: 100
+                        color_name: 'red'
+              - conditions:
+                  - condition: state
+                    entity_id: binary_sensor.m_novomoskovsk_alerts
+                    state: 'off'
+                  - condition: state
+                    entity_id: input_boolean.hallway_rgb_bulb_switch_single_status
+                    state: 'off'
+                sequence:
+                  - choose:
+                      - conditions:
+                          - condition: state
+                            entity_id: alarm_control_panel.home_alarm
+                            state: 'armed_home'
+                          - condition: state
+                            entity_id: binary_sensor.anyone_home
+                            state: 'on'
+                        sequence:
+                          - choose:
+                              - conditions:
+                                  - condition:  time
+                                    before: '05:30:00'
+                                    after:  '22:00:00' 
+                                sequence:
+                                  - service: input_boolean.turn_on
+                                    entity_id: input_boolean.hallway_rgb_bulb_automation_control_status
+                                  - service: light.turn_on
+                                    target:
+                                        entity_id: light.hallway_rgb_bulb
+                                    data: 
+                                        brightness: 13
+                                        rgb_color: [5, 69, 255]
+                              - conditions:
+                                  - condition:  time
+                                    after:  '05:30:00'
+                                    before: '22:00:00' 
+                                sequence:
+                                  - service: input_boolean.turn_on
+                                    entity_id: input_boolean.hallway_rgb_bulb_automation_control_status
+                                  - service: light.turn_on
+                                    target:
+                                        entity_id: light.hallway_rgb_bulb
+                                    data: 
+                                        brightness: 100
+                                        rgb_color: [255, 254, 72]
+                      - conditions:
+                          - or:
+                              - condition: state
+                                entity_id: sensor.period_of_day
+                                state: 'dusklight'
+                              - condition: state
+                                entity_id: sensor.period_of_day
+                                state: 'dawnlight'
+                        sequence:
+                          - service: input_boolean.turn_on
+                            entity_id: input_boolean.hallway_rgb_bulb_automation_control_status
+                          - service: light.turn_on
+                            target:
+                                entity_id: light.hallway_rgb_bulb
+                            data_template:
+                                brightness_pct: >
+                                    {% set bright_pct = (((state_attr("sun.sun", "elevation") | float ) + 12) * 100 / 12 / 4 ) | round(0) %}
+                                    {% if bright_pct > 100 %}
+                                    100
+                                    {% elif bright_pct < 1 %}
+                                    1
+                                    {% else %}
+                                    {{ bright_pct }}
+                                    {% endif  %}
+                                color_temp: >
+                                    {% set sun_elevation = state_attr('sun.sun', 'elevation') | float | round(0) %}
+                                    {% if   sun_elevation >= -3  %}
+                                    390
+                                    {% elif sun_elevation >= -4  %}
+                                    400
+                                    {% elif sun_elevation >= -5  %}
+                                    410
+                                    {% elif sun_elevation >= -6  %}
+                                    420
+                                    {% elif sun_elevation >= -7  %}
+                                    430
+                                    {% elif sun_elevation >= -8  %}
+                                    440
+                                    {% elif sun_elevation >= -9  %}
+                                    450
+                                    {% elif sun_elevation >= -10 %}
+                                    460
+                                    {% elif sun_elevation >= -11 %}
+                                    470
+                                    {% elif sun_elevation >= -12 %}
+                                    480
+                                    {% else %}
+                                    495
+                                    {% endif %}
+                    default:
+                      - choose:
+                          - conditions:
+                              - condition: state
+                                entity_id: light.hallway_rgb_bulb
+                                state: 'on'
+                            sequence:
+                              - service: input_boolean.turn_on
+                                entity_id: input_boolean.hallway_rgb_bulb_automation_control_status
+                              - service: light.turn_off
+                                target:
+                                    entity_id: light.hallway_rgb_bulb
+          - choose:
+              - conditions:
+                  - condition: state
+                    entity_id: input_boolean.hallway_rgb_bulb_automation_control_status
+                    state: 'on'
+                sequence:
+                  - delay: '00:00:04'
+                  - service: input_boolean.turn_off
+                    entity_id: input_boolean.hallway_rgb_bulb_automation_control_status
+        mode: restart
 
       # Автоматизация выключения света в спальне
       - alias: "Light: Turn OFF light in Bedroom by timer"
@@ -327,39 +625,6 @@ light_settings:
             entity_id: timer.living_room_light_off_timer
         mode: restart
 
-
-      - alias: "Light: Hallway RGB Bulb ON/OFF by Input Boolean"
-        id: hallway_light_rgb_buld_on_off_by_input_boolean
-        trigger:
-          - platform: state
-            entity_id: input_boolean.hallway_rgb_bulb_switch_single_status
-        action:
-          - choose: 
-              - conditions:
-                  - condition: state
-                    entity_id: input_boolean.hallway_rgb_bulb_switch_single_status
-                    state: 'on'
-                sequence:
-                  - service: scene.create
-                    data:
-                      scene_id: scene_rgb_bulb_before_switch
-                      snapshot_entities:
-                        - light.hallway_rgb_bulb
-                  - service: light.turn_on
-                    target:
-                        entity_id: light.hallway_rgb_bulb
-                    data:
-                        brightness: 140
-                        color_temp: 155
-              - conditions:
-                  - condition: state
-                    entity_id: input_boolean.hallway_rgb_bulb_switch_single_status
-                    state: 'off'
-                sequence:
-                  - service: scene.turn_on
-                    entity_id: scene.scene_rgb_bulb_before_switch
-        mode: single
-
       - alias: "Light: Hallway RGB Bulb Manual Switch Actions"
         id: hallway_light_rgb_bulb_manual_switch_actions
         trigger:
@@ -404,3 +669,4 @@ light_settings:
         action:
         - service: light.turn_off
           entity_id: light.hallway_rgb_bulb
+        mode: single
