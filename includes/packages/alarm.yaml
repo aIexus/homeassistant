@@ -1,5 +1,56 @@
 home_alarm_settings:
 
+    recorder:
+        include:
+            entities:
+              - alarm_control_panel.home_alarm
+              - binary_sensor.hallway_entrance_door_contact
+              - binary_sensor.bedroom_lumi_sensor_motion_occupancy
+              - binary_sensor.living_room_lumi_sensor_motion_occupancy
+              - binary_sensor.tapo_camera_motion
+              - binary_sensor.motion_sensors
+              - binary_sensor.bathroom_water_leak_under_washing_machine_water_leak
+              - binary_sensor.bathroom_water_leak_under_the_bath_water_leak
+              - binary_sensor.kitchen_water_leak_sensor_water_leak
+              - binary_sensor.kitchen_smoke_detector_smoke
+
+    homeassistant:
+        customize:
+            binary_sensor.hallway_entrance_door_contact:
+                friendly_name: 'Входная Дверь'
+            binary_sensor.motion_sensors:
+                friendly_name: 'Движение, Квартира'
+            binary_sensor.bedroom_lumi_sensor_motion_occupancy:
+                friendly_name: 'Датчик Движения, Спальня'
+            binary_sensor.living_room_lumi_sensor_motion_occupancy:
+                friendly_name: 'Датчик Движения, Гостинная'
+            binary_sensor.bathroom_water_leak_under_washing_machine_water_leak:
+                friendly_name: 'Датчик Протечки, Стиральная Машина'
+            binary_sensor.bathroom_water_leak_under_the_bath_water_leak:
+                friendly_name: 'Датчик Протечки, Ванная'
+            binary_sensor.kitchen_water_leak_sensor_water_leak:
+                friendly_name: 'Датчик Протечки, Кухня'
+            binary_sensor.kitchen_smoke_detector_smoke:
+                friendly_name: 'Датчик Дыма, Кухня'
+
+    input_boolean:
+
+        disable_voice_notifications:
+            name: Disable Voice Notifications
+            icon: mdi:speaker-off
+
+    binary_sensor:
+
+      - platform: group
+        name: motion_sensors
+        unique_id: binary_sensor_motion_sensors
+        device_class: motion
+        entities:
+          - binary_sensor.bedroom_lumi_sensor_motion_occupancy
+          - binary_sensor.living_room_lumi_sensor_motion_occupancy
+          - binary_sensor.tapo_camera_motion
+
+
     alarm_control_panel:
 
         - platform: manual
@@ -591,6 +642,45 @@ home_alarm_settings:
               entity_id: alarm_control_panel.home_alarm
               data: 
                 code: !secret alarm_panel_code
+          mode: single
+
+        - alias: "Alarm: Exceeding the Electricity Consumption Limit"
+          id: alarm_exceeding_electricity_consumption_limit
+          description: 'Уведомление о превышении лимита потребления электроэнергии'
+          trigger:
+            - platform: state
+              entity_id: binary_sensor.exceed_electricity_consumption_limit
+              from: 'off'
+              to: 'on'
+              for:
+                seconds: 30
+          condition: []
+          action:
+            - choose:
+                  - conditions:
+                      - condition: state
+                        entity_id: binary_sensor.internet_connection_ping
+                        state: 'on'
+                    sequence:
+                    - service: notify.alexus
+                      data:
+                        title: '{{"\U000026A0"}} ВНИМАНИЕ{{"\U0000203C"}}'
+                        message:  |
+                          ➖➖➖➖➖➖➖➖➖➖➖➖
+                          Зафиксировано превышение лимита потребления электроэнергии на {{ states("sensor.tuya_clamp_meter_power") | float(0) | round(0) - states("input_number.electricity_consumption_limit") | int(0) }} Вт.!
+                          Текущее потребление: {{"\U0001F4C8"}} {{ states("sensor.tuya_clamp_meter_power") | float(0) | round(0) }} Вт.
+                          Лимит: {{"\U0001F6A7"}} {{ states("input_number.electricity_consumption_limit") | int(0) }} Вт.
+            - condition: state
+              entity_id: input_boolean.disable_voice_notifications
+              state: 'off'
+            - condition: state
+              entity_id: binary_sensor.anyone_home
+              state: 'on'
+            - service: script.sonos_say
+              data: 
+                sonos_entity: media_player.sonos_living_room
+                volume: 0.5
+                message: 'ВНИМАНИЕ!!! Зафиксировано превышение лимита потребления электроэнергии на "{{ states("sensor.tuya_clamp_meter_power") | float(0) | round(0) - states("input_number.electricity_consumption_limit") | int(0) }}" ватт! Отключите ненужные приборы!'
           mode: single
 
         - alias: "Alarm: Water Leakage under Bath in Bathroom"

@@ -1,0 +1,579 @@
+energy_config:
+
+    recorder:
+        include:
+            entities:
+              - sensor.tariff_energy_cost_base
+              - sensor.tariff_energy_cost
+              - sensor.average_sockets_voltage
+              - sensor.energy_active_tariff
+              - binary_sensor.exceed_electricity_consumption_limit
+              - binary_sensor.bedroom_air_conditioner_socket_status
+              - binary_sensor.bedroom_socket_heating_status
+              - binary_sensor.living_room_air_conditioner_socket_status
+              - binary_sensor.living_room_socket_heating_status
+              - binary_sensor.kitchen_socket_heating_status
+              - binary_sensor.bathroom_washing_machine_socket_status
+              - switch.living_room_aquarium_main_lighting
+              - input_number.tarrif_energy_cost_calibrate_base
+            entity_globs:
+              - sensor.tuya_clamp_meter_*
+              - select.tuya_clamp_meter_*
+              - sensor.energy_counter_total*
+              - sensor.bathroom_washing_machine_socket*
+              - sensor.bedroom_air_conditioner_socket*
+              - sensor.bedroom_socket_heating*
+              - sensor.kitchen_socket_heating*
+              - sensor.living_room_aquarium_main_lighting*
+              - sensor.living_room_air_conditioner_socket*
+              - sensor.living_room_socket_heating*
+              - switch.living_room_aquarium_power_strip_*
+              - switch.*_socket*
+
+    homeassistant:
+        customize:
+            binary_sensor.bathroom_washing_machine_socket_status:
+                friendly_name: 'Стиральная машина'
+            binary_sensor.bedroom_air_conditioner_socket_status:
+                friendly_name: 'Кондиционер в Спальне'
+            binary_sensor.living_room_air_conditioner_socket_status:
+                friendly_name: 'Кондиционер в Гостинной'
+            binary_sensor.bedroom_socket_heating_status:
+                friendly_name: 'Обогреватель в Спальне'
+            binary_sensor.living_room_socket_heating_status:
+                friendly_name: 'Обогреватель в Гостинной'
+            binary_sensor.kitchen_socket_heating_status:
+                friendly_name: 'Обогреватель в Кухне'
+            binary_sensor.exceed_electricity_consumption_limit:
+                friendly_name: 'Превышение лимита потребления'
+            sensor.bathroom_washing_machine_socket_integration:
+                icon: mdi:chart-histogram
+            sensor.bedroom_air_conditioner_socket_integration:
+                icon: mdi:chart-histogram
+            sensor.bedroom_socket_heating_integration:
+                icon: mdi:chart-histogram
+            sensor.kitchen_socket_heating_integration:
+                icon: mdi:chart-histogram
+            sensor.living_room_air_conditioner_socket_integration:
+                icon: mdi:chart-histogram
+            sensor.living_room_aquarium_main_lighting_integration:
+                icon: mdi:chart-histogram
+            sensor.living_room_socket_heating_integration:
+                icon: mdi:chart-histogram
+            sensor.tuya_clamp_meter_integration:
+                icon: mdi:chart-histogram
+            sensor.tuya_clamp_meter_monthly_total:
+                friendly_name: Потребление за месяц (всего)
+            sensor.energy_counter_total:
+                friendly_name: Счетчик (общий)
+            sensor.energy_counter_total_day:
+                friendly_name: Счетчик (день)
+            sensor.energy_counter_total_night:
+                friendly_name: Счетчик (ночь)
+            input_number.energy_counter_calibration_day:
+                friendly_name: Калибровка счетчика (день)
+            input_number.energy_counter_calibration_night:
+                friendly_name: Калибровка счетчика (ночь)
+            input_number.tarrif_energy_cost_calibrate_base:
+                friendly_name: Калибровка тарифа на электроэнергию
+            input_number.electricity_consumption_limit:
+                friendly_name: Лимит потребления электроэнергии
+
+    input_number:
+
+        tarrif_energy_cost_calibrate_base:
+            mode: box
+            min: 1.68
+            max: 99.999
+            step: 0.001
+            unit_of_measurement: ₴/kWh
+            icon: mdi:cash-multiple
+
+        energy_counter_calibration_day:
+            mode: box
+            min: 0.000
+            max: 100000.000
+            step: 0.001
+            unit_of_measurement: kWh
+            icon: mdi:calculator-variant-outline
+
+        energy_counter_calibration_night:
+            mode: box
+            min: 0.000
+            max: 100000.000
+            step: 0.001
+            unit_of_measurement: kWh
+            icon: mdi:calculator-variant
+
+        electricity_consumption_limit:
+            mode: box
+            min: 1000
+            max: 12000
+            step: 1000
+            unit_of_measurement: kWh
+            icon: mdi:fuse
+
+    scrape:
+
+      - resource: https://bankchart.com.ua/spravochniki/indikatory_rynka/electric_tariff
+        scan_interval: 86400
+        sensor:
+          - name: 'Tariff Energy Cost BASE'
+            unique_id: sensor_tariff_energy_cost_base
+            select: '#branding-wrapper > section > div > div > div.table-currency > div.row.row-last > div:nth-child(13) > p'
+            unit_of_measurement: '₴/kWh'
+            icon: mdi:lightning-bolt-circle
+            value_template: '{{ value | float(0) / 100 | round(2) }}'
+
+    sensor:
+
+      - platform: min_max
+        name: average_sockets_voltage
+        unique_id: sensor_average_sockets_voltage
+        type: mean
+        round_digits: 1
+        entity_ids:
+          - sensor.bathroom_washing_machine_socket_voltage
+          - sensor.bedroom_air_conditioner_socket_voltage
+          - sensor.bedroom_socket_heating_voltage
+          - sensor.kitchen_socket_heating_voltage
+          - sensor.living_room_air_conditioner_socket_voltage
+          # - sensor.living_room_aquarium_main_lighting_voltage
+          # - sensor.living_room_aquarium_moonlight_voltage
+          - sensor.living_room_socket_heating_voltage
+
+      - platform: integration
+        name: tuya_clamp_meter_integration
+        unique_id: sensor_tuya_clamp_meter_integration
+        source: sensor.tuya_clamp_meter_power
+        unit_prefix: k
+        unit_time: h
+        method: trapezoidal
+        round: 2
+
+      - platform: integration
+        name: bathroom_washing_machine_socket_integration
+        unique_id: sensor_bathroom_washing_machine_socket_integration
+        source: sensor.bathroom_washing_machine_socket_power
+        unit_prefix: k
+        unit_time: h
+        method: trapezoidal
+        round: 2
+
+      - platform: integration
+        name: bedroom_air_conditioner_socket_integration
+        unique_id: sensor_bedroom_air_conditioner_socket_integration
+        source: sensor.bedroom_air_conditioner_socket_power
+        unit_prefix: k
+        unit_time: h
+        method: trapezoidal
+        round: 2
+
+      - platform: integration
+        name: bedroom_socket_heating_integration
+        unique_id: sensor_bedroom_socket_heating_integration
+        source: sensor.bedroom_socket_heating_power
+        unit_prefix: k
+        unit_time: h
+        method: trapezoidal
+        round: 2
+
+      - platform: integration
+        name: kitchen_socket_heating_integration
+        unique_id: sensor_kitchen_socket_heating_integration
+        source: sensor.kitchen_socket_heating_power
+        unit_prefix: k
+        unit_time: h
+        method: trapezoidal
+        round: 2
+
+      - platform: integration
+        name: living_room_air_conditioner_socket_integration
+        unique_id: sensor_living_room_air_conditioner_socket_integration
+        source: sensor.living_room_air_conditioner_socket_power
+        unit_prefix: k
+        unit_time: h
+        method: trapezoidal
+        round: 2
+
+      - platform: integration
+        name: living_room_aquarium_main_lighting_integration
+        unique_id: sensor_living_room_aquarium_main_lighting_integration
+        source: sensor.living_room_aquarium_main_lighting_power
+        unit_prefix: k
+        unit_time: h
+        method: trapezoidal
+        round: 2
+
+      - platform: integration
+        name: living_room_socket_heating_integration
+        unique_id: sensor_living_room_socket_heating_integration
+        source: sensor.living_room_socket_heating_power
+        unit_prefix: k
+        unit_time: h
+        method: trapezoidal
+        round: 2
+
+    utility_meter:
+
+        tuya_clamp_meter_daily:
+            source: sensor.tuya_clamp_meter_integration
+            name: Потребление за сутки
+            unique_id: sensor_tuya_clamp_meter_daily
+            cycle: daily
+            tariffs:
+                - day
+                - night
+
+        tuya_clamp_meter_weekly:
+            source: sensor.tuya_clamp_meter_integration
+            name: Потребление за неделю
+            unique_id: sensor_tuya_clamp_meter_weekly
+            cycle: weekly
+            tariffs:
+                - day
+                - night
+
+        tuya_clamp_meter_monthly:
+            source: sensor.tuya_clamp_meter_integration
+            name: Потребление за месяц
+            unique_id: sensor_tuya_clamp_meter_monthly
+            cycle: monthly
+            tariffs:
+                - day
+                - night
+
+        tuya_clamp_meter_counter:
+            source: sensor.tuya_clamp_meter_integration
+            unique_id: sensor_tuya_clamp_meter_counter
+            tariffs:
+                - day
+                - night
+
+        tuya_clamp_meter_monthly_total:
+            source: sensor.tuya_clamp_meter_integration
+            unique_id: sensor_tuya_clamp_meter_monthly_total
+            cycle: monthly
+
+        bathroom_washing_machine_socket_meter_monthly:
+            unique_id: sensor_bathroom_washing_machine_socket_meter_monthly
+            source: sensor.bathroom_washing_machine_socket_integration
+            cycle: monthly
+
+        bedroom_air_conditioner_socket_meter_monthly:
+            unique_id: sensor_bedroom_air_conditioner_socket_meter_monthly
+            source: sensor.bedroom_air_conditioner_socket_integration
+            cycle: monthly
+
+        bedroom_socket_heating_meter_monthly:
+            unique_id: sensor_bedroom_socket_heating_meter_monthly
+            source: sensor.bedroom_socket_heating_integration
+            cycle: monthly
+
+        kitchen_socket_heating_meter_monthly:
+            unique_id: sensor_kitchen_socket_heating_meter_monthly
+            source: sensor.kitchen_socket_heating_integration
+            cycle: monthly
+
+        living_room_air_conditioner_socket_meter_monthly:
+            unique_id: sensor_living_room_air_conditioner_socket_meter_monthly
+            source: sensor.living_room_air_conditioner_socket_integration
+            cycle: monthly
+
+        living_room_aquarium_main_lighting_meter_monthly:
+            unique_id: sensor_living_room_aquarium_main_lighting_meter_monthly
+            source: sensor.living_room_aquarium_main_lighting_integration
+            cycle: monthly
+
+        living_room_socket_heating_meter_monthly:
+            unique_id: sensor_living_room_socket_heating_meter_monthly
+            source: sensor.living_room_socket_heating_integration
+            cycle: monthly
+
+    template:
+
+      - sensor:
+
+          - name: 'Energy: Active Tariff'
+            unique_id: sensor_energy_active_tariff
+            icon: mdi:lightning-bolt-circle
+            state: >
+                {% set n = now().hour %}
+                {% if (n > 22) or (n < 7) %}
+                night
+                {% else %}
+                day
+                {% endif %}
+
+          - name: 'Tariff Energy Cost'
+            unique_id: sensor_tariff_energy_cost
+            unit_of_measurement: '₴/kWh'
+            icon: mdi:home-lightning-bolt
+            state: > 
+                {% set k = 1 %}
+                {% if is_state("sensor.energy_active_tariff","night") %}
+                {% set k = 0.5 %}
+                {% endif %}
+                {% if is_state("sensor.tariff_energy_cost_base","unavailable") or
+                      is_state("sensor.tariff_energy_cost_base","unknown") %}
+                {{ states("input_number.tarrif_energy_cost_calibrate_base") | float(0) * k | round(2) }}
+                {% else %}
+                {{ states("sensor.tariff_energy_cost_base") | float(0) * k | round(2) }}
+                {% endif %}
+
+          - name: energy_counter_total
+            unique_id: sensor_energy_counter_total
+            device_class: energy
+            unit_of_measurement: kWh
+            icon: mdi:meter-electric
+            state: >
+                {{ ( states('sensor.energy_counter_total_night') | float(0) + states('sensor.energy_counter_total_day') | float(0) ) | round(2) }}
+
+          - name: energy_counter_total_day
+            unique_id: sensor_energy_counter_total_day
+            device_class: energy
+            unit_of_measurement: kWh
+            icon: mdi:meter-electric
+            state: >
+                {{ ( states('sensor.tuya_clamp_meter_counter_day') | float(0) + states('input_number.energy_counter_calibration_day') | float(0) ) | round(2) }}
+
+          - name: energy_counter_total_night
+            unique_id: sensor_energy_counter_total_night
+            device_class: energy
+            unit_of_measurement: kWh
+            icon: mdi:meter-electric
+            state: >
+                {{ ( states('sensor.tuya_clamp_meter_counter_night') | float(0) + states('input_number.energy_counter_calibration_night') | float(0) ) | round(2) }}
+
+          - name: tuya_clamp_meter_daily_total
+            unique_id: sensor_tuya_clamp_meter_daily_total
+            device_class: energy
+            unit_of_measurement: kWh
+            icon: mdi:counter
+            state: >
+                {{ ( states('sensor.tuya_clamp_meter_daily_night') | float(0) + states('sensor.tuya_clamp_meter_daily_day') | float(0) ) | round(2) }}
+
+          - name: tuya_clamp_meter_weekly_total
+            unique_id: sensor_tuya_clamp_meter_weekly_total
+            device_class: energy
+            unit_of_measurement: kWh
+            icon: mdi:counter
+            state: >
+                {{ ( states('sensor.tuya_clamp_meter_weekly_night') | float(0) + states('sensor.tuya_clamp_meter_weekly_day') | float(0) ) | round(2) }}
+
+      - binary_sensor:
+
+          - name: exceed_electricity_consumption_limit
+            unique_id: binary_sensor_exceed_electricity_consumption_limit
+            device_class: problem
+            icon: mdi:fuse-alert
+            state: >-
+                {{ states('input_number.electricity_consumption_limit') | int(0) <= states('sensor.tuya_clamp_meter_power') | int(0) }}
+
+          - name: bedroom_air_conditioner_socket_status
+            unique_id: binary_sensor_bedroom_air_conditioner_socket_status
+            device_class: cold
+            state: >-
+                {% if (states("sensor.bedroom_air_conditioner_socket_power") | int(0) > 5) %}
+                on
+                {% else %}
+                off
+                {% endif %}
+            icon: >-
+                {% if is_state("binary_sensor.bedroom_air_conditioner_socket_status","on") %}
+                mdi:hvac
+                {% else %}
+                mdi:hvac-off
+                {% endif %}
+
+          - name: bedroom_socket_heating_status
+            unique_id:  binary_sensor_bedroom_socket_heating_status
+            device_class: heat
+            state: >-
+                {% if (states("sensor.bedroom_socket_heating_power") | int(0) > 0) %}
+                on
+                {% else %}
+                off
+                {% endif %}
+            icon: >-
+                {% if is_state("binary_sensor.bedroom_socket_heating_status","on") %}
+                mdi:radiator
+                {% elif is_state("input_boolean.heating_status","off") or is_state("climate.bedroom_heater","off") %}
+                mdi:radiator-off
+                {% else %}
+                mdi:radiator-disabled
+                {% endif %}
+
+          - name: living_room_air_conditioner_socket_status
+            unique_id:  binary_sensor_living_room_air_conditioner_socket_status
+            device_class: cold
+            state: >-
+                {% if (states("sensor.living_room_air_conditioner_socket_power") | int(0) > 5) %}
+                on
+                {% else %}
+                off
+                {% endif %}
+            icon: >-
+                {% if is_state("binary_sensor.living_room_air_conditioner_socket_status","on") %}
+                mdi:hvac
+                {% else %}
+                mdi:hvac-off
+                {% endif %}
+
+          - name: living_room_socket_heating_status
+            unique_id: binary_sensor_living_room_socket_heating_status
+            device_class: heat
+            state: >-
+                {% if (states("sensor.living_room_socket_heating_power") | int(0) > 0) %}
+                on
+                {% else %}
+                off
+                {% endif %}
+            icon: >-
+                {% if is_state("binary_sensor.living_room_socket_heating_status","on") %}
+                mdi:radiator
+                {% elif is_state("input_boolean.heating_status","off") or is_state("climate.living_room_heater","off") %}
+                mdi:radiator-off
+                {% else %}
+                mdi:radiator-disabled
+                {% endif %}
+
+          - name: kitchen_socket_heating_status
+            unique_id: binary_sensor_kitchen_socket_heating_status
+            device_class: heat
+            state: >-
+                {% if (states("sensor.kitchen_socket_heating_power") | int(0) > 0) %}
+                on
+                {% else %}
+                off
+                {% endif %}
+            icon: >-
+                {% if is_state("binary_sensor.kitchen_socket_heating_status","on") %}
+                mdi:radiator
+                {% elif is_state("input_boolean.heating_status","off") or is_state("climate.kitchen_heater","off") %}
+                mdi:radiator-off
+                {% else %}
+                mdi:radiator-disabled
+                {% endif %}
+
+          - name: bathroom_washing_machine_socket_status
+            unique_id: binary_sensor_bathroom_washing_machine_socket_status
+            state: >-
+                {% if (states("sensor.bathroom_washing_machine_socket_power") | int(0) > 1) %}
+                on
+                {% else %}
+                off
+                {% endif %}
+            icon: >-
+                {% if is_state("binary_sensor.bathroom_washing_machine_socket_status","on") and (states("sensor.bathroom_washing_machine_socket_power") | int(0) > 3) %}
+                mdi:washing-machine
+                {% elif is_state("binary_sensor.bathroom_washing_machine_socket_status","on") and (states("sensor.bathroom_washing_machine_socket_power") | int(0) < 4) %}
+                mdi:washing-machine-alert
+                {% else %}
+                mdi:washing-machine-off
+                {% endif %}
+            device_class: power
+
+    notify:
+
+      - name: daily_electricity_consumption
+        platform: file
+        filename: /config/files/electricity_consumption/daily.json
+
+      - name: weekly_electricity_consumption
+        platform: file
+        filename: /config/files/electricity_consumption/weekly.json
+
+      - name: monthly_electricity_consumption
+        platform: file
+        filename: /config/files/electricity_consumption/monthly.json
+
+# ==============================================================================
+
+    automation:
+
+      - alias: "Energy: Set Active Tariff"
+        id: energy_set_active_tariff
+        trigger:
+          - platform: state
+            entity_id: sensor.energy_active_tariff
+            to:
+                - 'day'
+                - 'night'
+        action:
+          - service: select.select_option
+            entity_id: 
+              - select.tuya_clamp_meter_daily
+              - select.tuya_clamp_meter_weekly
+              - select.tuya_clamp_meter_monthly
+              - select.tuya_clamp_meter_counter
+            data:
+                option: '{{ states("sensor.energy_active_tariff") }}'
+        mode: single
+
+      - alias: "Energy: Updating the Calibration Value when the Tariff was Changed"
+        id: energy_update_calibrating_value_if_tariff_is_changed
+        trigger:
+          - platform: template
+            value_template: >
+                {% if not (is_state("sensor.tariff_energy_cost_base","unavailable") or
+                           is_state("sensor.tariff_energy_cost_base","unknown")) %}
+                {{ states("input_number.tarrif_energy_cost_calibrate_base") != states("sensor.tariff_energy_cost_base") }}
+                {% else %}
+                false
+                {% endif %}
+        action:
+          - service: input_number.set_value
+            target:
+                entity_id: input_number.tarrif_energy_cost_calibrate_base
+            data:
+                value: "{{ states('sensor.tariff_energy_cost_base') | float(0) | round(3) }}"
+        mode: single
+
+      - alias: "Energy: Save Energy Consumption Logs"
+        id: energy_save_energy_consumption_logs
+        trigger:
+          - platform: time
+            at: '23:59:59'
+        action:
+          - choose:
+              - conditions:
+                  - condition: template
+                    value_template: >
+                        {% set r = 31 if now().month == 12 else (now().replace(month=now().month+1, day=1) - timedelta(days=1)).day %}
+                        {{ now().day == r }}
+                sequence:
+                  - service: notify.monthly_electricity_consumption
+                    data:
+                        message: >
+                            {"date": "{{ now().date() }}", "day": {{ states('sensor.tuya_clamp_meter_monthly_day') | float(0) | round(2) }}, "night": {{ states('sensor.tuya_clamp_meter_monthly_night') | float(0) | round(2) }}, "total": {{ states('sensor.tuya_clamp_meter_monthly_total') | float(0) | round(2) }}},
+                  - service: notify.alexus
+                    data:
+                      message: |
+                        {{'\U000026A1'}} Электричество 
+                        ➖➖➖➖➖➖➖➖➖➖➖➖
+                        {{"\U0001F4C5"}} {{ states("sensor.date") }} {{"\U0001F551"}} {{ states("sensor.time") }}
+
+                        {{"\U0001F4CA"}} Показания счетчика:
+                         - {{"\U0001F4CB"}} Всего: {{ states("sensor.energy_counter_total")       | float(0) | round(0) }} kWh
+                         - {{"\U00002600"}} День:  {{ states("sensor.energy_counter_total_day")   | float(0) | round(0) }} kWh
+                         - {{"\U0001F312"}} Ночь:  {{ states("sensor.energy_counter_total_night") | float(0) | round(0) }} kWh
+
+                        {{"\U0001F4CA"}} {{ now().strftime('%B') }}/{{ now().year }}:
+                         - {{"\U0001F4CB"}} Всего: {{ states("sensor.tuya_clamp_meter_monthly_total") | float(0) | round(0) }} kWh, {{"\U0001F4B8"}} {{ ((states("sensor.tuya_clamp_meter_monthly_day") | float(0) | round(0) * states('sensor.tariff_energy_cost_base') | float(0) | round(2)) +  (states("sensor.tuya_clamp_meter_monthly_night") | float(0) | round(0) * states('sensor.tariff_energy_cost_base') | float(0) * 0.5 | round(2))) | round(2) }} ₴
+                         - {{"\U00002600"}} День: {{ states("sensor.tuya_clamp_meter_monthly_day")    | float(0) | round(0) }} kWh, {{"\U0001F4B8"}} {{ (states("sensor.tuya_clamp_meter_monthly_day") | float(0) | round(0) * states('sensor.tariff_energy_cost_base') | float(0) | round(2)) | round(2) }} ₴
+                         - {{"\U0001F312"}} Ночь: {{ states("sensor.tuya_clamp_meter_monthly_night")  | float(0) | round(0) }} kWh, {{"\U0001F4B8"}} {{ (states("sensor.tuya_clamp_meter_monthly_night") | float(0) | round(0) * states('sensor.tariff_energy_cost_base') | float(0) * 0.5 | round(2)) | round(2) }} ₴
+          - choose:
+              - conditions:
+                  - condition: template
+                    value_template: '{{ now().weekday() == 6 }}'
+                sequence:
+                  - service: notify.weekly_electricity_consumption
+                    data:
+                        message: >
+                            {"date": "{{ now().date() }}", "day": {{ states('sensor.tuya_clamp_meter_weekly_day') | float(0) | round(2) }}, "night": {{ states('sensor.tuya_clamp_meter_weekly_night') | float(0) | round(2) }}, "total": {{ states('sensor.tuya_clamp_meter_weekly_total') | float(0) | round(2) }}},
+          - service: notify.daily_electricity_consumption
+            data:
+                message: >
+                    {"date": "{{ now().date() }}", "day": {{ states('sensor.tuya_clamp_meter_daily_day') | float(0) | round(2) }}, "night": {{ states('sensor.tuya_clamp_meter_daily_night') | float(0) | round(2) }}, "total": {{ states('sensor.tuya_clamp_meter_daily_total') | float(0) | round(2) }}},
+        mode: single

@@ -1,5 +1,15 @@
 ukraine_alerts_package:
 
+    recorder:
+        include:
+            entities:
+              - binary_sensor.m_novomoskovsk_alerts
+              - binary_sensor.m_novomoskovsk_ta_novomoskovska_teritorialna_gromada_air
+              - binary_sensor.m_novomoskovsk_ta_novomoskovska_teritorialna_gromada_artillery
+              - binary_sensor.m_novomoskovsk_ta_novomoskovska_teritorialna_gromada_chemical
+              - binary_sensor.m_novomoskovsk_ta_novomoskovska_teritorialna_gromada_nuclear
+              - binary_sensor.m_novomoskovsk_ta_novomoskovska_teritorialna_gromada_urban_fights
+              - binary_sensor.m_novomoskovsk_ta_novomoskovska_teritorialna_gromada_unknown
 
     binary_sensor:
 
@@ -13,6 +23,16 @@ ukraine_alerts_package:
           - binary_sensor.m_novomoskovsk_ta_novomoskovska_teritorialna_gromada_nuclear
           - binary_sensor.m_novomoskovsk_ta_novomoskovska_teritorialna_gromada_urban_fights
           - binary_sensor.m_novomoskovsk_ta_novomoskovska_teritorialna_gromada_unknown
+
+    input_boolean:
+    
+        disable_alerts_notifications:
+            name: Disable Alert Notifications
+            icon: mdi:alarm-light-off
+
+        disable_voice_alerts:
+            name: Disable Voice Alerts
+            icon: mdi:volume-off
 
     automation:
 

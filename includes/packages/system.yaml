@@ -1,19 +1,100 @@
 system_config:
 
     recorder:
-
         db_url: mysql://homeassistant:homeassistant@core-mariadb/homeassistant?charset=utf8mb4
         auto_purge: false
-        exclude: 
-          domains:
-            - telegram_bot
-          entity_globs:
-            - sensor.time*
-            - sensor.date*
-            - sensor.*_custom
-            - sensor.last_boot*
-            - sensor.*_google*
-            - sensor.snapshots*
+        commit_interval: 60
+        include:
+            entities:
+              - sensor.exchange_rate_usd
+              - sensor.processor_use
+              - sensor.processor_temperature
+              - sensor.memory_use_percent
+              - sensor.swap_use_percent
+              - sensor.disk_use_percent
+              - sensor.maria_db_size
+              - sensor.load_15m
+            #   - sensor.network_in_eth0
+            #   - sensor.network_out_eth0
+            #   - sensor.network_in_wlan0
+            #   - sensor.network_out_wlan0
+              - sensor.last_boot
+              - sensor.last_boot_custom
+              - sensor.online_custom
+              - sensor.ups_battery_voltage
+              - sensor.ups_battery_capacity
+              - sensor.chassis_fan_speed
+              - binary_sensor.ups_battery_low
+              - binary_sensor.ups_fan_speed
+              - binary_sensor.rpi_ac_power_status
+              - binary_sensor.anyone_home
+              - binary_sensor.internet_connection_ping
+              - group.family
+            entity_globs:
+              - binary_sensor.*_battery_low
+              - sensor.apple_macbook_*
+              - sensor.*_battery
+
+    homeassistant:
+        customize:
+            sensor.ups_battery_voltage:
+                friendly_name: 'Напряжение батареи UPS'
+            sensor.ups_battery_capacity:
+                friendly_name: 'Уровень заряда батареи UPS'
+            sensor.chassis_fan_speed:
+                friendly_name: 'Chassis Fan Speed'
+            sensor.last_boot_custom:
+                friendly_name: 'System Last Boot'
+            sensor.online_custom:
+                friendly_name: 'Home Assistant Uptime'
+            binary_sensor.anyone_home:
+                friendly_name: 'Anyone Home'
+            binary_sensor.internet_connection_ping:
+                friendly_name: 'Интернет соединение'
+            binary_sensor.ups_battery_low:
+                friendly_name: 'Состояние батареи UPS'
+            binary_sensor.ups_fan_speed:
+                friendly_name: 'UPS Fan Speed'
+            binary_sensor.rpi_ac_power_status:
+                friendly_name: 'Источник внешнего питания'
+
+    input_boolean:
+
+        disable_zone_notifications:
+            name: Disable Zone Notifications
+            icon: mdi:map-marker-off
+
+        disable_startup_notifications:
+            name: Disable Startup Notifications
+            icon: mdi:bell-off
+
+        disable_ups_battery_status_notifications:
+            name: Disable UPS Battery Status Notifications
+            icon: mdi:battery-off-outline
+
+        disable_home_away:
+            name: Disable Home/Away Automations
+            icon: mdi:home-off
+
+        enable_christmas_automations:
+            name: Enable Christmas Automations
+            icon: mdi:pine-tree-box
+
+        enable_manual_control_aqua_lights:
+            name: Enable Manual Control of Aquarium Lights
+            icon: mdi:fishbowl-outline
+
+        enable_manual_control_ac:
+            name: Enable Manual Control of A/C
+            icon: mdi:air-conditioner
+
+        enable_manual_control_heater:
+            name: Enable Manual Control of Heaters
+            icon: mdi:radiator
+
+        enable_manual_control_lights:
+            name: Enable Manual Control of Lights
+            icon: mdi:lightbulb-group-outline
 
     scrape:
 
@@ -27,25 +108,15 @@ system_config:
             icon: mdi:laptop
             value_template: '{{ value.split("₴")[0] | replace(" ","") }}'
 
-      - resource: https://bankchart.com.ua/spravochniki/indikatory_rynka/electric_tariff
-        scan_interval: 86400
+      - resource: https://touch.com.ua/item/apple-macbook-air-13-silver-late-2020-mgn93/
+        scan_interval: 21600
         sensor:
-          - name: 'Tariff Energy Cost BASE'
-            unique_id: tarrif_energy_cost_base
-            select: '#branding-wrapper > section > div > div > div.table-currency > div.row.row-last > div:nth-child(13) > p'
-            unit_of_measurement: '₴/kWh'
-            icon: mdi:lightning-bolt-circle
-            value_template: '{{ value | float(0) / 100 | round(2) }}'
-
-    #   - resource: https://minfin.com.ua/ua/currency/auction/usd/buy/dnepropetrovsk/
-    #     scan_interval: 10800
-    #     sensor:
-    #       - name: 'Exchange Rate USD'
-    #         unique_id: exchange_rate_usd
-    #         select: '#exchanges-page-container > div > div > div.exchanges-page-header > div > div.chart-button-wrapper > div > div.chart-wrapper > div > div.sale > span'
-    #         unit_of_measurement: '₴'
-    #         icon: mdi:currency-usd
-    #         value_template: '{{ value.split("(")[0] | replace (",",".") | float(0) }}'
+          - name: 'Apple MacBook Air 13 Silver Late 2020 price'
+            unique_id: apple_macbook_air_13_m1_8_256_price
+            select: '#elementTools > div > div.mainTool > div > div.new_price.\31  > a'
+            unit_of_measurement: '₴'
+            icon: mdi:laptop
+            value_template: '{{ value.split("₴")[0] | replace(" ","") }}'
 
       - resource: https://bankchart.com.ua/spravochniki/kursy_valyut_city/2
         scan_interval: 10800
@@ -71,42 +142,27 @@ system_config:
           - type: processor_temperature
           - type: disk_use_percent
             arg: /
-          - type: disk_use
+        #   - type: disk_use
           - type: disk_free
             arg: /
           - type: memory_use_percent
-          - type: memory_use
+        #   - type: memory_use
           - type: memory_free
           - type: swap_use_percent
-          - type: swap_use
+        #   - type: swap_use
           - type: swap_free
-          - type: load_1m
-          - type: load_5m
+        #   - type: load_1m
+        #   - type: load_5m
           - type: load_15m
-          - type: network_in
-            arg: eth0
-          - type: network_out
-            arg: eth0
-          - type: network_in
-            arg: wlan0
-          - type: network_out
-            arg: wlan0
+        #   - type: network_in
+        #     arg: eth0
+        #   - type: network_out
+        #     arg: eth0
+        #   - type: network_in
+        #     arg: wlan0
+        #   - type: network_out
+        #     arg: wlan0
           - type: last_boot
-
-      - platform: min_max
-        name: average_sockets_voltage
-        unique_id: sensor_average_sockets_voltage
-        type: mean
-        round_digits: 0
-        entity_ids:
-          - sensor.bathroom_washing_machine_socket_voltage
-          - sensor.bedroom_air_conditioner_socket_voltage
-          - sensor.bedroom_socket_heating_voltage
-          - sensor.kitchen_socket_heating_voltage
-          - sensor.living_room_air_conditioner_socket_voltage
-          # - sensor.living_room_aquarium_main_lighting_voltage
-          # - sensor.living_room_aquarium_moonlight_voltage
-          - sensor.living_room_socket_heating_voltage
 
       - platform: file
         name: file_battery_voltage
@@ -140,33 +196,6 @@ system_config:
 
     binary_sensor:
 
-      - platform: group
-        name: bedroom_windows
-        unique_id: binary_sensor_bedroom_windows
-        device_class: window
-        entities:
-          - binary_sensor.bedroom_window_left_contact
-          - binary_sensor.bedroom_window_right_contact
-
-      - platform: group
-        name: home_windows
-        unique_id: binary_sensor_home_windows
-        device_class: window
-        entities:
-          - binary_sensor.bedroom_window_left_contact
-          - binary_sensor.bedroom_window_right_contact
-          - binary_sensor.kitchen_window_contact
-          - binary_sensor.living_room_loggia_door_contact
-
-      - platform: group
-        name: motion_sensors
-        unique_id: binary_sensor_motion_sensors
-        device_class: motion
-        entities:
-          - binary_sensor.bedroom_lumi_sensor_motion_occupancy
-          - binary_sensor.living_room_lumi_sensor_motion_occupancy
-          - binary_sensor.tapo_camera_motion
-
       - platform: ping
         host: 8.8.8.8
         name: internet_connection_ping
@@ -184,18 +213,6 @@ system_config:
     template:
 
       - sensor:
-
-          - name: 'Tariff Energy Cost'
-            unique_id: tarrif_energy_cost
-            unit_of_measurement: '₴/kWh'
-            icon: mdi:home-lightning-bolt
-            state: > 
-                {% set k = 1 %}
-                {% set n =  now().hour %}
-                {% if (n > 22) or (n < 7) %}
-                {% set k = 0.5 %}
-                {% endif %}
-                {{ states("sensor.tariff_energy_cost_base") | float * k | round(2) }}
 
           - name: ups_battery_voltage
             unique_id: sensor_ups_battery_voltage
@@ -285,18 +302,6 @@ system_config:
                     {{ text }}
                 {% endif %}
 
-          - name: outdoor_humidity
-            unique_id: sensor_outdoor_humidity
-            state: "{{ state_attr('weather.home', 'humidity') }}"
-            device_class: humidity
-            unit_of_measurement: '%'
-
-          - name: outdoor_temperature
-            unique_id: sensor_outdoor_temperature
-            state: "{{ state_attr('weather.home', 'temperature') }}"
-            device_class: temperature
-            unit_of_measurement: '°C'
-
       - binary_sensor:
 
           - name: anyone_home
@@ -314,25 +319,25 @@ system_config:
                 {% endif %}
             icon: >-
                 {% if is_state("binary_sensor.ups_battery_low", "on") %}
-                  {% if (states("sensor.ups_battery_voltage") | float(0) >= 4.21 ) %}
+                  {% if (states("sensor.ups_battery_voltage") | float(0) > 4.22 ) %}
                   mdi:battery-charging-low
                   {% else %}
                   mdi:battery-low
                   {% endif %}
                 {% elif (states("sensor.ups_battery_capacity") | int(0) >=25) and (states("sensor.ups_battery_capacity") | int(0) < 75) %}
-                  {% if (states("sensor.ups_battery_voltage") | float(0) >= 4.21 ) %}
+                  {% if (states("sensor.ups_battery_voltage") | float(0) > 4.22 ) %}
                   mdi:battery-charging-medium
                   {% else %}
                   mdi:battery-medium
                   {% endif %}
                 {% else %}
-                  {% if (states("sensor.ups_battery_voltage") | float(0) >= 4.21 ) %}
+                  {% if (states("sensor.ups_battery_voltage") | float(0) > 4.22 ) %}
                   mdi:battery-charging-high
                   {% else %}
                   mdi:battery-high
                   {% endif %}
                 {% endif %}
-            device_class: battery #problem
+            device_class: battery
 
           - name: ups_fan_speed
             unique_id: binary_sensor_ups_fan_speed
@@ -361,24 +366,6 @@ system_config:
                 {{ none }} 
                 {% endif %}
             device_class: plug
-
-          - name: bathroom_washing_machine_socket_status
-            unique_id: binary_sensor_bathroom_washing_machine_socket_status
-            state: >-
-                {% if (states("sensor.bathroom_washing_machine_socket_power") | int(0) > 1) %}
-                on
-                {% else %}
-                off
-                {% endif %}
-            icon: >-
-                {% if is_state("binary_sensor.bathroom_washing_machine_socket_status","on") and (states("sensor.bathroom_washing_machine_socket_power") | int(0) > 3) %}
-                mdi:washing-machine
-                {% elif is_state("binary_sensor.bathroom_washing_machine_socket_status","on") and (states("sensor.bathroom_washing_machine_socket_power") | int(0) < 4) %}
-                mdi:washing-machine-alert
-                {% else %}
-                mdi:washing-machine-off
-                {% endif %}
-            device_class: power
 
     automation:
 
@@ -658,10 +645,10 @@ system_config:
             entity_id: update.zigbee2mqtt_update
             from: 'off'
             to: 'on'
-          - platform: state
-            entity_id: update.terminal_ssh_update
-            from: 'off'
-            to: 'on'
+        #   - platform: state
+        #     entity_id: update.terminal_ssh_update
+        #     from: 'off'
+        #     to: 'on'
           - platform: state
             entity_id: update.mosquitto_broker_update
             from: 'off'
@@ -787,6 +774,9 @@ system_config:
         condition: 
           - condition: state
             entity_id: binary_sensor.ups_battery_low
+            state: 'off'
+          - condition: state
+            entity_id: input_boolean.disable_ups_battery_status_notifications
             state: 'off'
           - condition: state
             entity_id: binary_sensor.internet_connection_ping

@@ -4,14 +4,77 @@ views:
   - title: Главная
     icon: mdi:home-assistant
     cards:
-
       - type: vertical-stack
         cards:
-
           - type: entity
             entity: sensor.time_date
             name: Время/Дата
             icon: mdi:calendar-clock
+
+          - type: conditional
+            conditions:
+              - entity: binary_sensor.m_novomoskovsk_alerts
+                state: "on"
+              - entity: input_boolean.disable_alerts_notifications
+                state: "off"
+            card:
+              type: grid
+              columns: 6
+              title: Тревога
+              cards:
+                - type: button
+                  tap_action:
+                    action: more-info
+                  entity: binary_sensor.m_novomoskovsk_ta_novomoskovska_teritorialna_gromada_air
+                  show_state: false
+                  show_name: false
+                  hold_action:
+                    action: none
+
+                - type: button
+                  tap_action:
+                    action: more-info
+                  entity: binary_sensor.m_novomoskovsk_ta_novomoskovska_teritorialna_gromada_artillery
+                  show_state: false
+                  show_name: false
+                  hold_action:
+                    action: none
+
+                - type: button
+                  tap_action:
+                    action: more-info
+                  entity: binary_sensor.m_novomoskovsk_ta_novomoskovska_teritorialna_gromada_urban_fights
+                  show_state: false
+                  show_name: false
+                  hold_action:
+                    action: none
+
+                - type: button
+                  tap_action:
+                    action: more-info
+                  entity: binary_sensor.m_novomoskovsk_ta_novomoskovska_teritorialna_gromada_chemical
+                  show_state: false
+                  show_name: false
+                  hold_action:
+                    action: none
+
+                - type: button
+                  tap_action:
+                    action: more-info
+                  entity: binary_sensor.m_novomoskovsk_ta_novomoskovska_teritorialna_gromada_nuclear
+                  show_state: false
+                  show_name: false
+                  hold_action:
+                    action: none
+
+                - type: button
+                  tap_action:
+                    action: more-info
+                  entity: binary_sensor.m_novomoskovsk_ta_novomoskovska_teritorialna_gromada_unknown
+                  show_state: false
+                  show_name: false
+                  hold_action:
+                    action: none
 
           - type: weather-forecast
             entity: weather.home
@@ -19,97 +82,32 @@ views:
 
           - type: conditional
             conditions:
-              - entity: binary_sensor.m_novomoskovsk_alerts
-                state: 'on'
-              - entity: input_boolean.disable_alerts_notifications
-                state: 'off'
-            card:
-                type: grid
-                columns: 3
-                title: Тревога
-                cards:
-                  - type: button
-                    tap_action:
-                        action: more-info
-                    entity: binary_sensor.m_novomoskovsk_ta_novomoskovska_teritorialna_gromada_air
-                    show_state: false
-                    show_name: false
-                    hold_action:
-                        action: none
-    
-                  - type: button
-                    tap_action:
-                        action: more-info
-                    entity: binary_sensor.m_novomoskovsk_ta_novomoskovska_teritorialna_gromada_artillery
-                    show_state: false
-                    show_name: false
-                    hold_action:
-                        action: none
-    
-                  - type: button
-                    tap_action:
-                        action: more-info
-                    entity: binary_sensor.m_novomoskovsk_ta_novomoskovska_teritorialna_gromada_urban_fights
-                    show_state: false
-                    show_name: false
-                    hold_action:
-                        action: none
-
-                  - type: button
-                    tap_action:
-                        action: more-info
-                    entity: binary_sensor.m_novomoskovsk_ta_novomoskovska_teritorialna_gromada_chemical
-                    show_state: false
-                    show_name: false
-                    hold_action:
-                        action: none
-
-                  - type: button
-                    tap_action:
-                        action: more-info
-                    entity: binary_sensor.m_novomoskovsk_ta_novomoskovska_teritorialna_gromada_nuclear
-                    show_state: false
-                    show_name: false
-                    hold_action:
-                        action: none
-
-                  - type: button
-                    tap_action:
-                        action: more-info
-                    entity: binary_sensor.m_novomoskovsk_ta_novomoskovska_teritorialna_gromada_unknown
-                    show_state: false
-                    show_name: false
-                    hold_action:
-                        action: none
-
-          - type: conditional
-            conditions:
               - entity: binary_sensor.anyone_home
                 state: "on"
             card:
-                type: entity-filter
-                entities:
-                  - person.alexus
-                  - person.inna
-                  - person.vova
-                  - person.ivan
-                state_filter:
-                  - home
-                show_empty: false
-                card:
-                    type: glance
-                    show_state: false
-                    title: Сейчас Дома
+              type: entity-filter
+              entities:
+                - person.alexus
+                - person.inna
+                - person.vova
+                - person.ivan
+              state_filter:
+                - home
+              show_empty: false
+              card:
+                type: glance
+                show_state: false
+                title: Сейчас Дома
 
-          - type: 'custom:mini-media-player'
+          - type: "custom:mini-media-player"
             entity: media_player.sonos_living_room
-            name: 'Living Room: Sonos One'
+            name: "Living Room: Sonos One"
             artwork: cover
             state_label: true
             hide:
-                power: true
+              power: true
             #  shortcuts:
-            #     columns: 4 
+            #     columns: 4
             #     buttons:
             #       # Start predefined playlist
             #       - name: Rock Your Body
@@ -167,7 +165,6 @@ views:
 
       - type: vertical-stack
         cards:
-
           - type: custom:room-card
             title: Коридор
             hide_title: false
@@ -221,10 +218,10 @@ views:
                 name: Таймер Света
                 tap_action: none
                 hide_if:
-                    conditions:
-                      - condition: equals
-                        entity: input_boolean.disable_occupancy
-                        value: 'on'
+                  conditions:
+                    - condition: equals
+                      entity: input_boolean.disable_occupancy
+                      value: "on"
               - entity: media_player.sonos_living_room
                 icon: mdi:speaker-wireless
                 name: Sonos One
@@ -232,20 +229,20 @@ views:
                 state_color: true
                 tap_action: none
                 hide_if:
-                    conditions:
-                      - condition: equals
-                        value: 'paused'
-                      - condition: equals
-                        value: 'unavailable'
+                  conditions:
+                    - condition: equals
+                      value: "paused"
+                    - condition: equals
+                      value: "unavailable"
               - entity: binary_sensor.living_room_socket_heating_status
                 show_icon: true
                 state_color: true
                 tap_action: none
                 hide_if:
-                    conditions:
-                      - condition: equals
-                        entity: input_boolean.heating_status
-                        value: 'off'
+                  conditions:
+                    - condition: equals
+                      entity: input_boolean.heating_status
+                      value: "off"
                 name: Радиатор
               - entity: binary_sensor.living_room_air_conditioner_socket_status
                 state_color: true
@@ -253,10 +250,10 @@ views:
                 tap_action: none
                 name: Кондиционер
                 hide_if:
-                    conditions:
-                      - condition: equals
-                        entity: input_boolean.ac_status
-                        value: 'off'
+                  conditions:
+                    - condition: equals
+                      entity: input_boolean.ac_status
+                      value: "off"
               - entity: binary_sensor.living_room_lumi_sensor_motion_occupancy
                 show_icon: true
                 state_color: true
@@ -292,19 +289,19 @@ views:
                 name: Таймер Света
                 tap_action: none
                 hide_if:
-                    conditions:
-                      - condition: equals
-                        entity: input_boolean.disable_occupancy
-                        value: 'on'
+                  conditions:
+                    - condition: equals
+                      entity: input_boolean.disable_occupancy
+                      value: "on"
               - entity: binary_sensor.bedroom_socket_heating_status
                 show_icon: true
                 state_color: true
                 tap_action: none
                 hide_if:
-                    conditions:
-                      - condition: equals
-                        entity: input_boolean.heating_status
-                        value: 'off'
+                  conditions:
+                    - condition: equals
+                      entity: input_boolean.heating_status
+                      value: "off"
                 name: Радиатор
               - entity: binary_sensor.bedroom_air_conditioner_socket_status
                 name: Кондиционер
@@ -312,10 +309,10 @@ views:
                 show_icon: true
                 tap_action: none
                 hide_if:
-                    conditions:
-                      - condition: equals
-                        entity: input_boolean.ac_status
-                        value: 'off'
+                  conditions:
+                    - condition: equals
+                      entity: input_boolean.ac_status
+                      value: "off"
               - entity: binary_sensor.bedroom_lumi_sensor_motion_occupancy
                 show_icon: true
                 state_color: true
@@ -357,10 +354,10 @@ views:
                 tap_action: none
                 name: Радиатор
                 hide_if:
-                    conditions:
-                      - condition: equals
-                        entity: input_boolean.heating_status
-                        value: 'off'
+                  conditions:
+                    - condition: equals
+                      entity: input_boolean.heating_status
+                      value: "off"
               - entity: binary_sensor.kitchen_window_contact
                 show_icon: true
                 state_color: true
@@ -415,501 +412,177 @@ views:
                 format: precision1
 
       - type: vertical-stack
-        cards: 
-
+        cards:
           - type: grid
             columns: 3
             title: Управление
             cards:
-
               - type: conditional
-                conditions: 
+                conditions:
                   - entity: input_boolean.heating_status
-                    state: 'on'
+                    state: "on"
                 card:
-                    type: button
-                    tap_action:
-                        action: toggle
-                    entity: input_boolean.enable_manual_control_heater
-                    show_state: false
-                    show_name: false
-                    hold_action:
-                        action: none
+                  type: button
+                  tap_action:
+                    action: toggle
+                  entity: input_boolean.enable_manual_control_heater
+                  show_state: false
+                  show_name: false
+                  hold_action:
+                    action: none
 
               - type: conditional
-                conditions: 
+                conditions:
                   - entity: input_boolean.ac_status
-                    state: 'on'
+                    state: "on"
                 card:
-                    type: button
-                    tap_action:
-                        action: toggle
-                    entity: input_boolean.enable_manual_control_ac
-                    show_state: false
-                    show_name: false
-                    hold_action:
-                        action: none
+                  type: button
+                  tap_action:
+                    action: toggle
+                  entity: input_boolean.enable_manual_control_ac
+                  show_state: false
+                  show_name: false
+                  hold_action:
+                    action: none
 
               - type: button
                 tap_action:
-                    action: toggle
+                  action: toggle
                 entity: input_boolean.enable_manual_control_lights
                 show_state: false
                 show_name: false
                 hold_action:
-                    action: none
+                  action: none
 
               - type: button
                 tap_action:
-                    action: toggle
+                  action: toggle
                 entity: input_boolean.enable_manual_control_aqua_lights
                 show_state: false
                 show_name: false
                 hold_action:
-                    action: none
+                  action: none
 
           - type: conditional
             conditions:
               - entity: input_boolean.enable_manual_control_heater
-                state: 'on'
+                state: "on"
               - entity: input_boolean.heating_status
-                state: 'on'
+                state: "on"
             card:
-                type: grid
-                title: Обогреватели
-                cards:
-                  - type: thermostat
-                    entity: climate.living_room_heater
-                    name: Гостинная
-                  - type: thermostat
-                    entity: climate.bedroom_heater
-                    name: Спальня
-                  - type: thermostat
-                    entity: climate.kitchen_heater
-                    name: Кухня
+              type: grid
+              title: Обогреватели
+              cards:
+                - type: thermostat
+                  entity: climate.living_room_heater
+                  name: Гостинная
+                - type: thermostat
+                  entity: climate.bedroom_heater
+                  name: Спальня
+                - type: thermostat
+                  entity: climate.kitchen_heater
+                  name: Кухня
 
           - type: conditional
             conditions:
               - entity: input_boolean.enable_manual_control_ac
-                state: 'on'
+                state: "on"
               - entity: input_boolean.ac_status
-                state: 'on'
+                state: "on"
             card:
-                type: grid
-                columns: 2
-                title: Кондиционеры
-                cards:
-                  - type: thermostat
-                    entity: climate.living_room_ac
-                    name: Гостинная
-                  - type: thermostat
-                    entity: climate.bedroom_ac
-                    name: Спальня
+              type: grid
+              columns: 2
+              title: Кондиционеры
+              cards:
+                - type: thermostat
+                  entity: climate.living_room_ac
+                  name: Гостинная
+                - type: thermostat
+                  entity: climate.bedroom_ac
+                  name: Спальня
 
           - type: conditional
             conditions:
               - entity: input_boolean.enable_manual_control_lights
-                state: 'on'
+                state: "on"
             card:
-                type: entities
-                show_header_toggle: true
-                title: Освещение
-                icon: mdi:ceiling-light-multiple-outline
-                state_color: true
-                entities:
-                  - entity: switch.living_room_light_switch
-                    name: Гостинная
-                    icon: mdi:ceiling-light
-                  - entity: switch.bedroom_light_switch
-                    name: Спальня
-                    icon: mdi:ceiling-light
-                  - entity: input_boolean.hallway_rgb_bulb_switch_single_status
-                    icon: mdi:lightbulb
-                    name: Коридор
+              type: entities
+              show_header_toggle: true
+              title: Освещение
+              icon: mdi:ceiling-light-multiple-outline
+              state_color: true
+              entities:
+                - entity: switch.living_room_light_switch
+                  name: Гостинная
+                  icon: mdi:ceiling-light
+                - entity: switch.bedroom_light_switch
+                  name: Спальня
+                  icon: mdi:ceiling-light
+                - entity: input_boolean.hallway_rgb_bulb_switch_single_status
+                  icon: mdi:lightbulb
+                  name: Коридор
 
           - type: conditional
             conditions:
               - entity: input_boolean.enable_christmas_automations
-                state: 'on'
+                state: "on"
               - entity: input_boolean.enable_manual_control_lights
-                state: 'on'
+                state: "on"
             card:
-                type: entities
-                show_header_toggle: true
-                title: Гирлянды
-                icon: mdi:ceiling-light-multiple-outline
-                state_color: true
-                entities:
-                  - entity: switch.living_room_air_conditioner_socket
-                    name: Ёлочка
-                    icon: mdi:pine-tree
-                  - entity: switch.bedroom_air_conditioner_socket
-                    name: Гирлянда в Спальне 
-                    icon: mdi:string-lights
+              type: entities
+              show_header_toggle: true
+              title: Гирлянды
+              icon: mdi:ceiling-light-multiple-outline
+              state_color: true
+              entities:
+                - entity: switch.living_room_air_conditioner_socket
+                  name: Ёлочка
+                  icon: mdi:pine-tree
+                - entity: switch.bedroom_air_conditioner_socket
+                  name: Гирлянда в Спальне
+                  icon: mdi:string-lights
 
           - type: conditional
             conditions:
               - entity: input_boolean.enable_manual_control_aqua_lights
-                state: 'on'
+                state: "on"
             card:
-                type: entities
-                show_header_toggle: true
-                title: Аквариум
-                icon: mdi:fishbowl
-                state_color: true
-                entities:
-                  - entity: switch.living_room_aquarium_power_strip_l3
-                    name: Основной свет
-                    icon: mdi:wall-sconce-flat
-                  - entity: switch.living_room_aquarium_power_strip_l4
-                    name: Лунный свет
-                    icon: mdi:weather-night
-                  - type: divider
-                  - entity: switch.living_room_aquarium_power_strip_l1
-                    name: Аэрация
-                    icon: mdi:fish
-                  - entity: switch.living_room_aquarium_power_strip_l2
-                    name: Фильтрация
-                    icon: mdi:air-filter
-
-  - title: Система
-    icon: mdi:tablet-dashboard
-    cards:
-
-      - type: vertical-stack
-        cards:
-
-        #   - type: entity
-        #     entity: sensor.time_date
-        #     name: Время/Дата
-        #     icon: mdi:calendar-clock
-
-          - type: entities
-            show_header_toggle: false
-            state_color: true
-            # title: Статус Системы
-            entities:
-              - entity: sensor.time_date
-                name: Время/Дата
-              - type: section
-              - entity: binary_sensor.internet_connection_ping
-              - type: section
-                label: Питание
-              - entity: binary_sensor.rpi_ac_power_status
-              - entity: binary_sensor.ups_battery_low
-              - type: section
-                label: Последняя загрузка
-              - entity: sensor.last_boot_custom
-                name: Last boot
-              - entity: sensor.online_custom
-              - type: section
-                label: Обновления
-              - entity: update.home_assistant_core_update
-                icon: mdi:home-assistant
-              - entity: update.home_assistant_supervisor_update
-                icon: mdi:home-assistant
-              - entity: sensor.hacs
-                name: HACS
-              - type: section
-                label: Резервные копии
-              - entity: sensor.last_google_backup_train
-              - entity: sensor.snapshots_in_google_drive_train
-              - entity: sensor.snapshots_in_hassio_train
-
-      - type: vertical-stack
-        cards:
-
-          - type: grid
-            columns: 3
-            title: Системные показатели
-            cards:
-
-              - type: sensor
-                graph: line
-                name: CPU
-                detail: 2
-                hours_to_show: 6
-                entity: sensor.processor_use
-
-              - type: sensor
-                graph: line
-                name: CPU
-                detail: 2
-                hours_to_show: 6
-                entity: sensor.processor_temperature
-
-              - type: sensor
-                name: Chassis Fan
-                graph: line
-                detail: 2
-                hours_to_show: 6
-                entity: sensor.chassis_fan_speed
-
-              - type: sensor
-                graph: line
-                name: RAM
-                detail: 2
-                hours_to_show: 6
-                entity: sensor.memory_use_percent
-
-              - type: sensor
-                graph: line
-                name: RAM
-                detail: 2
-                hours_to_show: 6
-                entity: sensor.memory_use
-
-              - type: button
-                entity: binary_sensor.ups_fan_speed
-                name: UPS Fan
-                state_color: true
-
-              - type: sensor
-                graph: line
-                name: 1m
-                detail: 2
-                hours_to_show: 6
-                entity: sensor.load_1m
-
-              - type: sensor
-                graph: line
-                name: 5m
-                detail: 2
-                hours_to_show: 6
-                entity: sensor.load_5m
-
-              - type: sensor
-                graph: line
-                name: 15m
-                detail: 2
-                hours_to_show: 6
-                entity: sensor.load_15m
-
-              - type: sensor
-                graph: line
-                name: SWAP
-                detail: 2
-                hours_to_show: 6
-                entity: sensor.swap_use_percent
-
-              - type: sensor
-                graph: line
-                name: SWAP
-                detail: 2
-                hours_to_show: 6
-                entity: sensor.swap_free
-
-              - type: sensor
-                graph: line
-                name: UPS
-                detail: 2
-                hours_to_show: 6
-                entity: sensor.ups_battery_capacity
-
-              - type: sensor
-                graph: line
-                name: SSD
-                detail: 2
-                hours_to_show: 6
-                entity: sensor.disk_use_percent
-
-              - type: sensor
-                graph: line 
-                name: SSD
-                detail: 2
-                hours_to_show: 6
-                entity: sensor.disk_free
-
-              - type: sensor
-                graph: line 
-                name: UPS
-                hours_to_show: 6
-                detail: 2
-                entity: sensor.ups_battery_voltage
-
-              - type: sensor
-                graph: line
-                name: IN
-                hours_to_show: 6
-                icon: mdi:download-network
-                detail: 2
-                entity: sensor.network_in_eth0
-
-              - type: sensor
-                graph: line
-                name: OUT
-                hours_to_show: 6
-                icon: mdi:upload-network
-                detail: 2
-                entity: sensor.network_out_eth0
-
-              - type: sensor
-                graph: line
-                name: DB
-                detail: 2
-                hours_to_show: 6
-                entity: sensor.maria_db_size
-
-              - type: sensor
-                graph: line
-                name: IN
-                icon: mdi:wifi-arrow-down
-                detail: 2
-                hours_to_show: 6
-                entity: sensor.network_in_wlan0
-
-              - type: sensor
-                graph: line
-                name: OUT
-                icon: mdi:wifi-arrow-up
-                detail: 2
-                hours_to_show: 6
-                entity: sensor.network_out_wlan0
-
-              - type: sensor
-                graph: line
-                name: Voltage
-                icon: mdi:sine-wave
-                detail: 2
-                hours_to_show: 6
-                entity: sensor.average_sockets_voltage
-
-            #   - type: gauge
-            #      name: Загрузка CPU
-            #      unit: '%'
-            #      entity: sensor.processor_use
-            #      severity:
-            #       green: 0
-            #       yellow: 60
-            #       red: 85
-
-            #   - type: gauge
-            #      name: Температура CPU
-            #      unit: '°C'
-            #      entity: sensor.processor_temperature
-            #      severity:
-            #       green: 0
-            #       yellow: 60
-            #       red: 85
-
-            #   - type: gauge
-            #      name: Загрузка ОЗУ
-            #      unit: '%'
-            #      entity: sensor.memory_use_percent
-            #      severity:
-            #       green: 0
-            #       yellow: 60
-            #       red: 85
-
-            #   - type: gauge
-            #      name: Использовано ОЗУ
-            #      unit: 'МБ'
-            #      min: 0
-            #      max: 8192
-            #      entity: sensor.memory_use
-            #      severity:
-            #       green: 0
-            #       yellow: 6144
-            #       red: 7168
-
-
-            #   - type: gauge
-            #      name: Использовано SWAP
-            #      unit: '%'
-            #      entity: sensor.swap_use_percent
-            #      severity:
-            #       green: 0
-            #       yellow: 60
-            #       red: 85
-
-            #   - type: gauge
-            #      name: Свободно SWAP
-            #      unit: 'МБ'
-            #      min: 0
-            #      max: 1024
-            #      entity: sensor.swap_free
-            #      severity:
-            #       green: 600
-            #       yellow: 350
-            #       red: 100
-
-            #   - type: gauge
-            #      name: Диск Заполнен
-            #      unit: '%'
-            #      entity: sensor.disk_use_percent
-            #      severity:
-            #       green: 0
-            #       yellow: 60
-            #       red: 85
-
-            #   - type: gauge
-            #      name: Свободное Место
-            #      unit: 'Гб'
-            #      entity: sensor.disk_free
-            #      severity:
-            #       red: 50
-            #       yellow: 150
-            #       green: 250         
-
-    #   - type: vertical-stack
-        #  title: Статистика БД
-        #  cards:
-
-        #   - type: entities
-            #  show_header_toggle: false
-            #  entities:
-            #   - entity: sensor.maria_db_size
-                #  name: Объем БД
-                #  icon: mdi:database
-
-        #   - type: history-graph
-            #  entities:
-            #   - entity: sensor.maria_db_size
-            #  name: Maria DB
-
-      - type: vertical-stack
-        cards:
-          - entities:
-              - entity: input_boolean.disable_alerts_notifications
-              - entity: input_boolean.disable_voice_alerts
-              - type: divider
-              - entity: input_boolean.ac_status
-              - entity: input_boolean.heating_status
-              - entity: input_number.climate_target_temperature
-              - type: divider
-              - entity: input_boolean.disable_climate
-              - entity: input_boolean.disable_home_away
-              - entity: input_boolean.disable_occupancy
-              - entity: input_boolean.enable_christmas_automations
-              - type: divider
-              - entity: input_boolean.disable_climate_notifications
-              - entity: input_boolean.disable_voice_notifications
-              - entity: input_boolean.disable_startup_notifications
-              - entity: input_boolean.disable_zone_notifications
-            show_header_toggle: false
-            title: Переключатели
-            icon: mdi:sync-off
-            type: entities
-            state_color: true
+              type: entities
+              show_header_toggle: true
+              title: Аквариум
+              icon: mdi:fishbowl
+              state_color: true
+              entities:
+                - entity: switch.living_room_aquarium_power_strip_l3
+                  name: Основной свет
+                  icon: mdi:wall-sconce-flat
+                - entity: switch.living_room_aquarium_power_strip_l4
+                  name: Лунный свет
+                  icon: mdi:weather-night
+                - type: divider
+                - entity: switch.living_room_aquarium_power_strip_l1
+                  name: Аэрация
+                  icon: mdi:fish
+                - entity: switch.living_room_aquarium_power_strip_l2
+                  name: Фильтрация
+                  icon: mdi:air-filter
 
   - title: Сенсоры
-    icon: mdi:view-list-outline
+    icon: mdi:view-dashboard
     cards:
-
       - type: vertical-stack
         title: Гостинная
         cards:
           - type: entities
             state_color: true
             entities:
-
               - type: custom:multiple-entity-row
                 entity: binary_sensor.living_room_loggia_door_contact
                 secondary_info: last-changed
                 state_header: Состояние
                 state_color: true
                 name: Дверь на лоджию
-                      
+
               - type: custom:multiple-entity-row
                 entity: binary_sensor.living_room_lumi_sensor_motion_occupancy
                 name: Датчик движения
@@ -919,7 +592,7 @@ views:
                 entities:
                   - entity: sensor.living_room_lumi_sensor_motion_illuminance_lux
                     name: Освещенность
-                  
+
               - type: custom:multiple-entity-row
                 entity: sensor.living_room_lumi_weather_temperature
                 icon: mdi:home-thermometer
@@ -942,13 +615,13 @@ views:
                 entities:
                   - entity: sensor.living_room_aquarium_main_lighting_voltage
                     name: Напряжение
-                    unit: 'V'
+                    unit: "V"
                   - entity: sensor.living_room_aquarium_main_lighting_power
                     name: Мощность
-                    unit: 'W'
-                  - entity: sensor.living_room_aquarium_main_lighting_meter
+                    unit: "W"
+                  - entity: sensor.living_room_aquarium_main_lighting_meter_monthly
                     name: За месяц
-                    unit: 'kW*h'
+                    unit: "kWh"
 
               - type: custom:multiple-entity-row
                 entity: binary_sensor.living_room_socket_heating_status
@@ -959,13 +632,14 @@ views:
                 entities:
                   - entity: sensor.living_room_socket_heating_voltage
                     name: Напряжение
-                    unit: 'V'
+                    unit: "V"
                   - entity: sensor.living_room_socket_heating_power
                     name: Мощность
-                    unit: 'W'
-                  - entity: sensor.living_room_socket_heating_meter
+                    unit: "W"
+                  - entity: sensor.living_room_socket_heating_meter_monthly
                     name: За месяц
-                    unit: 'kW*h'
+                    unit: "kWh"
+
               - type: custom:multiple-entity-row
                 entity: binary_sensor.living_room_air_conditioner_socket_status
                 name: Кондиционер
@@ -975,13 +649,13 @@ views:
                 entities:
                   - entity: sensor.living_room_air_conditioner_socket_voltage
                     name: Напряжение
-                    unit: 'V'
+                    unit: "V"
                   - entity: sensor.living_room_air_conditioner_socket_power
                     name: Мощность
-                    unit: 'W'
-                  - entity: sensor.living_room_air_conditioner_socket_meter
+                    unit: "W"
+                  - entity: sensor.living_room_air_conditioner_socket_meter_monthly
                     name: За месяц
-                    unit: 'kW*h'
+                    unit: "kWh"
 
       - type: vertical-stack
         title: Спальня
@@ -989,7 +663,6 @@ views:
           - type: entities
             state_color: true
             entities:
-
               - type: custom:multiple-entity-row
                 entity: binary_sensor.bedroom_windows
                 name: Окно
@@ -1038,13 +711,13 @@ views:
                 entities:
                   - entity: sensor.bedroom_socket_heating_voltage
                     name: Напряжение
-                    unit: 'V'
+                    unit: "V"
                   - entity: sensor.bedroom_socket_heating_power
                     name: Мощность
-                    unit: 'W'
-                  - entity: sensor.bedroom_socket_heating_meter
+                    unit: "W"
+                  - entity: sensor.bedroom_socket_heating_meter_monthly
                     name: За месяц
-                    unit: 'kW*h'
+                    unit: "kWh"
 
               - type: custom:multiple-entity-row
                 entity: binary_sensor.bedroom_air_conditioner_socket_status
@@ -1055,13 +728,13 @@ views:
                 entities:
                   - entity: sensor.bedroom_air_conditioner_socket_voltage
                     name: Напряжение
-                    unit: 'V'
+                    unit: "V"
                   - entity: sensor.bedroom_air_conditioner_socket_power
                     name: Мощность
-                    unit: 'W'
-                  - entity: sensor.bedroom_air_conditioner_socket_meter
+                    unit: "W"
+                  - entity: sensor.bedroom_air_conditioner_socket_meter_monthly
                     name: За месяц
-                    unit: 'kW*h'
+                    unit: "kWh"
 
       - type: vertical-stack
         title: Кухня
@@ -1111,20 +784,20 @@ views:
                 entities:
                   - entity: sensor.kitchen_socket_heating_voltage
                     name: Напряжение
-                    unit: 'V'
+                    unit: "V"
                   - entity: sensor.kitchen_socket_heating_power
                     name: Мощность
-                    unit: 'W'
-                  - entity: sensor.kitchen_socket_heating_meter
+                    unit: "W"
+                  - entity: sensor.kitchen_socket_heating_meter_monthly
                     name: За месяц
-                    unit: 'kW*h'
+                    unit: "kWh"
 
       - type: vertical-stack
         title: Ванная
         cards:
           - type: entities
             state_color: true
-            entities: 
+            entities:
               - type: custom:multiple-entity-row
                 entity: binary_sensor.bathroom_water_leak_under_the_bath_water_leak
                 secondary_info: last-changed
@@ -1160,17 +833,16 @@ views:
                 entities:
                   - entity: sensor.bathroom_washing_machine_socket_voltage
                     name: Напряжение
-                    unit: 'V'
+                    unit: "V"
                   - entity: sensor.bathroom_washing_machine_socket_power
                     name: Мощность
-                    unit: 'W'
-                  - entity: sensor.bathroom_washing_machine_socket_meter
+                    unit: "W"
+                  - entity: sensor.bathroom_washing_machine_socket_meter_monthly
                     name: За месяц
-                    unit: 'kW*h'
+                    unit: "kWh"
 
       - type: vertical-stack
         cards:
-
           - type: vertical-stack
             title: Коридор
             cards:
@@ -1199,39 +871,38 @@ views:
                       - entity: sensor.hallway_lumi_weather_humidity
                         name: Влажность
 
-          - type: vertical-stack
-            title: Лоджия
-            cards:
-              - type: entities
-                state_color: true
+      - type: vertical-stack
+        title: Лоджия
+        cards:
+          - type: entities
+            state_color: true
+            entities:
+              - type: custom:multiple-entity-row
+                entity: sensor.loggia_tuya_weather_temperature
+                icon: mdi:home-thermometer
+                name: Климат
+                secondary_info: last-changed
+                state_header: Температура
                 entities:
-                  - type: custom:multiple-entity-row
-                    entity: sensor.loggia_tuya_weather_temperature
-                    icon: mdi:home-thermometer
-                    name: Климат
-                    secondary_info: last-changed
-                    state_header: Температура
-                    entities:
-                      - entity: sensor.loggia_tuya_weather_humidity
-                        name: Влажность
+                  - entity: sensor.loggia_tuya_weather_humidity
+                    name: Влажность
 
-              - type: history-graph
-                title: 'Температура'
-                show_names: true
-                hours_to_show: 168
-                entities:
-                  - entity: sensor.hallway_lumi_weather_temperature
-                    name: Коридор
-                  - entity: sensor.living_room_lumi_weather_temperature
-                    name:  Гостинная
-                  - entity: sensor.bedroom_lumi_weather_temperature
-                    name: Спальня
-                  - entity: sensor.kitchen_lumi_weather_temperature
-                    name: Кухня
-                  - entity: sensor.bathroom_lumi_weather_temperature
-                    name: Ванная
-                  - entity: sensor.loggia_tuya_weather_temperature
-                    name: Лоджия
+          - type: history-graph
+            title: "Температура"
+            hours_to_show: 72
+            entities:
+              - entity: sensor.hallway_lumi_weather_temperature
+                name: Коридор
+              - entity: sensor.living_room_lumi_weather_temperature
+                name: Гостинная
+              - entity: sensor.bedroom_lumi_weather_temperature
+                name: Спальня
+              - entity: sensor.kitchen_lumi_weather_temperature
+                name: Кухня
+              - entity: sensor.bathroom_lumi_weather_temperature
+                name: Ванная
+              - entity: sensor.loggia_tuya_weather_temperature
+                name: Лоджия
 
       - type: vertical-stack
         title: Улица
@@ -1250,25 +921,383 @@ views:
                   - entity: sensor.outdoor_temperature
                     name: Температура
                   - entity: sensor.outdoor_mean_temperature
-                    name: Среднесуточная 
+                    name: Среднесуточная
           - type: history-graph
-            hours_to_show: 168
-            show_names: true
+            hours_to_show: 72
             entities:
               - entity: sensor.outdoor_temperature
                 name: Наружная
               - entity: sensor.outdoor_mean_temperature
                 name: Средняя
 
+  - title: Электричество
+    icon: mdi:lightning-bolt-circle
+    cards:
       - type: vertical-stack
-        title: Статус Батареи
+        cards:
+          - type: grid
+            columns: 3
+            cards:
+              - type: sensor
+                graph: line
+                name: Power
+                detail: 2
+                hours_to_show: 6
+                entity: sensor.tuya_clamp_meter_power
+              - type: sensor
+                graph: line
+                name: Current
+                detail: 2
+                hours_to_show: 6
+                entity: sensor.tuya_clamp_meter_current
+              - type: sensor
+                graph: line
+                name: Voltage Input
+                detail: 2
+                hours_to_show: 6
+                entity: sensor.tuya_clamp_meter_voltage
+
+          - type: conditional
+            conditions:
+              - entity: binary_sensor.exceed_electricity_consumption_limit
+                state: "on"
+            card:
+                type: custom:auto-entities
+                card:
+                    type: entities
+                    icon: mdi:format-list-bulleted-triangle
+                    title: Top 10 Consumers 
+                filter:
+                    include:
+                      - entity_id: sensor.*_power
+                        state: "> 150"
+                        attributes:
+                            device_class: power
+                            state_class: measurement
+                    exclude:
+                      - state: unavailable
+                      - state: unknown
+                      - entity_id: sensor.tuya_clamp_meter_power
+                sort:
+                    method: state
+                    count: 10
+                    reverse: true
+                    numeric: true
+
+      - type: vertical-stack
+        cards:
+          - type: custom:room-card
+            title: null
+            icon: mdi:meter-electric
+            show_icon: true
+            entity: sensor.energy_counter_total
+            tap_action: none
+            double_tap_action: none
+            info_entities:
+              - entity: sensor.tuya_clamp_meter_power
+                format: precision1
+              - entity: sensor.tuya_clamp_meter_current
+                format: precision1
+              - entity: sensor.tuya_clamp_meter_voltage
+                format: precision1
+              - entity: sensor.energy_active_tariff
+                show_icon: true
+                icon:
+                    template:
+                        icon: >
+                          if (entity.state == 'day'  ) return 'mdi:weather-sunny';  
+                          if (entity.state == 'night') return 'mdi:power-sleep';  
+                          else return 'mdi:counter';
+            cards:
+              - type: glance
+                title: null
+                entity: sensor.energy_counter_total
+                entities: 
+                  - entity: sensor.energy_counter_total
+                    name: Общий
+                    icon: mdi:sigma
+                  - entity: sensor.energy_counter_total_day
+                    name: День
+                    icon: mdi:counter
+                  - entity: sensor.energy_counter_total_night
+                    name: Ночь
+                    icon: mdi:counter
+      - type: vertical-stack
+        cards:
+          - type: custom:room-card
+            title: null
+            icon: mdi:calendar-today
+            show_icon: true
+            entity: sensor.tuya_clamp_meter_daily_total
+            tap_action: none
+            double_tap_action: none
+            info_entities:
+              - entity: sensor.tuya_clamp_meter_power
+                format: precision1
+              - entity: sensor.tuya_clamp_meter_current
+                format: precision1
+              - entity: sensor.tuya_clamp_meter_voltage
+                format: precision1
+              - entity: sensor.energy_active_tariff
+                show_icon: true
+                icon:
+                    template:
+                        icon: >
+                          if (entity.state == 'day'  ) return 'mdi:weather-sunny';  
+                          if (entity.state == 'night') return 'mdi:power-sleep';  
+                          else return 'mdi:counter';
+            cards:
+              - type: glance
+                title: null
+                entity: sensor.tuya_clamp_meter_daily_total
+                entities: 
+                  - entity: sensor.tuya_clamp_meter_daily_total
+                    name: Общий
+                    icon: mdi:sigma
+                  - entity: sensor.tuya_clamp_meter_daily_day
+                    name: День
+                  - entity: sensor.tuya_clamp_meter_daily_night
+                    name: Ночь
+      - type: vertical-stack
+        cards:
+          - type: custom:room-card
+            title: null
+            icon: mdi:calendar-week
+            show_icon: true
+            entity: sensor.tuya_clamp_meter_weekly_total
+            tap_action: none
+            double_tap_action: none
+            info_entities:
+              - entity: sensor.tuya_clamp_meter_power
+                format: precision1
+              - entity: sensor.tuya_clamp_meter_current
+                format: precision1
+              - entity: sensor.tuya_clamp_meter_voltage
+                format: precision1
+              - entity: sensor.energy_active_tariff
+                show_icon: true
+                icon:
+                    template:
+                        icon: >
+                          if (entity.state == 'day'  ) return 'mdi:weather-sunny';  
+                          if (entity.state == 'night') return 'mdi:power-sleep';  
+                          else return 'mdi:counter';
+            cards:
+              - type: glance
+                title: null
+                entity: sensor.tuya_clamp_meter_weekly_total
+                entities: 
+                  - entity: sensor.tuya_clamp_meter_weekly_total
+                    name: Общий
+                    icon: mdi:sigma
+                  - entity: sensor.tuya_clamp_meter_weekly_day
+                    name: День
+                  - entity: sensor.tuya_clamp_meter_weekly_night
+                    name: Ночь
+
+      - type: vertical-stack
+        cards:
+          - type: custom:room-card
+            title: null
+            icon: mdi:calendar-month
+            show_icon: true
+            entity: sensor.tuya_clamp_meter_monthly_total
+            tap_action: none
+            double_tap_action: none
+            info_entities:
+              - entity: sensor.tuya_clamp_meter_power
+                format: precision1
+              - entity: sensor.tuya_clamp_meter_current
+                format: precision1
+              - entity: sensor.tuya_clamp_meter_voltage
+                format: precision1
+              - entity: sensor.energy_active_tariff
+                show_icon: true
+                icon:
+                    template:
+                        icon: >
+                          if (entity.state == 'day'  ) return 'mdi:weather-sunny';  
+                          if (entity.state == 'night') return 'mdi:power-sleep';  
+                          else return 'mdi:counter';
+            cards:
+              - type: glance
+                title: null
+                entity: sensor.tuya_clamp_meter_monthly_total
+                entities: 
+                  - entity: sensor.tuya_clamp_meter_monthly_total
+                    name: Общий
+                    icon: mdi:sigma
+                  - entity: sensor.tuya_clamp_meter_monthly_day
+                    name: День
+                  - entity: sensor.tuya_clamp_meter_monthly_night
+                    name: Ночь
+
+  - title: Система
+    icon: mdi:tune-vertical
+    cards:
+      - type: vertical-stack
+        cards:
+          - type: entities
+            show_header_toggle: false
+            state_color: true
+            entities:
+              - entity: sensor.time_date
+                name: Время/Дата
+              - type: section
+              - entity: binary_sensor.internet_connection_ping
+              - type: section
+                label: Питание
+              - entity: binary_sensor.rpi_ac_power_status
+              - entity: binary_sensor.ups_battery_low
+              - type: section
+                label: Последняя загрузка
+              - entity: sensor.last_boot_custom
+                name: Last boot
+              - entity: sensor.online_custom
+              - type: section
+                label: Обновления
+              - entity: update.home_assistant_core_update
+                icon: mdi:home-assistant
+              - entity: update.home_assistant_supervisor_update
+                icon: mdi:home-assistant
+              - entity: sensor.hacs
+                name: HACS
+              - type: section
+                label: Резервные копии
+              - entity: sensor.last_google_backup_train
+              - entity: sensor.snapshots_in_google_drive_train
+              - entity: sensor.snapshots_in_hassio_train
+
+      - type: vertical-stack
+        cards:
+          - type: grid
+            columns: 3
+            cards:
+              - type: sensor
+                graph: line
+                name: CPU
+                detail: 2
+                hours_to_show: 6
+                entity: sensor.processor_use
+              - type: sensor
+                graph: line
+                name: CPU
+                detail: 2
+                hours_to_show: 6
+                entity: sensor.processor_temperature
+              - type: sensor
+                graph: line
+                name: 15m
+                detail: 2
+                hours_to_show: 6
+                entity: sensor.load_15m
+              - type: sensor
+                graph: line
+                name: RAM
+                detail: 2
+                hours_to_show: 6
+                entity: sensor.memory_use_percent
+              - type: sensor
+                graph: line
+                name: SSD
+                detail: 2
+                hours_to_show: 6
+                entity: sensor.disk_use_percent
+              - type: sensor
+                graph: line
+                name: SWAP
+                detail: 2
+                hours_to_show: 6
+                entity: sensor.swap_use_percent
+              - type: button
+                entity: binary_sensor.ups_fan_speed
+                name: UPS Fan
+                state_color: true
+              - type: sensor
+                name: Chassis Fan
+                graph: line
+                detail: 2
+                hours_to_show: 6
+                entity: sensor.chassis_fan_speed
+              - type: sensor
+                graph: line
+                name: DB
+                detail: 2
+                hours_to_show: 6
+                entity: sensor.maria_db_size
+              - type: button
+                name: UPS
+                entity: binary_sensor.ups_battery_low
+                state_color: true
+              - type: sensor
+                graph: line
+                name: UPS
+                detail: 2
+                hours_to_show: 6
+                entity: sensor.ups_battery_capacity
+              - type: sensor
+                graph: line
+                name: UPS
+                hours_to_show: 6
+                detail: 2
+                entity: sensor.ups_battery_voltage
+
+      - type: vertical-stack
+        cards:
+          - entities:
+              - type: section
+                label: "Alert"
+              - entity: input_boolean.disable_alerts_notifications
+              - entity: input_boolean.disable_voice_alerts
+              - type: section
+                label: "Climate"
+              - entity: input_boolean.ac_status
+              - entity: input_boolean.heating_status
+              - entity: input_number.climate_target_temperature
+              - type: section
+                label: "Automations"
+              - entity: input_boolean.disable_climate
+              - entity: input_boolean.disable_home_away
+              - entity: input_boolean.disable_occupancy
+              - entity: input_boolean.enable_christmas_automations
+              - entity: input_boolean.disable_sunrise_sunset_simulation
+              - type: section
+                label: "Notifications"
+              - entity: input_boolean.disable_ups_battery_status_notifications
+              - entity: input_boolean.disable_climate_notifications
+              - entity: input_boolean.disable_voice_notifications
+              - entity: input_boolean.disable_startup_notifications
+              - entity: input_boolean.disable_zone_notifications
+              - type: section
+                label: "Electricity Consumption Limit"
+              - entity: input_number.electricity_consumption_limit
+                name: Limit
+              - type: section
+                label: "Electric Meter Calibration"
+              - entity: input_number.energy_counter_calibration_day
+                name: Day
+              - entity: input_number.energy_counter_calibration_night
+                name: Night
+              - type: section
+                label: "Energy Tariff Calibration"
+              - entity: input_number.tarrif_energy_cost_calibrate_base
+                name: Base Cost
+            show_header_toggle: false
+            title: Settings
+            icon: mdi:tune
+            type: entities
+            state_color: true
+
+      - type: vertical-stack
         cards:
           - type: custom:auto-entities
             card:
-                type: entities
+              type: entities
+              icon: mdi:battery-check
+              title: Batteries
             filter:
-                include:
-                  - entity_id: sensor.*battery
+              include:
+                - entity_id: sensor.*battery
             sort:
-                method: state
-                numeric: true
+              method: state
+              numeric: true

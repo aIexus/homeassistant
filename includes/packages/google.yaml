@@ -1,5 +1,14 @@
 google_config:
 
+    homeassistant:
+        customize:
+            sensor.snapshots_in_google_drive_train:
+                friendly_name: 'Снапшотов на Googe.Drive'
+            sensor.last_google_backup_train:
+                friendly_name: 'Последний удачный бэкап'
+            sensor.snapshots_in_hassio_train:
+                friendly_name: 'Снапшотов в HA'
+
     template:
  
       - sensor:

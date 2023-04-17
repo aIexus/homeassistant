@@ -1,5 +1,26 @@
 light_settings:
 
+    recorder:
+        include:
+            entities:
+                - sensor.period_of_day
+                - switch.bedroom_light_switch
+                - switch.living_room_light_switch
+                - light.hallway_rgb_bulb
+                - sensor.bedroom_lumi_sensor_motion_illuminance_lux
+                - sensor.living_room_lumi_sensor_motion_illuminance_lux
+            entity_globs:
+                - sensor.hallway_rgb_bulb_*
+
+    homeassistant:
+        customize:
+            sensor.period_of_day:
+                friendly_name: 'Период Суток'
+            binary_sensor.living_room_auto_light_off_sensor:
+                friendly_name: 'Автоотключение Света в Гостинной'
+            binary_sensor.bedroom_auto_light_off_sensor:
+                friendly_name: 'Автоотключение Света в Спальне'
+
     template:
 
       - sensor:
@@ -10,7 +31,7 @@ light_settings:
                 {% set rising = state_attr('sun.sun', 'rising') %}
                 {%- if elevation <= -12 -%}
                 night
-                {%- elif ( -12 < elevation) and (elevation <= -3) -%}
+                {%- elif ( -12 < elevation) and (elevation <= -1) -%}
                 {{ 'dawn' if rising else 'dusk' }}
                 {%- else -%}
                 day
@@ -20,7 +41,7 @@ light_settings:
                 {% set rising = state_attr('sun.sun', 'rising') %}
                 {%- if elevation <= -12 -%}
                 mdi:weather-night
-                {%- elif ( -12 < elevation) and (elevation <= -3) -%}
+                {%- elif ( -12 < elevation) and (elevation <= -1) -%}
                 mdi:weather-sunset-{{ 'up' if rising else 'down' }}
                 {% else %}
                 mdi:weather-sunny
@@ -70,6 +91,13 @@ light_settings:
           name: Hallway RGB Bulb Automation Control Status
           icon: mdi:toggle-switch-off-outline
 
+        disable_occupancy:
+            name: Disable Occupancy Automations
+            icon: mdi:motion-sensor-off
+
+        disable_sunrise_sunset_simulation:
+            name: Disable Sunrise & Sunset Simulation
+            icon: mdi:weather-sunny-off
 
     timer:
         # Таймер отключения света в спальне
@@ -222,6 +250,8 @@ light_settings:
             attribute: elevation
           - platform: state
             entity_id: input_boolean.hallway_rgb_bulb_switch_single_status
+          - platform: state
+            entity_id: binary_sensor.anyone_home
         condition: []
         action:
           - choose:
@@ -249,6 +279,7 @@ light_settings:
                           - service: light.turn_off
                             target:
                                 entity_id: light.hallway_rgb_bulb
+                  - delay: '00:00:03'
               - conditions:
                   - condition: template
                     value_template: '{{ trigger.entity_id == "binary_sensor.m_novomoskovsk_alerts" }}'
@@ -363,7 +394,18 @@ light_settings:
                                 condition_entity_id: alarm_control_panel.home_alarm
                                 repeat_while_state: 'triggered'
                                 color: 'red'
+          - wait_template: "{{ is_state('script.rgb_bulb_flashing_x_times', 'off') and is_state('script.rgb_bulb_flashing_while_condition', 'off') }}"
           - choose:
+              - conditions:
+                  - condition: state
+                    entity_id: input_boolean.hallway_rgb_bulb_switch_single_status
+                    state: 'on'
+                  - condition: state
+                    entity_id: binary_sensor.anyone_home
+                    state: 'off'
+                sequence:
+                  - service: input_boolean.turn_off
+                    entity_id: input_boolean.hallway_rgb_bulb_switch_single_status
               - conditions:
                   - condition: state
                     entity_id: binary_sensor.m_novomoskovsk_alerts
@@ -383,6 +425,19 @@ light_settings:
                     data: 
                         brightness: 100
                         color_name: 'red'
+              - conditions:
+                  - condition: state
+                    entity_id: binary_sensor.m_novomoskovsk_alerts
+                    state: 'on'
+                  - condition: state
+                    entity_id: binary_sensor.anyone_home
+                    state: 'off'
+                sequence:
+                  - service: input_boolean.turn_on
+                    entity_id: input_boolean.hallway_rgb_bulb_automation_control_status
+                  - service: light.turn_off
+                    target:
+                        entity_id: light.hallway_rgb_bulb
               - conditions:
                   - condition: state
                     entity_id: binary_sensor.m_novomoskovsk_alerts
@@ -428,6 +483,12 @@ light_settings:
                                         brightness: 100
                                         rgb_color: [255, 254, 72]
                       - conditions:
+                          - condition: state
+                            entity_id: binary_sensor.anyone_home
+                            state: 'on'
+                          - condition: state
+                            entity_id: input_boolean.disable_sunrise_sunset_simulation
+                            state: 'off'
                           - or:
                               - condition: state
                                 entity_id: sensor.period_of_day
@@ -443,7 +504,7 @@ light_settings:
                                 entity_id: light.hallway_rgb_bulb
                             data_template:
                                 brightness_pct: >
-                                    {% set bright_pct = (((state_attr("sun.sun", "elevation") | float ) + 12) * 100 / 12 / 4 ) | round(0) %}
+                                    {% set bright_pct = (((state_attr("sun.sun", "elevation") | float ) + 12) * 100 / 12 / 8 ) | round(0) %}
                                     {% if bright_pct > 100 %}
                                     100
                                     {% elif bright_pct < 1 %}
@@ -453,26 +514,30 @@ light_settings:
                                     {% endif  %}
                                 color_temp: >
                                     {% set sun_elevation = state_attr('sun.sun', 'elevation') | float | round(0) %}
-                                    {% if   sun_elevation >= -3  %}
-                                    390
+                                    {% if   sun_elevation >= -1  %}
+                                    385
+                                    {% elif sun_elevation >= -2  %}
+                                    395
+                                    {% elif sun_elevation >= -3  %}
+                                    405
                                     {% elif sun_elevation >= -4  %}
-                                    400
+                                    415
                                     {% elif sun_elevation >= -5  %}
-                                    410
+                                    425
                                     {% elif sun_elevation >= -6  %}
-                                    420
+                                    435
                                     {% elif sun_elevation >= -7  %}
-                                    430
+                                    445
                                     {% elif sun_elevation >= -8  %}
-                                    440
+                                    455
                                     {% elif sun_elevation >= -9  %}
-                                    450
+                                    465
                                     {% elif sun_elevation >= -10 %}
-                                    460
+                                    475
                                     {% elif sun_elevation >= -11 %}
-                                    470
+                                    485
                                     {% elif sun_elevation >= -12 %}
-                                    480
+                                    495
                                     {% else %}
                                     495
                                     {% endif %}

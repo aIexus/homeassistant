@@ -1,33 +1,99 @@
 climate_configuration:
 
+    recorder:
+        include:
+            entities:
+              - sensor.outdoor_mean_temperature
+              - sensor.outdoor_humidity
+              - sensor.outdoor_temperature
+              - sensor.bathroom_lumi_weather_humidity
+              - sensor.bathroom_lumi_weather_pressure
+              - sensor.bathroom_lumi_weather_temperature
+              - sensor.bedroom_lumi_weather_humidity
+              - sensor.bedroom_lumi_weather_pressure
+              - sensor.bedroom_lumi_weather_temperature
+              - sensor.hallway_lumi_weather_humidity
+              - sensor.hallway_lumi_weather_pressure
+              - sensor.hallway_lumi_weather_temperature
+              - sensor.kitchen_lumi_weather_humidity
+              - sensor.kitchen_lumi_weather_pressure
+              - sensor.kitchen_lumi_weather_temperature
+              - sensor.living_room_lumi_weather_humidity
+              - sensor.living_room_lumi_weather_pressure
+              - sensor.living_room_lumi_weather_temperature
+              - sensor.loggia_tuya_weather_humidity
+              - sensor.loggia_tuya_weather_temperature
+              - sensor.nous_weather_lcd_humidity
+              - sensor.nous_weather_lcd_temperature
+              - binary_sensor.living_room_loggia_door_contact
+              - binary_sensor.bedroom_window_right_contact
+              - binary_sensor.bedroom_window_left_contact
+              - binary_sensor.kitchen_window_contact
+              - binary_sensor.bedroom_windows
+              - binary_sensor.home_windows
+              - climate.living_room_heater
+              - climate.bedroom_heater
+              - climate.kitchen_heater
+              - climate.living_room_ac
+              - climate.bedroom_ac
+
+    homeassistant:
+        customize:
+            sensor.outdoor_mean_temperature:
+                friendly_name: 'Среднесуточная (24ч)'
+            sensor.outdoor_humidity:    
+                friendly_name: 'Наружная Влажность'
+            sensor.outdoor_temperature:
+                friendly_name: 'Наружная Температура'
+            binary_sensor.living_room_loggia_door_contact:
+                friendly_name: 'Дверь на Лоджию, Гостинная'
+            binary_sensor.bedroom_window_right_contact:
+                friendly_name: 'Правое Окно, Спальня'
+            binary_sensor.bedroom_window_left_contact:
+                friendly_name: 'Левое Окно, Спальня'
+            binary_sensor.kitchen_window_contact:
+                friendly_name: 'Окно, Кухня'
+            binary_sensor.home_windows:
+                friendly_name: 'Окна, Квартира'
+            binary_sensor.bedroom_windows:
+                friendly_name: 'Окна, Спальня'
+
     smartir:
 
     input_number:
 
         climate_target_temperature:
-          name: 'Climate Target Temperature'
-          mode: slider
-          min: 18
-          max: 28
-          unit_of_measurement: '°C'
+            name: 'Climate Target Temperature'
+            mode: slider
+            min: 18
+            max: 28
+            unit_of_measurement: '°C'
 
     input_boolean:
 
         heating_status:
-          name: Heating Status
-          icon: mdi:radiator
+            name: Heating Status
+            icon: mdi:radiator
 
         ac_status:
-          name: A/C Status
-          icon: mdi:air-conditioner
+            name: A/C Status
+            icon: mdi:air-conditioner
 
         bedroom_ac_status:
-          name: Bedroom A/C Status
-          icon: mdi:toggle-switch-off-outline
+            name: Bedroom A/C Status
+            icon: mdi:toggle-switch-off-outline
 
         living_room_ac_status:
-          name: Living Room A/C Status
-          icon: mdi:toggle-switch-off-outline
+            name: Living Room A/C Status
+            icon: mdi:toggle-switch-off-outline
+
+        disable_climate:
+            name: Disable Climate Automations
+            icon: mdi:thermometer-off
+    
+        disable_climate_notifications:
+            name: Disable Climate Notifications
+            icon: mdi:message-bulleted-off
 
     group:
 
@@ -46,176 +112,121 @@ climate_configuration:
         name: outdoor_mean_temperature
         entity_id: sensor.outdoor_temperature
         state_characteristic: mean
-        sampling_size: 200
         max_age:
-            hours: 48
+            hours: 24
+
+    binary_sensor:
+
+      - platform: group
+        name: bedroom_windows
+        unique_id: binary_sensor_bedroom_windows
+        device_class: window
+        entities:
+          - binary_sensor.bedroom_window_left_contact
+          - binary_sensor.bedroom_window_right_contact
+
+      - platform: group
+        name: home_windows
+        unique_id: binary_sensor_home_windows
+        device_class: window
+        entities:
+          - binary_sensor.bedroom_window_left_contact
+          - binary_sensor.bedroom_window_right_contact
+          - binary_sensor.kitchen_window_contact
+          - binary_sensor.living_room_loggia_door_contact
 
     template:
 
-      - binary_sensor:
+      - sensor:
 
-          - name: bedroom_air_conditioner_socket_status
-            unique_id: binary_sensor_bedroom_air_conditioner_socket_status
-            device_class: cold
-            state: >-
-                {% if (states("sensor.bedroom_air_conditioner_socket_power") | int(0) > 5) %}
-                on
-                {% else %}
-                off
-                {% endif %}
-            icon: >-
-                {% if is_state("binary_sensor.bedroom_air_conditioner_socket_status","on") %}
-                mdi:hvac
-                {% else %}
-                mdi:hvac-off
-                {% endif %}
+          - name: outdoor_humidity
+            unique_id: sensor_outdoor_humidity
+            state: "{{ state_attr('weather.home', 'humidity') }}"
+            device_class: humidity
+            unit_of_measurement: '%'
 
-          - name: living_room_air_conditioner_socket_status
-            unique_id:  binary_sensor_living_room_air_conditioner_socket_status
-            device_class: cold
-            state: >-
-                {% if (states("sensor.living_room_air_conditioner_socket_power") | int(0) > 5) %}
-                on
-                {% else %}
-                off
-                {% endif %}
-            icon: >-
-                {% if is_state("binary_sensor.living_room_air_conditioner_socket_status","on") %}
-                mdi:hvac
-                {% else %}
-                mdi:hvac-off
-                {% endif %}
-
-          - name: bedroom_socket_heating_status
-            unique_id:  binary_sensor_bedroom_socket_heating_status
-            device_class: heat
-            state: >-
-                {% if (states("sensor.bedroom_socket_heating_power") | int(0) > 0) %}
-                on
-                {% else %}
-                off
-                {% endif %}
-            icon: >-
-                {% if is_state("binary_sensor.bedroom_socket_heating_status","on") %}
-                mdi:radiator
-                {% elif is_state("input_boolean.heating_status","off") or is_state("climate.bedroom_heater","off") %}
-                mdi:radiator-off
-                {% else %}
-                mdi:radiator-disabled
-                {% endif %}
-
-          - name: living_room_socket_heating_status
-            unique_id: binary_sensor_living_room_socket_heating_status
-            device_class: heat
-            state: >-
-                {% if (states("sensor.living_room_socket_heating_power") | int(0) > 0) %}
-                on
-                {% else %}
-                off
-                {% endif %}
-            icon: >-
-                {% if is_state("binary_sensor.living_room_socket_heating_status","on") %}
-                mdi:radiator
-                {% elif is_state("input_boolean.heating_status","off") or is_state("climate.living_room_heater","off") %}
-                mdi:radiator-off
-                {% else %}
-                mdi:radiator-disabled
-                {% endif %}
-
-          - name: kitchen_socket_heating_status
-            unique_id: binary_sensor_kitchen_socket_heating_status
-            device_class: heat
-            state: >-
-                {% if (states("sensor.kitchen_socket_heating_power") | int(0) > 0) %}
-                on
-                {% else %}
-                off
-                {% endif %}
-            icon: >-
-                {% if is_state("binary_sensor.kitchen_socket_heating_status","on") %}
-                mdi:radiator
-                {% elif is_state("input_boolean.heating_status","off") or is_state("climate.kitchen_heater","off") %}
-                mdi:radiator-off
-                {% else %}
-                mdi:radiator-disabled
-                {% endif %}
+          - name: outdoor_temperature
+            unique_id: sensor_outdoor_temperature
+            state: "{{ state_attr('weather.home', 'temperature') }}"
+            device_class: temperature
+            unit_of_measurement: '°C'
 
     climate: 
 
-        - platform: generic_thermostat
-          name: living_room_heater
-          unique_id: living_room_heater
-          heater: switch.living_room_socket_heating
-          target_sensor: sensor.living_room_lumi_weather_temperature
-          min_temp: 16
-          max_temp: 28
-          away_temp: 18
-          target_temp: 24
-          ac_mode: false
-          cold_tolerance: 0.5
-          hot_tolerance: 0.5
-          min_cycle_duration:
+      - platform: generic_thermostat
+        name: living_room_heater
+        unique_id: living_room_heater
+        heater: switch.living_room_socket_heating
+        target_sensor: sensor.living_room_lumi_weather_temperature
+        min_temp: 16
+        max_temp: 28
+        away_temp: 18
+        target_temp: 24
+        ac_mode: false
+        cold_tolerance: 0.5
+        hot_tolerance: 0.5
+        min_cycle_duration:
             minutes: 5
-          keep_alive:
+        keep_alive:
             minutes: 3
-          initial_hvac_mode: "heat"
-          precision: 0.1
+        initial_hvac_mode: "heat"
+        precision: 0.1
 
-        - platform: generic_thermostat
-          name: bedroom_heater
-          unique_id: bedroom_heater
-          heater: switch.bedroom_socket_heating
-          target_sensor: sensor.bedroom_lumi_weather_temperature
-          min_temp: 16
-          max_temp: 28
-          away_temp: 18
-          target_temp: 24
-          ac_mode: false
-          cold_tolerance: 0.5
-          hot_tolerance: 0.5
-          min_cycle_duration:
+      - platform: generic_thermostat
+        name: bedroom_heater
+        unique_id: bedroom_heater
+        heater: switch.bedroom_socket_heating
+        target_sensor: sensor.bedroom_lumi_weather_temperature
+        min_temp: 16
+        max_temp: 28
+        away_temp: 18
+        target_temp: 24
+        ac_mode: false
+        cold_tolerance: 0.5
+        hot_tolerance: 0.5
+        min_cycle_duration:
             minutes: 5
-          keep_alive:
+        keep_alive:
             minutes: 3
-          initial_hvac_mode: "heat"
-          precision: 0.1
+        initial_hvac_mode: "heat"
+        precision: 0.1
 
-        - platform: generic_thermostat
-          name: kitchen_heater
-          unique_id: kitchen_heater
-          heater: switch.kitchen_socket_heating
-          target_sensor: sensor.kitchen_lumi_weather_temperature
-          min_temp: 16
-          max_temp: 28
-          away_temp: 18
-          target_temp: 24
-          ac_mode: false
-          cold_tolerance: 0.5
-          hot_tolerance: 0.5
-          min_cycle_duration:
+      - platform: generic_thermostat
+        name: kitchen_heater
+        unique_id: kitchen_heater
+        heater: switch.kitchen_socket_heating
+        target_sensor: sensor.kitchen_lumi_weather_temperature
+        min_temp: 16
+        max_temp: 28
+        away_temp: 18
+        target_temp: 24
+        ac_mode: false
+        cold_tolerance: 0.5
+        hot_tolerance: 0.5
+        min_cycle_duration:
             minutes: 5
-          keep_alive:
+        keep_alive:
             minutes: 3
-          initial_hvac_mode: "heat"
-          precision: 0.1
+        initial_hvac_mode: "heat"
+        precision: 0.1
 
-        - platform: smartir
-          name: Bedroom AC
-          unique_id: bedroom_ac
-          device_code: 1180
-          controller_data: remote.broadlink_bedroom_rm4mini_remote
-          temperature_sensor: sensor.bedroom_lumi_weather_temperature
-          humidity_sensor: sensor.bedroom_lumi_weather_humidity
-          power_sensor: binary_sensor.bedroom_air_conditioner_socket_status
+      - platform: smartir
+        name: Bedroom AC
+        unique_id: bedroom_ac
+        device_code: 1180
+        controller_data: remote.broadlink_bedroom_rm4mini_remote
+        temperature_sensor: sensor.bedroom_lumi_weather_temperature
+        humidity_sensor: sensor.bedroom_lumi_weather_humidity
+        power_sensor: binary_sensor.bedroom_air_conditioner_socket_status
 
-        - platform: smartir
-          name: Living Room AC
-          unique_id: living_room_ac
-          device_code: 1385
-          controller_data: remote.broadlink_living_room_rm4mini_remote
-          temperature_sensor: sensor.living_room_lumi_weather_temperature
-          humidity_sensor: sensor.living_room_lumi_weather_humidity
-          power_sensor: binary_sensor.living_room_air_conditioner_socket_status
+      - platform: smartir
+        name: Living Room AC
+        unique_id: living_room_ac
+        device_code: 1385
+        controller_data: remote.broadlink_living_room_rm4mini_remote
+        temperature_sensor: sensor.living_room_lumi_weather_temperature
+        humidity_sensor: sensor.living_room_lumi_weather_humidity
+        power_sensor: binary_sensor.living_room_air_conditioner_socket_status
 
     automation:
 
