@@ -6,8 +6,8 @@ homeassistant:
     unit_system: metric
     time_zone: Europe/Kiev
     country: UA
+
     packages: !include_dir_merge_named includes/packages
-    customize: !include includes/customize.yaml
     allowlist_external_dirs: "/config/files/"
 
 # Configure a default setup of Home Assistant (frontend, api, etc)
@@ -16,7 +16,11 @@ default_config:
 lovelace:
     mode: yaml
     resources:
+        - url: /hacsfiles/battery-state-card/battery-state-card.js
+          type: module
         - url: /hacsfiles/lovelace-auto-entities/auto-entities.js
+          type: module
+        - url: /hacsfiles/lovelace-card-mod/card-mod.js
           type: module
         - url: /hacsfiles/lovelace-multiple-entity-row/multiple-entity-row.js
           type: module
@@ -24,7 +28,9 @@ lovelace:
           type: module
         - url: /hacsfiles/room-card/room-card.js
           type: module
-        
+        - url: /hacsfiles/stack-in-card/stack-in-card.js
+          type: module
+
 # Text to speech
 tts:
 
@@ -34,10 +40,6 @@ tts:
       language: 'Alyona-Russian'
       pitch: "100"
       bitrate: "128k"
-
-# Include External Files
-input_boolean: !include includes/input_boolean.yaml
-device_tracker: !include includes/device_tracker.yaml
 
 # Include External Folders
 automation: !include_dir_merge_list includes/automation
