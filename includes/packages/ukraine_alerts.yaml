@@ -168,7 +168,6 @@ ukraine_alerts_package:
                                 sonos_entity: media_player.sonos_living_room
                                 volume: 0.4
                                 message: 'ВНИМАНИЕ!!! Отбой воздушной тревоги!'
-
               - conditions:
                     - condition: template
                       value_template: '{{ trigger.entity_id == "binary_sensor.m_novomoskovsk_ta_novomoskovska_teritorialna_gromada_artillery" }}'
@@ -223,7 +222,6 @@ ukraine_alerts_package:
                                 sonos_entity: media_player.sonos_living_room
                                 volume: 0.4
                                 message: 'ВНИМАНИЕ!!! Отмена угрозы артиллерийского обстрела!'
-
               - conditions:
                     - condition: template
                       value_template: '{{ trigger.entity_id == "binary_sensor.m_novomoskovsk_ta_novomoskovska_teritorialna_gromada_urban_fights" }}'
@@ -278,7 +276,6 @@ ukraine_alerts_package:
                                 sonos_entity: media_player.sonos_living_room
                                 volume: 0.4
                                 message: 'ВНИМАНИЕ!!! Отмена угрозы городских боёв!'
-
               - conditions:
                     - condition: template
                       value_template: '{{ trigger.entity_id == "binary_sensor.m_novomoskovsk_ta_novomoskovska_teritorialna_gromada_chemical" }}'
@@ -333,7 +330,6 @@ ukraine_alerts_package:
                                 sonos_entity: media_player.sonos_living_room
                                 volume: 0.4
                                 message: 'ВНИМАНИЕ!!! Отмена химической тревоги!'
-
               - conditions:
                     - condition: template
                       value_template: '{{ trigger.entity_id == "binary_sensor.m_novomoskovsk_ta_novomoskovska_teritorialna_gromada_nuclear" }}'
@@ -388,7 +384,6 @@ ukraine_alerts_package:
                                 sonos_entity: media_player.sonos_living_room
                                 volume: 0.4
                                 message: 'ВНИМАНИЕ!!! Отмена ядерной угрозы!'
-
               - conditions:
                     - condition: template
                       value_template: '{{ trigger.entity_id == "binary_sensor.m_novomoskovsk_ta_novomoskovska_teritorialna_gromada_unknown" }}'

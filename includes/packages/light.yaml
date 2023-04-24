@@ -13,6 +13,7 @@ light_settings:
                 - sensor.hallway_rgb_bulb_*
 
     homeassistant:
+
         customize:
             sensor.period_of_day:
                 friendly_name: 'Период Суток'
@@ -151,9 +152,7 @@ light_settings:
               - delay: '00:00:04'
               - service: input_boolean.turn_off
                 entity_id: input_boolean.hallway_rgb_bulb_automation_control_status
-
             mode: single
-
 
         rgb_bulb_flashing_while_condition:
             alias: "Light: Flashing RGB Bulb with Color While Condition"

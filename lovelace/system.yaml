@@ -1,0 +1,222 @@
+title: Система
+icon: mdi:tune-vertical
+cards:
+
+  - type: vertical-stack
+    cards:
+
+      - type: custom:stack-in-card
+        mode: vertical
+        cards:
+
+          - type: entities
+            show_header_toggle: false
+            state_color: true
+            entities:
+              - entity: sensor.time_date
+                name: Время/Дата
+
+          - type: entities
+            show_header_toggle: false
+            state_color: true
+            entities:
+              - entity: binary_sensor.internet_connection_ping
+
+          - type: entities
+            show_header_toggle: false
+            state_color: true
+            entities:
+              - entity: binary_sensor.rpi_ac_power_status
+              - entity: binary_sensor.ups_battery_low
+
+          - type: entities
+            show_header_toggle: false
+            state_color: true
+            entities:
+              - entity: sensor.last_boot_custom
+                name: Last boot
+              - entity: sensor.online_custom
+
+          - type: entities
+            show_header_toggle: false
+            state_color: true
+            entities:
+              - entity: sensor.last_google_backup_train
+              - entity: sensor.snapshots_in_google_drive_train
+              - entity: sensor.snapshots_in_hassio_train
+
+  - type: vertical-stack
+    cards:
+
+      - type: custom:stack-in-card
+        mode: horizontal
+        cards:
+
+          - type: sensor
+            graph: line
+            name: CPU
+            detail: 2
+            hours_to_show: 6
+            entity: sensor.processor_use
+
+          - type: sensor
+            graph: line
+            name: CPU
+            detail: 2
+            hours_to_show: 6
+            entity: sensor.processor_temperature
+
+          - type: sensor
+            graph: line
+            name: 15m
+            detail: 2
+            hours_to_show: 6
+            entity: sensor.load_15m
+
+      - type: custom:stack-in-card
+        mode: horizontal
+        cards:
+
+          - type: sensor
+            graph: line
+            name: RAM
+            detail: 2
+            hours_to_show: 6
+            entity: sensor.memory_use_percent
+
+          - type: sensor
+            graph: line
+            name: SSD
+            detail: 2
+            hours_to_show: 6
+            entity: sensor.disk_use_percent
+
+          - type: sensor
+            graph: line
+            name: SWAP
+            detail: 2
+            hours_to_show: 6
+            entity: sensor.swap_use_percent
+
+        #   - type: sensor
+        #     graph: line
+        #     name: SWAP
+        #     detail: 2
+        #     hours_to_show: 6
+        #     entity: sensor.swap_free
+
+      - type: custom:stack-in-card
+        mode: horizontal
+        cards:
+
+          - type: button
+            entity: binary_sensor.ups_fan_speed
+            name: UPS Fan
+            state_color: true
+
+          - type: sensor
+            name: Chassis Fan
+            graph: line
+            detail: 2
+            hours_to_show: 6
+            entity: sensor.chassis_fan_speed
+
+          - type: sensor
+            graph: line
+            name: DB
+            detail: 2
+            hours_to_show: 6
+            entity: sensor.maria_db_size
+
+      - type: custom:stack-in-card
+        mode: horizontal
+        cards:
+
+          - type: button
+            name: UPS
+            entity: binary_sensor.ups_battery_low
+            state_color: true
+
+          - type: sensor
+            graph: line
+            name: UPS
+            detail: 2
+            hours_to_show: 6
+            entity: sensor.ups_battery_capacity
+
+          - type: sensor
+            graph: line
+            name: UPS
+            hours_to_show: 6
+            detail: 2
+            entity: sensor.ups_battery_voltage
+
+  - type: vertical-stack
+    cards:
+
+      - type: custom:stack-in-card
+        mode: vertical
+        cards:
+
+          - type: entities
+            show_header_toggle: false
+            state_color: true
+            entities:
+              - entity: input_boolean.disable_alerts_notifications
+              - entity: input_boolean.disable_voice_alerts
+
+          - type: entities
+            show_header_toggle: false
+            state_color: true
+            entities:
+              - entity: input_boolean.ac_status
+              - entity: input_boolean.heating_status
+
+          - type: entities
+            show_header_toggle: false
+            state_color: true
+            entities:
+              - entity: input_boolean.disable_climate
+              - entity: input_boolean.disable_home_away
+              - entity: input_boolean.disable_occupancy
+              - entity: input_boolean.enable_christmas_automations
+              - entity: input_boolean.disable_sunrise_sunset_simulation
+
+          - type: entities
+            show_header_toggle: false
+            state_color: true
+            entities:
+              - entity: input_boolean.disable_ups_battery_status_notifications
+              - entity: input_boolean.disable_climate_notifications
+              - entity: input_boolean.disable_voice_notifications
+              - entity: input_boolean.disable_startup_notifications
+              - entity: input_boolean.disable_zone_notifications
+
+  - type: vertical-stack
+    cards:
+
+      - type: custom:stack-in-card
+        mode: vertical
+        cards:
+
+          - type: entities
+            show_header_toggle: false
+            entities:
+              - entity: input_number.climate_target_temperature
+                icon: mdi:thermometer-check
+
+          - type: entities
+            show_header_toggle: false
+            entities:
+              - entity: input_number.electricity_consumption_limit
+                name: Consumption Limit
+              - entity: input_number.tarrif_energy_cost_calibrate_base
+                name: Tariff Base Cost
+
+          - type: entities
+            show_header_toggle: false
+            entities:
+              - entity: input_number.energy_counter_calibration_day
+                name: Energy Counter Day
+              - entity: input_number.energy_counter_calibration_night
+                name: Energy Counter Night

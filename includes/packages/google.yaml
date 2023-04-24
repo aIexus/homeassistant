@@ -5,9 +5,14 @@ google_config:
             sensor.snapshots_in_google_drive_train:
                 friendly_name: 'Снапшотов на Googe.Drive'
             sensor.last_google_backup_train:
-                friendly_name: 'Последний удачный бэкап'
+                friendly_name: 'Последний Удачный Бэкап'
             sensor.snapshots_in_hassio_train:
                 friendly_name: 'Снапшотов в HA'
+
+    device_tracker:
+      - platform: google_maps
+        username: "alexus.hass.tracker@gmail.com"
+        max_gps_accuracy: 200
 
     template:
  

@@ -1,0 +1,254 @@
+title: Электричество
+icon: mdi:lightning-bolt-circle
+cards:
+  - type: vertical-stack
+    cards:
+      - type: custom:stack-in-card
+        mode: horizontal
+        cards:
+          - type: sensor
+            graph: line
+            name: Power
+            detail: 2
+            hours_to_show: 6
+            entity: sensor.tuya_clamp_meter_power
+          - type: sensor
+            graph: line
+            name: Current
+            detail: 2
+            hours_to_show: 6
+            entity: sensor.tuya_clamp_meter_current
+          - type: sensor
+            graph: line
+            name: Voltage Input
+            detail: 2
+            hours_to_show: 6
+            entity: sensor.tuya_clamp_meter_voltage
+
+      - type: custom:stack-in-card
+        mode: horizontal
+        cards:
+          - type: button
+            tap_action:
+              action: toggle
+            entity: input_boolean.enable_energy_counter_card
+            show_state: false
+            show_name: false
+            hold_action:
+              action: none
+          - type: button
+            tap_action:
+              action: toggle
+            entity: input_boolean.enable_energy_daily_card
+            show_state: false
+            show_name: false
+            hold_action:
+              action: none
+          - type: button
+            tap_action:
+              action: toggle
+            entity: input_boolean.enable_energy_weekly_card
+            show_state: false
+            show_name: false
+            hold_action:
+              action: none
+          - type: button
+            tap_action:
+              action: toggle
+            entity: input_boolean.enable_energy_monthly_card
+            show_state: false
+            show_name: false
+            hold_action:
+              action: none
+
+      - type: conditional
+        conditions:
+          - entity: input_boolean.enable_energy_counter_card
+            state: "on"
+        card:
+            type: custom:room-card
+            title: null
+            icon: mdi:meter-electric
+            show_icon: true
+            entity: sensor.energy_counter_total
+            tap_action: none
+            double_tap_action: none
+            info_entities:
+              - entity: sensor.tuya_clamp_meter_power
+                format: precision1
+              - entity: sensor.tuya_clamp_meter_current
+                format: precision1
+              - entity: sensor.tuya_clamp_meter_voltage
+                format: precision1
+              - entity: sensor.energy_active_tariff
+                show_icon: true
+                icon:
+                    template:
+                        icon: >
+                          if (entity.state == 'day'  ) return 'mdi:weather-sunny';  
+                          if (entity.state == 'night') return 'mdi:power-sleep';  
+                          else return 'mdi:counter';
+            cards:
+              - type: glance
+                title: null
+                entity: sensor.energy_counter_total
+                entities: 
+                  - entity: sensor.energy_counter_total
+                    name: Общий
+                    icon: mdi:sigma
+                  - entity: sensor.energy_counter_total_day
+                    name: День
+                    icon: mdi:counter
+                  - entity: sensor.energy_counter_total_night
+                    name: Ночь
+                    icon: mdi:counter
+
+      - type: conditional
+        conditions:
+          - entity: input_boolean.enable_energy_daily_card
+            state: "on"
+        card:
+            type: custom:room-card
+            title: null
+            icon: mdi:calendar-today
+            show_icon: true
+            entity: sensor.tuya_clamp_meter_daily_total
+            tap_action: none
+            double_tap_action: none
+            info_entities:
+              - entity: sensor.tuya_clamp_meter_power
+                format: precision1
+              - entity: sensor.tuya_clamp_meter_current
+                format: precision1
+              - entity: sensor.tuya_clamp_meter_voltage
+                format: precision1
+              - entity: sensor.energy_active_tariff
+                show_icon: true
+                icon:
+                    template:
+                        icon: >
+                          if (entity.state == 'day'  ) return 'mdi:weather-sunny';  
+                          if (entity.state == 'night') return 'mdi:power-sleep';  
+                          else return 'mdi:counter';
+            cards:
+              - type: glance
+                title: null
+                entity: sensor.tuya_clamp_meter_daily_total
+                entities: 
+                  - entity: sensor.tuya_clamp_meter_daily_total
+                    name: Общий
+                    icon: mdi:sigma
+                  - entity: sensor.tuya_clamp_meter_daily_day
+                    name: День
+                  - entity: sensor.tuya_clamp_meter_daily_night
+                    name: Ночь
+
+      - type: conditional
+        conditions:
+          - entity: input_boolean.enable_energy_weekly_card
+            state: "on"
+        card:
+            type: custom:room-card
+            title: null
+            icon: mdi:calendar-week
+            show_icon: true
+            entity: sensor.tuya_clamp_meter_weekly_total
+            tap_action: none
+            double_tap_action: none
+            info_entities:
+              - entity: sensor.tuya_clamp_meter_power
+                format: precision1
+              - entity: sensor.tuya_clamp_meter_current
+                format: precision1
+              - entity: sensor.tuya_clamp_meter_voltage
+                format: precision1
+              - entity: sensor.energy_active_tariff
+                show_icon: true
+                icon:
+                    template:
+                        icon: >
+                          if (entity.state == 'day'  ) return 'mdi:weather-sunny';  
+                          if (entity.state == 'night') return 'mdi:power-sleep';  
+                          else return 'mdi:counter';
+            cards:
+              - type: glance
+                title: null
+                entity: sensor.tuya_clamp_meter_weekly_total
+                entities: 
+                  - entity: sensor.tuya_clamp_meter_weekly_total
+                    name: Общий
+                    icon: mdi:sigma
+                  - entity: sensor.tuya_clamp_meter_weekly_day
+                    name: День
+                  - entity: sensor.tuya_clamp_meter_weekly_night
+                    name: Ночь
+
+      - type: conditional
+        conditions:
+          - entity: input_boolean.enable_energy_monthly_card
+            state: "on"
+        card:
+            type: custom:room-card
+            title: null
+            icon: mdi:calendar-month
+            show_icon: true
+            entity: sensor.tuya_clamp_meter_monthly_total
+            tap_action: none
+            double_tap_action: none
+            info_entities:
+              - entity: sensor.tuya_clamp_meter_power
+                format: precision1
+              - entity: sensor.tuya_clamp_meter_current
+                format: precision1
+              - entity: sensor.tuya_clamp_meter_voltage
+                format: precision1
+              - entity: sensor.energy_active_tariff
+                show_icon: true
+                icon:
+                    template:
+                        icon: >
+                          if (entity.state == 'day'  ) return 'mdi:weather-sunny';  
+                          if (entity.state == 'night') return 'mdi:power-sleep';  
+                          else return 'mdi:counter';
+            cards:
+              - type: glance
+                title: null
+                entity: sensor.tuya_clamp_meter_monthly_total
+                entities: 
+                  - entity: sensor.tuya_clamp_meter_monthly_total
+                    name: Общий
+                    icon: mdi:sigma
+                  - entity: sensor.tuya_clamp_meter_monthly_day
+                    name: День
+                  - entity: sensor.tuya_clamp_meter_monthly_night
+                    name: Ночь
+
+  - type: vertical-stack
+    cards:
+
+      - type: conditional
+        conditions:
+          - entity: binary_sensor.exceed_electricity_consumption_limit
+            state: "on"
+        card:
+            type: custom:auto-entities
+            card:
+                type: entities
+                icon: mdi:format-list-bulleted-triangle
+                title: Top 10 Consumers 
+            filter:
+                include:
+                  - entity_id: sensor.*_power
+                    state: "> 150"
+                    attributes:
+                        device_class: power
+                        state_class: measurement
+                exclude:
+                  - state: unavailable
+                  - state: unknown
+                  - entity_id: sensor.tuya_clamp_meter_power
+            sort:
+                method: state
+                count: 10
+                reverse: true
+                numeric: true

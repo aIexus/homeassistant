@@ -25,12 +25,13 @@ climate_configuration:
               - sensor.loggia_tuya_weather_temperature
               - sensor.nous_weather_lcd_humidity
               - sensor.nous_weather_lcd_temperature
-              - binary_sensor.living_room_loggia_door_contact
               - binary_sensor.bedroom_window_right_contact
               - binary_sensor.bedroom_window_left_contact
-              - binary_sensor.kitchen_window_contact
               - binary_sensor.bedroom_windows
+              - binary_sensor.living_room_loggia_door_contact
+              - binary_sensor.kitchen_window_contact
               - binary_sensor.home_windows
+              - binary_sensor.home_doors
               - climate.living_room_heater
               - climate.bedroom_heater
               - climate.kitchen_heater
@@ -46,17 +47,17 @@ climate_configuration:
             sensor.outdoor_temperature:
                 friendly_name: 'Наружная Температура'
             binary_sensor.living_room_loggia_door_contact:
-                friendly_name: 'Дверь на Лоджию, Гостинная'
+                friendly_name: 'Дверь на Лоджию в Гостинной'
             binary_sensor.bedroom_window_right_contact:
-                friendly_name: 'Правое Окно, Спальня'
+                friendly_name: 'Правое Окно в Спальне'
             binary_sensor.bedroom_window_left_contact:
-                friendly_name: 'Левое Окно, Спальня'
-            binary_sensor.kitchen_window_contact:
-                friendly_name: 'Окно, Кухня'
-            binary_sensor.home_windows:
-                friendly_name: 'Окна, Квартира'
+                friendly_name: 'Левое Окно в Спальне'
             binary_sensor.bedroom_windows:
-                friendly_name: 'Окна, Спальня'
+                friendly_name: 'Окна в Спальне'
+            binary_sensor.kitchen_window_contact:
+                friendly_name: 'Окно в Кухне'
+            binary_sensor.home_windows:
+                friendly_name: 'Окна в Квартире'
 
     smartir:
 
@@ -64,9 +65,10 @@ climate_configuration:
 
         climate_target_temperature:
             name: 'Climate Target Temperature'
-            mode: slider
+            mode: box
             min: 18
             max: 28
+            step: 1
             unit_of_measurement: '°C'
 
     input_boolean:
@@ -90,7 +92,7 @@ climate_configuration:
         disable_climate:
             name: Disable Climate Automations
             icon: mdi:thermometer-off
-    
+
         disable_climate_notifications:
             name: Disable Climate Notifications
             icon: mdi:message-bulleted-off
@@ -133,7 +135,6 @@ climate_configuration:
           - binary_sensor.bedroom_window_left_contact
           - binary_sensor.bedroom_window_right_contact
           - binary_sensor.kitchen_window_contact
-          - binary_sensor.living_room_loggia_door_contact
 
     template:
 

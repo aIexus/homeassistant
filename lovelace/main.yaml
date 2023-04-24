@@ -1,0 +1,603 @@
+title: Главная
+icon: mdi:home-assistant
+cards:
+  - type: vertical-stack
+    cards:
+      - type: entity
+        entity: sensor.time_date
+        name: Время/Дата
+        icon: mdi:calendar-clock
+
+      - type: conditional
+        conditions:
+          - entity: binary_sensor.m_novomoskovsk_alerts
+            state: "on"
+          - entity: input_boolean.disable_alerts_notifications
+            state: "off"
+        card:
+            type: custom:stack-in-card
+            mode: horizontal
+            cards:
+              - type: button
+                tap_action:
+                    action: more-info
+                entity: binary_sensor.m_novomoskovsk_ta_novomoskovska_teritorialna_gromada_air
+                show_state: false
+                show_name: false
+                hold_action:
+                    action: none
+              - type: button
+                tap_action:
+                    action: more-info
+                entity: binary_sensor.m_novomoskovsk_ta_novomoskovska_teritorialna_gromada_artillery
+                show_state: false
+                show_name: false
+                hold_action:
+                    action: none
+              - type: button
+                tap_action:
+                    action: more-info
+                entity: binary_sensor.m_novomoskovsk_ta_novomoskovska_teritorialna_gromada_urban_fights
+                show_state: false
+                show_name: false
+                hold_action:
+                    action: none
+              - type: button
+                tap_action:
+                    action: more-info
+                entity: binary_sensor.m_novomoskovsk_ta_novomoskovska_teritorialna_gromada_chemical
+                show_state: false
+                show_name: false
+                hold_action:
+                    action: none
+              - type: button
+                tap_action:
+                    action: more-info
+                entity: binary_sensor.m_novomoskovsk_ta_novomoskovska_teritorialna_gromada_nuclear
+                show_state: false
+                show_name: false
+                hold_action:
+                    action: none
+              - type: button
+                tap_action:
+                    action: more-info
+                entity: binary_sensor.m_novomoskovsk_ta_novomoskovska_teritorialna_gromada_unknown
+                show_state: false
+                show_name: false
+                hold_action:
+                    action: none
+
+      - type: weather-forecast
+        entity: weather.home
+        show_forecast: false
+
+      - type: tile
+        entity: alarm_control_panel.home_alarm
+        name: Сигнализация
+        features:
+          - type: "alarm-modes"
+            modes:
+              - armed_home
+              - armed_away
+              - armed_night
+              - disarmed
+
+      - type: custom:stack-in-card
+        mode: horizontal
+        cards:
+
+          - type: tile
+            entity: person.alexus
+            show_entity_picture: true
+            vertical: true
+    
+          - type: tile
+            entity: person.inna
+            show_entity_picture: true
+            vertical: true
+    
+          - type: tile
+            entity: person.ivan
+            show_entity_picture: true
+            vertical: true
+    
+    
+          - type: tile
+            entity: person.vova
+            show_entity_picture: true
+            vertical: true
+
+    #   - type: conditional
+    #     conditions:
+    #       - entity: binary_sensor.anyone_home
+    #         state: "on"
+    #     card:
+    #       type: entity-filter
+    #       entities:
+    #         - person.alexus
+    #         - person.inna
+    #         - person.vova
+    #         - person.ivan
+    #       state_filter:
+    #         - home
+    #       show_empty: false
+    #       card:
+    #         type: glance
+    #         show_state: false
+    #         title: Сейчас Дома
+
+  - type: vertical-stack
+    cards:
+
+      - type: custom:stack-in-card
+        mode: vertical
+        cards:
+          - type: custom:room-card
+            title: Коридор
+            hide_title: false
+            icon: mdi:door-closed-lock
+            entity: sensor.hallway_lumi_weather_temperature
+            show_icon: true
+            tap_action: none
+            double_tap_action: none
+            entities:
+              - entity: light.hallway_rgb_bulb
+                show_icon: true
+                state_color: true
+                name: Подсветка
+                tap_action: none
+              - entity: binary_sensor.tapo_camera_motion
+                show_icon: true
+                state_color: true
+                hide_unavailable: true
+                name: Движение
+                tap_action: none
+              - entity: camera.tapo_camera_sd
+                show_icon: true
+                name: Камера
+                tap_action: none
+              - entity: binary_sensor.hallway_entrance_door_contact
+                show_icon: true
+                state_color: true
+                tap_action: none
+                name: Дверь
+            info_entities:
+              - entity: sensor.hallway_lumi_weather_humidity
+                format: precision1
+              - entity: sensor.hallway_lumi_weather_temperature
+                format: precision1
+    
+          - type: custom:room-card
+            title: Гостинная
+            icon: mdi:sofa
+            entity: sensor.living_room_lumi_weather_temperature
+            show_icon: true
+            tap_action: none
+            double_tap_action: none
+            entities:
+              - entity: switch.living_room_light_switch
+                show_icon: true
+                state_color: true
+                icon: mdi:ceiling-light
+                name: Люстра
+                tap_action: none
+              - entity: binary_sensor.living_room_auto_light_off_sensor
+                name: Таймер Света
+                tap_action: none
+                hide_if:
+                  conditions:
+                    - condition: equals
+                      entity: input_boolean.disable_occupancy
+                      value: "on"
+              - entity: media_player.sonos_living_room
+                icon: mdi:speaker-wireless
+                name: Sonos One
+                show_icon: true
+                state_color: true
+                tap_action: none
+                hide_if:
+                  conditions:
+                    - condition: equals
+                      value: "paused"
+                    - condition: equals
+                      value: "unavailable"
+              - entity: binary_sensor.living_room_socket_heating_status
+                show_icon: true
+                state_color: true
+                tap_action: none
+                hide_if:
+                  conditions:
+                    - condition: equals
+                      entity: input_boolean.heating_status
+                      value: "off"
+                name: Радиатор
+              - entity: binary_sensor.living_room_air_conditioner_socket_status
+                state_color: true
+                show_icon: true
+                tap_action: none
+                name: Кондиционер
+                hide_if:
+                  conditions:
+                    - condition: equals
+                      entity: input_boolean.ac_status
+                      value: "off"
+              - entity: binary_sensor.living_room_lumi_sensor_motion_occupancy
+                show_icon: true
+                state_color: true
+                tap_action: none
+                name: Движение
+              - entity: binary_sensor.living_room_loggia_door_contact
+                show_icon: true
+                state_color: true
+                tap_action: none
+                name: Лоджия
+            info_entities:
+              - entity: sensor.living_room_lumi_sensor_motion_illuminance_lux
+              - entity: sensor.living_room_lumi_weather_humidity
+                format: precision1
+              - entity: sensor.living_room_lumi_weather_temperature
+                format: precision1
+    
+          - type: custom:room-card
+            title: Спальня
+            icon: mdi:bed-clock
+            entity: sensor.bedroom_lumi_weather_temperature
+            show_icon: true
+            tap_action: none
+            double_tap_action: none
+            entities:
+              - entity: switch.bedroom_light_switch
+                show_icon: true
+                state_color: true
+                icon: mdi:ceiling-light
+                name: Люстра
+                tap_action: none
+              - entity: binary_sensor.bedroom_auto_light_off_sensor
+                name: Таймер Света
+                tap_action: none
+                hide_if:
+                  conditions:
+                    - condition: equals
+                      entity: input_boolean.disable_occupancy
+                      value: "on"
+              - entity: binary_sensor.bedroom_socket_heating_status
+                show_icon: true
+                state_color: true
+                tap_action: none
+                hide_if:
+                  conditions:
+                    - condition: equals
+                      entity: input_boolean.heating_status
+                      value: "off"
+                name: Радиатор
+              - entity: binary_sensor.bedroom_air_conditioner_socket_status
+                name: Кондиционер
+                state_color: true
+                show_icon: true
+                tap_action: none
+                hide_if:
+                  conditions:
+                    - condition: equals
+                      entity: input_boolean.ac_status
+                      value: "off"
+              - entity: binary_sensor.bedroom_lumi_sensor_motion_occupancy
+                show_icon: true
+                state_color: true
+                tap_action: none
+                name: Движение
+              - entity: binary_sensor.bedroom_windows
+                show_icon: true
+                state_color: true
+                tap_action: none
+                name: Окно
+            info_entities:
+              - entity: sensor.bedroom_lumi_sensor_motion_illuminance_lux
+              - entity: sensor.bedroom_lumi_weather_humidity
+                format: precision1
+              - entity: sensor.bedroom_lumi_weather_temperature
+                format: precision1
+    
+          - type: custom:room-card
+            title: Кухня
+            icon: mdi:silverware-fork-knife
+            entity: sensor.kitchen_lumi_weather_temperature
+            show_icon: true
+            tap_action: none
+            double_tap_action: none
+            entities:
+              - entity: binary_sensor.kitchen_smoke_detector_smoke
+                show_icon: true
+                state_color: true
+                tap_action: none
+                name: Дым
+              - entity: binary_sensor.kitchen_water_leak_sensor_water_leak
+                show_icon: true
+                state_color: true
+                name: Протечка
+                tap_action: none
+              - entity: binary_sensor.kitchen_socket_heating_status
+                show_icon: true
+                state_color: true
+                tap_action: none
+                name: Радиатор
+                hide_if:
+                  conditions:
+                    - condition: equals
+                      entity: input_boolean.heating_status
+                      value: "off"
+              - entity: binary_sensor.kitchen_window_contact
+                show_icon: true
+                state_color: true
+                name: Окно
+                tap_action: none
+            info_entities:
+              - entity: sensor.kitchen_lumi_weather_humidity
+                format: precision1
+              - entity: sensor.kitchen_lumi_weather_temperature
+                format: precision1
+    
+          - type: custom:room-card
+            title: Ванная
+            icon: mdi:shower-head
+            entity: sensor.bathroom_lumi_weather_temperature
+            show_icon: true
+            tap_action: none
+            double_tap_action: none
+            entities:
+              - entity: binary_sensor.bathroom_water_leak_under_the_bath_water_leak
+                name: Ванна
+                tap_action: none
+                show_icon: true
+                state_color: true
+              - entity: binary_sensor.bathroom_water_leak_under_washing_machine_water_leak
+                name: Стиралка
+                tap_action: none
+                show_icon: true
+                state_color: true
+              - entity: binary_sensor.bathroom_washing_machine_socket_status
+                name: Стиралка
+                tap_action: none
+                show_icon: true
+                state_color: true
+            info_entities:
+              - entity: sensor.bathroom_lumi_weather_humidity
+                format: precision1
+              - entity: sensor.bathroom_lumi_weather_temperature
+                format: precision1
+    
+          - type: custom:room-card
+            title: Лоджия
+            icon: mdi:balcony
+            show_icon: true
+            entity: sensor.loggia_tuya_weather_temperature
+            tap_action: none
+            double_tap_action: none
+            info_entities:
+              - entity: sensor.loggia_tuya_weather_humidity
+                format: precision1
+              - entity: sensor.loggia_tuya_weather_temperature
+                format: precision1
+
+  - type: vertical-stack
+    cards:
+
+      - type: "custom:mini-media-player"
+        entity: media_player.sonos_living_room
+        name: "Living Room: Sonos One"
+        artwork: cover
+        state_label: true
+        hide:
+          power: true
+        #  shortcuts:
+        #     columns: 4
+        #     buttons:
+        #       # Start predefined playlist
+        #       - name: Rock Your Body
+        #         type: script
+        #         # id: spotify:user:31btn5tswjqya34vyszn6fcdbcxu:playlist:37i9dQZF1DXbFRZSqP41al
+        #         id: script.sonos_play_spotify_playlist
+        #         data:
+        #           sonos_entity: media_player.sonos_living_room
+        #           playlist_id: 37i9dQZF1DXbFRZSqP41al
+        #       - name: Rock Me Up
+        #         type: 'music'
+        #         id: 'https://open.spotify.com/playlist/37i9dQZF1DX0wiundViT27'
+        #       - name: TEST
+        #         type: service
+        #         id: media_player.play_media
+        #         data:
+        #           entity_id: media_player.sonos_living_room
+        #           media_content_id: https://open.spotify.com/playlist/37i9dQZF1DX0wiundViT27
+        #           media_content_type: music
+        #  speaker_group:
+        #   platform: sonos
+        #   show_group_count: true
+        #   entities:
+        #      - entity_id: media_player.sonos_living_room
+        #       name: Sonos Living Room
+        #      - entity_id: media_player.sonos_living_room
+        #       name: Sonos LR 2
+        #      - entity_id: media_player.sonos_living_room
+        #       name: Sonos LR 3
+        #  entities:
+        #   - type: 'custom:mini-media-player'
+        #      entity: media_player.multiroom_player
+        #      group: true
+        #      source: icon
+        #      artwork: cover
+        #      info: short
+        #      hide:
+        #       volume: true
+        #       power: true
+        #   - type: 'custom:mini-media-player'
+        #      entity: media_player.sonos_living_room
+        #      group: true
+        #      hide:
+        #       controls: true
+        #   - type: 'custom:mini-media-player'
+        #      entity: media_player.sonos_living_room
+        #      group: true
+        #      hide:
+        #       controls: true
+        #   - type: 'custom:mini-media-player'
+        #      entity: media_player.sonos_living_room
+        #      group: true
+        #      hide:
+        #       controls: true
+
+      - type: custom:stack-in-card
+        mode: horizontal
+        cards:
+          - type: conditional
+            conditions:
+              - entity: input_boolean.heating_status
+                state: "on"
+            card:
+              type: button
+              tap_action:
+                action: toggle
+              entity: input_boolean.enable_manual_control_heater
+              show_state: false
+              show_name: false
+              hold_action:
+                action: none
+          - type: conditional
+            conditions:
+              - entity: input_boolean.ac_status
+                state: "on"
+            card:
+              type: button
+              tap_action:
+                action: toggle
+              entity: input_boolean.enable_manual_control_ac
+              show_state: false
+              show_name: false
+              hold_action:
+                action: none
+          - type: button
+            tap_action:
+              action: toggle
+            entity: input_boolean.enable_manual_control_lights
+            show_state: false
+            show_name: false
+            hold_action:
+              action: none
+          - type: button
+            tap_action:
+              action: toggle
+            entity: input_boolean.enable_manual_control_aqua_lights
+            show_state: false
+            show_name: false
+            hold_action:
+              action: none
+
+      - type: custom:stack-in-card
+        mode: horizontal
+        cards:
+          - type: conditional
+            conditions:
+              - entity: input_boolean.enable_manual_control_heater
+                state: "on"
+              - entity: input_boolean.heating_status
+                state: "on"
+            card:
+                type: custom:stack-in-card
+                mode: horizontal
+                cards:
+                  - type: thermostat
+                    entity: climate.living_room_heater
+                    name: Гостинная
+                  - type: thermostat
+                    entity: climate.bedroom_heater
+                    name: Спальня
+                  - type: thermostat
+                    entity: climate.kitchen_heater
+                    name: Кухня
+          - type: conditional
+            conditions:
+              - entity: input_boolean.enable_manual_control_ac
+                state: "on"
+              - entity: input_boolean.ac_status
+                state: "on"
+            card:
+              type: grid
+              columns: 2
+              title: Кондиционеры
+              cards:
+                - type: thermostat
+                  entity: climate.living_room_ac
+                  name: Гостинная
+                - type: thermostat
+                  entity: climate.bedroom_ac
+                  name: Спальня
+          - type: conditional
+            conditions:
+              - entity: input_boolean.enable_manual_control_lights
+                state: "on"
+            card:
+              type: entities
+              show_header_toggle: true
+              title: Освещение
+              icon: mdi:ceiling-light-multiple-outline
+              state_color: true
+              entities:
+                - entity: switch.living_room_light_switch
+                  name: Гостинная
+                  icon: mdi:ceiling-light
+                - entity: switch.bedroom_light_switch
+                  name: Спальня
+                  icon: mdi:ceiling-light
+                - entity: input_boolean.hallway_rgb_bulb_switch_single_status
+                  icon: mdi:lightbulb
+                  name: Коридор
+          - type: conditional
+            conditions:
+              - entity: input_boolean.enable_christmas_automations
+                state: "on"
+              - entity: input_boolean.enable_manual_control_lights
+                state: "on"
+            card:
+              type: entities
+              show_header_toggle: true
+              title: Гирлянды
+              icon: mdi:ceiling-light-multiple-outline
+              state_color: true
+              entities:
+                - entity: switch.living_room_air_conditioner_socket
+                  name: Ёлочка
+                  icon: mdi:pine-tree
+                - entity: switch.bedroom_air_conditioner_socket
+                  name: Гирлянда в Спальне
+                  icon: mdi:string-lights
+          - type: conditional
+            conditions:
+              - entity: input_boolean.enable_manual_control_aqua_lights
+                state: "on"
+            card:
+                type: custom:stack-in-card
+                mode: vertical
+                cards:
+                  - type: entities
+                    show_header_toggle: true
+                    title: Освещение
+                    icon: mdi:fishbowl
+                    state_color: true
+                    entities:
+                      - entity: switch.living_room_aquarium_power_strip_l3
+                        name: Основной свет
+                        icon: mdi:wall-sconce-flat
+                      - entity: switch.living_room_aquarium_power_strip_l4
+                        name: Лунный свет
+                        icon: mdi:weather-night
+                  - type: entities
+                    show_header_toggle: true
+                    title: Оборудование
+                    icon: mdi:wrench-clock
+                    state_color: true
+                    entities:
+                      - entity: switch.living_room_aquarium_power_strip_l1
+                        name: Аэрация
+                        icon: mdi:fish
+                      - entity: switch.living_room_aquarium_power_strip_l2
+                        name: Фильтрация
+                        icon: mdi:air-filter

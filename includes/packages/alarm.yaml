@@ -16,22 +16,24 @@ home_alarm_settings:
 
     homeassistant:
         customize:
+            binary_sensor.home_doors:
+                friendly_name: 'Двери в Квартире'
             binary_sensor.hallway_entrance_door_contact:
                 friendly_name: 'Входная Дверь'
             binary_sensor.motion_sensors:
-                friendly_name: 'Движение, Квартира'
+                friendly_name: 'Движение в Квартире'
             binary_sensor.bedroom_lumi_sensor_motion_occupancy:
-                friendly_name: 'Датчик Движения, Спальня'
+                friendly_name: 'Движение в Спальне'
             binary_sensor.living_room_lumi_sensor_motion_occupancy:
-                friendly_name: 'Датчик Движения, Гостинная'
+                friendly_name: 'Движение в Гостинной'
             binary_sensor.bathroom_water_leak_under_washing_machine_water_leak:
-                friendly_name: 'Датчик Протечки, Стиральная Машина'
+                friendly_name: 'Протечка под Стиральнай Машиной'
             binary_sensor.bathroom_water_leak_under_the_bath_water_leak:
-                friendly_name: 'Датчик Протечки, Ванная'
+                friendly_name: 'Протечка под Ванной'
             binary_sensor.kitchen_water_leak_sensor_water_leak:
-                friendly_name: 'Датчик Протечки, Кухня'
+                friendly_name: 'Протечка в Кухне'
             binary_sensor.kitchen_smoke_detector_smoke:
-                friendly_name: 'Датчик Дыма, Кухня'
+                friendly_name: 'Дым в Кухне'
 
     input_boolean:
 
@@ -50,6 +52,55 @@ home_alarm_settings:
           - binary_sensor.living_room_lumi_sensor_motion_occupancy
           - binary_sensor.tapo_camera_motion
 
+      - platform: group
+        name: home_doors
+        unique_id: binary_sensor_home_doors
+        device_class: door
+        entities:
+          - binary_sensor.living_room_loggia_door_contact
+          - binary_sensor.hallway_entrance_door_contact
+
+    template:
+
+      - sensor:
+
+          - name: smoke_detect
+            state: >
+                {% set variable = namespace(value = {}) %}
+                {% for entity in states.binary_sensor if is_state(entity.entity_id, 'on') and is_state_attr(entity.entity_id, 'device_class', 'smoke') %}
+                    {% set variable.value = dict(variable.value, **{entity.name: entity.state }) %}
+                {% endfor %}
+                {% if (variable.value | length) | int > 0 %}
+                    {{ variable.value | length }}
+                {% else %}
+                    0
+                {% endif %}
+            attributes:
+                list_entities: >
+                    {% set variable = namespace(value = {}) %}
+                    {% for entity in states.binary_sensor if is_state(entity.entity_id, 'on') and is_state_attr(entity.entity_id, 'device_class', 'smoke') %}
+                        {% set variable.value = dict(variable.value, **{entity.name: entity.state }) %}
+                    {% endfor %}
+                    {{ variable.value |dictsort(false, 'value') }}
+
+          - name: water_leak_detect
+            state: >
+                {% set variable = namespace(value = {}) %}
+                {% for entity in states.binary_sensor if is_state(entity.entity_id, 'on') and is_state_attr(entity.entity_id, 'device_class', 'moisture') %}
+                    {% set variable.value = dict(variable.value, **{entity.name: entity.state }) %}
+                {% endfor %}
+                {% if (variable.value | length) | int > 0 %}
+                    {{ variable.value | length }}
+                {% else %}
+                    0
+                {% endif %}
+            attributes:
+                list_entities: >
+                    {% set variable = namespace(value = {}) %}
+                    {% for entity in states.binary_sensor if is_state(entity.entity_id, 'on') and is_state_attr(entity.entity_id, 'device_class', 'moisture') %}
+                        {% set variable.value = dict(variable.value, **{entity.name: entity.state }) %}
+                    {% endfor %}
+                    {{ variable.value |dictsort(false, 'value') }}
 
     alarm_control_panel:
 
@@ -683,113 +734,181 @@ home_alarm_settings:
                 message: 'ВНИМАНИЕ!!! Зафиксировано превышение лимита потребления электроэнергии на "{{ states("sensor.tuya_clamp_meter_power") | float(0) | round(0) - states("input_number.electricity_consumption_limit") | int(0) }}" ватт! Отключите ненужные приборы!'
           mode: single
 
-        - alias: "Alarm: Water Leakage under Bath in Bathroom"
-          id: alarm_bathroom_water_leakage_under_the_bath
-          description: 'Уведомление о протечке воды под ванной'
+        - alias: "Alarm: Water Leakage Detected"
+          id: alarm_bathroom_water_leakage_detected
+          description: 'Уведомление о протечке воды и выводом списка сенсоров'
           trigger:
-            - type: moist
-              platform: device
-              device_id: e76bb600c400a5b7520a0ce5311870d4
-              entity_id: binary_sensor.bathroom_water_leak_under_the_bath_water_leak
-              domain: binary_sensor
+          - platform: template
+            value_template: "{{ (states('sensor.water_leak_detect')|int) > 0 }}"
+          - platform: template
+            value_template: "{{ (states('sensor.water_leak_detect')|int) == 0 }}"
           condition: []
           action:
-            - choose:
-                  - conditions:
-                      - condition: state
-                        entity_id: binary_sensor.internet_connection_ping
-                        state: 'on'
-                    sequence:
-                    - service: notify.alexus
-                      data:
-                        title: '{{"\U000026A0"}} ВНИМАНИЕ{{"\U0000203C"}}'
-                        message:  |
-                          ➖➖➖➖➖➖➖➖➖➖➖➖
-                          {{"\U0001F4A7"}} Обнаружена протечка в ванной комнате под ванной{{"\U0000203C"}}
-            - condition: state
-              entity_id: input_boolean.disable_voice_notifications
-              state: 'off'
-            - condition: state
-              entity_id: binary_sensor.anyone_home
-              state: 'on'
-            - service: script.sonos_say
-              data: 
-                sonos_entity: media_player.sonos_living_room
-                volume: 0.4
-                message: 'ВНИМАНИЕ!!! Обнаружена протечка в ванной комнате под ванной!'
+          - choose:
+              - conditions:
+                  - condition: template
+                    value_template: "{{ (states('sensor.water_leak_detect')|int) > 0 }}"
+                sequence:
+                  - choose:
+                      - conditions:
+                          - condition: state
+                            entity_id: binary_sensor.internet_connection_ping
+                            state: 'on'
+                        sequence:
+                          - service: notify.alexus
+                            data:
+                                title: '{{"\U000026A0"}} ВНИМАНИЕ{{"\U0000203C"}}'
+                                message:  |
+                                    ➖➖➖➖➖➖➖➖➖➖➖➖
+                                    {{"\U0001F4A7"}} Обнаружена протечка{{"\U0000203C"}}
+                                    *{% for entity_name, entity_state in state_attr('sensor.water_leak_detect', 'list_entities')-%} - {{ entity_name }}{{ '\n' -}} {% endfor %}*
+                  - condition: state
+                    entity_id: input_boolean.disable_voice_notifications
+                    state: 'off'
+                  - condition: state
+                    entity_id: binary_sensor.anyone_home
+                    state: 'on'
+                  - service: script.sonos_say
+                    data: 
+                        sonos_entity: media_player.sonos_living_room
+                        volume: 0.4
+                        message: "ВНИМАНИЕ!!! Обнаружена {% for entity_name, entity_state in state_attr('sensor.water_leak_detect', 'list_entities')-%} {{ entity_name }}{{ '\n' -}} {% endfor %}"
+              - conditions:
+                  - condition: template
+                    value_template: "{{ (states('sensor.water_leak_detect')|int) == 0 }}"
+                sequence:
+                  - choose:
+                      - conditions:
+                          - condition: state
+                            entity_id: binary_sensor.internet_connection_ping
+                            state: 'on'
+                        sequence:
+                          - service: notify.alexus
+                            data:
+                                title: '{{"\U000026A0"}} ВНИМАНИЕ{{"\U0000203C"}}'
+                                message:  |
+                                    ➖➖➖➖➖➖➖➖➖➖➖➖
+                                    {{"\U0001F44C"}} Протечка устранена{{"\U0000203C"}}
+                  - condition: state
+                    entity_id: input_boolean.disable_voice_notifications
+                    state: 'off'
+                  - condition: state
+                    entity_id: binary_sensor.anyone_home
+                    state: 'on'
+                  - service: script.sonos_say
+                    data: 
+                        sonos_entity: media_player.sonos_living_room
+                        volume: 0.4
+                        message: "Все в порядке, протечка устранена"
           mode: single
+          
+        # - alias: "Alarm: Water Leakage under Bath in Bathroom"
+        #   id: alarm_bathroom_water_leakage_under_the_bath
+        #   description: 'Уведомление о протечке воды под ванной'
+        #   trigger:
+        #     - type: moist
+        #       platform: device
+        #       device_id: e76bb600c400a5b7520a0ce5311870d4
+        #       entity_id: binary_sensor.bathroom_water_leak_under_the_bath_water_leak
+        #       domain: binary_sensor
+        #   condition: []
+        #   action:
+        #     - choose:
+        #           - conditions:
+        #               - condition: state
+        #                 entity_id: binary_sensor.internet_connection_ping
+        #                 state: 'on'
+        #             sequence:
+        #             - service: notify.alexus
+        #               data:
+        #                 title: '{{"\U000026A0"}} ВНИМАНИЕ{{"\U0000203C"}}'
+        #                 message:  |
+        #                   ➖➖➖➖➖➖➖➖➖➖➖➖
+        #                   {{"\U0001F4A7"}} Обнаружена протечка в ванной комнате под ванной{{"\U0000203C"}}
+        #     - condition: state
+        #       entity_id: input_boolean.disable_voice_notifications
+        #       state: 'off'
+        #     - condition: state
+        #       entity_id: binary_sensor.anyone_home
+        #       state: 'on'
+        #     - service: script.sonos_say
+        #       data: 
+        #         sonos_entity: media_player.sonos_living_room
+        #         volume: 0.4
+        #         message: 'ВНИМАНИЕ!!! Обнаружена протечка в ванной комнате под ванной!'
+        #   mode: single
 
-        - alias: "Alarm: Water Leakage under Washing Machine in Bathroom"
-          id: alarm_bathroom_water_leakage_under_washing_machine
-          description: 'Уведомление о протечке воды в ванной под стиральной машиной'
-          trigger:
-            - type: moist
-              platform: device
-              device_id: 46788e98449767dab7c25ef2d34137d7
-              entity_id: binary_sensor.bathroom_water_leak_under_washing_machine_water_leak
-              domain: binary_sensor
-          condition: []
-          action:
-            - choose:
-                  - conditions:
-                      - condition: state
-                        entity_id: binary_sensor.internet_connection_ping
-                        state: 'on'
-                    sequence:
-                    - service: notify.alexus
-                      data:
-                        title: '{{"\U000026A0"}} ВНИМАНИЕ{{"\U0000203C"}}'
-                        message:  |
-                          ➖➖➖➖➖➖➖➖➖➖➖➖
-                          {{"\U0001F4A7"}} Обнаружена протечка в ванной комнате под стиральной машиной{{"\U0000203C"}}
-            - condition: state
-              entity_id: input_boolean.disable_voice_notifications
-              state: 'off'
-            - condition: state
-              entity_id: binary_sensor.anyone_home
-              state: 'on'
-            - service: script.sonos_say
-              data: 
-                sonos_entity: media_player.sonos_living_room
-                volume: 0.4
-                message: 'ВНИМАНИЕ!!! Обнаружена протечка в ванной комнате под стиральной машиной!'
-          mode: single
+        # - alias: "Alarm: Water Leakage under Washing Machine in Bathroom"
+        #   id: alarm_bathroom_water_leakage_under_washing_machine
+        #   description: 'Уведомление о протечке воды в ванной под стиральной машиной'
+        #   trigger:
+        #     - type: moist
+        #       platform: device
+        #       device_id: 46788e98449767dab7c25ef2d34137d7
+        #       entity_id: binary_sensor.bathroom_water_leak_under_washing_machine_water_leak
+        #       domain: binary_sensor
+        #   condition: []
+        #   action:
+        #     - choose:
+        #           - conditions:
+        #               - condition: state
+        #                 entity_id: binary_sensor.internet_connection_ping
+        #                 state: 'on'
+        #             sequence:
+        #             - service: notify.alexus
+        #               data:
+        #                 title: '{{"\U000026A0"}} ВНИМАНИЕ{{"\U0000203C"}}'
+        #                 message:  |
+        #                   ➖➖➖➖➖➖➖➖➖➖➖➖
+        #                   {{"\U0001F4A7"}} Обнаружена протечка в ванной комнате под стиральной машиной{{"\U0000203C"}}
+        #     - condition: state
+        #       entity_id: input_boolean.disable_voice_notifications
+        #       state: 'off'
+        #     - condition: state
+        #       entity_id: binary_sensor.anyone_home
+        #       state: 'on'
+        #     - service: script.sonos_say
+        #       data: 
+        #         sonos_entity: media_player.sonos_living_room
+        #         volume: 0.4
+        #         message: 'ВНИМАНИЕ!!! Обнаружена протечка в ванной комнате под стиральной машиной!'
+        #   mode: single
 
-        - alias: "Alarm: Water leakage in Kitchen"
-          id: alarm_kitchen_water_leakage
-          description: 'Уведомление о протечке воды в кухне'
-          trigger:
-            - type: moist
-              platform: device
-              device_id: 9123c5c70c00e2ab32573b42b2c11ace
-              entity_id: binary_sensor.kitchen_water_leak_sensor_water_leak
-              domain: binary_sensor
-          condition: []
-          action:
-            - choose:
-                  - conditions:
-                      - condition: state
-                        entity_id: binary_sensor.internet_connection_ping
-                        state: 'on'
-                    sequence:
-                    - service: notify.alexus
-                      data:
-                        title: '{{"\U000026A0"}} ВНИМАНИЕ{{"\U0000203C"}}'
-                        message: |
-                          ➖➖➖➖➖➖➖➖➖➖➖➖
-                          {{"\U0001F4A7"}} Обнаружена протечка в кухне под мойкой{{"\U0000203C"}}
-            - condition: state
-              entity_id: input_boolean.disable_voice_notifications
-              state: 'off'
-            - condition: state
-              entity_id: binary_sensor.anyone_home
-              state: 'on'
-            - service: script.sonos_say
-              data: 
-                sonos_entity: media_player.sonos_living_room
-                volume: 0.4
-                message: 'ВНИМАНИЕ!!! Обнаружена протечка в кухне под мойкой!'
-          mode: single
+        # - alias: "Alarm: Water leakage in Kitchen"
+        #   id: alarm_kitchen_water_leakage
+        #   description: 'Уведомление о протечке воды в кухне'
+        #   trigger:
+        #     - type: moist
+        #       platform: device
+        #       device_id: 9123c5c70c00e2ab32573b42b2c11ace
+        #       entity_id: binary_sensor.kitchen_water_leak_sensor_water_leak
+        #       domain: binary_sensor
+        #   condition: []
+        #   action:
+        #     - choose:
+        #           - conditions:
+        #               - condition: state
+        #                 entity_id: binary_sensor.internet_connection_ping
+        #                 state: 'on'
+        #             sequence:
+        #             - service: notify.alexus
+        #               data:
+        #                 title: '{{"\U000026A0"}} ВНИМАНИЕ{{"\U0000203C"}}'
+        #                 message: |
+        #                   ➖➖➖➖➖➖➖➖➖➖➖➖
+        #                   {{"\U0001F4A7"}} Обнаружена протечка в кухне под мойкой{{"\U0000203C"}}
+        #     - condition: state
+        #       entity_id: input_boolean.disable_voice_notifications
+        #       state: 'off'
+        #     - condition: state
+        #       entity_id: binary_sensor.anyone_home
+        #       state: 'on'
+        #     - service: script.sonos_say
+        #       data: 
+        #         sonos_entity: media_player.sonos_living_room
+        #         volume: 0.4
+        #         message: 'ВНИМАНИЕ!!! Обнаружена протечка в кухне под мойкой!'
+        #   mode: single
 
         - alias: "Alarm: Smoke Detection in Kitchen"
           id: alarm_smoke_detection_in_kitchen

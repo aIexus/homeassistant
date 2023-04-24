@@ -2,7 +2,7 @@ telegram:
 
     telegram_bot:
         - platform: polling
-          parse_mode: html
+        #   parse_mode: html
           api_key: !secret telegramm_bot_token
           allowed_chat_ids:
             - !secret telegram_user_1
@@ -52,9 +52,9 @@ telegram:
                 Выберите раздел:
               data:
                 inline_keyboard: &main_menu
-                  - "{{'\U00002139'}} Статус:/status, {{'\U0001F6E1'}} Безопасность:/security"
-                  - "{{'\U0001F321'}} Климат:/climate, {{'\U0001F4A1'}} Освещение:/lights" 
-                  - "{{'\U000026A1'}} Электричество:/electricity"
+                  - "{{'\U00002139'}} Статус:/status, {{'\U00002328'}} Телеметрия:/telemetry"
+                  - "{{'\U0001F6E1'}} Безопасность:/security, {{'\U0001F321'}} Климат:/climate" 
+                  - "{{'\U000026A1'}} Электричество:/electricity, {{'\U0001F4A1'}} Освещение:/lights"
                   - "{{'\U0001F5FA'}} Геолокация:/geo, {{'\U0001F4D1'}} Меню:/menu"
           mode: single
 

@@ -3,7 +3,7 @@ tapo_camera_package:
     homeassistant:
         customize:
             binary_sensor.tapo_camera_motion:
-                friendly_name: 'Движение, Камера в Коридоре'
+                friendly_name: 'Движение в Коридоре, Камера'
 
     script:
 

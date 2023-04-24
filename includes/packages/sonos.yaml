@@ -54,7 +54,7 @@ sonos_package:
                 data_template:
                   entity_id: "{{ sonos_entity }}"
                   volume_level: "{{ sonos_volume }}"
-            mode: queued
+            mode: restart
 
         sonos_play_file:
             alias: "Sonos: Play File script"
@@ -108,7 +108,7 @@ sonos_package:
                 data_template:
                   entity_id: "{{ sonos_entity }}"
                   volume_level: "{{ sonos_volume }}"
-            mode: queued
+            mode: restart
 
         sonos_tts_test:
             alias: "Sonos: Test"
@@ -120,4 +120,4 @@ sonos_package:
                   sonos_entity: media_player.sonos_living_room
                   volume: 0.2
                   message: 'ПРЕДУПРЕЖДЕНИЕ! Снимите систему с охраны СЕЙЧАС, если Вы хотите предотвратить активацию сирены!!'
-            mode: single
+            mode: restart

@@ -33,7 +33,7 @@ energy_config:
     homeassistant:
         customize:
             binary_sensor.bathroom_washing_machine_socket_status:
-                friendly_name: 'Стиральная машина'
+                friendly_name: 'Стиральная Машина'
             binary_sensor.bedroom_air_conditioner_socket_status:
                 friendly_name: 'Кондиционер в Спальне'
             binary_sensor.living_room_air_conditioner_socket_status:
@@ -45,7 +45,53 @@ energy_config:
             binary_sensor.kitchen_socket_heating_status:
                 friendly_name: 'Обогреватель в Кухне'
             binary_sensor.exceed_electricity_consumption_limit:
-                friendly_name: 'Превышение лимита потребления'
+                friendly_name: 'Превышение Лимита Потребления'
+            sensor.tuya_clamp_meter_monthly_total:
+                friendly_name: 'Потребление за Месяц (всего)'
+            sensor.energy_counter_total:
+                friendly_name: 'Счетчик (общий)'
+            sensor.energy_counter_total_day:
+                friendly_name: 'Счетчик (день)'
+            sensor.energy_counter_total_night:
+                friendly_name: 'Счетчик (ночь)'
+            input_number.energy_counter_calibration_day:
+                friendly_name: 'Калибровка Cчетчика (день)'
+            input_number.energy_counter_calibration_night:
+                friendly_name: 'Калибровка Cчетчика (ночь)'
+            input_number.tarrif_energy_cost_calibrate_base:
+                friendly_name: 'Калибровка Тарифа на Электроэнергию'
+            input_number.electricity_consumption_limit:
+                friendly_name: 'Лимит Потребления Электроэнергии'
+            switch.bathroom_washing_machine_socket:
+                friendly_name: 'Ванная - Стиральная Машина, Розетка'
+            switch.bedroom_air_conditioner_socket:
+                friendly_name: 'Спальня - Кондиционер, Розетка'
+            switch.bedroom_socket_heating:
+                friendly_name: 'Спальня - Обогреватель, Розетка'
+            switch.bedroom_light_switch:
+                friendly_name: 'Спальня - Люстра, Выключатель'
+            switch.living_room_air_conditioner_socket:
+                friendly_name: 'Гостинная - Кондиционер, Розетка'
+            switch.living_room_aquarium_main_lighting:
+                friendly_name: 'Гостинная - Аквариум, Розетка'
+            switch.living_room_aquarium_power_strip_l1:
+                friendly_name: 'Гостинная - Аквариум, Аэрация'
+            switch.living_room_aquarium_power_strip_l2:
+                friendly_name: 'Гостинная - Аквариум, Фильтрация'
+            switch.living_room_aquarium_power_strip_l3:
+                friendly_name: 'Гостинная - Аквариум, Освещение'
+            switch.living_room_aquarium_power_strip_l4:
+                friendly_name: 'Гостинная - Аквариум, Лунный Свет'
+            switch.living_room_aquarium_power_strip_l5:
+                friendly_name: 'Гостинная - Аквариум, USB'
+            switch.living_room_light_switch:
+                friendly_name: 'Гостинная - Люстра, Выключатель'
+            switch.living_room_socket_heating:
+                friendly_name: 'Гостинная - Обогреватель, Розетка'
+            switch.kitchen_socket_heating:
+                friendly_name: 'Кухня - Обогреватель, Розетка'
+            light.hallway_rgb_bulb:
+                friendly_name: 'Коридор - RGB-Лампа'
             sensor.bathroom_washing_machine_socket_integration:
                 icon: mdi:chart-histogram
             sensor.bedroom_air_conditioner_socket_integration:
@@ -62,22 +108,6 @@ energy_config:
                 icon: mdi:chart-histogram
             sensor.tuya_clamp_meter_integration:
                 icon: mdi:chart-histogram
-            sensor.tuya_clamp_meter_monthly_total:
-                friendly_name: Потребление за месяц (всего)
-            sensor.energy_counter_total:
-                friendly_name: Счетчик (общий)
-            sensor.energy_counter_total_day:
-                friendly_name: Счетчик (день)
-            sensor.energy_counter_total_night:
-                friendly_name: Счетчик (ночь)
-            input_number.energy_counter_calibration_day:
-                friendly_name: Калибровка счетчика (день)
-            input_number.energy_counter_calibration_night:
-                friendly_name: Калибровка счетчика (ночь)
-            input_number.tarrif_energy_cost_calibrate_base:
-                friendly_name: Калибровка тарифа на электроэнергию
-            input_number.electricity_consumption_limit:
-                friendly_name: Лимит потребления электроэнергии
 
     input_number:
 

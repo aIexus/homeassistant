@@ -1,0 +1,458 @@
+title: Сенсоры
+icon: mdi:view-dashboard
+cards:
+  - type: vertical-stack
+    cards:
+
+      - type: custom:stack-in-card
+        mode: vertical
+        cards:
+
+          - type: markdown
+            style: |
+                ha-card {
+                    # color: #FFA500;
+                    font-weight: bold;
+                    font-size: 16px;
+                } 
+            content: >
+                **Гостинная**
+          - type: entities
+            state_color: true
+            entities:
+              - type: custom:multiple-entity-row
+                entity: binary_sensor.living_room_loggia_door_contact
+                secondary_info: last-changed
+                state_header: Состояние
+                state_color: true
+                name: Дверь на лоджию
+    
+              - type: custom:multiple-entity-row
+                entity: binary_sensor.living_room_lumi_sensor_motion_occupancy
+                name: Датчик движения
+                secondary_info: last-changed
+                state_header: Состояние
+                state_color: true
+                entities:
+                  - entity: sensor.living_room_lumi_sensor_motion_illuminance_lux
+                    name: Освещенность
+    
+              - type: custom:multiple-entity-row
+                entity: sensor.living_room_lumi_weather_temperature
+                icon: mdi:home-thermometer
+                name: Климат
+                secondary_info: last-changed
+                state_header: Температура
+                entities:
+                  - entity: sensor.living_room_lumi_weather_pressure
+                    name: Давление
+                  - entity: sensor.living_room_lumi_weather_humidity
+                    name: Влажность
+    
+              - type: custom:multiple-entity-row
+                entity: switch.living_room_aquarium_power_strip_l3
+                icon: mdi:fishbowl-outline
+                name: Аквариум
+                secondary_info: last-changed
+                state_color: true
+                show_state: false
+                entities:
+                  - entity: sensor.living_room_aquarium_main_lighting_voltage
+                    name: Напряжение
+                    unit: "V"
+                  - entity: sensor.living_room_aquarium_main_lighting_power
+                    name: Мощность
+                    unit: "W"
+                  - entity: sensor.living_room_aquarium_main_lighting_meter_monthly
+                    name: За месяц
+                    unit: "kWh"
+
+              - type: custom:multiple-entity-row
+                entity: binary_sensor.living_room_socket_heating_status
+                name: Обогреватель
+                secondary_info: last-changed
+                state_color: true
+                show_state: false
+                entities:
+                  - entity: sensor.living_room_socket_heating_voltage
+                    name: Напряжение
+                    unit: "V"
+                  - entity: sensor.living_room_socket_heating_power
+                    name: Мощность
+                    unit: "W"
+                  - entity: sensor.living_room_socket_heating_meter_monthly
+                    name: За месяц
+                    unit: "kWh"
+    
+              - type: custom:multiple-entity-row
+                entity: binary_sensor.living_room_air_conditioner_socket_status
+                name: Кондиционер
+                secondary_info: last-changed
+                state_color: true
+                show_state: false
+                entities:
+                  - entity: sensor.living_room_air_conditioner_socket_voltage
+                    name: Напряжение
+                    unit: "V"
+                  - entity: sensor.living_room_air_conditioner_socket_power
+                    name: Мощность
+                    unit: "W"
+                  - entity: sensor.living_room_air_conditioner_socket_meter_monthly
+                    name: За месяц
+                    unit: "kWh"
+
+      - type: custom:stack-in-card
+        mode: vertical
+        cards:
+
+          - type: markdown
+            style: |
+                ha-card {
+                    # color: #FFA500;
+                    font-weight: bold;
+                    font-size: 16px;
+                } 
+            content: >
+                **Спальня**
+
+          - type: entities
+            state_color: true
+            entities:
+              - type: custom:multiple-entity-row
+                entity: binary_sensor.bedroom_windows
+                name: Окно
+                state_header: Состояние
+                secondary_info: last-changed
+                state_color: true
+                show_state: true
+                entities:
+                  - entity: binary_sensor.bedroom_window_left_contact
+                    name: Левое
+                    icon: true
+                    state_color: true
+                  - entity: binary_sensor.bedroom_window_right_contact
+                    name: Правое
+                    icon: true
+                    state_color: true
+    
+              - type: custom:multiple-entity-row
+                entity: binary_sensor.bedroom_lumi_sensor_motion_occupancy
+                name: Датчик движения
+                secondary_info: last-changed
+                state_header: Состояние
+                state_color: true
+                entities:
+                  - entity: sensor.bedroom_lumi_sensor_motion_illuminance_lux
+                    name: Освещенность
+    
+              - type: custom:multiple-entity-row
+                entity: sensor.bedroom_lumi_weather_temperature
+                icon: mdi:home-thermometer
+                name: Климат
+                secondary_info: last-changed
+                state_header: Температура
+                entities:
+                  - entity: sensor.bedroom_lumi_weather_pressure
+                    name: Давление
+                  - entity: sensor.bedroom_lumi_weather_humidity
+                    name: Влажность
+    
+              - type: custom:multiple-entity-row
+                entity: binary_sensor.bedroom_socket_heating_status
+                name: Обогреватель
+                secondary_info: last-changed
+                state_color: true
+                show_state: false
+                entities:
+                  - entity: sensor.bedroom_socket_heating_voltage
+                    name: Напряжение
+                    unit: "V"
+                  - entity: sensor.bedroom_socket_heating_power
+                    name: Мощность
+                    unit: "W"
+                  - entity: sensor.bedroom_socket_heating_meter_monthly
+                    name: За месяц
+                    unit: "kWh"
+    
+              - type: custom:multiple-entity-row
+                entity: binary_sensor.bedroom_air_conditioner_socket_status
+                name: Кондиционер
+                secondary_info: last-changed
+                state_color: true
+                show_state: false
+                entities:
+                  - entity: sensor.bedroom_air_conditioner_socket_voltage
+                    name: Напряжение
+                    unit: "V"
+                  - entity: sensor.bedroom_air_conditioner_socket_power
+                    name: Мощность
+                    unit: "W"
+                  - entity: sensor.bedroom_air_conditioner_socket_meter_monthly
+                    name: За месяц
+                    unit: "kWh"
+
+  - type: vertical-stack
+    cards:
+
+      - type: custom:stack-in-card
+        mode: vertical
+        cards:
+
+          - type: markdown
+            style: |
+                ha-card {
+                    # color: #FFA500;
+                    font-weight: bold;
+                    font-size: 16px;
+                } 
+            content: >
+                **Кухня**
+
+          - type: entities
+            state_color: true
+            entities:
+              - type: custom:multiple-entity-row
+                entity: binary_sensor.kitchen_window_contact
+                secondary_info: last-changed
+                state_header: Состояние
+                state_color: true
+                name: Окно
+    
+              - type: custom:multiple-entity-row
+                entity: binary_sensor.kitchen_smoke_detector_smoke
+                name: Датчик дыма
+                secondary_info: last-changed
+                state_header: Состояние
+                state_color: true
+    
+              - type: custom:multiple-entity-row
+                entity: binary_sensor.kitchen_water_leak_sensor_water_leak
+                name: Датчик протечки
+                secondary_info: last-changed
+                state_header: Состояние
+                state_color: true
+    
+              - type: custom:multiple-entity-row
+                entity: sensor.kitchen_lumi_weather_temperature
+                icon: mdi:home-thermometer
+                name: Климат
+                secondary_info: last-changed
+                state_header: Температура
+                entities:
+                  - entity: sensor.kitchen_lumi_weather_pressure
+                    name: Давление
+                  - entity: sensor.kitchen_lumi_weather_humidity
+                    name: Влажность
+    
+              - type: custom:multiple-entity-row
+                entity: binary_sensor.kitchen_socket_heating_status
+                name: Обогреватель
+                secondary_info: last-changed
+                state_color: true
+                show_state: false
+                entities:
+                  - entity: sensor.kitchen_socket_heating_voltage
+                    name: Напряжение
+                    unit: "V"
+                  - entity: sensor.kitchen_socket_heating_power
+                    name: Мощность
+                    unit: "W"
+                  - entity: sensor.kitchen_socket_heating_meter_monthly
+                    name: За месяц
+                    unit: "kWh"
+
+      - type: custom:stack-in-card
+        mode: vertical
+        cards:
+
+          - type: markdown
+            style: |
+                ha-card {
+                    # color: #FFA500;
+                    font-weight: bold;
+                    font-size: 16px;
+                } 
+            content: >
+                **Ванная**
+
+          - type: entities
+            state_color: true
+            entities:
+              - type: custom:multiple-entity-row
+                entity: binary_sensor.bathroom_water_leak_under_the_bath_water_leak
+                secondary_info: last-changed
+                state_header: Состояние
+                state_color: true
+                name: Датчик протечки, под ванной
+    
+              - type: custom:multiple-entity-row
+                entity: binary_sensor.bathroom_water_leak_under_washing_machine_water_leak
+                secondary_info: last-changed
+                state_header: Состояние
+                state_color: true
+                name: Датчик протечки, под стиралкой
+    
+              - type: custom:multiple-entity-row
+                entity: sensor.bathroom_lumi_weather_temperature
+                icon: mdi:home-thermometer
+                name: Климат
+                secondary_info: last-changed
+                state_header: Температура
+                entities:
+                  - entity: sensor.bathroom_lumi_weather_pressure
+                    name: Давление
+                  - entity: sensor.bathroom_lumi_weather_humidity
+                    name: Влажность
+    
+              - type: custom:multiple-entity-row
+                entity: binary_sensor.bathroom_washing_machine_socket_status
+                name: Стиральная машина
+                secondary_info: last-changed
+                state_color: true
+                show_state: false
+                entities:
+                  - entity: sensor.bathroom_washing_machine_socket_voltage
+                    name: Напряжение
+                    unit: "V"
+                  - entity: sensor.bathroom_washing_machine_socket_power
+                    name: Мощность
+                    unit: "W"
+                  - entity: sensor.bathroom_washing_machine_socket_meter_monthly
+                    name: За месяц
+                    unit: "kWh"
+
+      - type: custom:stack-in-card
+        mode: vertical
+        cards:
+
+          - type: markdown
+            style: |
+                ha-card {
+                    # color: #FFA500;
+                    font-weight: bold;
+                    font-size: 16px;
+                } 
+            content: >
+                **Коридор**
+
+          - type: entities
+            state_color: true
+            entities:
+              - type: custom:multiple-entity-row
+                entity: binary_sensor.hallway_entrance_door_contact
+                secondary_info: last-changed
+                state_header: Состояние
+                state_color: true
+                name: Входная дверь
+              - entity: binary_sensor.tapo_camera_motion
+                name: Датчик Движения, Камера
+              - entity: light.hallway_rgb_bulb
+                name: Коридор, сигнальная лампа
+              - type: custom:multiple-entity-row
+                entity: sensor.hallway_lumi_weather_temperature
+                icon: mdi:home-thermometer
+                name: Климат
+                secondary_info: last-changed
+                state_header: Температура
+                entities:
+                  - entity: sensor.hallway_lumi_weather_pressure
+                    name: Давление
+                  - entity: sensor.hallway_lumi_weather_humidity
+                    name: Влажность
+
+  - type: vertical-stack
+    cards:
+
+      - type: custom:stack-in-card
+        mode: vertical
+        cards:
+
+          - type: markdown
+            style: |
+                ha-card {
+                    # color: #FFA500;
+                    font-weight: bold;
+                    font-size: 16px;
+                } 
+            content: >
+                **Лоджия**
+
+          - type: entities
+            state_color: true
+            entities:
+              - type: custom:multiple-entity-row
+                entity: sensor.loggia_tuya_weather_temperature
+                icon: mdi:home-thermometer
+                name: Климат
+                secondary_info: last-changed
+                state_header: Температура
+                entities:
+                  - entity: sensor.loggia_tuya_weather_humidity
+                    name: Влажность
+
+      - type: custom:stack-in-card
+        mode: vertical
+        cards:
+
+          - type: markdown
+            style: |
+                ha-card {
+                    # color: #FFA500;
+                    font-weight: bold;
+                    font-size: 16px;
+                } 
+            content: >
+                **Графики Температуры**
+
+          - type: history-graph
+            hours_to_show: 72
+            entities:
+              - entity: sensor.hallway_lumi_weather_temperature
+                name: Коридор
+              - entity: sensor.living_room_lumi_weather_temperature
+                name: Гостинная
+              - entity: sensor.bedroom_lumi_weather_temperature
+                name: Спальня
+              - entity: sensor.kitchen_lumi_weather_temperature
+                name: Кухня
+              - entity: sensor.bathroom_lumi_weather_temperature
+                name: Ванная
+              - entity: sensor.loggia_tuya_weather_temperature
+                name: Лоджия
+
+      - type: custom:stack-in-card
+        mode: vertical
+        cards:
+
+          - type: markdown
+            style: |
+                ha-card {
+                    # color: #FFA500;
+                    font-weight: bold;
+                    font-size: 16px;
+                } 
+            content: >
+                **Улица**
+
+          - type: entities
+            state_color: true
+            entities:
+              - type: custom:multiple-entity-row
+                entity: sensor.season
+                name: Климат
+                show_state: false
+                secondary_info: last-changed
+                entities:
+                  - entity: sensor.outdoor_humidity
+                    name: Влажность
+                  - entity: sensor.outdoor_temperature
+                    name: Температура
+                  - entity: sensor.outdoor_mean_temperature
+                    name: Среднесуточная
+          - type: history-graph
+            hours_to_show: 72
+            entities:
+              - entity: sensor.outdoor_temperature
+                name: Наружная
+              - entity: sensor.outdoor_mean_temperature
+                name: Средняя

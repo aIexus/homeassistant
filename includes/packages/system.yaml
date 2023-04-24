@@ -10,14 +10,13 @@ system_config:
               - sensor.processor_use
               - sensor.processor_temperature
               - sensor.memory_use_percent
+              - sensor.memory_free
               - sensor.swap_use_percent
+              - sensor.swap_free
               - sensor.disk_use_percent
+              - sensor.disk_free
               - sensor.maria_db_size
               - sensor.load_15m
-            #   - sensor.network_in_eth0
-            #   - sensor.network_out_eth0
-            #   - sensor.network_in_wlan0
-            #   - sensor.network_out_wlan0
               - sensor.last_boot
               - sensor.last_boot_custom
               - sensor.online_custom
@@ -36,11 +35,12 @@ system_config:
               - sensor.*_battery
 
     homeassistant:
+
         customize:
             sensor.ups_battery_voltage:
-                friendly_name: 'Напряжение батареи UPS'
+                friendly_name: 'Напряжение Батареи UPS'
             sensor.ups_battery_capacity:
-                friendly_name: 'Уровень заряда батареи UPS'
+                friendly_name: 'Уровень Заряда Батареи UPS'
             sensor.chassis_fan_speed:
                 friendly_name: 'Chassis Fan Speed'
             sensor.last_boot_custom:
@@ -50,13 +50,13 @@ system_config:
             binary_sensor.anyone_home:
                 friendly_name: 'Anyone Home'
             binary_sensor.internet_connection_ping:
-                friendly_name: 'Интернет соединение'
+                friendly_name: 'Интернет Соединение'
             binary_sensor.ups_battery_low:
-                friendly_name: 'Состояние батареи UPS'
+                friendly_name: 'Состояние Батареи UPS'
             binary_sensor.ups_fan_speed:
                 friendly_name: 'UPS Fan Speed'
             binary_sensor.rpi_ac_power_status:
-                friendly_name: 'Источник внешнего питания'
+                friendly_name: 'Источник Внешнего Питания'
 
     input_boolean:
 
@@ -95,6 +95,23 @@ system_config:
         enable_manual_control_lights:
             name: Enable Manual Control of Lights
             icon: mdi:lightbulb-group-outline
+
+        enable_energy_counter_card:
+            name: Enable Energy Counter Card
+            icon: mdi:meter-electric
+
+        enable_energy_daily_card:
+            name: Enable Energy Daily Card
+            icon: mdi:calendar-today
+
+        enable_energy_weekly_card:
+            name: Enable Energy Weekly Card
+            icon: mdi:calendar-week
+
+        enable_energy_monthly_card:
+            name: Enable Energy Monthly Card
+            icon: mdi:calendar-month
+
 
     scrape:
 
@@ -142,26 +159,13 @@ system_config:
           - type: processor_temperature
           - type: disk_use_percent
             arg: /
-        #   - type: disk_use
           - type: disk_free
             arg: /
           - type: memory_use_percent
-        #   - type: memory_use
           - type: memory_free
           - type: swap_use_percent
-        #   - type: swap_use
           - type: swap_free
-        #   - type: load_1m
-        #   - type: load_5m
           - type: load_15m
-        #   - type: network_in
-        #     arg: eth0
-        #   - type: network_out
-        #     arg: eth0
-        #   - type: network_in
-        #     arg: wlan0
-        #   - type: network_out
-        #     arg: wlan0
           - type: last_boot
 
       - platform: file
@@ -412,7 +416,7 @@ system_config:
                         sonos_entity: media_player.sonos_living_room
                         volume: 0.4
                         message: 'ВНИМАНИЕ!!! Интернет соединение: {% if is_state("binary_sensor.internet_connection_ping", "on") %}Подключено{% elif is_state("binary_sensor.internet_connection_ping", "off") %}Отключено{% else %}Недоступно{% endif %}!'
-        mode: single
+        mode: queued
 
       - alias: "System: Purge DB Everyday"
         id: system_purge_db_everyday
@@ -535,7 +539,6 @@ system_config:
       - alias: "Interface: Switch Control Panels"
         id: system_interface_switch_control_panels
         description: 'Интерфейс - переключение Панелей Управления'
-        mode: single
         trigger:
           - platform: state
             entity_id: input_boolean.enable_manual_control_heater
@@ -588,6 +591,7 @@ system_config:
                         - input_boolean.enable_manual_control_lights
                         - input_boolean.enable_manual_control_heater
                         - input_boolean.enable_manual_control_ac
+        mode: single
 
       - alias: "System: Notification about finished Startup"
         id: system_startup_notification
@@ -607,7 +611,8 @@ system_config:
                 title: '{{"\U000026A0"}} ВНИМАНИЕ{{"\U0000203C"}}'
                 message: |
                   ➖➖➖➖➖➖➖➖➖➖➖➖
-                  Сервер Home Assistant был перезапущен{{"\U0000203C"}}
+                  {{'\U0001F199'}} Сервер Home Assistant был перезапущен{{"\U0000203C"}}
+        mode: single
 
       - alias: "System: Notification about initiated Shutdown"
         id: system_shutdown_notification
@@ -627,7 +632,8 @@ system_config:
                 title: '{{"\U000026A0"}} ВНИМАНИЕ{{"\U0000203C"}}'
                 message: |
                   ➖➖➖➖➖➖➖➖➖➖➖➖
-                  Сервер Home Assistant выключается{{"\U0000203C"}}
+                  {{'\U00002139'}} Сервер Home Assistant выключается{{"\U0000203C"}}
+        mode: single
 
       - alias: 'System: Notification about Home Assistant Updates'
         id: system_updates_notification
@@ -645,10 +651,6 @@ system_config:
             entity_id: update.zigbee2mqtt_update
             from: 'off'
             to: 'on'
-        #   - platform: state
-        #     entity_id: update.terminal_ssh_update
-        #     from: 'off'
-        #     to: 'on'
           - platform: state
             entity_id: update.mosquitto_broker_update
             from: 'off'
@@ -665,10 +667,6 @@ system_config:
             entity_id: update.file_editor_update
             from: 'off'
             to: 'on'
-        #   - platform: state
-        #     entity_id: update.phpmyadmin_update
-        #     from: 'off'
-        #     to: 'on'
         condition: 
           - condition: state
             entity_id: binary_sensor.internet_connection_ping
@@ -682,6 +680,7 @@ system_config:
                   Доступно {{ trigger.to_state.attributes.friendly_name }}
                     Установлено: {{ trigger.to_state.attributes.installed_version }}
                     Доступно: {{ trigger.to_state.attributes.latest_version }}
+        mode: single
 
       - alias: "System: Notification about RPi Power Failure"
         id: system_rpi_ac_power_failure_notification
@@ -721,6 +720,7 @@ system_config:
                 sonos_entity: media_player.sonos_living_room
                 volume: 0.4
                 message: 'ВНИМАНИЕ!!! Внешнее питание {% if is_state("binary_sensor.rpi_ac_power_status", "on") %}Подключено{% elif is_state("binary_sensor.rpi_ac_power_status", "off") %}Отключено{% else %}Недоступно{% endif %}!'
+        mode: single
 
       - alias: "System: Notification about UPS Low Battery Level"
         id: system_ups_battery_low_level_notification
@@ -764,6 +764,7 @@ system_config:
                   Низкий уровень заряда батареи сервера Home Assistant: {{ states("sensor.ups_battery_capacity") }} процентов.
                   Внешнее питание {% if is_state("binary_sensor.rpi_ac_power_status", "on") %}подключено{% else %}отключено{% endif %}!
                   Через некоторое время сервер будет остановлен!
+        mode: single
 
       - alias: "System: Notification about Full UPS Battery Level"
         id: system_ups_battery_full_level_notification
@@ -789,10 +790,10 @@ system_config:
                   ➖➖➖➖➖➖➖➖➖➖➖➖
                   Батарея UPS полностью заряжена: {{ states("sensor.ups_battery_capacity") }}% / {{ states("sensor.ups_battery_voltage") }}V{{"\U0000203C"}}
                   Внешнее питание: {{"\U0001F50C"}} {% if is_state("binary_sensor.rpi_ac_power_status", "on") %}Подключено{% else %}Отключено{% endif %}
+        mode: single
 
       - alias: "System: Notification about changed Zone for persones"
         id: system_zone_notifications
-        mode: queued
         trigger:
           # Дом
           - platform: zone
@@ -945,3 +946,4 @@ system_config:
                   {% if (trigger.event) == "leave" %}{{ states('sensor.time') }}: {{ trigger.to_state.name }} покинул(а) {{ trigger.zone.attributes.friendly_name }}!
                   {% else %}{{ states('sensor.time') }}: {{ trigger.to_state.name }} прибыл(а) в {{ trigger.zone.attributes.friendly_name }}!
                   {% endif %}
+        mode: queued
