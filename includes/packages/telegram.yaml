@@ -378,11 +378,6 @@ telegram:
               message: *climate_body
               data: 
                 inline_keyboard: *keyb_heaters
-            #   - "{{'\U0001F6CB'}} Гостинная {% if is_state('climate.living_room_heater','off') %}{{'\U0001F4F4'}} - Включить{% else %}{{'\U0001F525'}} - Выключить{% endif %}:/toggle_heater_living_room"
-            #   - "{{'\U0001F6CC'}} Спальня {% if is_state('climate.bedroom_heater','off') %}{{'\U0001F4F4'}} - Включить{% else %}{{'\U0001F525'}} - Выключить{% endif %}:/toggle_heater_bedroom"
-            #   - "{{'\U0001F37D'}} Кухня:{% if is_state('climate.kitchen_heater','off') %}{{'\U0001F4F4'}} - Включить{% else %}{{'\U0001F525'}} - Выключить{% endif %}:/toggle_heater_kitchen"
-            #   - "{% if is_state('input_boolean.heating_status','on') %}{{'\U00002668'}} Выключить отопление:/turn_off_heaters{% elif is_state('input_boolean.heating_status','off') %}{{'\U00002668'}} Включить отопление:/turn_on_heaters{% endif %}"
-            #   - "{{'\U0001F4D1'}} Меню:/menu"
           mode: single
 
         - alias: "Telegram: Toggle Heater in Living Room"
@@ -832,7 +827,7 @@ telegram:
                 {% else -%}
                 {% endif %}
 
-                {{"\U0001F694"}} Сигнализация: {% if is_state("alarm_control_panel.home_alarm",'unavailable') %}{{"\U000026A0"}}Недоступен{% else %}{% if is_state("alarm_control_panel.home_alarm","disarmed") %}{{"\U0001F7E2"}} Отключена{% elif is_state("alarm_control_panel.home_alarm","armed_home") %}{{"\U0001F7E1"}} Охрана(Дома){% elif is_state("alarm_control_panel.home_alarm","armed_away") %}{{"\U0001F534"}} Охрана(Не Дома){% elif is_state("alarm_control_panel.home_alarm","triggered") %}{{"\U0001F6A8"}} ТРЕВОГА{{"\U0000203C"}}{% elif is_state("alarm_control_panel.home_alarm","pending") %}{{"\U0001F536"}} ОЖИДАНИЕ{{"\U00002049"}}{% elif is_state("alarm_control_panel.home_alarm","arming") %}{{"\U0001F550"}} ПОСТАНОВКА...{% endif %}{% endif %}
+                {{"\U0001F694"}} Сигнализация: {% if is_state("alarm_control_panel.home_alarm",'unavailable') %}{{"\U000026A0"}}Недоступен{% else %}{% if is_state("alarm_control_panel.home_alarm","disarmed") %}{{"\U0001F7E2"}} Отключена{% elif is_state("alarm_control_panel.home_alarm","armed_home") %}{{"\U0001F7E1"}} Охрана(Дома){% elif is_state("alarm_control_panel.home_alarm","armed_away") %}{{"\U0001F534"}} Охрана(Не Дома){% elif is_state("alarm_control_panel.home_alarm","armed_night") %}{{"\U0001F535"}} Охрана(Ночь){% elif is_state("alarm_control_panel.home_alarm","triggered") %}{{"\U0001F6A8"}} ТРЕВОГА{{"\U0000203C"}}{% elif is_state("alarm_control_panel.home_alarm","pending") %}{{"\U0001F536"}} ОЖИДАНИЕ{{"\U00002049"}}{% elif is_state("alarm_control_panel.home_alarm","arming") %}{{"\U0001F550"}} ПОСТАНОВКА...{% endif %}{% endif %}
 
                 {{"\U0001F6AA"}} Входная дверь: {% if is_state("binary_sensor.hallway_entrance_door_contact",'unavailable') %}{{"\U000026A0"}}Недоступен{% else %}{% if is_state("binary_sensor.hallway_entrance_door_contact","off") %}{{"\U0001F7E2"}} Закрыта{%else%}{{"\U0001F534"}} Открыта{%endif%}{% endif %}
                 {{"\U0001F6AA"}} Дверь на Лоджию: {% if is_state("binary_sensor.living_room_loggia_door_contact",'unavailable') %}{{"\U000026A0"}}Недоступен{% else %}{% if is_state("binary_sensor.living_room_loggia_door_contact","off") %}{{"\U0001F7E2"}} Закрыта{%else%}{{"\U0001F534"}} Открыта{%endif%}{% endif %}
@@ -872,7 +867,19 @@ telegram:
                 data: 
                   inline_keyboard: 
                     - "{{'\U0001F534'}} Не Дома:/set_alarm_away, {{'\U0001F7E1'}} Дома:/set_alarm_home"
-                    - "{{'\U0001F4D1'}} Меню:/menu"
+                    - "{{'\U0001F535'}} Ночь:/set_alarm_night, {{'\U0001F4D1'}} Меню:/menu"
+          mode: single
+
+        - alias: "Telegram: Set ALARM_NIGHT mode for Alarm"
+          id: telegram_menu_set_alarm_night
+          trigger:
+            platform: event
+            event_type: telegram_callback
+            event_data:
+              command: '/set_alarm_night'
+          action:
+            - service: alarm_control_panel.alarm_arm_night
+              entity_id: alarm_control_panel.home_alarm
           mode: single
 
         - alias: "Telegram: Set ALARM_HOME mode for Alarm"

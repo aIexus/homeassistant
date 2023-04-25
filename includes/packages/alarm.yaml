@@ -15,7 +15,9 @@ home_alarm_settings:
               - binary_sensor.kitchen_smoke_detector_smoke
 
     homeassistant:
+
         customize:
+
             binary_sensor.home_doors:
                 friendly_name: 'Двери в Квартире'
             binary_sensor.hallway_entrance_door_contact:
@@ -70,7 +72,7 @@ home_alarm_settings:
                 {% for entity in states.binary_sensor if is_state(entity.entity_id, 'on') and is_state_attr(entity.entity_id, 'device_class', 'smoke') %}
                     {% set variable.value = dict(variable.value, **{entity.name: entity.state }) %}
                 {% endfor %}
-                {% if (variable.value | length) | int > 0 %}
+                {% if (variable.value | length) | int(0) > 0 %}
                     {{ variable.value | length }}
                 {% else %}
                     0
@@ -89,7 +91,7 @@ home_alarm_settings:
                 {% for entity in states.binary_sensor if is_state(entity.entity_id, 'on') and is_state_attr(entity.entity_id, 'device_class', 'moisture') %}
                     {% set variable.value = dict(variable.value, **{entity.name: entity.state }) %}
                 {% endfor %}
-                {% if (variable.value | length) | int > 0 %}
+                {% if (variable.value | length) | int(0) > 0 %}
                     {{ variable.value | length }}
                 {% else %}
                     0
@@ -104,106 +106,111 @@ home_alarm_settings:
 
     alarm_control_panel:
 
-        - platform: manual
-          name: Home Alarm
-          code: !secret alarm_panel_code
-          code_arm_required: false    # Don't need code to arm.
-          disarm_after_trigger: false # Leave alarm armed after triggering.
-          arming_time: 30             # Time to leave the house after arming.
-          delay_time: 60              # Time to turn off after entering the house.
-          trigger_time: 600           # How long the alarm goes off for.
-          disarmed:
+      - platform: manual
+        name: Home Alarm
+        code: !secret alarm_panel_code
+        code_arm_required: false    # Don't need code to arm.
+        disarm_after_trigger: false # Leave alarm armed after triggering.
+        arming_time: 30             # Time to leave the house after arming.
+        delay_time: 60              # Time to turn off after entering the house.
+        trigger_time: 600           # How long the alarm goes off for.
+        disarmed:
             trigger_time: 0           # Can't be triggered when disarmed.
-          armed_home:
+        armed_home:
             arming_time: 0            # Arm instantly when at home.
             delay_time: 0             # Trigger instantly when at home.
+        armed_night:
+            arming_time: 0            # Arm instantly when night.
+            delay_time: 0             # Trigger instantly when night.
 
     automation:
 
-        - alias: "Alarm: Triggers in ARMED_AWAY mode"
-          id: alarm_triggers_armed_away
-          description: 'Срабатывание триггеров при статусе охраны Armed_Away'
-          trigger:
-            - platform: state
-              entity_id: binary_sensor.hallway_entrance_door_contact
-              from: 'off'
-              to: 'on'
-            # - platform: state
-            #   entity_id: binary_sensor.bedroom_lumi_sensor_motion_occupancy
-            #   from: 'off'
-            #   to: 'on'
-            # - platform: state
-            #   entity_id: binary_sensor.living_room_lumi_sensor_motion_occupancy
-            #   from: 'off'
-            #   to: 'on'
-            # - platform: state
-            #   entity_id: binary_sensor.tapo_camera_motion
-            #   from: 'off'
-            #   to: 'on'
-          condition:
-            - condition: state
-              entity_id: alarm_control_panel.home_alarm
-              state: 'armed_away'
-          action:
+################# Сигнализация ###################
+
+      - alias: "Alarm: Triggers in ARMED_AWAY mode"
+        id: alarm_triggers_armed_away
+        description: 'Срабатывание триггеров при статусе охраны Armed_Away'
+        trigger:
+          - platform: state
+            entity_id: binary_sensor.hallway_entrance_door_contact
+            from: 'off'
+            to: 'on'
+          # - platform: state
+          #   entity_id: binary_sensor.bedroom_lumi_sensor_motion_occupancy
+          #   from: 'off'
+          #   to: 'on'
+          # - platform: state
+          #   entity_id: binary_sensor.living_room_lumi_sensor_motion_occupancy
+          #   from: 'off'
+          #   to: 'on'
+          # - platform: state
+          #   entity_id: binary_sensor.tapo_camera_motion
+          #   from: 'off'
+          #   to: 'on'
+        condition:
+          - condition: state
+            entity_id: alarm_control_panel.home_alarm
+            state: 'armed_away'
+        action:
             # define variables
-            - variables:
+          - variables:
                 trigger_area_name: "{{ area_name(trigger.entity_id) }}"
                 snapshot_file_name: |
-                  {{ "/config/files/camera/" + state_attr('camera.tapo_camera_hd', 'friendly_name') +  "/snapshot_" + now().strftime('%Y%m%d-%H%M%S') + ".jpg" }}
+                    {{ "/config/files/camera/" + state_attr('camera.tapo_camera_hd', 'friendly_name') +  "/snapshot_" + now().strftime('%Y%m%d-%H%M%S') + ".jpg" }}
                 record_file_name: |
-                  {{ "/config/files/camera/" + state_attr('camera.tapo_camera_hd', 'friendly_name') +  "/record_" + now().strftime('%Y%m%d-%H%M%S') + ".mp4" }}
+                    {{ "/config/files/camera/" + state_attr('camera.tapo_camera_hd', 'friendly_name') +  "/record_" + now().strftime('%Y%m%d-%H%M%S') + ".mp4" }}
             # trigger alarm
-            - service: alarm_control_panel.alarm_trigger
-              entity_id: alarm_control_panel.home_alarm
+          - service: alarm_control_panel.alarm_trigger
+            entity_id: alarm_control_panel.home_alarm
             # camera positioning
-            - choose:
-                - conditions:
-                    - condition: template
-                      value_template: "{{ trigger_area_name == 'Hallway' }}"
-                  sequence:
-                    - service: select.select_option
-                      entity_id: select.tapo_camera_move_to_preset
-                      data: 
+          - choose:
+              - conditions:
+                  - condition: template
+                    value_template: "{{ trigger_area_name == 'Hallway' }}"
+                sequence:
+                  - service: select.select_option
+                    entity_id: select.tapo_camera_move_to_preset
+                    data: 
                         option: 'Entrance'
-                - conditions:
-                    - condition: template
-                      value_template: "{{ trigger_area_name == 'Bedroom' }}"
-                  sequence:
-                    - service: select.select_option
-                      entity_id: select.tapo_camera_move_to_preset
-                      data: 
+              - conditions:
+                  - condition: template
+                    value_template: "{{ trigger_area_name == 'Bedroom' }}"
+                sequence:
+                  - service: select.select_option
+                    entity_id: select.tapo_camera_move_to_preset
+                    data: 
                         option: 'Bedroom'
-                - conditions:
-                    - condition: template
-                      value_template: "{{ trigger_area_name == 'Living Room' }}"
-                  sequence:
-                    - service: select.select_option
-                      entity_id: select.tapo_camera_move_to_preset
-                      data: 
+              - conditions:
+                  - condition: template
+                    value_template: "{{ trigger_area_name == 'Living Room' }}"
+                sequence:
+                  - service: select.select_option
+                    entity_id: select.tapo_camera_move_to_preset
+                    data: 
                         option: 'Living Room'
-                - conditions:
-                    - condition: template
-                      value_template: "{{ trigger_area_name == 'Kitchen' }}"
-                  sequence:
-                    - service: select.select_option
-                      entity_id: select.tapo_camera_move_to_preset
-                      data: 
+              - conditions:
+                  - condition: template
+                    value_template: "{{ trigger_area_name == 'Kitchen' }}"
+                sequence:
+                  - service: select.select_option
+                    entity_id: select.tapo_camera_move_to_preset
+                    data: 
                         option: 'Kitchen'
-                - conditions:
-                    - condition: template
-                      value_template: "{{ trigger_area_name == 'Bathroom' }}"
-                  sequence:
-                    - service: select.select_option
-                      entity_id: select.tapo_camera_move_to_preset
-                      data: 
+              - conditions:
+                  - condition: template
+                    value_template: "{{ trigger_area_name == 'Bathroom' }}"
+                sequence:
+                  - service: select.select_option
+                    entity_id: select.tapo_camera_move_to_preset
+                    data: 
                         option: 'Bathroom'
             # notification about alarm triggering
-            - choose:
-                  - conditions:
-                      - condition: state
-                        entity_id: binary_sensor.internet_connection_ping
-                        state: 'on'
-                    sequence:
+          - choose:
+              - conditions:
+                  - condition: state
+                    entity_id: binary_sensor.internet_connection_ping
+                    state: 'on'
+                sequence:
                       - service: notify.alexus
                         data:
                             title: '{{"\U000026A0"}} ВНИМАНИЕ{{"\U0000203C"}}'
@@ -214,297 +221,348 @@ home_alarm_settings:
                                 Пространство:  {{ trigger_area_name }} 
                                 Время: {{ states('sensor.date') }}, {{ states('sensor.time') }}
             # take snapshot from detected area
-            - service: script.tapo_camera_save_snapshot
-              data:
+          - service: script.tapo_camera_save_snapshot
+            data:
                 tapo_camera_id: camera.tapo_camera_hd
                 file_name: '{{ snapshot_file_name }}'
             # send snapshot to alexus mobile/telegram
-            - choose:
-                  - conditions:
-                      - condition: state
-                        entity_id: binary_sensor.internet_connection_ping
-                        state: 'on'
-                    sequence:
-                      - service: notify.alexus
+          - choose:
+              - conditions:
+                  - condition: state
+                    entity_id: binary_sensor.internet_connection_ping
+                    state: 'on'
+                sequence:
+                  - service: notify.alexus
+                    data:
+                        message: '{{ trigger_area_name }}'
                         data:
-                            message: '{{ trigger_area_name }}'
-                            data:
-                                photo:
-                                  - file: '{{ snapshot_file_name }}'
-                                    caption: 'Фото: {{ trigger_area_name }}'
+                            photo:
+                              - file: '{{ snapshot_file_name }}'
+                                caption: 'Фото: {{ trigger_area_name }}'
             # record short video from detected area
-            - service: script.tapo_camera_save_record
-              data:
+          - service: script.tapo_camera_save_record
+            data:
                 tapo_camera_id: camera.tapo_camera_hd
                 file_name: '{{ record_file_name }}'
                 time_duration: 15
-            - choose:
-                  - conditions:
-                      - condition: state
-                        entity_id: binary_sensor.internet_connection_ping
-                        state: 'on'
-                    sequence:
-                      - service: notify.alexus
+          - choose:
+              - conditions:
+                  - condition: state
+                    entity_id: binary_sensor.internet_connection_ping
+                    state: 'on'
+                sequence:
+                  - service: notify.alexus
+                    data:
+                        message: '{{ trigger_area_name }}'
                         data:
-                            message: '{{ trigger_area_name }}'
-                            data:
-                                video:
-                                  - file: '{{ record_file_name }}'
-                                    caption: 'Видео: {{ trigger_area_name }}'
-          mode: single
+                            video:
+                              - file: '{{ record_file_name }}'
+                                caption: 'Видео: {{ trigger_area_name }}'
+        mode: single
 
-        - alias: "Alarm: Triggers in ARMED_HOME mode"
-          id: alarm_triggers_armed_home
-          description: 'Определение триггеров при статусе охраны Armed_Home'
-          trigger:
-            - platform: state
-              entity_id: binary_sensor.hallway_entrance_door_contact
-              from: 'off'
-              to: 'on'
-          condition:
-            - condition: state
-              entity_id: alarm_control_panel.home_alarm
-              state: 'armed_home'
-          action:
-            - service: alarm_control_panel.alarm_trigger
-              entity_id: alarm_control_panel.home_alarm
-          mode: single
+      - alias: "Alarm: Triggers in ARMED_NIGHT mode"
+        id: alarm_triggers_armed_night
+        description: 'Определение триггеров при статусе охраны ARMED_NIGHT'
+        trigger:
+          - platform: state
+            entity_id: binary_sensor.hallway_entrance_door_contact
+            from: 'off'
+            to: 'on'
+        condition:
+          - condition: state
+            entity_id: alarm_control_panel.home_alarm
+            state: 'armed_night'
+        action:
+          - service: alarm_control_panel.alarm_trigger
+            entity_id: alarm_control_panel.home_alarm
+        mode: single
 
-        - alias: "Alarm: Actions when ARMED_HOME"
-          id: alarm_armed_home
-          description: 'Постановка на сигнализацию Armed_Home'
-          trigger:
-            - platform: state
-              entity_id: alarm_control_panel.home_alarm
-              to: 'armed_home'
-          action:
-            - choose: # time condition
-                - conditions:
-                    - condition: time
-                      after:  '08:00:00'
-                      before: '22:00:00' 
-                  sequence:
-                    - service: script.sonos_play_file
-                      data: 
+      - alias: "Alarm: Triggers in ARMED_HOME mode"
+        id: alarm_triggers_armed_home
+        description: 'Определение триггеров при статусе охраны ARMED_HOME'
+        trigger:
+          - platform: state
+            entity_id: binary_sensor.hallway_entrance_door_contact
+            from: 'off'
+            to: 'on'
+        condition:
+          - condition: state
+            entity_id: alarm_control_panel.home_alarm
+            state: 'armed_home'
+        action:
+          - service: alarm_control_panel.alarm_trigger
+            entity_id: alarm_control_panel.home_alarm
+        mode: single
+
+      - alias: "Alarm: Actions when ARMED_HOME"
+        id: alarm_armed_home
+        description: 'Постановка на сигнализацию: ARMED_HOME'
+        trigger:
+          - platform: state
+            entity_id: alarm_control_panel.home_alarm
+            to: 'armed_home'
+        action:
+          - choose: # time condition
+              - conditions:
+                  - condition: time
+                    after:  '08:00:00'
+                    before: '22:00:00' 
+                sequence:
+                  - service: script.sonos_play_file
+                    data: 
                         sonos_entity: media_player.sonos_living_room
                         volume: 0.7
                         music_file: '/media/local/alerts/Car_Arm.mp3'
-            - choose:
-                  - conditions:
-                      - condition: state
-                        entity_id: binary_sensor.internet_connection_ping
-                        state: 'on'
-                    sequence:
-                      - service: notify.alexus
-                        data:
-                            title: '{{"\U0001F6A8"}} СИГНАЛИЗАЦИЯ{{"\U0000203C"}}'
-                            message: |
-                                ➖➖➖➖➖➖➖➖➖➖➖➖
-                                {{"\U0001F694"}} Постановка на сигнализацию{{"\U0000203C"}}
-                                {{"\U0001F550"}} {{ states('sensor.date') }}, {{ states('sensor.time') }}
-                            data: 
-                              inline_keyboard: 
-                                - "{{'\U0001F694'}} Снять с охраны {{'\U0001F7E1'}} [ Дома ]:/cancel_alarm"
-                                - "{{'\U0001F6E1'}} Безопасность:/security, {{'\U0001F4D1'}}Меню:/menu"
-          mode: single
-
-        - alias: "Alarm: ARMED_AWAY"
-          id: alarm_armed_away
-          description: 'Постановка на сигнализацию Armed_Away'
-          trigger:
-            - platform: state
-              entity_id: alarm_control_panel.home_alarm
-              to: 'armed_away'
-          action:
-            - choose:
-                - conditions:
-                    - condition: time
-                      after:  '08:00:00'
-                      before: '22:00:00' 
-                  sequence:
-                    - service: script.sonos_play_file
-                      data: 
-                        sonos_entity: media_player.sonos_living_room
-                        volume: 0.7
-                        music_file: '/media/local/alerts/Car_Arm.mp3'
-            - choose:
-                  - conditions:
-                      - condition: state
-                        entity_id: binary_sensor.internet_connection_ping
-                        state: 'on'
-                    sequence:
-                    - service: notify.alexus
-                      data:
+          - choose:
+              - conditions:
+                  - condition: state
+                    entity_id: binary_sensor.internet_connection_ping
+                    state: 'on'
+                sequence:
+                  - service: notify.alexus
+                    data:
                         title: '{{"\U0001F6A8"}} СИГНАЛИЗАЦИЯ{{"\U0000203C"}}'
                         message: |
                             ➖➖➖➖➖➖➖➖➖➖➖➖
                             {{"\U0001F694"}} Постановка на сигнализацию{{"\U0000203C"}}
                             {{"\U0001F550"}} {{ states('sensor.date') }}, {{ states('sensor.time') }}
                         data: 
-                          inline_keyboard: 
-                            - "{{'\U0001F694'}} Снять с охраны {{'\U0001F534'}} [Не Дома]:/cancel_alarm"
-                            - "{{'\U0001F6E1'}} Безопасность:/security, {{'\U0001F4D1'}} Меню:/menu"
-            - choose:
-                - conditions:
-                    - condition: state
-                      entity_id: switch.tapo_camera_privacy
-                      state: 'on'
-                  sequence:
-                    - service: switch.turn_off
-                      entity_id: switch.tapo_camera_privacy
-                    - delay: '00:00:06'
-                    - service: select.select_option
-                      entity_id: select.tapo_camera_move_to_preset
-                      data: 
-                        option: 'Entrance'
-          mode: single
+                            inline_keyboard: 
+                              - "{{'\U0001F694'}} Снять с охраны {{'\U0001F7E1'}} [ Дома ]:/cancel_alarm"
+                              - "{{'\U0001F6E1'}} Безопасность:/security, {{'\U0001F4D1'}} Меню:/menu"
+        mode: single
 
-        - alias: "Alarm: DISARMED"
-          id: alarm_disarmed
-          description: 'Снятие с охраны'
-          trigger:
-            - platform: state
-              entity_id: alarm_control_panel.home_alarm
-              to: 'disarmed'
-          action:
-            - choose:
-                - conditions:
-                    - condition: time
-                      after:  '08:00:00'
-                      before: '22:00:00' 
-                  sequence:
-                    - service: script.sonos_play_file
-                      data: 
+      - alias: "Alarm: Actions when ARMED_NIGHT"
+        id: alarm_armed_night
+        description: 'Постановка на сигнализацию: ARMED_NIGHT'
+        trigger:
+          - platform: state
+            entity_id: alarm_control_panel.home_alarm
+            to: 'armed_night'
+        action:
+          - choose:
+              - conditions:
+                  - condition: state
+                    entity_id: binary_sensor.internet_connection_ping
+                    state: 'on'
+                sequence:
+                  - service: notify.alexus
+                    data:
+                        title: '{{"\U0001F6A8"}} СИГНАЛИЗАЦИЯ{{"\U0000203C"}}'
+                        message: |
+                            ➖➖➖➖➖➖➖➖➖➖➖➖
+                            {{"\U0001F694"}} Постановка на сигнализацию{{"\U0000203C"}}
+                            {{"\U0001F550"}} {{ states('sensor.date') }}, {{ states('sensor.time') }}
+                        data: 
+                            inline_keyboard: 
+                              - "{{'\U0001F694'}} Снять с охраны {{'\U0001F535'}} [ Ночь ]:/cancel_alarm"
+                              - "{{'\U0001F6E1'}} Безопасность:/security, {{'\U0001F4D1'}} Меню:/menu"
+        mode: single
+
+      - alias: "Alarm: Actions when ARMED_AWAY"
+        id: alarm_armed_away
+        description: 'Постановка на сигнализацию ARMED_AWAY'
+        trigger:
+          - platform: state
+            entity_id: alarm_control_panel.home_alarm
+            to: 'armed_away'
+        action:
+          - choose:
+              - conditions:
+                  - condition: time
+                    after:  '08:00:00'
+                    before: '22:00:00' 
+                sequence:
+                  - service: script.sonos_play_file
+                    data: 
+                        sonos_entity: media_player.sonos_living_room
+                        volume: 0.7
+                        music_file: '/media/local/alerts/Car_Arm.mp3'
+          - choose:
+              - conditions:
+                  - condition: state
+                    entity_id: binary_sensor.internet_connection_ping
+                    state: 'on'
+                sequence:
+                  - service: notify.alexus
+                    data:
+                        title: '{{"\U0001F6A8"}} СИГНАЛИЗАЦИЯ{{"\U0000203C"}}'
+                        message: |
+                            ➖➖➖➖➖➖➖➖➖➖➖➖
+                            {{"\U0001F694"}} Постановка на сигнализацию{{"\U0000203C"}}
+                            {{"\U0001F550"}} {{ states('sensor.date') }}, {{ states('sensor.time') }}
+                        data: 
+                            inline_keyboard: 
+                              - "{{'\U0001F694'}} Снять с охраны {{'\U0001F534'}} [ Не Дома ]:/cancel_alarm"
+                              - "{{'\U0001F6E1'}} Безопасность:/security, {{'\U0001F4D1'}} Меню:/menu"
+          - choose:
+              - conditions:
+                  - condition: state
+                    entity_id: switch.tapo_camera_privacy
+                    state: 'on'
+                sequence:
+                  - service: switch.turn_off
+                    entity_id: switch.tapo_camera_privacy
+                  - delay: '00:00:06'
+                  - service: select.select_option
+                    entity_id: select.tapo_camera_move_to_preset
+                    data: 
+                        option: 'Entrance'
+        mode: single
+
+      - alias: "Alarm: Actions when DISARMED"
+        id: alarm_disarmed
+        description: 'Снятие с охраны: DISARMED'
+        trigger:
+          - platform: state
+            entity_id: alarm_control_panel.home_alarm
+            to: 'disarmed'
+        action:
+          - choose:
+              - conditions:
+                  - condition: time
+                    after:  '08:00:00'
+                    before: '22:00:00' 
+                sequence:
+                  - service: script.sonos_play_file
+                    data: 
                         sonos_entity: media_player.sonos_living_room
                         volume: 0.7
                         music_file: '/media/local/alerts/Car_Alarm_Disarm.mp3'
-            - choose:
-                  - conditions:
-                      - condition: state
-                        entity_id: binary_sensor.internet_connection_ping
-                        state: 'on'
-                    sequence:
-                    - service: notify.alexus
-                      data:
+          - choose:
+              - conditions:
+                  - condition: state
+                    entity_id: binary_sensor.internet_connection_ping
+                    state: 'on'
+                sequence:
+                  - service: notify.alexus
+                    data:
                         title: '{{"\U0001F6A8"}} СИГНАЛИЗАЦИЯ{{"\U0000203C"}}'
                         message: |
                             ➖➖➖➖➖➖➖➖➖➖➖➖
                             {{"\U0001F694"}} Сигнализация отключена{{"\U0000203C"}}{{"\U0000203C"}}
                             {{"\U0001F550"}} {{ states('sensor.date') }}, {{ states('sensor.time') }}
-                            
+                        
                             Включить сигнализацию{{"\U00002049"}}
                         data: 
-                          inline_keyboard: 
-                            - "{{'\U0001F534'}} Не Дома:/set_alarm_away, {{'\U0001F7E1'}} Дома:/set_alarm_home"
-                            - "{{'\U0001F6E1'}} Безопасность:/security, {{'\U0001F4D1'}} Меню:/menu"
-            - choose:
-                - conditions:
-                    - condition: state
-                      entity_id: switch.tapo_camera_privacy
-                      state: 'off'
-                  sequence:
-                    - service: select.select_option
-                      entity_id: select.tapo_camera_move_to_preset
-                      data: 
+                            inline_keyboard: 
+                              - "{{'\U0001F534'}} Не Дома:/set_alarm_away, {{'\U0001F7E1'}} Дома:/set_alarm_home"
+                              - "{{'\U0001F6E1'}} Безопасность:/security, {{'\U0001F4D1'}} Меню:/menu"
+          - choose:
+              - conditions:
+                  - condition: state
+                    entity_id: switch.tapo_camera_privacy
+                    state: 'off'
+                sequence:
+                  - service: select.select_option
+                    entity_id: select.tapo_camera_move_to_preset
+                    data: 
                         option: 'Parking'
-                    - delay: '00:00:05'
-                    - service: switch.turn_on
-                      entity_id: switch.tapo_camera_privacy
-          mode: single
+                  - delay: '00:00:05'
+                  - service: switch.turn_on
+                    entity_id: switch.tapo_camera_privacy
+        mode: single
 
-        - alias: "Alarm: ARMED_HOME if anyone home at 22:00"
-          id: alarm_auto_arm_if_anyone_home
-          description: 'Автоматическая поставновка на охрану после 22:00, если дома кто-то есть'
-          trigger:
-            - platform: time
-              at: '22:00:00'
-          condition:
-            - condition: state
-              entity_id: group.family
-              state: home
-            - condition: state
-              entity_id: alarm_control_panel.home_alarm
-              state: 'disarmed'
-          action:
-            - service: alarm_control_panel.alarm_arm_home
-              entity_id: alarm_control_panel.home_alarm
-          mode: single
+      - alias: "Alarm: Set ARMED_NIGHT if anyone home at 22:00"
+        id: alarm_auto_armed_night_if_anyone_home
+        description: 'Автоматическая поставновка на охрану после 22:00, если кто-то дома: ARMED_NIGHT'
+        trigger:
+          - platform: time
+            at: '22:00:00'
+        condition:
+          - condition: state
+            entity_id: group.family
+            state: home
+          - or:
+              - condition: state
+                entity_id: alarm_control_panel.home_alarm
+                state: disarmed
+              - condition: state
+                entity_id: alarm_control_panel.home_alarm
+                state: armed_home
+        action:
+          - service: alarm_control_panel.alarm_arm_night
+            entity_id: alarm_control_panel.home_alarm
+        mode: single
 
-        - alias: "Alarm: Set DISARMED if anyone home at 5:30"
-          id: alarm_auto_disarm_if_anyone_home
-          description: 'Автоматическое снятие с охраны после 05:30, если дома кто-то есть'
-          trigger:
-            - platform: time
-              at: '05:30:00'
-          condition:
-            - condition: state
-              entity_id: group.family
-              state: home
-          action:
-            - service: alarm_control_panel.alarm_disarm
-              data: 
+      - alias: "Alarm: Set DISARMED if anyone home at 5:30"
+        id: alarm_auto_disarm_if_anyone_home
+        description: 'Автоматическое снятие с охраны после 05:30, если кто-то дома: DISARMED'
+        trigger:
+          - platform: time
+            at: '05:30:00'
+        condition:
+          - condition: state
+            entity_id: group.family
+            state: home
+          - condition: state
+            entity_id: alarm_control_panel.home_alarm
+            state: 'armed_night'
+        action:
+          - service: alarm_control_panel.alarm_disarm
+            data: 
                 code: !secret alarm_panel_code
-              entity_id: alarm_control_panel.home_alarm
-          mode: single
+                entity_id: alarm_control_panel.home_alarm
+        mode: single
 
-        - alias: "Alarm: Actions on TRIGGERED"
-          id: alarm_triggered
-          description: 'Сработала сигнализация, включение сирены'
-          trigger:
-            - platform: state
-              entity_id: alarm_control_panel.home_alarm
-              to: 'triggered'
-          action:
-            - variables:
+      - alias: "Alarm: Actions on TRIGGERED"
+        id: alarm_triggered
+        description: 'Сработала сигнализация, включение сирены'
+        trigger:
+          - platform: state
+            entity_id: alarm_control_panel.home_alarm
+            to: 'triggered'
+        action:
+          - variables:
                 speaker_volume: 0.7
-            - choose:
-                  - conditions:
-                      - condition: state
-                        entity_id: binary_sensor.internet_connection_ping
-                        state: 'on'
-                    sequence:
-                    - service: notify.alexus
-                      data:
-                        title: '{{"\U0001F6A8"}} СИГНАЛИЗАЦИЯ{{"\U0000203C"}}'
-                        message: |
-                            ➖➖➖➖➖➖➖➖➖➖➖➖
-                            {{"\U0001F694"}} Обнаружено проникновение{{"\U0000203C"}}{{"\U0000203C"}}
-                            {{"\U0001F550"}} {{ states('sensor.date') }}, {{ states('sensor.time') }}
-                        data: 
-                          inline_keyboard: 
-                            - "{{'\U0001F694'}} Снять с охраны {{'\U0001F6A8'}} [ТРЕВОГА]:/cancel_alarm"
-                            - "{{'\U0001F6E1'}} Безопасность:/security, {{'\U0001F4D1'}} Меню:/menu"
-            - repeat:
+          - choose:
+              - conditions:
+                  - condition: state
+                    entity_id: binary_sensor.internet_connection_ping
+                    state: 'on'
+                sequence:
+                - service: notify.alexus
+                  data:
+                    title: '{{"\U0001F6A8"}} СИГНАЛИЗАЦИЯ{{"\U0000203C"}}'
+                    message: |
+                        ➖➖➖➖➖➖➖➖➖➖➖➖
+                        {{"\U0001F694"}} Обнаружено проникновение{{"\U0000203C"}}{{"\U0000203C"}}
+                        {{"\U0001F550"}} {{ states('sensor.date') }}, {{ states('sensor.time') }}
+                    data: 
+                        inline_keyboard: 
+                          - "{{'\U0001F694'}} Снять с охраны {{'\U0001F6A8'}} [ТРЕВОГА]:/cancel_alarm"
+                          - "{{'\U0001F6E1'}} Безопасность:/security, {{'\U0001F4D1'}} Меню:/menu"
+          - repeat:
                 until: 
                   - condition: state
                     entity_id: alarm_control_panel.home_alarm
                     state: 'disarmed'
                 sequence:
-                    - service: script.sonos_say
-                      data: 
+                  - service: script.sonos_say
+                    data: 
                         sonos_entity: media_player.sonos_living_room
                         volume: '{{ speaker_volume }}'
                         message: 'ВНИМАНИЕ! Сработала охранная сигнализация! Сообщение в полицию отправлено!'
-                    - condition: state
-                      entity_id: alarm_control_panel.home_alarm
-                      state: 'triggered'
-                    - service: script.sonos_play_file
-                      data: 
+                  - condition: state
+                    entity_id: alarm_control_panel.home_alarm
+                    state: 'triggered'
+                  - service: script.sonos_play_file
+                    data: 
                         sonos_entity: media_player.sonos_living_room
                         volume: '{{ speaker_volume }}'
                         music_file: '/media/local/alerts/Car_Alarm_02.mp3'
-          mode: single
+        mode: single
 
-        - alias: "Alarm: ARMING"
-          id: alarm_arming_signal
-          description: 'Звук таймера перед активацией сигнализации'
-          trigger:
-            - platform: state
-              entity_id: alarm_control_panel.home_alarm
-              from: 'disarmed'
-              to: 'arming'
-          action:
-            - repeat:
+      - alias: "Alarm: ARMING"
+        id: alarm_arming_signal
+        description: 'Звук таймера перед активацией сигнализации'
+        trigger:
+          - platform: state
+            entity_id: alarm_control_panel.home_alarm
+            from: 'disarmed'
+            to: 'arming'
+        action:
+          - repeat:
                 until: 
                   - condition: or
                     conditions:
@@ -517,38 +575,39 @@ home_alarm_settings:
                 sequence:
                   - service: script.sonos_play_file
                     data: 
-                      sonos_entity: media_player.sonos_living_room
-                      volume: 0.5
-                      music_file: '/media/local/alerts/elearning-clock-ticking.mp3'
+                        sonos_entity: media_player.sonos_living_room
+                        volume: 0.5
+                        music_file: '/media/local/alerts/elearning-clock-ticking.mp3'
+        mode: single
 
-        - alias: "Alarm: PENDING after ARMED_AWAY"
-          id: alarm_pending_armed_away
-          description: 'Проникновение: Предупреждение и ожидание снятия с охраны'
-          trigger:
-            - platform: state
-              entity_id: alarm_control_panel.home_alarm
-              from: 'armed_away'
-              to: 'pending'
-          action:
-            - variables:
+      - alias: "Alarm: PENDING after ARMED_AWAY"
+        id: alarm_pending_armed_away
+        description: 'Проникновение: Предупреждение и ожидание снятия с охраны'
+        trigger:
+          - platform: state
+            entity_id: alarm_control_panel.home_alarm
+            from: 'armed_away'
+            to: 'pending'
+        action:
+          - variables:
                 speaker_volume: 0.7
-            - choose:
-                  - conditions:
-                      - condition: state
-                        entity_id: binary_sensor.internet_connection_ping
-                        state: 'on'
-                    sequence:
-                    - service: notify.alexus
-                      data:
+          - choose:
+              - conditions:
+                  - condition: state
+                    entity_id: binary_sensor.internet_connection_ping
+                    state: 'on'
+                sequence:
+                  - service: notify.alexus
+                    data:
                         title: '{{"\U0001F6A8"}} СИГНАЛИЗАЦИЯ{{"\U0000203C"}}'
                         message: |
                             ➖➖➖➖➖➖➖➖➖➖➖➖
-                            Снимите систему с охраны СЕЙЧАС, если Вы хотите предотвратить активацию сирены!
+                            Снимите систему с охраны, иначе будет активирована сирена{{"\U0000203C"}}
                         data: 
-                          inline_keyboard: 
-                            - "{{'\U0001F694'}} Снять с охраны {% if (trigger.from_state.state == 'armed_away') %}{{'\U0001F534'}} [Не Дома]{% elif (trigger.from_state.state == 'armed_home') %}{{'\U0001F7E1'}} [ Дома ]{% endif%}:/cancel_alarm"
-                            - "{{'\U0001F6E1'}} Безопасность:/security, {{'\U0001F4D1'}} Меню:/menu"
-            - repeat:
+                            inline_keyboard: 
+                              - "{{'\U0001F694'}} Снять с охраны {% if (trigger.from_state.state == 'armed_away') %}{{'\U0001F534'}} [ Не Дома ]{% elif (trigger.from_state.state == 'armed_home') %}{{'\U0001F7E1'}} [ Дома ]{% elif (trigger.from_state.state == 'armed_night') %}{{'\U0001F535'}} [ Ночь ]{% endif%}:/cancel_alarm"
+                              - "{{'\U0001F6E1'}} Безопасность:/security, {{'\U0001F4D1'}} Меню:/menu"
+          - repeat:
                 until: 
                   - condition: or
                     conditions:
@@ -561,193 +620,184 @@ home_alarm_settings:
                 sequence:
                   - service: script.sonos_say
                     data: 
-                      sonos_entity: media_player.sonos_living_room
-                      volume: '{{ speaker_volume }}'
-                      message: 'ПРЕДУПРЕЖДЕНИЕ! Снимите систему с охраны СЕЙЧАС, если Вы хотите предотвратить активацию сирены!!'
+                        sonos_entity: media_player.sonos_living_room
+                        volume: '{{ speaker_volume }}'
+                        message: 'ПРЕДУПРЕЖДЕНИЕ! Снимите систему с охраны, иначе будет активирована сирена!!'
                   - condition: state
                     entity_id: alarm_control_panel.home_alarm
                     state: 'pending'
                   - service: script.sonos_play_file
                     data: 
-                      sonos_entity: media_player.sonos_living_room
-                      volume: '{{ speaker_volume }}'
-                      music_file: '/media/local/alerts/Count_Down_01.mp3'
-          mode: single
+                        sonos_entity: media_player.sonos_living_room
+                        volume: '{{ speaker_volume }}'
+                        music_file: '/media/local/alerts/Count_Down_01.mp3'
+        mode: single
 
-        - alias: "Alarm: Suggest ARMING when everybody leaves home"
-          id: alarm_suggest_arming_when_everybody_leaves_home
-          description: "Предложение поставить на охрану когда все покинули дом"
-          trigger:
-            - platform: state
-              entity_id: group.family
-              to: not_home
-          condition:
-            - condition: state
-              entity_id: alarm_control_panel.home_alarm
-              state: disarmed
-          action:
-            - choose:
-                  - conditions:
-                      - condition: state
-                        entity_id: binary_sensor.internet_connection_ping
-                        state: 'on'
-                    sequence:
-                    - service: notify.alexus
-                      data:
+      - alias: "Alarm: Suggest ARMING when everybody leaves home"
+        id: alarm_suggest_arming_when_everybody_leaves_home
+        description: "Предложение поставить на охрану когда все покинули дом"
+        trigger:
+          - platform: state
+            entity_id: group.family
+            to: not_home
+        condition:
+          - or:
+              - condition: state
+                entity_id: alarm_control_panel.home_alarm
+                state: disarmed
+              - condition: state
+                entity_id: alarm_control_panel.home_alarm
+                state: armed_home
+              - condition: state
+                entity_id: alarm_control_panel.home_alarm
+                state: armed_night
+        action:
+          - choose:
+              - conditions:
+                  - condition: state
+                    entity_id: binary_sensor.internet_connection_ping
+                    state: 'on'
+                sequence:
+                  - service: notify.alexus
+                    data:
                         title: '{{"\U0001F6A8"}} СИГНАЛИЗАЦИЯ{{"\U0000203C"}}'
                         message: |
                             ➖➖➖➖➖➖➖➖➖➖➖➖
                             {{"\U0001F3E1"}} Никого нет дома{{"\U0000203C"}}
                             {{"\U0001F550"}} {{ states('sensor.date') }}, {{ states('sensor.time') }}
-                            
-                            {{"\U0001F694"}} Включить сигнализацию{{"\U00002049"}}
+
+                            {{"\U0001F694"}} В данный момент: {% if (trigger.from_state.state == 'disarmed') %}{{'\U0001F7E2'}} [ Отключено ]{% elif (trigger.from_state.state == 'armed_home') %}{{'\U0001F7E1'}} [ Дома ]{% elif (trigger.from_state.state == 'armed_night') %}{{'\U0001F535'}} [ Ночь ]{% endif%}
+
+                            Желаете сменить режим сигнализации{{"\U00002049"}}
                         data: 
-                          inline_keyboard: 
-                            - "{{'\U0001F534'}} Не Дома:/set_alarm_away, {{'\U0001F7E1'}} Дома:/set_alarm_home"
-                            - "{{'\U0001F6E1'}} Безопасность:/security, {{'\U0001F4D1'}} Меню:/menu"
-          mode: single
+                            inline_keyboard: 
+                              - "{{'\U0001F534'}} Охрана [ Не Дома ]:/set_alarm_away"
+                              - "{{'\U0001F6E1'}} Безопасность:/security, {{'\U0001F4D1'}} Меню:/menu"
+        mode: single
 
-        - alias: "Alarm: Suggest ARMED_AWAY if nobody home at 23:00"
-          id: alarm_suggest_arming_away_if_nobody_home_in_the_evening
-          description: "Предложение поставить на охрану(не дома) когда никого нет дома поздно вечером"
-          trigger:
-            - platform: time
-              at: '23:00:00'
-          condition:
-            - condition: state
-              entity_id: group.family
-              state: not_home
-            - condition: state
-              entity_id: alarm_control_panel.home_alarm
-              state: disarmed
-          action:
-            - choose:
-                  - conditions:
-                      - condition: state
-                        entity_id: binary_sensor.internet_connection_ping
-                        state: 'on'
-                    sequence:
-                    - service: notify.alexus
-                      data:
-                        title: '{{"\U0001F6A8"}} СИГНАЛИЗАЦИЯ{{"\U0000203C"}}'
-                        message: |
-                            ➖➖➖➖➖➖➖➖➖➖➖➖
-                            {{"\U0001F3E1"}} Уже поздно и никого нет дома{{"\U0000203C"}}
-                            {{"\U0001F550"}} {{ states('sensor.date') }}, {{ states('sensor.time') }}
-                            
-                            {{"\U0001F694"}} Включить сигнализацию{{"\U00002049"}}
-                        data: 
-                          inline_keyboard: 
-                            - "{{'\U0001F534'}} Установить на Охрана(Не Дома):/set_alarm_away"
-                            - "{{'\U0001F6E1'}} Безопасность:/security, {{'\U0001F4D1'}} Меню:/menu"
-          mode: single
-
-        - alias: "Alarm: ARMING by Smart Button"
-          id: alarm_arming_by_smart_button
-          description: 'Установка на охрану: не дома - один клик, дома - долгое нажатие'
-          trigger:
-            - platform: state
-              entity_id: sensor.tuya_smart_button_action
-              attribute: action
-              not_to: double
-          condition:
-            - condition: state
-              entity_id: alarm_control_panel.home_alarm
-              state: disarmed
-          action:
-            - choose:
-                - conditions:
-                    - condition: template
-                      value_template: "{{ trigger.to_state.attributes.action == 'single' }}"
-                  sequence:
-                    - service: alarm_control_panel.alarm_arm_away
-                      entity_id: alarm_control_panel.home_alarm
-                - conditions:
-                    - condition: template
-                      value_template: "{{ trigger.to_state.attributes.action == 'hold' }}"
-                  sequence:
-                    - service: alarm_control_panel.alarm_arm_home
-                      entity_id: alarm_control_panel.home_alarm
-          mode: single
-
-        - alias: "Alarm: DISARMING by Smart Button"
-          id: alarm_disarming_by_smart_button
-          description: 'Снятие с охраны двойным нажатием'
-          trigger: 
-            - platform: state
-              entity_id: sensor.hallway_rgb_bulb_switch_action
-              attribute: action
-              to: double 
-            - platform: state
-              entity_id: sensor.tuya_smart_button_action
-              attribute: action
-              to: double 
-          condition:
-            - condition: not
-              conditions:
-                - condition: state
-                  entity_id: alarm_control_panel.home_alarm
-                  state: disarmed
-          action:
-            - service: alarm_control_panel.alarm_disarm
-              entity_id: alarm_control_panel.home_alarm
-              data: 
-                code: !secret alarm_panel_code
-          mode: single
-
-        - alias: "Alarm: Exceeding the Electricity Consumption Limit"
-          id: alarm_exceeding_electricity_consumption_limit
-          description: 'Уведомление о превышении лимита потребления электроэнергии'
-          trigger:
-            - platform: state
-              entity_id: binary_sensor.exceed_electricity_consumption_limit
-              from: 'off'
-              to: 'on'
-              for:
-                seconds: 30
-          condition: []
-          action:
-            - choose:
-                  - conditions:
-                      - condition: state
-                        entity_id: binary_sensor.internet_connection_ping
-                        state: 'on'
-                    sequence:
-                    - service: notify.alexus
-                      data:
-                        title: '{{"\U000026A0"}} ВНИМАНИЕ{{"\U0000203C"}}'
-                        message:  |
-                          ➖➖➖➖➖➖➖➖➖➖➖➖
-                          Зафиксировано превышение лимита потребления электроэнергии на {{ states("sensor.tuya_clamp_meter_power") | float(0) | round(0) - states("input_number.electricity_consumption_limit") | int(0) }} Вт.!
-                          Текущее потребление: {{"\U0001F4C8"}} {{ states("sensor.tuya_clamp_meter_power") | float(0) | round(0) }} Вт.
-                          Лимит: {{"\U0001F6A7"}} {{ states("input_number.electricity_consumption_limit") | int(0) }} Вт.
-            - condition: state
-              entity_id: input_boolean.disable_voice_notifications
-              state: 'off'
-            - condition: state
-              entity_id: binary_sensor.anyone_home
-              state: 'on'
-            - service: script.sonos_say
-              data: 
-                sonos_entity: media_player.sonos_living_room
-                volume: 0.5
-                message: 'ВНИМАНИЕ!!! Зафиксировано превышение лимита потребления электроэнергии на "{{ states("sensor.tuya_clamp_meter_power") | float(0) | round(0) - states("input_number.electricity_consumption_limit") | int(0) }}" ватт! Отключите ненужные приборы!'
-          mode: single
-
-        - alias: "Alarm: Water Leakage Detected"
-          id: alarm_bathroom_water_leakage_detected
-          description: 'Уведомление о протечке воды и выводом списка сенсоров'
-          trigger:
-          - platform: template
-            value_template: "{{ (states('sensor.water_leak_detect')|int) > 0 }}"
-          - platform: template
-            value_template: "{{ (states('sensor.water_leak_detect')|int) == 0 }}"
-          condition: []
-          action:
+      - alias: "Alarm: ARMING by Smart Button"
+        id: alarm_arming_by_smart_button
+        description: 'Установка на охрану: не дома - один клик, дома - долгое нажатие'
+        trigger:
+          - platform: state
+            entity_id: sensor.tuya_smart_button_action
+            attribute: action
+            not_to: double
+        condition:
+          - condition: state
+            entity_id: alarm_control_panel.home_alarm
+            state: disarmed
+        action:
           - choose:
               - conditions:
                   - condition: template
-                    value_template: "{{ (states('sensor.water_leak_detect')|int) > 0 }}"
+                    value_template: "{{ trigger.to_state.attributes.action == 'single' }}"
+                sequence:
+                  - service: alarm_control_panel.alarm_arm_away
+                    entity_id: alarm_control_panel.home_alarm
+              - conditions:
+                  - condition: template
+                    value_template: "{{ trigger.to_state.attributes.action == 'hold' }}"
+                sequence:
+                  - service: alarm_control_panel.alarm_arm_home
+                    entity_id: alarm_control_panel.home_alarm
+        mode: single
+
+      - alias: "Alarm: DISARMING by Smart Button"
+        id: alarm_disarming_by_smart_button
+        description: 'Снятие с охраны двойным нажатием смарт кнопки или выключателя'
+        trigger: 
+          - platform: state
+            entity_id: sensor.hallway_rgb_bulb_switch_action
+            attribute: action
+            to: double 
+          - platform: state
+            entity_id: sensor.tuya_smart_button_action
+            attribute: action
+            to: double 
+        condition:
+          - condition: not
+            conditions:
+              - condition: state
+                entity_id: alarm_control_panel.home_alarm
+                state: disarmed
+        action:
+          - service: alarm_control_panel.alarm_disarm
+            entity_id: alarm_control_panel.home_alarm
+            data: 
+                code: !secret alarm_panel_code
+        mode: single
+
+################# Аварийные сенсоры ###################
+
+      - alias: "Alarm: Exceeding the Electricity Consumption Limit"
+        id: alarm_exceeding_electricity_consumption_limit
+        description: 'Уведомление о превышении лимита потребления электроэнергии'
+        trigger:
+          - platform: state
+            entity_id: binary_sensor.exceed_electricity_consumption_limit
+            from: 'off'
+            to: 'on'
+            for:
+                seconds: 30
+        condition: []
+        action:
+          - choose:
+              - conditions:
+                  - condition: state
+                    entity_id: binary_sensor.internet_connection_ping
+                    state: 'on'
+                sequence:
+                  - service: input_button.press
+                    target:
+                        entity_id: input_button.telemetry_reload
+                  - delay:
+                        milliseconds: 500
+                  - service: notify.alexus
+                    data:
+                        title: '{{"\U000026A0"}} ВНИМАНИЕ{{"\U0000203C"}}'
+                        message:  |
+                            ➖➖➖➖➖➖➖➖➖➖➖➖
+                            Зафиксировано *превышение лимита* потребления электроэнергии на *{{ states("sensor.tuya_clamp_meter_power") | float(0) | round(0) - states("input_number.electricity_consumption_limit") | int(0) }} Вт.*!
+                            *Текущее потребление*: {{"\U0001F4C8"}} {{ states("sensor.tuya_clamp_meter_power") | float(0) | round(0) }} Вт.
+                            *Лимит*: {{"\U0001F6A7"}} {{ states("input_number.electricity_consumption_limit") | int(0) }} Вт.
+
+                            {% if (states('sensor.all_switch_on_10') | int) > 0 %}{{"\U000026A1"}} *Потребление более 10W:* {% else %}*Потребление на всех реле менее 10W* {% endif %}
+                            * *
+                            *{% for entity_name, entity_state in state_attr('sensor.all_switch_on_10', 'list_entities')-%} - {{ entity_name }} {{ '-' }} {{ entity_state }} {{ 'W' }} {{ '\n' -}} {% endfor %}*
+                        data: 
+                            inline_keyboard: 
+                              - "{{'\U00002328'}} Телеметрия:/telemetry"
+                              - "{{'\U000026A1'}} Электричество:/electricity"
+                              - "{{'\U0001F4D1'}} Меню:/menu"
+
+          - condition: state
+            entity_id: input_boolean.disable_voice_notifications
+            state: 'off'
+          - condition: state
+            entity_id: binary_sensor.anyone_home
+            state: 'on'
+          - service: script.sonos_say
+            data: 
+                sonos_entity: media_player.sonos_living_room
+                volume: 0.5
+                message: 'ВНИМАНИЕ!!! Зафиксировано превышение лимита потребления электроэнергии на "{{ states("sensor.tuya_clamp_meter_power") | float(0) | round(0) - states("input_number.electricity_consumption_limit") | int(0) }}" ватт! Отключите ненужные приборы!'
+        mode: single
+
+      - alias: "Alarm: Water Leakage Detected"
+        id: alarm_bathroom_water_leakage_detected
+        description: 'Уведомление о протечке воды и выводом списка сенсоров'
+        trigger:
+          - platform: template
+            value_template: "{{ (states('sensor.water_leak_detect')|int(0)) > 0 }}"
+          - platform: template
+            value_template: "{{ (states('sensor.water_leak_detect')|int(0)) == 0 }}"
+        condition: []
+        action:
+          - choose:
+              - conditions:
+                  - condition: template
+                    value_template: "{{ (states('sensor.water_leak_detect')|int(0)) > 0 }}"
                 sequence:
                   - choose:
                       - conditions:
@@ -762,6 +812,9 @@ home_alarm_settings:
                                     ➖➖➖➖➖➖➖➖➖➖➖➖
                                     {{"\U0001F4A7"}} Обнаружена протечка{{"\U0000203C"}}
                                     *{% for entity_name, entity_state in state_attr('sensor.water_leak_detect', 'list_entities')-%} - {{ entity_name }}{{ '\n' -}} {% endfor %}*
+                                data: 
+                                    inline_keyboard: 
+                                      - "{{'\U0001F6E1'}} Безопасность:/security, {{'\U0001F4D1'}} Меню:/menu"
                   - condition: state
                     entity_id: input_boolean.disable_voice_notifications
                     state: 'off'
@@ -775,7 +828,7 @@ home_alarm_settings:
                         message: "ВНИМАНИЕ!!! Обнаружена {% for entity_name, entity_state in state_attr('sensor.water_leak_detect', 'list_entities')-%} {{ entity_name }}{{ '\n' -}} {% endfor %}"
               - conditions:
                   - condition: template
-                    value_template: "{{ (states('sensor.water_leak_detect')|int) == 0 }}"
+                    value_template: "{{ (states('sensor.water_leak_detect')|int(0)) == 0 }}"
                 sequence:
                   - choose:
                       - conditions:
@@ -789,6 +842,9 @@ home_alarm_settings:
                                 message:  |
                                     ➖➖➖➖➖➖➖➖➖➖➖➖
                                     {{"\U0001F44C"}} Протечка устранена{{"\U0000203C"}}
+                                data: 
+                                    inline_keyboard: 
+                                      - "{{'\U0001F6E1'}} Безопасность:/security, {{'\U0001F4D1'}} Меню:/menu"
                   - condition: state
                     entity_id: input_boolean.disable_voice_notifications
                     state: 'off'
@@ -800,223 +856,125 @@ home_alarm_settings:
                         sonos_entity: media_player.sonos_living_room
                         volume: 0.4
                         message: "Все в порядке, протечка устранена"
-          mode: single
-          
-        # - alias: "Alarm: Water Leakage under Bath in Bathroom"
-        #   id: alarm_bathroom_water_leakage_under_the_bath
-        #   description: 'Уведомление о протечке воды под ванной'
-        #   trigger:
-        #     - type: moist
-        #       platform: device
-        #       device_id: e76bb600c400a5b7520a0ce5311870d4
-        #       entity_id: binary_sensor.bathroom_water_leak_under_the_bath_water_leak
-        #       domain: binary_sensor
-        #   condition: []
-        #   action:
-        #     - choose:
-        #           - conditions:
-        #               - condition: state
-        #                 entity_id: binary_sensor.internet_connection_ping
-        #                 state: 'on'
-        #             sequence:
-        #             - service: notify.alexus
-        #               data:
-        #                 title: '{{"\U000026A0"}} ВНИМАНИЕ{{"\U0000203C"}}'
-        #                 message:  |
-        #                   ➖➖➖➖➖➖➖➖➖➖➖➖
-        #                   {{"\U0001F4A7"}} Обнаружена протечка в ванной комнате под ванной{{"\U0000203C"}}
-        #     - condition: state
-        #       entity_id: input_boolean.disable_voice_notifications
-        #       state: 'off'
-        #     - condition: state
-        #       entity_id: binary_sensor.anyone_home
-        #       state: 'on'
-        #     - service: script.sonos_say
-        #       data: 
-        #         sonos_entity: media_player.sonos_living_room
-        #         volume: 0.4
-        #         message: 'ВНИМАНИЕ!!! Обнаружена протечка в ванной комнате под ванной!'
-        #   mode: single
+        mode: single
 
-        # - alias: "Alarm: Water Leakage under Washing Machine in Bathroom"
-        #   id: alarm_bathroom_water_leakage_under_washing_machine
-        #   description: 'Уведомление о протечке воды в ванной под стиральной машиной'
-        #   trigger:
-        #     - type: moist
-        #       platform: device
-        #       device_id: 46788e98449767dab7c25ef2d34137d7
-        #       entity_id: binary_sensor.bathroom_water_leak_under_washing_machine_water_leak
-        #       domain: binary_sensor
-        #   condition: []
-        #   action:
-        #     - choose:
-        #           - conditions:
-        #               - condition: state
-        #                 entity_id: binary_sensor.internet_connection_ping
-        #                 state: 'on'
-        #             sequence:
-        #             - service: notify.alexus
-        #               data:
-        #                 title: '{{"\U000026A0"}} ВНИМАНИЕ{{"\U0000203C"}}'
-        #                 message:  |
-        #                   ➖➖➖➖➖➖➖➖➖➖➖➖
-        #                   {{"\U0001F4A7"}} Обнаружена протечка в ванной комнате под стиральной машиной{{"\U0000203C"}}
-        #     - condition: state
-        #       entity_id: input_boolean.disable_voice_notifications
-        #       state: 'off'
-        #     - condition: state
-        #       entity_id: binary_sensor.anyone_home
-        #       state: 'on'
-        #     - service: script.sonos_say
-        #       data: 
-        #         sonos_entity: media_player.sonos_living_room
-        #         volume: 0.4
-        #         message: 'ВНИМАНИЕ!!! Обнаружена протечка в ванной комнате под стиральной машиной!'
-        #   mode: single
-
-        # - alias: "Alarm: Water leakage in Kitchen"
-        #   id: alarm_kitchen_water_leakage
-        #   description: 'Уведомление о протечке воды в кухне'
-        #   trigger:
-        #     - type: moist
-        #       platform: device
-        #       device_id: 9123c5c70c00e2ab32573b42b2c11ace
-        #       entity_id: binary_sensor.kitchen_water_leak_sensor_water_leak
-        #       domain: binary_sensor
-        #   condition: []
-        #   action:
-        #     - choose:
-        #           - conditions:
-        #               - condition: state
-        #                 entity_id: binary_sensor.internet_connection_ping
-        #                 state: 'on'
-        #             sequence:
-        #             - service: notify.alexus
-        #               data:
-        #                 title: '{{"\U000026A0"}} ВНИМАНИЕ{{"\U0000203C"}}'
-        #                 message: |
-        #                   ➖➖➖➖➖➖➖➖➖➖➖➖
-        #                   {{"\U0001F4A7"}} Обнаружена протечка в кухне под мойкой{{"\U0000203C"}}
-        #     - condition: state
-        #       entity_id: input_boolean.disable_voice_notifications
-        #       state: 'off'
-        #     - condition: state
-        #       entity_id: binary_sensor.anyone_home
-        #       state: 'on'
-        #     - service: script.sonos_say
-        #       data: 
-        #         sonos_entity: media_player.sonos_living_room
-        #         volume: 0.4
-        #         message: 'ВНИМАНИЕ!!! Обнаружена протечка в кухне под мойкой!'
-        #   mode: single
-
-        - alias: "Alarm: Smoke Detection in Kitchen"
-          id: alarm_smoke_detection_in_kitchen
-          description: 'Уведомление об обнаружении дыма в кухне'
-          trigger:
-            - type: smoke
-              platform: device
-              device_id: 7b615184042873bb55a51829cde9ba29
-              entity_id: binary_sensor.kitchen_smoke_detector_smoke
-              domain: binary_sensor
-          condition: []
-          action:
-            - choose:
-                  - conditions:
-                      - condition: state
-                        entity_id: binary_sensor.internet_connection_ping
-                        state: 'on'
-                    sequence:
-                    - service: notify.alexus
-                      data:
+      - alias: "Alarm: Smoke Detection in Kitchen"
+        id: alarm_smoke_detection_in_kitchen
+        description: 'Уведомление об обнаружении дыма в кухне'
+        trigger:
+          - type: smoke
+            platform: device
+            device_id: 7b615184042873bb55a51829cde9ba29
+            entity_id: binary_sensor.kitchen_smoke_detector_smoke
+            domain: binary_sensor
+        condition: []
+        action:
+          - choose:
+              - conditions:
+                  - condition: state
+                    entity_id: binary_sensor.internet_connection_ping
+                    state: 'on'
+                sequence:
+                  - service: notify.alexus
+                    data:
                         title: '{{"\U000026A0"}} ВНИМАНИЕ{{"\U0000203C"}}'
                         message: |
-                          ➖➖➖➖➖➖➖➖➖➖➖➖
-                          {{"\U0001F525"}} Обнаружен дым на кухне{{"\U0000203C"}}
-            - condition: state
-              entity_id: input_boolean.disable_voice_notifications
-              state: 'off'
-            - condition: state
-              entity_id: binary_sensor.anyone_home
-              state: 'on'
-            - service: script.sonos_say
-              data: 
+                            ➖➖➖➖➖➖➖➖➖➖➖➖
+                            {{"\U0001F525"}} Обнаружен дым на кухне{{"\U0000203C"}}
+                        data: 
+                            inline_keyboard: 
+                              - "{{'\U0001F6E1'}} Безопасность:/security, {{'\U0001F4D1'}} Меню:/menu"
+          - condition: state
+            entity_id: input_boolean.disable_voice_notifications
+            state: 'off'
+          - condition: state
+            entity_id: binary_sensor.anyone_home
+            state: 'on'
+          - service: script.sonos_say
+            data: 
                 sonos_entity: media_player.sonos_living_room
                 volume: 0.5
                 message: 'ВНИМАНИЕ!!! Обнаружен дым на кухне!'
-          mode: single
+        mode: single
 
-        - alias: "Alarm: Entrance Door Opened for more than 3 minutes"
-          id: alarm_entrance_door_opened_for_3_minutes
-          description: 'Предупреждение о незакрытой входной двери'
-          trigger:
-            - type: opened
-              platform: device
-              device_id: 8bdd25d1820505d01332c5ac3780dee1
-              entity_id: binary_sensor.hallway_entrance_door_contact
-              domain: binary_sensor
-              for:
+      - alias: "Alarm: Entrance Door Opened for more than 3 minutes"
+        id: alarm_entrance_door_opened_for_3_minutes
+        description: 'Предупреждение о незакрытой входной двери'
+        trigger:
+          - type: opened
+            platform: device
+            device_id: 8bdd25d1820505d01332c5ac3780dee1
+            entity_id: binary_sensor.hallway_entrance_door_contact
+            domain: binary_sensor
+            for:
                 minutes: 3
-          condition: []
-          action:
-            - choose:
-                  - conditions:
-                      - condition: state
-                        entity_id: binary_sensor.internet_connection_ping
-                        state: 'on'
-                    sequence:
-                    - service: notify.alexus
-                      data:
+        condition: []
+        action:
+          - choose:
+              - conditions:
+                  - condition: state
+                    entity_id: binary_sensor.internet_connection_ping
+                    state: 'on'
+                sequence:
+                  - service: notify.alexus
+                    data:
                         title: '{{"\U000026A0"}} ВНИМАНИЕ{{"\U0000203C"}}'
                         message: |
-                          Входная дверь открыта более трёх минут{{"\U0000203C"}}
-            - condition: state
-              entity_id: input_boolean.disable_voice_notifications
-              state: 'off'
-            - condition: state
-              entity_id: binary_sensor.anyone_home
-              state: 'on'
-            - service: script.sonos_say
-              data: 
+                            ➖➖➖➖➖➖➖➖➖➖➖➖
+                            Входная дверь открыта более трёх минут{{"\U0000203C"}}
+                        data: 
+                            inline_keyboard: 
+                              - "{{'\U0001F6E1'}} Безопасность:/security, {{'\U0001F4D1'}} Меню:/menu"
+          - condition: state
+            entity_id: input_boolean.disable_voice_notifications
+            state: 'off'
+          - condition: state
+            entity_id: binary_sensor.anyone_home
+            state: 'on'
+          - service: script.sonos_say
+            data: 
                 sonos_entity: media_player.sonos_living_room
                 volume: 0.4
                 message: 'ВНИМАНИЕ!!! Входная дверь открыта более трёх минут!'
-          mode: single
+        mode: single
 
-        - alias: "Alarm: Finished programm by Washing Machine"
-          id: alarm_bathroom_washing_machine_cycle_finihed
-          description: 'Уведомление об окончании цикла стирки'
-          trigger:
-            - platform: state
-              entity_id: binary_sensor.bathroom_washing_machine_socket_status
-              from: 'on'
-              to: 'off'
-          condition: []
-          action:
-            - choose:
-                  - conditions:
-                      - condition: state
-                        entity_id: binary_sensor.internet_connection_ping
-                        state: 'on'
-                    sequence:
-                    - service: notify.alexus
-                      data:
+      - alias: "Alarm: Finished programm by Washing Machine"
+        id: alarm_bathroom_washing_machine_cycle_finihed
+        description: 'Уведомление об окончании цикла стирки'
+        trigger:
+          - platform: state
+            entity_id: binary_sensor.bathroom_washing_machine_socket_status
+            from: 'on'
+            to: 'off'
+        condition: []
+        action:
+          - choose:
+              - conditions:
+                  - condition: state
+                    entity_id: binary_sensor.internet_connection_ping
+                    state: 'on'
+                sequence:
+                  - service: notify.alexus
+                    data:
                         title: '{{"\U0001F504"}} Стиральная Машина{{"\U0000203C"}}'
                         message:  |
-                          ➖➖➖➖➖➖➖➖➖➖➖➖
-                          {{"\U0001F9FA"}} Программа стирки завершена{{"\U0000203C"}}
-            - condition: state
-              entity_id: input_boolean.disable_voice_notifications
-              state: 'off'
-            - condition: state
-              entity_id: binary_sensor.anyone_home
-              state: 'on'
-            - condition: time
-              after:  '08:00:00'
-              before: '22:00:00' 
-            - service: script.sonos_say
-              data: 
+                            ➖➖➖➖➖➖➖➖➖➖➖➖
+                            {{"\U0001F9FA"}} Программа стирки завершена{{"\U0000203C"}}
+                        data: 
+                            inline_keyboard: 
+                              - "{{'\U0001F6E1'}} Безопасность:/security, {{'\U0001F4D1'}} Меню:/menu"
+          - condition: state
+            entity_id: input_boolean.disable_voice_notifications
+            state: 'off'
+          - condition: state
+            entity_id: binary_sensor.anyone_home
+            state: 'on'
+          - condition: time
+            after:  '08:00:00'
+            before: '22:00:00' 
+          - service: script.sonos_say
+            data: 
                 sonos_entity: media_player.sonos_living_room
                 volume: 0.3
                 message: 'Стиральная машина завершила программу!'
-          mode: single
+        mode: single

@@ -1,12 +1,18 @@
 title: Главная
 icon: mdi:home-assistant
 cards:
+
   - type: vertical-stack
     cards:
+
       - type: entity
         entity: sensor.time_date
         name: Время/Дата
         icon: mdi:calendar-clock
+
+      - type: weather-forecast
+        entity: weather.home
+        show_forecast: false
 
       - type: conditional
         conditions:
@@ -18,6 +24,7 @@ cards:
             type: custom:stack-in-card
             mode: horizontal
             cards:
+
               - type: button
                 tap_action:
                     action: more-info
@@ -26,6 +33,7 @@ cards:
                 show_name: false
                 hold_action:
                     action: none
+
               - type: button
                 tap_action:
                     action: more-info
@@ -34,6 +42,7 @@ cards:
                 show_name: false
                 hold_action:
                     action: none
+
               - type: button
                 tap_action:
                     action: more-info
@@ -42,6 +51,7 @@ cards:
                 show_name: false
                 hold_action:
                     action: none
+
               - type: button
                 tap_action:
                     action: more-info
@@ -50,6 +60,7 @@ cards:
                 show_name: false
                 hold_action:
                     action: none
+
               - type: button
                 tap_action:
                     action: more-info
@@ -58,6 +69,7 @@ cards:
                 show_name: false
                 hold_action:
                     action: none
+
               - type: button
                 tap_action:
                     action: more-info
@@ -66,10 +78,6 @@ cards:
                 show_name: false
                 hold_action:
                     action: none
-
-      - type: weather-forecast
-        entity: weather.home
-        show_forecast: false
 
       - type: tile
         entity: alarm_control_panel.home_alarm
@@ -132,6 +140,7 @@ cards:
       - type: custom:stack-in-card
         mode: vertical
         cards:
+
           - type: custom:room-card
             title: Коридор
             hide_title: false
@@ -448,6 +457,7 @@ cards:
       - type: custom:stack-in-card
         mode: horizontal
         cards:
+
           - type: conditional
             conditions:
               - entity: input_boolean.heating_status
@@ -461,6 +471,7 @@ cards:
               show_name: false
               hold_action:
                 action: none
+
           - type: conditional
             conditions:
               - entity: input_boolean.ac_status
@@ -474,6 +485,7 @@ cards:
               show_name: false
               hold_action:
                 action: none
+
           - type: button
             tap_action:
               action: toggle
@@ -482,6 +494,7 @@ cards:
             show_name: false
             hold_action:
               action: none
+
           - type: button
             tap_action:
               action: toggle
@@ -494,6 +507,7 @@ cards:
       - type: custom:stack-in-card
         mode: horizontal
         cards:
+
           - type: conditional
             conditions:
               - entity: input_boolean.enable_manual_control_heater
@@ -513,6 +527,7 @@ cards:
                   - type: thermostat
                     entity: climate.kitchen_heater
                     name: Кухня
+
           - type: conditional
             conditions:
               - entity: input_boolean.enable_manual_control_ac
@@ -530,6 +545,7 @@ cards:
                 - type: thermostat
                   entity: climate.bedroom_ac
                   name: Спальня
+
           - type: conditional
             conditions:
               - entity: input_boolean.enable_manual_control_lights
@@ -550,6 +566,7 @@ cards:
                 - entity: input_boolean.hallway_rgb_bulb_switch_single_status
                   icon: mdi:lightbulb
                   name: Коридор
+
           - type: conditional
             conditions:
               - entity: input_boolean.enable_christmas_automations
@@ -569,6 +586,7 @@ cards:
                 - entity: switch.bedroom_air_conditioner_socket
                   name: Гирлянда в Спальне
                   icon: mdi:string-lights
+
           - type: conditional
             conditions:
               - entity: input_boolean.enable_manual_control_aqua_lights

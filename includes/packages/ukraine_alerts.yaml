@@ -130,6 +130,9 @@ ukraine_alerts_package:
                                 message: |
                                     ➖➖➖➖➖➖➖➖➖➖➖➖
                                     {{"\U0001F6EB\U0001F680 ОБЪЯВЛЕНА ВОЗДУШНАЯ ТРЕВОГА \U0000203C\U0000203C"}}
+                                data: 
+                                    inline_keyboard: 
+                                      - "{{'\U0001F6E1'}} Безопасность:/security, {{'\U0001F4D1'}} Меню:/menu"
                           - condition: state
                             entity_id: binary_sensor.anyone_home
                             state: 'on'
@@ -157,6 +160,9 @@ ukraine_alerts_package:
                                 message: |
                                     ➖➖➖➖➖➖➖➖➖➖➖➖
                                     {{"\U00002705"}}{{"\U00002705"}}{{"\U00002705"}} ОТБОЙ ВОЗДУШНОЙ ТРЕВОГИ {{"\U00002705"}}{{"\U00002705"}}{{"\U00002705"}}
+                                data: 
+                                    inline_keyboard: 
+                                      - "{{'\U0001F6E1'}} Безопасность:/security, {{'\U0001F4D1'}} Меню:/menu"
                           - condition: state
                             entity_id: binary_sensor.anyone_home
                             state: 'on'
@@ -184,6 +190,9 @@ ukraine_alerts_package:
                                 message: |
                                     ➖➖➖➖➖➖➖➖➖➖➖➖
                                     {{"\U0001F4A5"}}{{"\U0001F4A5"}} УГРОЗА АРТИЛЛЕРИЙСКОГО ОБСТРЕЛА{{"\U0000203C"}}{{"\U0000203C"}}
+                                data: 
+                                    inline_keyboard: 
+                                      - "{{'\U0001F6E1'}} Безопасность:/security, {{'\U0001F4D1'}} Меню:/menu"
                           - condition: state
                             entity_id: binary_sensor.anyone_home
                             state: 'on'
@@ -211,6 +220,9 @@ ukraine_alerts_package:
                                 message: |
                                     ➖➖➖➖➖➖➖➖➖➖➖➖
                                     {{"\U00002705"}}{{"\U00002705"}}{{"\U00002705"}} ОТМЕНА УГРОЗЫ АРТИЛЛЕРИЙСКОГО ОБСТРЕЛА {{"\U00002705"}}{{"\U00002705"}}{{"\U00002705"}}
+                                data: 
+                                    inline_keyboard: 
+                                      - "{{'\U0001F6E1'}} Безопасность:/security, {{'\U0001F4D1'}} Меню:/menu"
                           - condition: state
                             entity_id: binary_sensor.anyone_home
                             state: 'on'
@@ -238,6 +250,9 @@ ukraine_alerts_package:
                                 message: |
                                     ➖➖➖➖➖➖➖➖➖➖➖➖
                                     {{"\U0001F4A5"}}{{"\U0001F4A5"}} УГРОЗА ГОРОДСКИХ БОЁВ{{"\U0000203C"}}{{"\U0000203C"}}
+                                data: 
+                                    inline_keyboard: 
+                                      - "{{'\U0001F6E1'}} Безопасность:/security, {{'\U0001F4D1'}} Меню:/menu"
                           - condition: state
                             entity_id: binary_sensor.anyone_home
                             state: 'on'
@@ -265,6 +280,9 @@ ukraine_alerts_package:
                                 message: |
                                     ➖➖➖➖➖➖➖➖➖➖➖➖
                                     {{"\U00002705"}}{{"\U00002705"}}{{"\U00002705"}} ОТМЕНА УГРОЗЫ ГОРОДСКИХ БОЁВ {{"\U00002705"}}{{"\U00002705"}}{{"\U00002705"}}
+                                data: 
+                                    inline_keyboard: 
+                                      - "{{'\U0001F6E1'}} Безопасность:/security, {{'\U0001F4D1'}} Меню:/menu"
                           - condition: state
                             entity_id: binary_sensor.anyone_home
                             state: 'on'
@@ -292,6 +310,9 @@ ukraine_alerts_package:
                                 message: |
                                     ➖➖➖➖➖➖➖➖➖➖➖➖
                                     {{"\U00002623\U00002623"}} ОБЪЯВЛЕНА ХИМИЧЕСКАЯ ТРЕВОГА{{"\U0000203C\U0000203C"}}
+                                data: 
+                                    inline_keyboard: 
+                                      - "{{'\U0001F6E1'}} Безопасность:/security, {{'\U0001F4D1'}} Меню:/menu"
                           - condition: state
                             entity_id: binary_sensor.anyone_home
                             state: 'on'
@@ -319,6 +340,9 @@ ukraine_alerts_package:
                                 message: |
                                     ➖➖➖➖➖➖➖➖➖➖➖➖
                                     {{"\U00002705\U00002705\U00002705"}} ОТМЕНА ХИМИЧЕСКОЙ ТРЕВОГИ {{"\U00002705\U00002705\U00002705"}}
+                                data: 
+                                    inline_keyboard: 
+                                      - "{{'\U0001F6E1'}} Безопасность:/security, {{'\U0001F4D1'}} Меню:/menu"
                           - condition: state
                             entity_id: binary_sensor.anyone_home
                             state: 'on'
@@ -346,6 +370,9 @@ ukraine_alerts_package:
                                 message: |
                                     ➖➖➖➖➖➖➖➖➖➖➖➖
                                     {{"\U00002622\U00002622"}} ОБЪЯВЛЕНА ЯДЕРНАЯ УГРОЗА{{"\U0000203C\U0000203C"}}
+                                data: 
+                                    inline_keyboard: 
+                                      - "{{'\U0001F6E1'}} Безопасность:/security, {{'\U0001F4D1'}} Меню:/menu"
                           - condition: state
                             entity_id: binary_sensor.anyone_home
                             state: 'on'
@@ -373,6 +400,9 @@ ukraine_alerts_package:
                                 message: |
                                     ➖➖➖➖➖➖➖➖➖➖➖➖
                                     {{"\U00002705\U00002705\U00002705"}} ОТМЕНА ЯДЕРНОЙ УГРОЗЫ {{"\U00002705\U00002705\U00002705"}}
+                                data: 
+                                    inline_keyboard: 
+                                      - "{{'\U0001F6E1'}} Безопасность:/security, {{'\U0001F4D1'}} Меню:/menu"
                           - condition: state
                             entity_id: binary_sensor.anyone_home
                             state: 'on'
@@ -400,6 +430,9 @@ ukraine_alerts_package:
                                 message: |
                                     ➖➖➖➖➖➖➖➖➖➖➖➖
                                     {{"\U000026A0"}}{{"\U000026A0"}} НЕИЗВЕСТНАЯ УГРОЗА {{"\U0000203C"}}{{"\U0000203C"}}
+                                data: 
+                                    inline_keyboard: 
+                                      - "{{'\U0001F6E1'}} Безопасность:/security, {{'\U0001F4D1'}} Меню:/menu"
                           - condition: state
                             entity_id: binary_sensor.anyone_home
                             state: 'on'
@@ -427,6 +460,9 @@ ukraine_alerts_package:
                                 message: |
                                     ➖➖➖➖➖➖➖➖➖➖➖➖
                                     {{"\U00002705"}}{{"\U00002705"}}{{"\U00002705"}} ОТМЕНА НЕИЗВЕСТНОЙ УГРОЗЫ {{"\U00002705"}}{{"\U00002705"}}{{"\U00002705"}}
+                                data: 
+                                    inline_keyboard: 
+                                      - "{{'\U0001F6E1'}} Безопасность:/security, {{'\U0001F4D1'}} Меню:/menu"
                           - condition: state
                             entity_id: binary_sensor.anyone_home
                             state: 'on'

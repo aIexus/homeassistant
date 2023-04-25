@@ -239,7 +239,7 @@ cards:
             filter:
                 include:
                   - entity_id: sensor.*_power
-                    state: "> 150"
+                    state: "> 10"
                     attributes:
                         device_class: power
                         state_class: measurement

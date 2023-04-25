@@ -1,3 +1,4 @@
+# Main idea took from https://github.com/kvazis/training/tree/master/lessons/articles/unit%20telemetry%201
 ############################ Телеметрия ############################
 title: Телеметрия
 icon: mdi:keyboard
@@ -729,6 +730,8 @@ cards:
                     device_class: 'presence'
                   options:
                       secondary_info: last-changed
+                exclude:
+                - entity_id: binary_sensor.*sensors
 
 ################# Окна и двери #################
 
@@ -759,8 +762,8 @@ cards:
                   options:
                       secondary_info: last-changed
                 exclude:
-                - entity_id: binary_sensor.*aeration*
-                                   
+                - entity_id: binary_sensor.*windows
+
             - type: markdown
               style: |
                   ha-card {
@@ -783,6 +786,8 @@ cards:
                     device_class: 'door'
                   options:
                       secondary_info: last-changed
+                exclude:
+                - entity_id: binary_sensor.*doors
 
 ################# Уровень заряда #################
         - type: custom:stack-in-card
