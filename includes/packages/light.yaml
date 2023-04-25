@@ -320,29 +320,12 @@ light_settings:
                             entity_id: binary_sensor.anyone_home
                             state: 'on'
                         sequence:
-                        #   - choose:
-                        #       - conditions:
-                        #           - condition: time
-                        #             before: '05:30:00'
-                        #             after:  '22:00:00' 
-                        #         sequence:
-                        #           - service: script.rgb_bulb_flashing_x_times
-                        #             data:
-                        #                 rgb_bulb_entity_id: light.hallway_rgb_bulb
-                        #                 rgb_bulb_automation_control: input_boolean.hallway_rgb_bulb_automation_control_status
-                        #                 count: 3
-                        #                 color: 'blue'
-                        #       - conditions:
-                        #           - condition: time
-                        #             after:  '05:30:00'
-                        #             before: '22:00:00' 
-                        #         sequence:
-                                  - service: script.rgb_bulb_flashing_x_times
-                                    data:
-                                        rgb_bulb_entity_id: light.hallway_rgb_bulb
-                                        rgb_bulb_automation_control: input_boolean.hallway_rgb_bulb_automation_control_status
-                                        count: 3
-                                        color: 'yellow'
+                          - service: script.rgb_bulb_flashing_x_times
+                            data:
+                                rgb_bulb_entity_id: light.hallway_rgb_bulb
+                                rgb_bulb_automation_control: input_boolean.hallway_rgb_bulb_automation_control_status
+                                count: 3
+                                color: 'yellow'
                         # armed_night
                       - conditions:
                           - condition: template
@@ -351,29 +334,12 @@ light_settings:
                             entity_id: binary_sensor.anyone_home
                             state: 'on'
                         sequence:
-                        #   - choose:
-                        #       - conditions:
-                        #           - condition: time
-                        #             before: '05:30:00'
-                        #             after:  '22:00:00' 
-                        #         sequence:
-                                  - service: script.rgb_bulb_flashing_x_times
-                                    data:
-                                        rgb_bulb_entity_id: light.hallway_rgb_bulb
-                                        rgb_bulb_automation_control: input_boolean.hallway_rgb_bulb_automation_control_status
-                                        count: 3
-                                        color: 'blue'
-                            #   - conditions:
-                            #       - condition: time
-                            #         after:  '05:30:00'
-                            #         before: '22:00:00' 
-                            #     sequence:
-                            #       - service: script.rgb_bulb_flashing_x_times
-                            #         data:
-                            #             rgb_bulb_entity_id: light.hallway_rgb_bulb
-                            #             rgb_bulb_automation_control: input_boolean.hallway_rgb_bulb_automation_control_status
-                            #             count: 3
-                            #             color: 'yellow'
+                          - service: script.rgb_bulb_flashing_x_times
+                            data:
+                                rgb_bulb_entity_id: light.hallway_rgb_bulb
+                                rgb_bulb_automation_control: input_boolean.hallway_rgb_bulb_automation_control_status
+                                count: 3
+                                color: 'blue'
                         # disarmed
                       - conditions:
                           - condition: template
@@ -485,33 +451,14 @@ light_settings:
                             entity_id: binary_sensor.anyone_home
                             state: 'on'
                         sequence:
-                        #   - choose:
-                        #       - conditions:
-                        #           - condition:  time
-                        #             before: '05:30:00'
-                        #             after:  '22:00:00' 
-                        #         sequence:
-                        #           - service: input_boolean.turn_on
-                        #             entity_id: input_boolean.hallway_rgb_bulb_automation_control_status
-                        #           - service: light.turn_on
-                        #             target:
-                        #                 entity_id: light.hallway_rgb_bulb
-                        #             data: 
-                        #                 brightness: 13
-                        #                 rgb_color: [5, 69, 255]
-                        #       - conditions:
-                        #           - condition:  time
-                        #             after:  '05:30:00'
-                        #             before: '22:00:00' 
-                        #         sequence:
-                                  - service: input_boolean.turn_on
-                                    entity_id: input_boolean.hallway_rgb_bulb_automation_control_status
-                                  - service: light.turn_on
-                                    target:
-                                        entity_id: light.hallway_rgb_bulb
-                                    data: 
-                                        brightness: 100
-                                        rgb_color: [255, 254, 72]
+                          - service: input_boolean.turn_on
+                            entity_id: input_boolean.hallway_rgb_bulb_automation_control_status
+                          - service: light.turn_on
+                            target:
+                                entity_id: light.hallway_rgb_bulb
+                            data: 
+                                brightness: 100
+                                rgb_color: [255, 254, 72]
                       - conditions:
                           - condition: state
                             entity_id: alarm_control_panel.home_alarm
@@ -520,33 +467,14 @@ light_settings:
                             entity_id: binary_sensor.anyone_home
                             state: 'on'
                         sequence:
-                        #   - choose:
-                        #       - conditions:
-                        #           - condition:  time
-                        #             before: '05:30:00'
-                        #             after:  '22:00:00' 
-                        #         sequence:
-                                  - service: input_boolean.turn_on
-                                    entity_id: input_boolean.hallway_rgb_bulb_automation_control_status
-                                  - service: light.turn_on
-                                    target:
-                                        entity_id: light.hallway_rgb_bulb
-                                    data: 
-                                        brightness: 13
-                                        rgb_color: [5, 69, 255]
-                            #   - conditions:
-                            #       - condition:  time
-                            #         after:  '05:30:00'
-                            #         before: '22:00:00' 
-                            #     sequence:
-                            #       - service: input_boolean.turn_on
-                            #         entity_id: input_boolean.hallway_rgb_bulb_automation_control_status
-                            #       - service: light.turn_on
-                            #         target:
-                            #             entity_id: light.hallway_rgb_bulb
-                            #         data: 
-                            #             brightness: 100
-                            #             rgb_color: [255, 254, 72]
+                          - service: input_boolean.turn_on
+                            entity_id: input_boolean.hallway_rgb_bulb_automation_control_status
+                          - service: light.turn_on
+                            target:
+                                entity_id: light.hallway_rgb_bulb
+                            data: 
+                                brightness: 13
+                                rgb_color: [5, 69, 255]
                       - conditions:
                           - condition: state
                             entity_id: binary_sensor.anyone_home
