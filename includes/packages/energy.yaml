@@ -14,6 +14,7 @@ energy_config:
               - binary_sensor.living_room_socket_heating_status
               - binary_sensor.kitchen_socket_heating_status
               - binary_sensor.kitchen_coffee_machine_and_microwave_socket_status
+              - binary_sensor.kitchen_oven_socket_status
               - binary_sensor.bathroom_washing_machine_socket_status
               - switch.living_room_aquarium_main_lighting
               - input_number.tarrif_energy_cost_calibrate_base
@@ -26,6 +27,7 @@ energy_config:
               - sensor.bedroom_socket_heating*
               - sensor.kitchen_socket_heating*
               - sensor.kitchen_coffee_machine_and_microwave_socket*
+              - sensor.kitchen_oven_socket*
               - sensor.living_room_aquarium_main_lighting*
               - sensor.living_room_air_conditioner_socket*
               - sensor.living_room_socket_heating*
@@ -48,6 +50,8 @@ energy_config:
                 friendly_name: 'Обогреватель в Кухне'
             binary_sensor.kitchen_coffee_machine_and_microwave_socket_status:
                 friendly_name: 'Кофемашина и Микроволновка в Кухне'
+            binary_sensor.kitchen_oven_socket_status:
+                friendly_name: 'Духовка в Кухне'
             binary_sensor.exceed_electricity_consumption_limit:
                 friendly_name: 'Превышение Лимита Потребления'
             sensor.tuya_clamp_meter_monthly_total:
@@ -95,7 +99,9 @@ energy_config:
             switch.kitchen_socket_heating:
                 friendly_name: 'Кухня - Обогреватель, Розетка'
             switch.kitchen_coffee_machine_and_microwave_socket:
-                friendly_name: 'Кухня - Кофеварка/Микроволновка, Розетка'
+                friendly_name: 'Кухня - Кофемашина/Микроволновка, Розетка'
+            switch.kitchen_oven_socket:
+                friendly_name: 'Кухня - Духовка, Розетка'
             light.hallway_rgb_bulb:
                 friendly_name: 'Коридор - RGB-Лампа'
             sensor.bathroom_washing_machine_socket_integration:
@@ -107,6 +113,8 @@ energy_config:
             sensor.kitchen_socket_heating_integration:
                 icon: mdi:chart-histogram
             sensor.kitchen_coffee_machine_and_microwave_socket_integration:
+                icon: mdi:chart-histogram
+            sensor.kitchen_oven_socket_integration:
                 icon: mdi:chart-histogram
             sensor.living_room_air_conditioner_socket_integration:
                 icon: mdi:chart-histogram
@@ -176,6 +184,7 @@ energy_config:
           - sensor.bedroom_socket_heating_voltage
           - sensor.kitchen_socket_heating_voltage
           - sensor.kitchen_coffee_machine_and_microwave_socket_voltage
+          - sensor.kitchen_oven_socket_voltage
           - sensor.living_room_air_conditioner_socket_voltage
           - sensor.living_room_socket_heating_voltage
 
@@ -228,6 +237,15 @@ energy_config:
         name: kitchen_coffee_machine_and_microwave_socket_integration
         unique_id: sensor_kitchen_coffee_machine_and_microwave_socket_integration
         source: sensor.kitchen_coffee_machine_and_microwave_socket_power
+        unit_prefix: k
+        unit_time: h
+        method: trapezoidal
+        round: 2
+
+      - platform: integration
+        name: kitchen_oven_socket_integration
+        unique_id: sensor_kitchen_oven_socket_integration
+        source: sensor.kitchen_oven_socket_power
         unit_prefix: k
         unit_time: h
         method: trapezoidal
@@ -324,6 +342,11 @@ energy_config:
         kitchen_coffee_machine_and_microwave_socket_meter_monthly:
             unique_id: sensor_kitchen_coffee_machine_and_microwave_socket_meter_monthly
             source: sensor.kitchen_coffee_machine_and_microwave_socket_integration
+            cycle: monthly
+
+        kitchen_oven_socket_meter_monthly:
+            unique_id: sensor_kitchen_oven_socket_meter_monthly
+            source: sensor.kitchen_oven_socket_integration
             cycle: monthly
 
         living_room_air_conditioner_socket_meter_monthly:
@@ -517,6 +540,17 @@ energy_config:
                 off
                 {% endif %}
             icon: mdi:coffee-maker-outline
+
+          - name: kitchen_oven_socket_status
+            unique_id: binary_sensor_kitchen_oven_socket_status
+            device_class: power
+            state: >-
+                {% if (states("sensor.kitchen_oven_socket_power") | int(0) > 1) %}
+                on
+                {% else %}
+                off
+                {% endif %}
+            icon: mdi:stove
 
           - name: bathroom_washing_machine_socket_status
             unique_id: binary_sensor_bathroom_washing_machine_socket_status

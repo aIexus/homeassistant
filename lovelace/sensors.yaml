@@ -263,6 +263,23 @@ cards:
                     unit: "kWh"
 
               - type: custom:multiple-entity-row
+                entity: binary_sensor.kitchen_oven_socket_status
+                name: Духовка
+                secondary_info: last-changed
+                state_color: true
+                show_state: false
+                entities:
+                  - entity: sensor.kitchen_oven_socket_voltage
+                    name: Напряжение
+                    unit: "V"
+                  - entity: sensor.kitchen_oven_socket_power
+                    name: Мощность
+                    unit: "W"
+                  - entity: sensor.kitchen_oven_socket_meter_monthly
+                    name: За месяц
+                    unit: "kWh"
+
+              - type: custom:multiple-entity-row
                 entity: binary_sensor.kitchen_coffee_machine_and_microwave_socket_status
                 name: Кофеварка
                 secondary_info: last-changed
