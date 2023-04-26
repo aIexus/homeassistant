@@ -115,25 +115,6 @@ cards:
             show_entity_picture: true
             vertical: true
 
-    #   - type: conditional
-    #     conditions:
-    #       - entity: binary_sensor.anyone_home
-    #         state: "on"
-    #     card:
-    #       type: entity-filter
-    #       entities:
-    #         - person.alexus
-    #         - person.inna
-    #         - person.vova
-    #         - person.ivan
-    #       state_filter:
-    #         - home
-    #       show_empty: false
-    #       card:
-    #         type: glance
-    #         show_state: false
-    #         title: Сейчас Дома
-
   - type: vertical-stack
     cards:
 
@@ -334,6 +315,11 @@ cards:
                     - condition: equals
                       entity: input_boolean.heating_status
                       value: "off"
+              - entity: binary_sensor.kitchen_coffee_machine_and_microwave_socket_status
+                show_icon: true
+                state_color: true
+                name: Кофемашина
+                tap_action: none
               - entity: binary_sensor.kitchen_window_contact
                 show_icon: true
                 state_color: true
