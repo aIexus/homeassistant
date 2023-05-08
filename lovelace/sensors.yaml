@@ -220,6 +220,13 @@ cards:
                 name: Окно
 
               - type: custom:multiple-entity-row
+                entity: binary_sensor.kitchen_gas_detector_gas
+                name: Датчик Газа
+                secondary_info: last-changed
+                state_header: Состояние
+                state_color: true
+
+              - type: custom:multiple-entity-row
                 entity: binary_sensor.kitchen_smoke_detector_smoke
                 name: Датчик дыма
                 secondary_info: last-changed
@@ -379,7 +386,7 @@ cards:
                 state_header: Состояние
                 state_color: true
                 name: Входная дверь
-              - entity: binary_sensor.tapo_camera_motion
+              - entity: binary_sensor.tapo_camera_motion_alarm
                 name: Датчик Движения, Камера
               - entity: light.hallway_rgb_bulb
                 name: Коридор, сигнальная лампа
