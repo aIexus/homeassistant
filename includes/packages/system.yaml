@@ -33,6 +33,7 @@ system_config:
               - binary_sensor.*_battery_low
               - sensor.apple_macbook_*
               - sensor.*_battery
+              - sensor.speedtest_*
 
     homeassistant:
 
@@ -397,8 +398,11 @@ system_config:
                     data:
                         title: '{{"\U000026A0"}} ВНИМАНИЕ{{"\U0000203C"}}'
                         message: |
-                          ➖➖➖➖➖➖➖➖➖➖➖➖
-                          Интернет соединение: {{"\U0001F50C"}} {% if is_state("binary_sensor.internet_connection_ping", "on") %}Подключено{% elif is_state("binary_sensor.internet_connection_ping", "off") %}Отключено{% else %}Недоступно{% endif %}
+                            ➖➖➖➖➖➖➖➖➖➖➖➖
+                            Интернет соединение: {{"\U0001F50C"}} {% if is_state("binary_sensor.internet_connection_ping", "on") %}Подключено{% elif is_state("binary_sensor.internet_connection_ping", "off") %}Отключено{% else %}Недоступно{% endif %}
+                        data:
+                            inline_keyboard: 
+                              - "{{'\U00002139'}} Статус:/status, {{'\U0001F4D1'}} Меню:/menu"
           - choose:
               - conditions:
                   - condition: state
@@ -445,13 +449,12 @@ system_config:
                   - switch.bedroom_air_conditioner_socket
                 #   - switch.bedroom_light_switch
                   - switch.bedroom_socket_heating
+                #   - switch.living_room_aquarium_main_lighting
                 #   - switch.living_room_aquarium_power_strip_l1 # airation
                 #   - switch.living_room_aquarium_power_strip_l2 # filtration
                   - switch.living_room_aquarium_power_strip_l3 # main light
                   - switch.living_room_aquarium_power_strip_l4 # moon light
                   - switch.living_room_air_conditioner_socket
-                #   - switch.living_room_aquarium_main_lighting
-                #   - switch.living_room_aquarium_moonlight
                   - switch.living_room_socket_heating
                 #   - switch.living_room_light_switch
                   - switch.kitchen_socket_heating
@@ -612,6 +615,9 @@ system_config:
                 message: |
                   ➖➖➖➖➖➖➖➖➖➖➖➖
                   {{'\U0001F199'}} Сервер Home Assistant был перезапущен{{"\U0000203C"}}
+                data:
+                    inline_keyboard:
+                      - "{{'\U00002139'}} Статус:/status, {{'\U0001F4D1'}} Меню:/menu"
         mode: single
 
       - alias: "System: Notification about initiated Shutdown"
@@ -676,10 +682,13 @@ system_config:
             data:
                 title: '{{"\U0001F199"}} {{ trigger.to_state.attributes.friendly_name }}{{"\U0000203C"}}'
                 message:  |
-                  ➖➖➖➖➖➖➖➖➖➖➖➖
-                  Доступно {{ trigger.to_state.attributes.friendly_name }}
-                    Установлено: {{ trigger.to_state.attributes.installed_version }}
-                    Доступно: {{ trigger.to_state.attributes.latest_version }}
+                    ➖➖➖➖➖➖➖➖➖➖➖➖
+                    Доступно {{ trigger.to_state.attributes.friendly_name }}
+                      Установлено: {{ trigger.to_state.attributes.installed_version }}
+                      Доступно: {{ trigger.to_state.attributes.latest_version }}
+                data:
+                    inline_keyboard:
+                      - "{{'\U00002139'}} Статус:/status, {{'\U0001F4D1'}} Меню:/menu"
         mode: single
 
       - alias: "System: Notification about RPi Power Failure"
@@ -709,6 +718,9 @@ system_config:
                           Внешнее питание: {{"\U0001F50C"}} {% if is_state("binary_sensor.rpi_ac_power_status", "on") %}Подключено{% elif is_state("binary_sensor.rpi_ac_power_status", "off") %}Отключено{% else %}Недоступно{% endif %}
                           
                           {{"\U0001F50B"}} UPS Battery Status: ({% if is_state("binary_sensor.ups_battery_low","off") %}OK{%else%}Low{{"\U0000203C"}}{%endif%}) {{ states("sensor.ups_battery_capacity") }}% / {{ states("sensor.ups_battery_voltage") }}V
+                        data:
+                            inline_keyboard:
+                              - "{{'\U00002139'}} Статус:/status, {{'\U0001F4D1'}} Меню:/menu"
           - condition: state
             entity_id: input_boolean.disable_voice_notifications
             state: 'off'
@@ -749,6 +761,9 @@ system_config:
                           Внешнее питание: {{"\U0001F50C"}} {% if is_state("binary_sensor.rpi_ac_power_status", "on") %}Подключено{% else %}Отключено{% endif %}
                           
                           {{"\U0000203C"}}Через некоторое время сервер RPi будет остановлен{{"\U0000203C"}}
+                        data:
+                            inline_keyboard:
+                              - "{{'\U00002139'}} Статус:/status, {{'\U0001F4D1'}} Меню:/menu"
           - condition: state
             entity_id: input_boolean.disable_voice_notifications
             state: 'off'
@@ -790,6 +805,9 @@ system_config:
                   ➖➖➖➖➖➖➖➖➖➖➖➖
                   Батарея UPS полностью заряжена: {{ states("sensor.ups_battery_capacity") }}% / {{ states("sensor.ups_battery_voltage") }}V{{"\U0000203C"}}
                   Внешнее питание: {{"\U0001F50C"}} {% if is_state("binary_sensor.rpi_ac_power_status", "on") %}Подключено{% else %}Отключено{% endif %}
+                data:
+                    inline_keyboard:
+                      - "{{'\U00002139'}} Статус:/status, {{'\U0001F4D1'}} Меню:/menu"
         mode: single
 
       - alias: "System: Notification about changed Zone for persones"
@@ -942,8 +960,11 @@ system_config:
             data:
                 title: '{{"\U0001F4CC"}} Изменение расположения{{"\U0000203C"}}'
                 message: |
-                  ➖➖➖➖➖➖➖➖➖➖➖➖
-                  {% if (trigger.event) == "leave" %}{{ states('sensor.time') }}: {{ trigger.to_state.name }} покинул(а) {{ trigger.zone.attributes.friendly_name }}!
-                  {% else %}{{ states('sensor.time') }}: {{ trigger.to_state.name }} прибыл(а) в {{ trigger.zone.attributes.friendly_name }}!
-                  {% endif %}
+                    ➖➖➖➖➖➖➖➖➖➖➖➖
+                    {% if (trigger.event) == "leave" %}{{ states('sensor.time') }}: {{ trigger.to_state.name }} покинул(а) {{ trigger.zone.attributes.friendly_name }}!
+                    {% else %}{{ states('sensor.time') }}: {{ trigger.to_state.name }} прибыл(а) в {{ trigger.zone.attributes.friendly_name }}!
+                    {% endif %}
+                data:
+                    inline_keyboard:
+                      - "{{'\U0001F5FA'}} Геолокация:/geo, {{'\U0001F4D1'}} Меню:/menu"
         mode: queued
