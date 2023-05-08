@@ -115,6 +115,17 @@ cards:
             show_entity_picture: true
             vertical: true
 
+      - type: conditional
+        conditions:
+          - entity: switch.tapo_camera_privacy
+            state: "off"
+        card:
+            type: picture-entity
+            entity: camera.tapo_camera_sd
+            show_state: true
+            show_name: true
+            camera_view: auto
+
   - type: vertical-stack
     cards:
 
@@ -136,7 +147,7 @@ cards:
                 state_color: true
                 name: Подсветка
                 tap_action: none
-              - entity: binary_sensor.tapo_camera_motion
+              - entity: binary_sensor.tapo_camera_motion_alarm
                 show_icon: true
                 state_color: true
                 hide_unavailable: true
@@ -170,6 +181,12 @@ cards:
                 state_color: true
                 icon: mdi:ceiling-light
                 name: Люстра
+                tap_action: none
+              - entity: switch.living_room_aquarium_power_strip_l3
+                show_icon: true
+                state_color: true
+                icon: mdi:fishbowl-outline
+                name: Аквариум
                 tap_action: none
               - entity: binary_sensor.living_room_auto_light_off_sensor
                 name: Таймер Света
@@ -295,6 +312,11 @@ cards:
             tap_action: none
             double_tap_action: none
             entities:
+              - entity: binary_sensor.kitchen_gas_detector_gas
+                show_icon: true
+                state_color: true
+                tap_action: none
+                name: Газ
               - entity: binary_sensor.kitchen_smoke_detector_smoke
                 show_icon: true
                 state_color: true
@@ -526,16 +548,15 @@ cards:
               - entity: input_boolean.ac_status
                 state: "on"
             card:
-              type: grid
-              columns: 2
-              title: Кондиционеры
-              cards:
-                - type: thermostat
-                  entity: climate.living_room_ac
-                  name: Гостинная
-                - type: thermostat
-                  entity: climate.bedroom_ac
-                  name: Спальня
+                type: custom:stack-in-card
+                mode: horizontal
+                cards:
+                  - type: thermostat
+                    entity: climate.living_room_ac
+                    name: Гостинная
+                  - type: thermostat
+                    entity: climate.bedroom_ac
+                    name: Спальня
 
           - type: conditional
             conditions:
