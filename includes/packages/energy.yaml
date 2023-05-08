@@ -645,20 +645,23 @@ energy_config:
                             {"date": "{{ now().date() }}", "day": {{ states('sensor.tuya_clamp_meter_monthly_day') | float(0) | round(2) }}, "night": {{ states('sensor.tuya_clamp_meter_monthly_night') | float(0) | round(2) }}, "total": {{ states('sensor.tuya_clamp_meter_monthly_total') | float(0) | round(2) }}},
                   - service: notify.alexus
                     data:
-                      message: |
-                        {{'\U000026A1'}} Электричество 
-                        ➖➖➖➖➖➖➖➖➖➖➖➖
-                        {{"\U0001F4C5"}} {{ states("sensor.date") }} {{"\U0001F551"}} {{ states("sensor.time") }}
+                        message: |
+                            {{'\U000026A1'}} Электричество 
+                            ➖➖➖➖➖➖➖➖➖➖➖➖
+                            {{"\U0001F4C5"}} {{ states("sensor.date") }} {{"\U0001F551"}} {{ states("sensor.time") }}
 
-                        {{"\U0001F4CA"}} Показания счетчика:
-                         - {{"\U0001F4CB"}} Всего: {{ states("sensor.energy_counter_total")       | float(0) | round(0) }} kWh
-                         - {{"\U00002600"}} День:  {{ states("sensor.energy_counter_total_day")   | float(0) | round(0) }} kWh
-                         - {{"\U0001F312"}} Ночь:  {{ states("sensor.energy_counter_total_night") | float(0) | round(0) }} kWh
+                            {{"\U0001F4CA"}} Показания счетчика:
+                             - {{"\U0001F4CB"}} Всего: {{ states("sensor.energy_counter_total")       | float(0) | round(0) }} kWh
+                             - {{"\U00002600"}} День:  {{ states("sensor.energy_counter_total_day")   | float(0) | round(0) }} kWh
+                             - {{"\U0001F312"}} Ночь:  {{ states("sensor.energy_counter_total_night") | float(0) | round(0) }} kWh
 
-                        {{"\U0001F4CA"}} {{ now().strftime('%B') }}/{{ now().year }}:
-                         - {{"\U0001F4CB"}} Всего: {{ states("sensor.tuya_clamp_meter_monthly_total") | float(0) | round(0) }} kWh, {{"\U0001F4B8"}} {{ ((states("sensor.tuya_clamp_meter_monthly_day") | float(0) | round(0) * states('sensor.tariff_energy_cost_base') | float(0) | round(2)) +  (states("sensor.tuya_clamp_meter_monthly_night") | float(0) | round(0) * states('sensor.tariff_energy_cost_base') | float(0) * 0.5 | round(2))) | round(2) }} ₴
-                         - {{"\U00002600"}} День: {{ states("sensor.tuya_clamp_meter_monthly_day")    | float(0) | round(0) }} kWh, {{"\U0001F4B8"}} {{ (states("sensor.tuya_clamp_meter_monthly_day") | float(0) | round(0) * states('sensor.tariff_energy_cost_base') | float(0) | round(2)) | round(2) }} ₴
-                         - {{"\U0001F312"}} Ночь: {{ states("sensor.tuya_clamp_meter_monthly_night")  | float(0) | round(0) }} kWh, {{"\U0001F4B8"}} {{ (states("sensor.tuya_clamp_meter_monthly_night") | float(0) | round(0) * states('sensor.tariff_energy_cost_base') | float(0) * 0.5 | round(2)) | round(2) }} ₴
+                            {{"\U0001F4CA"}} {{ now().strftime('%B') }}/{{ now().year }}:
+                             - {{"\U0001F4CB"}} Всего: {{ states("sensor.tuya_clamp_meter_monthly_total") | float(0) | round(0) }} kWh, {{"\U0001F4B8"}} {{ ((states("sensor.tuya_clamp_meter_monthly_day") | float(0) | round(0) * states('sensor.tariff_energy_cost_base') | float(0) | round(2)) +  (states("sensor.tuya_clamp_meter_monthly_night") | float(0) | round(0) * states('sensor.tariff_energy_cost_base') | float(0) * 0.5 | round(2))) | round(2) }} ₴
+                             - {{"\U00002600"}} День: {{ states("sensor.tuya_clamp_meter_monthly_day")    | float(0) | round(0) }} kWh, {{"\U0001F4B8"}} {{ (states("sensor.tuya_clamp_meter_monthly_day") | float(0) | round(0) * states('sensor.tariff_energy_cost_base') | float(0) | round(2)) | round(2) }} ₴
+                             - {{"\U0001F312"}} Ночь: {{ states("sensor.tuya_clamp_meter_monthly_night")  | float(0) | round(0) }} kWh, {{"\U0001F4B8"}} {{ (states("sensor.tuya_clamp_meter_monthly_night") | float(0) | round(0) * states('sensor.tariff_energy_cost_base') | float(0) * 0.5 | round(2)) | round(2) }} ₴
+                        data:
+                            inline_keyboard: 
+                              - "{{'\U000026A1'}} Электричество:/electricity, {{'\U0001F4D1'}} Меню:/menu"
           - choose:
               - conditions:
                   - condition: template
