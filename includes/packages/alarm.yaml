@@ -7,12 +7,13 @@ home_alarm_settings:
               - binary_sensor.hallway_entrance_door_contact
               - binary_sensor.bedroom_lumi_sensor_motion_occupancy
               - binary_sensor.living_room_lumi_sensor_motion_occupancy
-              - binary_sensor.tapo_camera_motion
               - binary_sensor.motion_sensors
               - binary_sensor.bathroom_water_leak_under_washing_machine_water_leak
               - binary_sensor.bathroom_water_leak_under_the_bath_water_leak
               - binary_sensor.kitchen_water_leak_sensor_water_leak
+              - binary_sensor.kitchen_gas_detector_gas
               - binary_sensor.kitchen_smoke_detector_smoke
+
 
     homeassistant:
 
@@ -34,6 +35,8 @@ home_alarm_settings:
                 friendly_name: 'Протечка под Ванной'
             binary_sensor.kitchen_water_leak_sensor_water_leak:
                 friendly_name: 'Протечка в Кухне'
+            binary_sensor.kitchen_gas_detector_gas:
+                friendly_name: 'Газ в Кухне'
             binary_sensor.kitchen_smoke_detector_smoke:
                 friendly_name: 'Дым в Кухне'
 
@@ -52,7 +55,7 @@ home_alarm_settings:
         entities:
           - binary_sensor.bedroom_lumi_sensor_motion_occupancy
           - binary_sensor.living_room_lumi_sensor_motion_occupancy
-          - binary_sensor.tapo_camera_motion
+          - binary_sensor.tapo_camera_motion_alarm
 
       - platform: group
         name: home_doors
@@ -65,6 +68,25 @@ home_alarm_settings:
     template:
 
       - sensor:
+
+          - name: gas_detect
+            state: >
+                {% set variable = namespace(value = {}) %}
+                {% for entity in states.binary_sensor if is_state(entity.entity_id, 'on') and is_state_attr(entity.entity_id, 'device_class', 'gas') %}
+                    {% set variable.value = dict(variable.value, **{entity.name: entity.state }) %}
+                {% endfor %}
+                {% if (variable.value | length) | int(0) > 0 %}
+                    {{ variable.value | length }}
+                {% else %}
+                    0
+                {% endif %}
+            attributes:
+                list_entities: >
+                    {% set variable = namespace(value = {}) %}
+                    {% for entity in states.binary_sensor if is_state(entity.entity_id, 'on') and is_state_attr(entity.entity_id, 'device_class', 'gas') %}
+                        {% set variable.value = dict(variable.value, **{entity.name: entity.state }) %}
+                    {% endfor %}
+                    {{ variable.value |dictsort(false, 'value') }}
 
           - name: smoke_detect
             state: >
@@ -144,7 +166,7 @@ home_alarm_settings:
           #   from: 'off'
           #   to: 'on'
           # - platform: state
-          #   entity_id: binary_sensor.tapo_camera_motion
+          #   entity_id: binary_sensor.tapo_camera_motion_alarm
           #   from: 'off'
           #   to: 'on'
         condition:
@@ -156,9 +178,9 @@ home_alarm_settings:
           - variables:
                 trigger_area_name: "{{ area_name(trigger.entity_id) }}"
                 snapshot_file_name: |
-                    {{ "/config/files/camera/" + state_attr('camera.tapo_camera_hd', 'friendly_name') +  "/snapshot_" + now().strftime('%Y%m%d-%H%M%S') + ".jpg" }}
+                    {{ "/config/files/camera/" + state_attr('camera.tapo_camera_hd', 'friendly_name') +  "/snapshot_armed_away_" + now().strftime('%Y%m%d-%H%M%S') + ".jpg" }}
                 record_file_name: |
-                    {{ "/config/files/camera/" + state_attr('camera.tapo_camera_hd', 'friendly_name') +  "/record_" + now().strftime('%Y%m%d-%H%M%S') + ".mp4" }}
+                    {{ "/config/files/camera/" + state_attr('camera.tapo_camera_hd', 'friendly_name') +  "/record_armed_away_" + now().strftime('%Y%m%d-%H%M%S') + ".mp4" }}
             # trigger alarm
           - service: alarm_control_panel.alarm_trigger
             entity_id: alarm_control_panel.home_alarm
@@ -767,9 +789,7 @@ home_alarm_settings:
                             *{% for entity_name, entity_state in state_attr('sensor.all_switch_on_10', 'list_entities')-%} - {{ entity_name }} {{ '-' }} {{ entity_state }} {{ 'W' }} {{ '\n' -}} {% endfor %}*
                         data: 
                             inline_keyboard: 
-                              - "{{'\U00002328'}} Телеметрия:/telemetry"
-                              - "{{'\U000026A1'}} Электричество:/electricity"
-                              - "{{'\U0001F4D1'}} Меню:/menu"
+                              - "{{'\U00002328'}} Телеметрия:/telemetry, {{'\U0001F4D1'}} Меню:/menu"
 
           - condition: state
             entity_id: input_boolean.disable_voice_notifications
@@ -858,18 +878,174 @@ home_alarm_settings:
                         message: "Все в порядке, протечка устранена"
         mode: single
 
-      - alias: "Alarm: Smoke Detection in Kitchen"
-        id: alarm_smoke_detection_in_kitchen
-        description: 'Уведомление об обнаружении дыма в кухне'
+      - alias: "Alarm: Gas Detection in Kitchen"
+        id: alarm_gas_detection_in_kitchen
+        description: 'Уведомление об обнаружении учечки газа в кухне'
         trigger:
-          - type: smoke
-            platform: device
-            device_id: 7b615184042873bb55a51829cde9ba29
-            entity_id: binary_sensor.kitchen_smoke_detector_smoke
-            domain: binary_sensor
+          - platform: state
+            entity_id: binary_sensor.kitchen_gas_detector_gas
+            to: 'on'
         condition: []
         action:
+          - variables:
+                tapo_camera_privacy_mode: '{{ states("switch.tapo_camera_privacy") }}'
+                snapshot_file_name: |
+                    {{ "/config/files/camera/" + state_attr('camera.tapo_camera_hd', 'friendly_name') +  "/snapshot_gas_" + now().strftime('%Y%m%d-%H%M%S') + ".jpg" }}
+                record_file_name: |
+                    {{ "/config/files/camera/" + state_attr('camera.tapo_camera_hd', 'friendly_name') +  "/record_gas_" + now().strftime('%Y%m%d-%H%M%S') + ".mp4" }}
+            # Disable privacy mode for tapo_camera
           - choose:
+              - conditions:
+                  - condition: state
+                    entity_id: switch.tapo_camera_privacy
+                    state: 'on'
+                sequence:
+                  - service: switch.turn_off
+                    entity_id: switch.tapo_camera_privacy
+                  - delay: '00:00:03'
+            # Voice notification
+          - choose:
+              - conditions:
+                  - condition: state
+                    entity_id: input_boolean.disable_voice_notifications
+                    state: 'off'
+                  - condition: state
+                    entity_id: binary_sensor.anyone_home
+                    state: 'on'
+                sequence:
+                  - service: script.turn_on
+                    target:
+                        entity_id: script.sonos_say
+                    data: 
+                        variables:
+                            sonos_entity: media_player.sonos_living_room
+                            volume: 0.5
+                            message: 'ВНИМАНИЕ!!! Обнаружена утечка газа на кухне!'
+            # Move tapo_camera to Kitchen preset
+          - service: select.select_option
+            entity_id: select.tapo_camera_move_to_preset
+            data: 
+                option: 'Kitchen'
+            # take snapshot from Kitchen area
+          - delay: '00:00:04'
+          - service: script.tapo_camera_save_snapshot
+            data:
+                tapo_camera_id: camera.tapo_camera_hd
+                file_name: '{{ snapshot_file_name }}'
+            # Notify alexus
+          - choose:
+              - conditions:
+                  - condition: state
+                    entity_id: binary_sensor.internet_connection_ping
+                    state: 'on'
+                sequence:
+                    # Send warning message
+                  - service: notify.alexus
+                    data:
+                        title: '{{"\U000026A0"}} ВНИМАНИЕ{{"\U0000203C"}}'
+                        message: |
+                            ➖➖➖➖➖➖➖➖➖➖➖➖
+                            {{"\U0001F525"}} Обнаружена утечка газа на кухне{{"\U0000203C"}}
+                        data: 
+                            inline_keyboard: 
+                              - "{{'\U0001F6E1'}} Безопасность:/security, {{'\U0001F4D1'}} Меню:/menu"
+                    # send snapshot
+                  - service: notify.alexus
+                    data:
+                        message: 'Kitchen'
+                        data:
+                            photo:
+                              - file: '{{ snapshot_file_name }}'
+                                caption: 'Фото: Kitchen'
+            # record short video from Kitchen area
+          - service: script.tapo_camera_save_record
+            data:
+                tapo_camera_id: camera.tapo_camera_hd
+                file_name: '{{ record_file_name }}'
+                time_duration: 15
+          - choose:
+              - conditions:
+                  - condition: state
+                    entity_id: binary_sensor.internet_connection_ping
+                    state: 'on'
+                sequence:
+                  - service: notify.alexus
+                    data:
+                        message: 'Kitchen'
+                        data:
+                            video:
+                              - file: '{{ record_file_name }}'
+                                caption: 'Видео: Kitchen'
+            # restore privacy mode for tapo_camera
+          - choose:
+              - conditions:
+                  - condition: template
+                    value_template: "{{ tapo_camera_privacy_mode == 'on' }}"
+                  - condition: state
+                    entity_id: switch.tapo_camera_privacy
+                    state: 'off'
+                sequence:
+                  - service: switch.turn_on
+                    entity_id: switch.tapo_camera_privacy
+        mode: single
+
+      - alias: "Alarm: Smoke Detection in Kitchen"
+        id: alarm_smoke_detection_in_kitchen
+        description: 'Уведомление об обнаружении дыма на кухне'
+        trigger:
+          - platform: state
+            entity_id: binary_sensor.kitchen_smoke_detector_smoke
+            to: 'on'
+        condition: []
+        action:
+          - variables:
+                tapo_camera_privacy_mode: '{{ states("switch.tapo_camera_privacy") }}'
+                snapshot_file_name: |
+                    {{ "/config/files/camera/" + state_attr('camera.tapo_camera_hd', 'friendly_name') +  "/snapshot_smoke_" + now().strftime('%Y%m%d-%H%M%S') + ".jpg" }}
+                record_file_name: |
+                    {{ "/config/files/camera/" + state_attr('camera.tapo_camera_hd', 'friendly_name') +  "/record_smoke_" + now().strftime('%Y%m%d-%H%M%S') + ".mp4" }}
+            # Disable privacy mode for tapo_camera
+          - choose:
+              - conditions:
+                  - condition: state
+                    entity_id: switch.tapo_camera_privacy
+                    state: 'on'
+                sequence:
+                  - service: switch.turn_off
+                    entity_id: switch.tapo_camera_privacy
+                  - delay: '00:00:03'
+            # Voice notification
+          - choose:
+              - conditions:
+                  - condition: state
+                    entity_id: input_boolean.disable_voice_notifications
+                    state: 'off'
+                  - condition: state
+                    entity_id: binary_sensor.anyone_home
+                    state: 'on'
+                sequence:
+                  - service: script.turn_on
+                    target:
+                        entity_id: script.sonos_say
+                    data: 
+                        variables:
+                            sonos_entity: media_player.sonos_living_room
+                            volume: 0.5
+                            message: 'ВНИМАНИЕ!!! Обнаружен дым на кухне!'
+            # Move tapo_camera to Kitchen preset
+          - service: select.select_option
+            entity_id: select.tapo_camera_move_to_preset
+            data: 
+                option: 'Kitchen'
+          - delay: '00:00:04'
+            # take snapshot from Kitchen area
+          - service: script.tapo_camera_save_snapshot
+            data:
+                tapo_camera_id: camera.tapo_camera_hd
+                file_name: '{{ snapshot_file_name }}'
+            # Notify alexus
+          - choose:
+                # Send warning message
               - conditions:
                   - condition: state
                     entity_id: binary_sensor.internet_connection_ping
@@ -884,38 +1060,111 @@ home_alarm_settings:
                         data: 
                             inline_keyboard: 
                               - "{{'\U0001F6E1'}} Безопасность:/security, {{'\U0001F4D1'}} Меню:/menu"
-          - condition: state
-            entity_id: input_boolean.disable_voice_notifications
-            state: 'off'
-          - condition: state
-            entity_id: binary_sensor.anyone_home
-            state: 'on'
-          - service: script.sonos_say
-            data: 
-                sonos_entity: media_player.sonos_living_room
-                volume: 0.5
-                message: 'ВНИМАНИЕ!!! Обнаружен дым на кухне!'
-        mode: single
-
-      - alias: "Alarm: Entrance Door Opened for more than 3 minutes"
-        id: alarm_entrance_door_opened_for_3_minutes
-        description: 'Предупреждение о незакрытой входной двери'
-        trigger:
-          - type: opened
-            platform: device
-            device_id: 8bdd25d1820505d01332c5ac3780dee1
-            entity_id: binary_sensor.hallway_entrance_door_contact
-            domain: binary_sensor
-            for:
-                minutes: 3
-        condition: []
-        action:
+                    # send snapshot
+                  - service: notify.alexus
+                    data:
+                        message: 'Kitchen'
+                        data:
+                            photo:
+                              - file: '{{ snapshot_file_name }}'
+                                caption: 'Фото: Kitchen'
+            # record short video from Kitchen area
+          - service: script.tapo_camera_save_record
+            data:
+                tapo_camera_id: camera.tapo_camera_hd
+                file_name: '{{ record_file_name }}'
+                time_duration: 15
           - choose:
               - conditions:
                   - condition: state
                     entity_id: binary_sensor.internet_connection_ping
                     state: 'on'
                 sequence:
+                  - service: notify.alexus
+                    data:
+                        message: 'Kitchen'
+                        data:
+                            video:
+                              - file: '{{ record_file_name }}'
+                                caption: 'Видео: Kitchen'
+            # restore privacy mode for tapo_camera
+          - choose:
+              - conditions:
+                  - condition: template
+                    value_template: "{{ tapo_camera_privacy_mode == 'on' }}"
+                  - condition: state
+                    entity_id: switch.tapo_camera_privacy
+                    state: 'off'
+                sequence:
+                  - service: switch.turn_on
+                    entity_id: switch.tapo_camera_privacy
+        mode: single
+
+      - alias: "Alarm: Entrance Door Opened for more than 3 minutes"
+        id: alarm_entrance_door_opened_for_3_minutes
+        description: 'Предупреждение о незакрытой входной двери'
+        trigger:
+          - platform: state
+            entity_id: binary_sensor.hallway_entrance_door_contact
+            to: 'on'
+            for:
+                minutes: 3
+        condition: []
+        action:
+          - variables:
+                tapo_camera_privacy_mode: '{{ states("switch.tapo_camera_privacy") }}'
+                snapshot_file_name: |
+                    {{ "/config/files/camera/" + state_attr('camera.tapo_camera_hd', 'friendly_name') +  "/snapshot_entrance_door_" + now().strftime('%Y%m%d-%H%M%S') + ".jpg" }}
+                record_file_name: |
+                    {{ "/config/files/camera/" + state_attr('camera.tapo_camera_hd', 'friendly_name') +  "/record_entrance_door_" + now().strftime('%Y%m%d-%H%M%S') + ".mp4" }}
+            # Disable privacy mode for tapo_camera
+          - choose:
+              - conditions:
+                  - condition: state
+                    entity_id: switch.tapo_camera_privacy
+                    state: 'on'
+                sequence:
+                  - service: switch.turn_off
+                    entity_id: switch.tapo_camera_privacy
+                  - delay: '00:00:03'
+            # Voice notification
+          - choose:
+              - conditions:
+                  - condition: state
+                    entity_id: input_boolean.disable_voice_notifications
+                    state: 'off'
+                  - condition: state
+                    entity_id: binary_sensor.anyone_home
+                    state: 'on'
+                sequence:
+                  - service: script.turn_on
+                    target:
+                        entity_id: script.sonos_say
+                    data:
+                        variables:
+                            sonos_entity: media_player.sonos_living_room
+                            volume: 0.4
+                            message: 'ВНИМАНИЕ!!! Входная дверь открыта более трёх минут!'
+            # Move tapo_camera to Entrance preset
+          - service: select.select_option
+            target:
+                entity_id: select.tapo_camera_move_to_preset
+            data: 
+                option: 'Entrance'
+          - delay: '00:00:04'
+            # take snapshot from Entrance area
+          - service: script.tapo_camera_save_snapshot
+            data:
+                tapo_camera_id: camera.tapo_camera_hd
+                file_name: '{{ snapshot_file_name }}'
+            # Notify alexus
+          - choose:
+              - conditions:
+                  - condition: state
+                    entity_id: binary_sensor.internet_connection_ping
+                    state: 'on'
+                sequence:
+                    # Send warning message
                   - service: notify.alexus
                     data:
                         title: '{{"\U000026A0"}} ВНИМАНИЕ{{"\U0000203C"}}'
@@ -925,17 +1174,44 @@ home_alarm_settings:
                         data: 
                             inline_keyboard: 
                               - "{{'\U0001F6E1'}} Безопасность:/security, {{'\U0001F4D1'}} Меню:/menu"
-          - condition: state
-            entity_id: input_boolean.disable_voice_notifications
-            state: 'off'
-          - condition: state
-            entity_id: binary_sensor.anyone_home
-            state: 'on'
-          - service: script.sonos_say
-            data: 
-                sonos_entity: media_player.sonos_living_room
-                volume: 0.4
-                message: 'ВНИМАНИЕ!!! Входная дверь открыта более трёх минут!'
+                    # send snapshot
+                  - service: notify.alexus
+                    data:
+                        message: 'Entrance'
+                        data:
+                            photo:
+                              - file: '{{ snapshot_file_name }}'
+                                caption: 'Фото: Entrance'
+            # record short video from Entrance area
+          - service: script.tapo_camera_save_record
+            data:
+                tapo_camera_id: camera.tapo_camera_hd
+                file_name: '{{ record_file_name }}'
+                time_duration: 15
+          - choose:
+              - conditions:
+                  - condition: state
+                    entity_id: binary_sensor.internet_connection_ping
+                    state: 'on'
+                sequence:
+                  - service: notify.alexus
+                    data:
+                        message: 'Entrance'
+                        data:
+                            video:
+                              - file: '{{ record_file_name }}'
+                                caption: 'Видео: Entrance'
+            # restore privacy mode for tapo_camera
+          - choose:
+              - conditions:
+                  - condition: template
+                    value_template: "{{ tapo_camera_privacy_mode == 'on' }}"
+                  - condition: state
+                    entity_id: switch.tapo_camera_privacy
+                    state: 'off'
+                sequence:
+                  - service: switch.turn_on
+                    entity_id: switch.tapo_camera_privacy
         mode: single
 
       - alias: "Alarm: Finished programm by Washing Machine"
@@ -962,7 +1238,7 @@ home_alarm_settings:
                             {{"\U0001F9FA"}} Программа стирки завершена{{"\U0000203C"}}
                         data: 
                             inline_keyboard: 
-                              - "{{'\U0001F6E1'}} Безопасность:/security, {{'\U0001F4D1'}} Меню:/menu"
+                              - "{{'\U00002139'}} Статус:/status, {{'\U0001F4D1'}} Меню:/menu"
           - condition: state
             entity_id: input_boolean.disable_voice_notifications
             state: 'off'
