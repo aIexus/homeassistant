@@ -151,6 +151,31 @@ cards:
             detail: 2
             entity: sensor.ups_battery_voltage
 
+      - type: custom:stack-in-card
+        mode: horizontal
+        cards:
+
+          - type: sensor
+            graph: line
+            name: Ping
+            entity: sensor.speedtest_ping
+            hours_to_show: 6
+            detail: 2
+
+          - type: sensor
+            graph: line
+            name: Download
+            detail: 2
+            hours_to_show: 6
+            entity: sensor.speedtest_download
+
+          - type: sensor
+            graph: line
+            name: Upload
+            hours_to_show: 6
+            detail: 2
+            entity: sensor.speedtest_upload
+
   - type: vertical-stack
     cards:
 
