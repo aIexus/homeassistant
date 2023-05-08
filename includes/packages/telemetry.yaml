@@ -534,7 +534,7 @@ telemetry_config:
                             *{{'\U0001F4C5'}} {{ states('sensor.date') }} {{'\U0001F551'}} {{ states('sensor.time') }}*
                             * *
                             {{'\U000026A0'}} *Аварийные сенсоры:*
-                            {{'\U0001F6AD'}} *Дым:*{% if (states('sensor.smoke_detect') | int) > 0 %} {{'\U000026A0'}} *Обнаружено*{% else %} {{'\U0001F197'}}{% endif %}, {{'\U0001F4A7'}} *Протечка:*{% if (states('sensor.water_leak_detect') | int) > 0 %} {{'\U000026A0'}} *Обнаружено*{% else %} {{'\U0001F197'}}{% endif %}
+                            {{'\U0001F6AB'}} *Газ:*{% if (states('sensor.gas_detect') | int) > 0 %} {{'\U000026A0'}} *Обнаружено*{% else %} {{'\U0001F197'}}{% endif %}, {{'\U0001F6AD'}} *Дым:*{% if (states('sensor.smoke_detect') | int) > 0 %} {{'\U000026A0'}} *Обнаружено*{% else %} {{'\U0001F197'}}{% endif %}, {{'\U0001F4A7'}} *Протечка:*{% if (states('sensor.water_leak_detect') | int) > 0 %} {{'\U000026A0'}} *Обнаружено*{% else %} {{'\U0001F197'}}{% endif %}
                             * *
                             {{'\U0001F527'}} *Объекты:*
                             {{'\U000026A1'}} *Напряжение в сети:* {{ states('sensor.voltage_medium') }} V
