@@ -1,9 +1,16 @@
 tapo_camera_package:
 
+    recorder:
+        include:
+            entity_globs:
+              - binary_sensor.tapo_camera*
+
     homeassistant:
         customize:
-            binary_sensor.tapo_camera_motion:
+            binary_sensor.tapo_camera_motion_alarm:
                 friendly_name: 'Движение в Коридоре, Камера'
+            binary_sensor.tapo_camera_cell_motion_detection:
+                friendly_name: 'Движение в Коридоре, Камера 2'
 
     script:
 
@@ -16,7 +23,7 @@ tapo_camera_package:
                   entity_id: select.tapo_camera_move_to_preset
                   data: 
                     option: 'Living Room'
-                - delay: '00:00:05'
+                - delay: '00:00:04'
                 # - variables:
                 #     snapshot_file_name: |
                 #       {{ "/config/files/camera/" + state_attr('camera.tapo_camera_hd', 'friendly_name') +  "/snapshot_" + now().strftime('%Y%m%d-%H%M%S') + ".jpg" }}
@@ -47,8 +54,8 @@ tapo_camera_package:
                 - service: select.select_option
                   entity_id: select.tapo_camera_move_to_preset
                   data: 
-                    option: 'Parking'
-                - delay: '00:00:05'
+                    option: 'Kitchen'
+                - delay: '00:00:04'
                 - service: switch.turn_on
                   entity_id: switch.tapo_camera_privacy
             mode: single
