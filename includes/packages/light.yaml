@@ -435,9 +435,10 @@ light_settings:
                     target:
                         entity_id: light.hallway_rgb_bulb
               - conditions:
-                  - condition: state
-                    entity_id: binary_sensor.m_novomoskovsk_alerts
-                    state: 'off'
+                  - not:
+                      - condition: state
+                        entity_id: binary_sensor.m_novomoskovsk_alerts
+                        state: 'on'
                   - condition: state
                     entity_id: input_boolean.hallway_rgb_bulb_switch_single_status
                     state: 'off'
