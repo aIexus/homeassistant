@@ -419,7 +419,7 @@ system_config:
                     data: 
                         sonos_entity: media_player.sonos_living_room
                         volume: 0.4
-                        message: 'ВНИМАНИЕ!!! Интернет соединение: {% if is_state("binary_sensor.internet_connection_ping", "on") %}Подключено{% elif is_state("binary_sensor.internet_connection_ping", "off") %}Отключено{% else %}Недоступно{% endif %}!'
+                        message: 'ВНИМАНИЕ!!! Интернет соединение: {% if is_state("binary_sensor.internet_connection_ping", "on") %}Восстановлено{% elif is_state("binary_sensor.internet_connection_ping", "off") %}Отключено{% else %}Недоступно{% endif %}!'
         mode: queued
 
       - alias: "System: Purge DB Everyday"
