@@ -166,10 +166,21 @@ energy_config:
         sensor:
           - name: 'Tariff Energy Cost BASE'
             unique_id: sensor_tariff_energy_cost_base
-            select: '#branding-wrapper > section > div > div > div.table-currency > div.row.row-last > div:nth-child(13) > p'
+            select: '#branding-wrapper > section > div > div > div:nth-child(11) > div.row.row-last > div:nth-child(5) > p'
             unit_of_measurement: '₴/kWh'
             icon: mdi:lightning-bolt-circle
             value_template: '{{ value | float(0) / 100 | round(2) }}'
+
+    #   - resource: https://index.minfin.com.ua/ua/tariff/electric/
+    #     scan_interval: 86400
+    #     sensor:
+    #       - name: 'Tariff Energy Cost BASE Test'
+    #         unique_id: sensor_tariff_energy_cost_base_test
+    #         select: '#idx-content > table > tbody > tr:nth-child(2) > td:nth-child(3)'
+    #         unit_of_measurement: '₴/kWh'
+    #         icon: mdi:lightning-bolt-circle
+    #         value_template: '{{ value | float(0) / 100 | round(2) }}'
+            # value_template: '{{ value }}'
 
     sensor:
 
