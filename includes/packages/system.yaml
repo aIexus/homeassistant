@@ -116,25 +116,25 @@ system_config:
 
     scrape:
 
-      - resource: https://touch.com.ua/item/noutbuk-apple-macbook-pro-14-m1-16gb-512gb-silver-2021/
-        scan_interval: 21600
-        sensor:
-          - name: 'Apple Macbook Pro 14 M1 Pro price'
-            unique_id: apple_macbook_pro_14_m1_pro_16_512_price
-            select: '#elementTools > div > div.mainTool > div > div.new_price.\31  > a'
-            unit_of_measurement: '₴'
-            icon: mdi:laptop
-            value_template: '{{ value.split("₴")[0] | replace(" ","") }}'
+    #   - resource: https://touch.com.ua/item/noutbuk-apple-macbook-pro-14-m1-16gb-512gb-silver-2021/
+    #     scan_interval: 21600
+    #     sensor:
+    #       - name: 'Apple Macbook Pro 14 M1 Pro price'
+    #         unique_id: apple_macbook_pro_14_m1_pro_16_512_price
+    #         select: '#elementTools > div > div.mainTool > div > div.new_price.\31  > a'
+    #         unit_of_measurement: '₴'
+    #         icon: mdi:laptop
+    #         value_template: '{{ value.split("₴")[0] | replace(" ","") }}'
 
-      - resource: https://touch.com.ua/item/apple-macbook-air-13-silver-late-2020-mgn93/
-        scan_interval: 21600
-        sensor:
-          - name: 'Apple MacBook Air 13 Silver Late 2020 price'
-            unique_id: apple_macbook_air_13_m1_8_256_price
-            select: '#elementTools > div > div.mainTool > div > div.new_price.\31  > a'
-            unit_of_measurement: '₴'
-            icon: mdi:laptop
-            value_template: '{{ value.split("₴")[0] | replace(" ","") }}'
+    #   - resource: https://touch.com.ua/item/apple-macbook-air-13-silver-late-2020-mgn93/
+    #     scan_interval: 21600
+    #     sensor:
+    #       - name: 'Apple MacBook Air 13 Silver Late 2020 price'
+    #         unique_id: apple_macbook_air_13_m1_8_256_price
+    #         select: '#elementTools > div > div.mainTool > div > div.new_price.\31  > a'
+    #         unit_of_measurement: '₴'
+    #         icon: mdi:laptop
+    #         value_template: '{{ value.split("₴")[0] | replace(" ","") }}'
 
       - resource: https://bankchart.com.ua/spravochniki/kursy_valyut_city/2
         scan_interval: 10800
@@ -418,8 +418,12 @@ system_config:
                   - service: script.sonos_say
                     data: 
                         sonos_entity: media_player.sonos_living_room
+                        service_name: tts.google_cloud_say
                         volume: 0.4
-                        message: 'ВНИМАНИЕ!!! Интернет соединение: {% if is_state("binary_sensor.internet_connection_ping", "on") %}Восстановлено{% elif is_state("binary_sensor.internet_connection_ping", "off") %}Отключено{% else %}Недоступно{% endif %}!'
+                        duration: '00:00:05'
+                        message: >-
+                            УВАГА!!! Інтернет з'єднання: {% if is_state("binary_sensor.internet_connection_ping", "on") %}Відновлено{% elif is_state("binary_sensor.internet_connection_ping", "off") %}Відсутнє{% else %}Недоступне{% endif %}!
+                        # message: 'ВНИМАНИЕ!!! Интернет соединение: {% if is_state("binary_sensor.internet_connection_ping", "on") %}Восстановлено{% elif is_state("binary_sensor.internet_connection_ping", "off") %}Отключено{% else %}Недоступно{% endif %}!'
         mode: queued
 
       - alias: "System: Purge DB Everyday"
@@ -730,8 +734,11 @@ system_config:
           - service: script.sonos_say
             data: 
                 sonos_entity: media_player.sonos_living_room
+                service_name: tts.google_cloud_say
                 volume: 0.4
-                message: 'ВНИМАНИЕ!!! Внешнее питание {% if is_state("binary_sensor.rpi_ac_power_status", "on") %}Подключено{% elif is_state("binary_sensor.rpi_ac_power_status", "off") %}Отключено{% else %}Недоступно{% endif %}!'
+                duration: '00:00:05'
+                message: 'УВАГА!!! Зовнішнє живлення {% if is_state("binary_sensor.rpi_ac_power_status", "on") %}Підключено{% elif is_state("binary_sensor.rpi_ac_power_status", "off") %}Відсутнє{% else %}Недоступне{% endif %}!'
+                # message: 'ВНИМАНИЕ!!! Внешнее питание {% if is_state("binary_sensor.rpi_ac_power_status", "on") %}Подключено{% elif is_state("binary_sensor.rpi_ac_power_status", "off") %}Отключено{% else %}Недоступно{% endif %}!'
         mode: single
 
       - alias: "System: Notification about UPS Low Battery Level"
@@ -773,12 +780,19 @@ system_config:
           - service: script.sonos_say
             data: 
                 sonos_entity: media_player.sonos_living_room
+                service_name: tts.google_cloud_say
                 volume: 0.4
+                duration: '00:00:15'
                 message: |
-                  ВНИМАНИЕ!!! 
-                  Низкий уровень заряда батареи сервера Home Assistant: {{ states("sensor.ups_battery_capacity") }} процентов.
-                  Внешнее питание {% if is_state("binary_sensor.rpi_ac_power_status", "on") %}подключено{% else %}отключено{% endif %}!
-                  Через некоторое время сервер будет остановлен!
+                  УВАГА!!!
+                  Низький рівень заряду батареї сервера Home Assistant: {{ states("sensor.ups_battery_capacity") }} відсотків.
+                  Зовнішнє живлення {% if is_state("binary_sensor.rpi_ac_power_status", "on") %}підключено{% else %}відсутнє{% endif %}!
+                  Через деякий час сервер буде зупинено!
+                # message: |
+                #   ВНИМАНИЕ!!! 
+                #   Низкий уровень заряда батареи сервера Home Assistant: {{ states("sensor.ups_battery_capacity") }} процентов.
+                #   Внешнее питание {% if is_state("binary_sensor.rpi_ac_power_status", "on") %}подключено{% else %}отключено{% endif %}!
+                #   Через некоторое время сервер будет остановлен!
         mode: single
 
       - alias: "System: Notification about Full UPS Battery Level"
