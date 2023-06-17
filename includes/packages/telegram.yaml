@@ -846,6 +846,8 @@ telegram:
                 {{"\U0001F6AB"}} Газ на Кухне: {% if is_state("binary_sensor.kitchen_gas_detector_gas",'unavailable') %}{{"\U000026A0"}}Недоступен{% else %}{% if is_state("binary_sensor.kitchen_gas_detector_gas","off") %}{{"\U0001F7E2"}} Утечки нет{%else%}{{"\U000026A0"}} Обнаружена утечка{{"\U0000203C"}}{%endif%}{% endif %}
 
                 {{"\U0001F6AD"}} Дым на Кухне: {% if is_state("binary_sensor.kitchen_smoke_detector_smoke",'unavailable') %}{{"\U000026A0"}}Недоступен{% else %}{% if is_state("binary_sensor.kitchen_smoke_detector_smoke","off") %}{{"\U0001F7E2"}} Без Дыма{%else%}{{"\U000026A0"}} Дым Обнаружен{{"\U0000203C"}}{%endif%}{% endif %}
+                {{"\U0001F6AD"}} Дым в Спальне: {% if is_state("binary_sensor.bedroom_smoke_detector_smoke",'unavailable') %}{{"\U000026A0"}}Недоступен{% else %}{% if is_state("binary_sensor.bedroom_smoke_detector_smoke","off") %}{{"\U0001F7E2"}} Без Дыма{%else%}{{"\U000026A0"}} Дым Обнаружен{{"\U0000203C"}}{%endif%}{% endif %}
+                {{"\U0001F6AD"}} Дым в Гостинной: {% if is_state("binary_sensor.living_room_smoke_detector_smoke",'unavailable') %}{{"\U000026A0"}}Недоступен{% else %}{% if is_state("binary_sensor.living_room_smoke_detector_smoke","off") %}{{"\U0001F7E2"}} Без Дыма{%else%}{{"\U000026A0"}} Дым Обнаружен{{"\U0000203C"}}{%endif%}{% endif %}
               data: 
                 inline_keyboard:  
                   - "{% if is_state('alarm_control_panel.home_alarm','disarmed') %}{{'\U0001F694'}} Поставить на охрану {{'\U0001F534'}}:/set_alarm{% else %}{{'\U0001F694'}} Снять с охраны {{'\U0001F7E2'}}:/cancel_alarm{% endif%}"
