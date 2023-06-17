@@ -176,6 +176,16 @@ cards:
             tap_action: none
             double_tap_action: none
             entities:
+              - entity: binary_sensor.living_room_smoke_detector_smoke
+                show_icon: true
+                state_color: true
+                tap_action: none
+                name: Дым
+                hide_if:
+                    conditions:
+                      - condition: equals
+                        entity: binary_sensor.living_room_smoke_detector_smoke
+                        value: "off"
               - entity: switch.living_room_light_switch
                 show_icon: true
                 state_color: true
@@ -253,6 +263,16 @@ cards:
             tap_action: none
             double_tap_action: none
             entities:
+              - entity: binary_sensor.bedroom_smoke_detector_smoke
+                show_icon: true
+                state_color: true
+                tap_action: none
+                name: Дым
+                hide_if:
+                    conditions:
+                      - condition: equals
+                        entity: binary_sensor.bedroom_smoke_detector_smoke
+                        value: "off"
               - entity: switch.bedroom_light_switch
                 show_icon: true
                 state_color: true
@@ -312,21 +332,36 @@ cards:
             tap_action: none
             double_tap_action: none
             entities:
-              - entity: binary_sensor.kitchen_gas_detector_gas
-                show_icon: true
-                state_color: true
-                tap_action: none
-                name: Газ
               - entity: binary_sensor.kitchen_smoke_detector_smoke
                 show_icon: true
                 state_color: true
                 tap_action: none
                 name: Дым
+                hide_if:
+                    conditions:
+                      - condition: equals
+                        entity: binary_sensor.kitchen_smoke_detector_smoke
+                        value: "off"
+              - entity: binary_sensor.kitchen_gas_detector_gas
+                show_icon: true
+                state_color: true
+                tap_action: none
+                name: Газ
+                hide_if:
+                    conditions:
+                      - condition: equals
+                        entity: binary_sensor.kitchen_gas_detector_gas
+                        value: "off"
               - entity: binary_sensor.kitchen_water_leak_sensor_water_leak
                 show_icon: true
                 state_color: true
                 name: Протечка
                 tap_action: none
+                hide_if:
+                    conditions:
+                      - condition: equals
+                        entity: binary_sensor.kitchen_water_leak_sensor_water_leak
+                        value: "off"
               - entity: binary_sensor.kitchen_socket_heating_status
                 show_icon: true
                 state_color: true
@@ -371,11 +406,21 @@ cards:
                 tap_action: none
                 show_icon: true
                 state_color: true
+                hide_if:
+                    conditions:
+                      - condition: equals
+                        entity: binary_sensor.bathroom_water_leak_under_the_bath_water_leak
+                        value: "off"
               - entity: binary_sensor.bathroom_water_leak_under_washing_machine_water_leak
                 name: Стиралка
                 tap_action: none
                 show_icon: true
                 state_color: true
+                hide_if:
+                    conditions:
+                      - condition: equals
+                        entity: binary_sensor.bathroom_water_leak_under_washing_machine_water_leak
+                        value: "off"
               - entity: binary_sensor.bathroom_washing_machine_socket_status
                 name: Стиралка
                 tap_action: none
