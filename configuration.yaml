@@ -34,12 +34,26 @@ lovelace:
 # Text to speech
 tts:
 
-    - platform: google_translate
+  - platform: google_translate
 
-    - platform: reversotts
-      language: 'Alyona-Russian'
-      pitch: "100"
-      bitrate: "128k"
+  - platform: google_cloud
+    key_file: !secret google_cloud_service_keyfile
+    voice: uk-UA-Standard-A
+    encoding: mp3
+    speed: 1.0
+    pitch: 0.0
+    gain: 0.0
+    text_type: ssml
+
+  - platform: reversotts
+    language: 'Alyona-Russian'
+    pitch: "100"
+    bitrate: "128k"
 
 # Include External Folders
 automation: !include_dir_merge_list includes/automation
+
+# logger:
+#     default: critical
+#     logs:
+#         custom_components.tapo_control: debug
