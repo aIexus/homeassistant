@@ -29,6 +29,13 @@ cards:
                 name: Дверь на лоджию
 
               - type: custom:multiple-entity-row
+                entity: binary_sensor.living_room_smoke_detector_smoke
+                name: Датчик дыма
+                secondary_info: last-changed
+                state_header: Состояние
+                state_color: true
+
+              - type: custom:multiple-entity-row
                 entity: binary_sensor.living_room_lumi_sensor_motion_occupancy
                 name: Датчик движения
                 secondary_info: last-changed
@@ -135,6 +142,13 @@ cards:
                     name: Правое
                     icon: true
                     state_color: true
+
+              - type: custom:multiple-entity-row
+                entity: binary_sensor.bedroom_smoke_detector_smoke
+                name: Датчик дыма
+                secondary_info: last-changed
+                state_header: Состояние
+                state_color: true
 
               - type: custom:multiple-entity-row
                 entity: binary_sensor.bedroom_lumi_sensor_motion_occupancy
