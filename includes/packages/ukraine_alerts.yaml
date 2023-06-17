@@ -53,7 +53,7 @@ ukraine_alerts_package:
           - service: input_boolean.turn_on
             entity_id: input_boolean.disable_voice_alerts
 
-      - alias: "Alert: Norification about Alert in Novomoskovsk"
+      - alias: "Alert: Notification about Alert in Novomoskovsk"
         id: alert_notification_about_status_in_novomoskovsk
         description: 'Оповещение о статусе тревоги в Новомосковске'
         trigger:
@@ -147,8 +147,11 @@ ukraine_alerts_package:
                           - service: script.sonos_say
                             data: 
                                 sonos_entity: media_player.sonos_living_room
+                                service_name: tts.google_cloud_say
+                                duration: '00:00:05'
                                 volume: 0.4
-                                message: 'ВНИМАНИЕ!!! ОБЪЯВЛЕНА ВОЗДУШНАЯ ТРЕВОГА!'
+                                message: 'УВАГА!!! ОГОЛОШЕНА ПОВІТРЯНА ТРИВОГА!'
+                                # message: 'ВНИМАНИЕ!!! ОБЪЯВЛЕНА ВОЗДУШНАЯ ТРЕВОГА!'
                       - conditions:
                           - condition: state
                             entity_id: binary_sensor.m_novomoskovsk_ta_novomoskovska_teritorialna_gromada_air
@@ -172,8 +175,11 @@ ukraine_alerts_package:
                           - service: script.sonos_say
                             data: 
                                 sonos_entity: media_player.sonos_living_room
+                                service_name: tts.google_cloud_say
+                                duration: '00:00:05'
                                 volume: 0.4
-                                message: 'ВНИМАНИЕ!!! Отбой воздушной тревоги!'
+                                message: 'УВАГА!!! Відбій повітряної тривоги!'
+                                # message: 'ВНИМАНИЕ!!! Отбой воздушной тревоги!'
               - conditions:
                     - condition: template
                       value_template: '{{ trigger.entity_id == "binary_sensor.m_novomoskovsk_ta_novomoskovska_teritorialna_gromada_artillery" }}'
@@ -207,8 +213,11 @@ ukraine_alerts_package:
                           - service: script.sonos_say
                             data: 
                                 sonos_entity: media_player.sonos_living_room
+                                service_name: tts.google_cloud_say
+                                duration: '00:00:05'
                                 volume: 0.4
-                                message: 'ВНИМАНИЕ!!! УГРОЗА АРТИЛЛЕРИЙСКОГО ОБСТРЕЛА!'
+                                message: 'УВАГА!!! ЗАГРОЗА АРТИЛЕРІЙСЬКОГО ОБСТРІЛУ!'
+                                # message: 'ВНИМАНИЕ!!! УГРОЗА АРТИЛЛЕРИЙСКОГО ОБСТРЕЛА!'
                       - conditions:
                           - condition: state
                             entity_id: binary_sensor.m_novomoskovsk_ta_novomoskovska_teritorialna_gromada_artillery
@@ -232,8 +241,11 @@ ukraine_alerts_package:
                           - service: script.sonos_say
                             data: 
                                 sonos_entity: media_player.sonos_living_room
+                                service_name: tts.google_cloud_say
+                                duration: '00:00:05'
                                 volume: 0.4
-                                message: 'ВНИМАНИЕ!!! Отмена угрозы артиллерийского обстрела!'
+                                message: 'УВАГА!!! Скасування загрози артилерійського обстрілу!'
+                                # message: 'ВНИМАНИЕ!!! Отмена угрозы артиллерийского обстрела!'
               - conditions:
                     - condition: template
                       value_template: '{{ trigger.entity_id == "binary_sensor.m_novomoskovsk_ta_novomoskovska_teritorialna_gromada_urban_fights" }}'
@@ -266,9 +278,12 @@ ukraine_alerts_package:
                                 music_file: '/media/local/alerts/Sound_15028.mp3'
                           - service: script.sonos_say
                             data: 
-                                sonos_entity: media_player.sonos_living_room
+                                sonos_entity: media_player.
+                                service_name: tts.google_cloud_say
+                                duration: '00:00:05'
                                 volume: 0.4
-                                message: 'ВНИМАНИЕ!!! УГРОЗА ГОРОДСКИХ БОЁВ!'
+                                message: 'УВАГА!!! ЗАГРОЗА МІСЬКИХ БОЇВ!'
+                                # message: 'ВНИМАНИЕ!!! УГРОЗА ГОРОДСКИХ БОЁВ!'
                       - conditions:
                           - condition: state
                             entity_id: binary_sensor.m_novomoskovsk_ta_novomoskovska_teritorialna_gromada_urban_fights
@@ -292,8 +307,11 @@ ukraine_alerts_package:
                           - service: script.sonos_say
                             data: 
                                 sonos_entity: media_player.sonos_living_room
+                                service_name: tts.google_cloud_say
+                                duration: '00:00:05'
                                 volume: 0.4
-                                message: 'ВНИМАНИЕ!!! Отмена угрозы городских боёв!'
+                                message: 'УВАГА!!! Скасування загрози міських боїв!'
+                                # message: 'ВНИМАНИЕ!!! Отмена угрозы городских боёв!'
               - conditions:
                     - condition: template
                       value_template: '{{ trigger.entity_id == "binary_sensor.m_novomoskovsk_ta_novomoskovska_teritorialna_gromada_chemical" }}'
@@ -327,8 +345,11 @@ ukraine_alerts_package:
                           - service: script.sonos_say
                             data: 
                                 sonos_entity: media_player.sonos_living_room
+                                service_name: tts.google_cloud_say
+                                duration: '00:00:05'
                                 volume: 0.4
-                                message: 'ВНИМАНИЕ!!! ОБЪЯВЛЕНА ХИМИЧЕСКАЯ ТРЕВОГА!'
+                                message: 'УВАГА!!! ОГОЛОШЕНА ХІМІЧНА ТРИВОГА!'
+                                # message: 'ВНИМАНИЕ!!! ОБЪЯВЛЕНА ХИМИЧЕСКАЯ ТРЕВОГА!'
                       - conditions:
                           - condition: state
                             entity_id: binary_sensor.m_novomoskovsk_ta_novomoskovska_teritorialna_gromada_chemical
@@ -352,8 +373,11 @@ ukraine_alerts_package:
                           - service: script.sonos_say
                             data: 
                                 sonos_entity: media_player.sonos_living_room
+                                service_name: tts.google_cloud_say
+                                duration: '00:00:05'
                                 volume: 0.4
-                                message: 'ВНИМАНИЕ!!! Отмена химической тревоги!'
+                                message: 'УВАГА!!! Скасування хімічної тривоги!'
+                                # message: 'ВНИМАНИЕ!!! Отмена химической тревоги!'
               - conditions:
                     - condition: template
                       value_template: '{{ trigger.entity_id == "binary_sensor.m_novomoskovsk_ta_novomoskovska_teritorialna_gromada_nuclear" }}'
@@ -387,8 +411,11 @@ ukraine_alerts_package:
                           - service: script.sonos_say
                             data: 
                                 sonos_entity: media_player.sonos_living_room
+                                service_name: tts.google_cloud_say
+                                duration: '00:00:05'
                                 volume: 0.4
-                                message: 'ВНИМАНИЕ!!! ОБЪЯВЛЕНА ЯДЕРНАЯ УГРОЗА!'
+                                message: 'УВАГА!!! ОГОЛОШЕНА ЯДЕРНА ЗАГРОЗА!'
+                                # message: 'ВНИМАНИЕ!!! ОБЪЯВЛЕНА ЯДЕРНАЯ УГРОЗА!'
                       - conditions:
                           - condition: state
                             entity_id: binary_sensor.m_novomoskovsk_ta_novomoskovska_teritorialna_gromada_nuclear
@@ -412,8 +439,11 @@ ukraine_alerts_package:
                           - service: script.sonos_say
                             data: 
                                 sonos_entity: media_player.sonos_living_room
+                                service_name: tts.google_cloud_say
+                                duration: '00:00:05'
                                 volume: 0.4
-                                message: 'ВНИМАНИЕ!!! Отмена ядерной угрозы!'
+                                message: 'УВАГА!!! Скасування ядерної загрози!'
+                                # message: 'ВНИМАНИЕ!!! Отмена ядерной угрозы!'
               - conditions:
                     - condition: template
                       value_template: '{{ trigger.entity_id == "binary_sensor.m_novomoskovsk_ta_novomoskovska_teritorialna_gromada_unknown" }}'
@@ -447,8 +477,11 @@ ukraine_alerts_package:
                           - service: script.sonos_say
                             data: 
                                 sonos_entity: media_player.sonos_living_room
+                                service_name: tts.google_cloud_say
+                                duration: '00:00:05'
                                 volume: 0.4
-                                message: 'ВНИМАНИЕ!!! НЕИЗВЕСТНАЯ УГРОЗА!'
+                                message: 'УВАГА!!! НЕВІДОМА ЗАГРОЗА!'
+                                # message: 'ВНИМАНИЕ!!! НЕИЗВЕСТНАЯ УГРОЗА!'
                       - conditions:
                           - condition: state
                             entity_id: binary_sensor.m_novomoskovsk_ta_novomoskovska_teritorialna_gromada_unknown
@@ -472,6 +505,9 @@ ukraine_alerts_package:
                           - service: script.sonos_say
                             data: 
                                 sonos_entity: media_player.sonos_living_room
+                                service_name: tts.google_cloud_say
+                                duration: '00:00:05'
                                 volume: 0.4
-                                message: 'ВНИМАНИЕ!!! Отмена неизвестной угрозы!'
+                                message: 'УВАГА!!! Скасування невідомої загрози!'
+                                # message: 'ВНИМАНИЕ!!! Отмена неизвестной угрозы!'
         mode: single
