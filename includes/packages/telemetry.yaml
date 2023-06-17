@@ -805,3 +805,4 @@ telemetry_config:
                             * *
                             *{% for entity_name, entity_state in state_attr('sensor.battery_lower_30', 'list_entities')-%} - {{ entity_name }} {{ '-' }} {{ entity_state }} {{ '%' }} {{ '\n' -}} {% endfor %}*
                       inline_keyboard: *keyb_tlmtr
+        mode: single
