@@ -5,55 +5,74 @@ sonos_package:
         sonos_say:
             alias: "Sonos: TTS script"
             fields:
-              sonos_entity:
-                description: The entity or group of the sonos
-                example: group.intrusion_media_players
-                default: media_player.sonos_living_room
-              message:
-                description: The message content
-                example: The alarm is on!
-                default: The alarm is on!
-              volume:
-                description: The volume
-                example: '0.5'
-                default: '0.5'    
+                sonos_entity:
+                    description: The entity or group of the sonos
+                    example: group.intrusion_media_players
+                    default: media_player.sonos_living_room
+                service_name:
+                    description: Name of TTS service
+                    example: reversotts
+                    default: reversotts
+                message:
+                    description: The message content
+                    example: The alarm is on!
+                    default: The alarm is on!
+                duration:
+                    description: The duration
+                    example: '00:00:05'
+                    default: '00:00:05'
+                volume:
+                    description: The volume
+                    example: '0.5'
+                    default: '0.5'
             sequence:
               - condition: template
                 value_template: "{{ not is_state(sonos_entity,'unavailable') }}"
               - variables:
-                  sonos_volume: "{{ states[sonos_entity].attributes.volume_level }}"
-            #   - service: sonos.snapshot
-            #     data_template:
-            #       entity_id: "{{ sonos_entity }}"
-            #   - service: media_player.unjoin
-            #     data_template:
-            #       entity_id: "{{ sonos_entity }}"
+                    sonos_volume: "{{ states[sonos_entity].attributes.volume_level }}"
+                    sonos_playing: "{{ states[sonos_entity].state }}"
+                    tts_service: >-
+                        {% if (service_name is defined) and 
+                              (service_name in ('tts.reversotts_say','tts.google_cloud_say')) %}
+                        {{ service_name }}                        
+                        {% else %}
+                        tts.reversotts_say
+                        {% endif %}
+                    time_duration: >-
+                        {% if (duration is defined) %}
+                        {{ duration }}
+                        {% else %}
+                        '00:00:10'
+                        {% endif %}
+              - choose:
+                  - conditions:
+                      - condition: template
+                        value_template: "{{ sonos_playing ==  'playing' }}"
+                    sequence:
+                      - service: media_player.media_pause
+                        data_template:
+                            entity_id: "{{ sonos_entity }}"
               - service: media_player.volume_set
                 data_template:
-                  entity_id: "{{ sonos_entity }}"
-                  volume_level: "{{ volume }}"
-              - service: tts.reversotts_say
+                    entity_id: "{{ sonos_entity }}"
+                    volume_level: "{{ volume }}"
+              - service: "{{ tts_service }}"
                 data_template:
-                  entity_id: "{{ sonos_entity }}"
-                  message: "{{ message }}"
-              - delay: '00:00:01'
-              - delay: >-
-                  {% set duration = state_attr(sonos_entity, 'media_duration') | int(1) %} 
-                  {% if duration > 0 %}
-                    {% set duration = duration - 1 %}
-                  {% endif %} 
-                  {% set seconds = duration % 60 %} 
-                  {% set minutes = (duration / 60)|int % 60 %} 
-                  {% set hours = (duration / 3600)|int %} 
-                  {{ [hours, minutes, seconds]|join(':') }}
-              - delay: '00:00:01'
-            #   - service: sonos.restore
-            #     data_template:
-            #       entity_id: "{{ sonos_entity }}"
+                    entity_id: "{{ sonos_entity }}"
+                    message: "{{ message }}"
+              - delay: "{{ time_duration }}"
               - service: media_player.volume_set
                 data_template:
-                  entity_id: "{{ sonos_entity }}"
-                  volume_level: "{{ sonos_volume }}"
+                    entity_id: "{{ sonos_entity }}"
+                    volume_level: "{{ sonos_volume }}"
+              - choose:
+                  - conditions:
+                      - condition: template
+                        value_template: "{{ sonos_playing == 'playing' }}"
+                    sequence:
+                      - service: media_player.media_play_pause
+                        data_template:
+                            entity_id: "{{ sonos_entity }}"
             mode: restart
 
         sonos_play_file:
@@ -113,11 +132,12 @@ sonos_package:
         sonos_tts_test:
             alias: "Sonos: Test"
             sequence:
-              - condition: template
-                value_template: "{{ not is_state(sonos_entity,'unavailable') }}"
               - service: script.sonos_say
                 data: 
                   sonos_entity: media_player.sonos_living_room
                   volume: 0.2
-                  message: 'ПРЕДУПРЕЖДЕНИЕ! Снимите систему с охраны СЕЙЧАС, если Вы хотите предотвратить активацию сирены!!'
+                  duration: '00:00:10'
+                  service_name: tts.google_cloud_say
+                  message: 'ПОПЕРЕДЖЕННЯ! Будьте уважні - сьогодні дуже спекотна погода!!'
+                #   message: 'ПРЕДУПРЕЖДЕНИЕ! Снимите систему с охраны СЕЙЧАС, если Вы хотите предотвратить активацию сирены!!'
             mode: restart
