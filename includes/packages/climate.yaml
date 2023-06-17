@@ -39,7 +39,9 @@ climate_configuration:
               - climate.bedroom_ac
 
     homeassistant:
+
         customize:
+
             sensor.outdoor_mean_temperature:
                 friendly_name: 'Среднесуточная (24ч)'
             sensor.outdoor_humidity:
@@ -258,6 +260,7 @@ climate_configuration:
         trigger:
           - platform: state
             entity_id: binary_sensor.living_room_loggia_door_contact
+            from: 'off'
             to: 'on'
             for:
                 minutes: 3
@@ -338,6 +341,7 @@ climate_configuration:
         trigger:
           - platform: state
             entity_id: binary_sensor.living_room_loggia_door_contact
+            from: 'on'
             to: 'off'
             for:
                 minutes: 1
@@ -422,6 +426,7 @@ climate_configuration:
         trigger:
           - platform: state
             entity_id: binary_sensor.bedroom_windows
+            from: 'off'
             to: 'on'
             for:
                 minutes: 3
@@ -501,6 +506,7 @@ climate_configuration:
         trigger:
           - platform: state
             entity_id: binary_sensor.bedroom_windows
+            from: 'on'
             to: 'off'
             for:
                 minutes: 1
@@ -1284,9 +1290,9 @@ climate_configuration:
           - condition: or
             conditions:
               - condition: template
-                value_template: "{{ states('sensor.living_room_lumi_weather_temperature') | float < state_attr('climate.living_room_ac','temperature') - 2 }}"
+                value_template: "{{ states('sensor.living_room_lumi_weather_temperature') | float(24) < state_attr('climate.living_room_ac','temperature') - 2 }}"
               - condition: template
-                value_template: "{{ states('sensor.bedroom_lumi_weather_temperature') | float < state_attr('climate.bedroom_ac','temperature') - 2 }}"
+                value_template: "{{ states('sensor.bedroom_lumi_weather_temperature') | float(24) < state_attr('climate.bedroom_ac','temperature') - 2 }}"
           - condition: state
             entity_id: input_boolean.disable_climate
             state: 'off'
@@ -1312,7 +1318,7 @@ climate_configuration:
                     entity_id: switch.living_room_air_conditioner_socket
                     state: 'off'
                   - condition: template
-                    value_template: "{{ states('sensor.living_room_lumi_weather_temperature') | float < state_attr('climate.living_room_ac','temperature') - 2 }}"
+                    value_template: "{{ states('sensor.living_room_lumi_weather_temperature') | float(24) < state_attr('climate.living_room_ac','temperature') - 2 }}"
                   - condition: state
                     entity_id: binary_sensor.living_room_loggia_door_contact
                     state: 'off'
@@ -1328,7 +1334,7 @@ climate_configuration:
                         entity_id: climate.living_room_ac
                         state: 'heat'
                       - condition: template
-                        value_template: "{{ states('sensor.living_room_lumi_weather_temperature') | float < state_attr('climate.living_room_ac','temperature') - 2 }}"
+                        value_template: "{{ states('sensor.living_room_lumi_weather_temperature') | float(24) < state_attr('climate.living_room_ac','temperature') - 2 }}"
                   - condition: state
                     entity_id: binary_sensor.living_room_loggia_door_contact
                     state: 'off'
@@ -1366,7 +1372,7 @@ climate_configuration:
                     entity_id: switch.bedroom_air_conditioner_socket
                     state: 'off'
                   - condition: template
-                    value_template: "{{ states('sensor.bedroom_lumi_weather_temperature') | float < state_attr('climate.bedroom_ac','temperature') - 2 }}"
+                    value_template: "{{ states('sensor.bedroom_lumi_weather_temperature') | float(24) < state_attr('climate.bedroom_ac','temperature') - 2 }}"
                   - condition: state
                     entity_id: binary_sensor.bedroom_windows
                     state: 'off'
