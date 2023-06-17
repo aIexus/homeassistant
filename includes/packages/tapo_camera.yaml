@@ -17,13 +17,15 @@ tapo_camera_package:
         tapo_camera_test:
             alias: "TAPO Camera: Test"
             sequence:
-                - service: switch.turn_off
-                  entity_id: switch.tapo_camera_privacy
-                - service: select.select_option
-                  entity_id: select.tapo_camera_move_to_preset
-                  data: 
+              - condition: template
+                value_template: "{{ not is_state(tapo_camera_id,'unavailable') }}"
+              - service: switch.turn_off
+                entity_id: switch.tapo_camera_privacy
+              - service: select.select_option
+                entity_id: select.tapo_camera_move_to_preset
+                data: 
                     option: 'Living Room'
-                - delay: '00:00:04'
+              - delay: '00:00:04'
                 # - variables:
                 #     snapshot_file_name: |
                 #       {{ "/config/files/camera/" + state_attr('camera.tapo_camera_hd', 'friendly_name') +  "/snapshot_" + now().strftime('%Y%m%d-%H%M%S') + ".jpg" }}
@@ -51,68 +53,72 @@ tapo_camera_package:
                 #     target: !secret telegram_user_1
                 #     file: '{{ record_file_name }}'
                 #     caption: Тревога!
-                - service: select.select_option
-                  entity_id: select.tapo_camera_move_to_preset
-                  data: 
+              - service: select.select_option
+                entity_id: select.tapo_camera_move_to_preset
+                data: 
                     option: 'Kitchen'
-                - delay: '00:00:04'
-                - service: switch.turn_on
-                  entity_id: switch.tapo_camera_privacy
+              - delay: '00:00:04'
+              - service: switch.turn_on
+                entity_id: switch.tapo_camera_privacy
             mode: single
 
         tapo_camera_save_record:
             alias: "TAPO Camera: Save Record"
             fields:
-              tapo_camera_id:
-                description: The entity of the TAPO Camera
-                example: camera.tapo_01
-                default: camera.tapo_camera_sd
-              file_name:
-                description: The path/name of saved file
-                example: '/config/files/camera/record01.mp4'
-              time_duration:
-                description: The time for saved record in seconds
-                example: 5
-                default: 15
+                tapo_camera_id:
+                    description: The entity of the TAPO Camera
+                    example: camera.tapo_01
+                    default: camera.tapo_camera_sd
+                file_name:
+                    description: The path/name of saved file
+                    example: '/config/files/camera/record01.mp4'
+                time_duration:
+                    description: The time for saved record in seconds
+                    example: 5
+                    default: 15
             sequence:
+              - condition: template
+                value_template: "{{ not is_state(tapo_camera_id,'unavailable') }}"
               - variables:
-                  record_file_name: |
-                    {% if (file_name is not defined) %}
-                      {% set file_name = "/config/files/camera/" + state_attr(tapo_camera_id, 'friendly_name') +  "/record_" + now().strftime('%Y%m%d-%H%M%S') + ".mp4" %}
-                    {% endif %}
-                    {{ file_name }}
+                    record_file_name: |
+                        {% if (file_name is not defined) %}
+                          {% set file_name = "/config/files/camera/" + state_attr(tapo_camera_id, 'friendly_name') +  "/record_" + now().strftime('%Y%m%d-%H%M%S') + ".mp4" %}
+                        {% endif %}
+                        {{ file_name }}
               - service: camera.record
                 target:
-                  entity_id: '{{ tapo_camera_id }}'
+                    entity_id: '{{ tapo_camera_id }}'
                 data_template:
-                  filename: '{{ record_file_name }}'
-                  duration: '{{ time_duration }}'
+                    filename: '{{ record_file_name }}'
+                    duration: '{{ time_duration }}'
               - delay: '00:00:07'
               - delay: >-
-                  {% set time_duration = time_duration // 5 | int(0) %} 
-                  {{ [0, 0, time_duration ]|join(':') }}
+                    {% set time_duration = time_duration // 5 | int(0) %} 
+                    {{ [0, 0, time_duration ]|join(':') }}
             mode: queued
 
         tapo_camera_save_snapshot:
             alias: "TAPO Camera: Save Snapshot"
             fields:
-              tapo_camera_id:
-                description: The entity of the TAPO Camera
-                example: camera.tapo_01
-                default: camera.tapo_camera_sd
-              file_name:
-                description: The path/name of saved file
-                example: '/config/files/camera/snapshot01.jpg'
+                tapo_camera_id:
+                    description: The entity of the TAPO Camera
+                    example: camera.tapo_01
+                    default: camera.tapo_camera_sd
+                file_name:
+                    description: The path/name of saved file
+                    example: '/config/files/camera/snapshot01.jpg'
             sequence:
+              - condition: template
+                value_template: "{{ not is_state(tapo_camera_id,'unavailable') }}"
               - variables:
-                  snapshot_file_name: |
-                    {% if (file_name is not defined) %}
-                      {% set file_name = "/config/files/camera/" + state_attr(tapo_camera_id, 'friendly_name') + "/snapshot_" + now().strftime('%Y%m%d-%H%M%S') +".jpg" %}
-                    {% endif %}
-                    {{ file_name }}
+                    snapshot_file_name: |
+                        {% if (file_name is not defined) %}
+                          {% set file_name = "/config/files/camera/" + state_attr(tapo_camera_id, 'friendly_name') + "/snapshot_" + now().strftime('%Y%m%d-%H%M%S') +".jpg" %}
+                        {% endif %}
+                        {{ file_name }}
               - service: camera.snapshot
                 data_template:
-                  entity_id: '{{ tapo_camera_id }}'
-                  filename: '{{ snapshot_file_name }}'
+                    entity_id: '{{ tapo_camera_id }}'
+                    filename: '{{ snapshot_file_name }}'
               - delay: '00:00:03'
             mode: queued
