@@ -1,6 +1,6 @@
     - alias: "Aquarium: Turn ON main light by Schedule"
       id: living_room_aquarium_main_lighting_on
-      description: 'Аквариум - Включение основного освещения'
+      description: 'Акваріум - Увімкнення основного освітлення'
       mode: single
       trigger:
         - platform: time
@@ -19,7 +19,7 @@
 
     - alias: "Aquarium: Turn OFF main light by Schedule"
       id: living_room_aquarium_main_lighting_off
-      description: 'Аквариум - Выключение основного освещения'
+      description: 'Акваріум - Вимкнення основного освітлення'
       mode: single
       trigger:
         - platform: time
@@ -38,7 +38,7 @@
 
     - alias: "Aquarium: Turn ON Moonlight by Schedule"
       id: living_room_aquarioum_moonlight_on
-      description: 'Аквариум - Включение лунного света'
+      description: 'Акваріум - Вмикання місячного сяйва'
       mode: single
       trigger:
         - platform: time
@@ -53,7 +53,7 @@
 
     - alias: "Aquarium: Turn OFF Moonlight by Schedule"
       id: living_room_aquarioum_moonlight_off
-      description: 'Аквариум - Выключение лунного света'
+      description: 'Акваріум - Вимкнення місячного сяйва'
       mode: single
       trigger:
         - platform: time
