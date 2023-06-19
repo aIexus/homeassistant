@@ -14,7 +14,7 @@ cards:
             state_color: true
             entities:
               - entity: sensor.time_date
-                name: Время/Дата
+                name: Час/Дата
 
           - type: entities
             show_header_toggle: false

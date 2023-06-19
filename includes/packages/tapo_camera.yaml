@@ -6,11 +6,12 @@ tapo_camera_package:
               - binary_sensor.tapo_camera*
 
     homeassistant:
+
         customize:
             binary_sensor.tapo_camera_motion_alarm:
-                friendly_name: 'Движение в Коридоре, Камера'
+                friendly_name: 'Рух у Коридорі, Камера'
             binary_sensor.tapo_camera_cell_motion_detection:
-                friendly_name: 'Движение в Коридоре, Камера 2'
+                friendly_name: 'Рух у Коридорі, Камера 2'
 
     script:
 

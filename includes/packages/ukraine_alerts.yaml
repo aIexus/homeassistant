@@ -38,7 +38,7 @@ ukraine_alerts_package:
 
       - alias: "Alert: Disable Voice Notifications when Alert Notifications are Disabled"
         id: alert_disable_mode
-        description: 'При запрете тревоги, выключать голосовую тревогу'
+        description: 'При забороні тривоги вимикати голосову тривогу'
         mode: single
         trigger:
           - platform: state
@@ -55,7 +55,7 @@ ukraine_alerts_package:
 
       - alias: "Alert: Notification about Alert in Novomoskovsk"
         id: alert_notification_about_status_in_novomoskovsk
-        description: 'Оповещение о статусе тревоги в Новомосковске'
+        description: 'Оповіщення про статус тривоги у Новомосковську'
         trigger:
           - platform: state
             entity_id: binary_sensor.m_novomoskovsk_ta_novomoskovska_teritorialna_gromada_air
@@ -126,13 +126,13 @@ ukraine_alerts_package:
                         sequence:
                           - service: notify.alexus
                             data:
-                                title: '{{"\U0001F50A"}} ВНИМАНИЕ{{"\U0000203C"}}'
+                                title: '{{"\U0001F50A"}} УВАГА{{"\U0000203C"}}'
                                 message: |
                                     ➖➖➖➖➖➖➖➖➖➖➖➖
-                                    {{"\U0001F6EB\U0001F680 ОБЪЯВЛЕНА ВОЗДУШНАЯ ТРЕВОГА \U0000203C\U0000203C"}}
+                                    {{"\U0001F6EB\U0001F680 ОГОЛОШЕНА ПОВІТРЯНА ТРИВОГА \U0000203C\U0000203C"}}
                                 data: 
                                     inline_keyboard: 
-                                      - "{{'\U0001F6E1'}} Безопасность:/security, {{'\U0001F4D1'}} Меню:/menu"
+                                      - "{{'\U0001F6E1'}} Безпека:/security, {{'\U0001F4D1'}} Меню:/menu"
                           - condition: state
                             entity_id: binary_sensor.anyone_home
                             state: 'on'
@@ -159,13 +159,13 @@ ukraine_alerts_package:
                         sequence:
                           - service: notify.alexus
                             data:
-                                title: '{{"\U0001F507"}} ВНИМАНИЕ{{"\U0000203C"}}'
+                                title: '{{"\U0001F507"}} УВАГА{{"\U0000203C"}}'
                                 message: |
                                     ➖➖➖➖➖➖➖➖➖➖➖➖
-                                    {{"\U00002705"}}{{"\U00002705"}}{{"\U00002705"}} ОТБОЙ ВОЗДУШНОЙ ТРЕВОГИ {{"\U00002705"}}{{"\U00002705"}}{{"\U00002705"}}
+                                    {{"\U00002705"}}{{"\U00002705"}}{{"\U00002705"}} ВІДБІЙ ПОВІТРЯНОЇ ТРИВОГИ{{"\U00002705"}}{{"\U00002705"}}{{"\U00002705"}}
                                 data: 
                                     inline_keyboard: 
-                                      - "{{'\U0001F6E1'}} Безопасность:/security, {{'\U0001F4D1'}} Меню:/menu"
+                                      - "{{'\U0001F6E1'}} Безпека:/security, {{'\U0001F4D1'}} Меню:/menu"
                           - condition: state
                             entity_id: binary_sensor.anyone_home
                             state: 'on'
@@ -192,13 +192,13 @@ ukraine_alerts_package:
                         sequence:
                           - service: notify.alexus
                             data:
-                                title: '{{"\U0001F50A"}} ВНИМАНИЕ{{"\U0000203C"}}'
+                                title: '{{"\U0001F50A"}} УВАГА{{"\U0000203C"}}'
                                 message: |
                                     ➖➖➖➖➖➖➖➖➖➖➖➖
-                                    {{"\U0001F4A5"}}{{"\U0001F4A5"}} УГРОЗА АРТИЛЛЕРИЙСКОГО ОБСТРЕЛА{{"\U0000203C"}}{{"\U0000203C"}}
+                                    {{"\U0001F4A5"}}{{"\U0001F4A5"}} ЗАГРОЗА АРТИЛЕРІЙСЬКОГО ОБСТРІЛУ{{"\U0000203C"}}{{"\U0000203C"}}
                                 data: 
                                     inline_keyboard: 
-                                      - "{{'\U0001F6E1'}} Безопасность:/security, {{'\U0001F4D1'}} Меню:/menu"
+                                      - "{{'\U0001F6E1'}} Безпека:/security, {{'\U0001F4D1'}} Меню:/menu"
                           - condition: state
                             entity_id: binary_sensor.anyone_home
                             state: 'on'
@@ -225,13 +225,13 @@ ukraine_alerts_package:
                         sequence:
                           - service: notify.alexus
                             data:
-                                title: '{{"\U0001F507"}} ВНИМАНИЕ{{"\U0000203C"}}'
+                                title: '{{"\U0001F507"}} УВАГА{{"\U0000203C"}}'
                                 message: |
                                     ➖➖➖➖➖➖➖➖➖➖➖➖
-                                    {{"\U00002705"}}{{"\U00002705"}}{{"\U00002705"}} ОТМЕНА УГРОЗЫ АРТИЛЛЕРИЙСКОГО ОБСТРЕЛА {{"\U00002705"}}{{"\U00002705"}}{{"\U00002705"}}
+                                    {{"\U00002705"}}{{"\U00002705"}}{{"\U00002705"}} Скасування загрози артилерійського обстрілу {{"\U00002705"}}{{"\U00002705"}}{{"\U00002705"}}
                                 data: 
                                     inline_keyboard: 
-                                      - "{{'\U0001F6E1'}} Безопасность:/security, {{'\U0001F4D1'}} Меню:/menu"
+                                      - "{{'\U0001F6E1'}} Безпека:/security, {{'\U0001F4D1'}} Меню:/menu"
                           - condition: state
                             entity_id: binary_sensor.anyone_home
                             state: 'on'
@@ -258,13 +258,13 @@ ukraine_alerts_package:
                         sequence:
                           - service: notify.alexus
                             data:
-                                title: '{{"\U0001F50A"}} ВНИМАНИЕ{{"\U0000203C"}}'
+                                title: '{{"\U0001F50A"}} УВАГА{{"\U0000203C"}}'
                                 message: |
                                     ➖➖➖➖➖➖➖➖➖➖➖➖
-                                    {{"\U0001F4A5"}}{{"\U0001F4A5"}} УГРОЗА ГОРОДСКИХ БОЁВ{{"\U0000203C"}}{{"\U0000203C"}}
+                                    {{"\U0001F4A5"}}{{"\U0001F4A5"}} ЗАГРОЗА МІСЬКИХ БОЇВ{{"\U0000203C"}}{{"\U0000203C"}}
                                 data: 
                                     inline_keyboard: 
-                                      - "{{'\U0001F6E1'}} Безопасность:/security, {{'\U0001F4D1'}} Меню:/menu"
+                                      - "{{'\U0001F6E1'}} Безпека:/security, {{'\U0001F4D1'}} Меню:/menu"
                           - condition: state
                             entity_id: binary_sensor.anyone_home
                             state: 'on'
@@ -291,13 +291,13 @@ ukraine_alerts_package:
                         sequence:
                           - service: notify.alexus
                             data:
-                                title: '{{"\U0001F507"}} ВНИМАНИЕ{{"\U0000203C"}}'
+                                title: '{{"\U0001F507"}} УВАГА{{"\U0000203C"}}'
                                 message: |
                                     ➖➖➖➖➖➖➖➖➖➖➖➖
-                                    {{"\U00002705"}}{{"\U00002705"}}{{"\U00002705"}} ОТМЕНА УГРОЗЫ ГОРОДСКИХ БОЁВ {{"\U00002705"}}{{"\U00002705"}}{{"\U00002705"}}
+                                    {{"\U00002705"}}{{"\U00002705"}}{{"\U00002705"}} Скасування загрози міських боїв {{"\U00002705"}}{{"\U00002705"}}{{"\U00002705"}}
                                 data: 
                                     inline_keyboard: 
-                                      - "{{'\U0001F6E1'}} Безопасность:/security, {{'\U0001F4D1'}} Меню:/menu"
+                                      - "{{'\U0001F6E1'}} Безпека:/security, {{'\U0001F4D1'}} Меню:/menu"
                           - condition: state
                             entity_id: binary_sensor.anyone_home
                             state: 'on'
@@ -324,13 +324,13 @@ ukraine_alerts_package:
                         sequence:
                           - service: notify.alexus
                             data:
-                                title: '{{"\U0001F50A"}} ВНИМАНИЕ{{"\U0000203C"}}'
+                                title: '{{"\U0001F50A"}} УВАГА{{"\U0000203C"}}'
                                 message: |
                                     ➖➖➖➖➖➖➖➖➖➖➖➖
-                                    {{"\U00002623\U00002623"}} ОБЪЯВЛЕНА ХИМИЧЕСКАЯ ТРЕВОГА{{"\U0000203C\U0000203C"}}
+                                    {{"\U00002623\U00002623"}} ОГОЛОШЕНА ХІМІЧНА ТРИВОГА{{"\U0000203C\U0000203C"}}
                                 data: 
                                     inline_keyboard: 
-                                      - "{{'\U0001F6E1'}} Безопасность:/security, {{'\U0001F4D1'}} Меню:/menu"
+                                      - "{{'\U0001F6E1'}} Безпека:/security, {{'\U0001F4D1'}} Меню:/menu"
                           - condition: state
                             entity_id: binary_sensor.anyone_home
                             state: 'on'
@@ -357,13 +357,13 @@ ukraine_alerts_package:
                         sequence:
                           - service: notify.alexus
                             data:
-                                title: '{{"\U0001F507"}} ВНИМАНИЕ{{"\U0000203C"}}'
+                                title: '{{"\U0001F507"}} УВАГА{{"\U0000203C"}}'
                                 message: |
                                     ➖➖➖➖➖➖➖➖➖➖➖➖
-                                    {{"\U00002705\U00002705\U00002705"}} ОТМЕНА ХИМИЧЕСКОЙ ТРЕВОГИ {{"\U00002705\U00002705\U00002705"}}
+                                    {{"\U00002705\U00002705\U00002705"}} Скасування хімічної тривоги {{"\U00002705\U00002705\U00002705"}}
                                 data: 
                                     inline_keyboard: 
-                                      - "{{'\U0001F6E1'}} Безопасность:/security, {{'\U0001F4D1'}} Меню:/menu"
+                                      - "{{'\U0001F6E1'}} Безпека:/security, {{'\U0001F4D1'}} Меню:/menu"
                           - condition: state
                             entity_id: binary_sensor.anyone_home
                             state: 'on'
@@ -390,13 +390,13 @@ ukraine_alerts_package:
                         sequence:
                           - service: notify.alexus
                             data:
-                                title: '{{"\U0001F50A"}} ВНИМАНИЕ{{"\U0000203C"}}'
+                                title: '{{"\U0001F50A"}} УВАГА{{"\U0000203C"}}'
                                 message: |
                                     ➖➖➖➖➖➖➖➖➖➖➖➖
-                                    {{"\U00002622\U00002622"}} ОБЪЯВЛЕНА ЯДЕРНАЯ УГРОЗА{{"\U0000203C\U0000203C"}}
+                                    {{"\U00002622\U00002622"}} ОГОЛОШЕНА ЯДЕРНА ЗАГРОЗА{{"\U0000203C\U0000203C"}}
                                 data: 
                                     inline_keyboard: 
-                                      - "{{'\U0001F6E1'}} Безопасность:/security, {{'\U0001F4D1'}} Меню:/menu"
+                                      - "{{'\U0001F6E1'}} Безпека:/security, {{'\U0001F4D1'}} Меню:/menu"
                           - condition: state
                             entity_id: binary_sensor.anyone_home
                             state: 'on'
@@ -423,13 +423,13 @@ ukraine_alerts_package:
                         sequence:
                           - service: notify.alexus
                             data:
-                                title: '{{"\U0001F507"}} ВНИМАНИЕ{{"\U0000203C"}}'
+                                title: '{{"\U0001F507"}} УВАГА{{"\U0000203C"}}'
                                 message: |
                                     ➖➖➖➖➖➖➖➖➖➖➖➖
-                                    {{"\U00002705\U00002705\U00002705"}} ОТМЕНА ЯДЕРНОЙ УГРОЗЫ {{"\U00002705\U00002705\U00002705"}}
+                                    {{"\U00002705\U00002705\U00002705"}} Скасування ядерної загрози {{"\U00002705\U00002705\U00002705"}}
                                 data: 
                                     inline_keyboard: 
-                                      - "{{'\U0001F6E1'}} Безопасность:/security, {{'\U0001F4D1'}} Меню:/menu"
+                                      - "{{'\U0001F6E1'}} Безпека:/security, {{'\U0001F4D1'}} Меню:/menu"
                           - condition: state
                             entity_id: binary_sensor.anyone_home
                             state: 'on'
@@ -456,13 +456,13 @@ ukraine_alerts_package:
                         sequence:
                           - service: notify.alexus
                             data:
-                                title: '{{"\U0001F50A"}} ВНИМАНИЕ{{"\U0000203C"}}'
+                                title: '{{"\U0001F50A"}} УВАГА{{"\U0000203C"}}'
                                 message: |
                                     ➖➖➖➖➖➖➖➖➖➖➖➖
-                                    {{"\U000026A0"}}{{"\U000026A0"}} НЕИЗВЕСТНАЯ УГРОЗА {{"\U0000203C"}}{{"\U0000203C"}}
+                                    {{"\U000026A0"}}{{"\U000026A0"}} НЕВІДОМА ЗАГРОЗА {{"\U0000203C"}}{{"\U0000203C"}}
                                 data: 
                                     inline_keyboard: 
-                                      - "{{'\U0001F6E1'}} Безопасность:/security, {{'\U0001F4D1'}} Меню:/menu"
+                                      - "{{'\U0001F6E1'}} Безпека:/security, {{'\U0001F4D1'}} Меню:/menu"
                           - condition: state
                             entity_id: binary_sensor.anyone_home
                             state: 'on'
@@ -489,13 +489,13 @@ ukraine_alerts_package:
                         sequence:
                           - service: notify.alexus
                             data:
-                                title: '{{"\U0001F507"}} ВНИМАНИЕ{{"\U0000203C"}}'
+                                title: '{{"\U0001F507"}} УВАГА{{"\U0000203C"}}'
                                 message: |
                                     ➖➖➖➖➖➖➖➖➖➖➖➖
-                                    {{"\U00002705"}}{{"\U00002705"}}{{"\U00002705"}} ОТМЕНА НЕИЗВЕСТНОЙ УГРОЗЫ {{"\U00002705"}}{{"\U00002705"}}{{"\U00002705"}}
+                                    {{"\U00002705"}}{{"\U00002705"}}{{"\U00002705"}} Скасування невідомої загрози {{"\U00002705"}}{{"\U00002705"}}{{"\U00002705"}}
                                 data: 
                                     inline_keyboard: 
-                                      - "{{'\U0001F6E1'}} Безопасность:/security, {{'\U0001F4D1'}} Меню:/menu"
+                                      - "{{'\U0001F6E1'}} Безпека:/security, {{'\U0001F4D1'}} Меню:/menu"
                           - condition: state
                             entity_id: binary_sensor.anyone_home
                             state: 'on'

@@ -6,66 +6,66 @@ telemetry_config:
         customize:
 
             sensor.count_automations:
-                friendly_name: 'Автоматизаций в системе -'
+                friendly_name: 'Автоматизацій у системі -'
             sensor.count_automations_on:
-                friendly_name: 'Активных автоматизаций -'
+                friendly_name: 'Активні автоматизації -'
             sensor.count_automations_off:
-                friendly_name: 'Отключенных автоматизаций -'
+                friendly_name: 'Вимкнені автоматизації -'
             sensor.count_automations_unavailable:
-                friendly_name: 'Недоступных автоматизаций -'
+                friendly_name: 'Недоступні автоматизації -'
             sensor.count_scripts:
-                friendly_name: 'Скриптов в системе -'
+                friendly_name: 'Скриптів у системі -'
             sensor.count_scripts_on:
-                friendly_name: 'Активных скриптов -'
+                friendly_name: 'Активні скрипти -'
             sensor.count_scripts_off:
-                friendly_name: 'Отключенных скриптов -'
+                friendly_name: 'Вимкнені скрипти -'
             sensor.count_scripts_unavailable:
-                friendly_name: 'Недоступных скриптов -'
+                friendly_name: 'Недоступні скрипти -'
             sensor.count_updates:
-                friendly_name: 'Аддонов в системе -'
+                friendly_name: 'Додатків у системі -'
             sensor.count_updates_on:
-                friendly_name: 'Доступно обновлений -'
+                friendly_name: 'Доступно оновлень -'
             sensor.count_lights:
-                friendly_name: 'Светильников в системе -'
+                friendly_name: 'Світильників у системі -'
             sensor.count_lights_on:
-                friendly_name: 'Активных светильников -'
+                friendly_name: 'Активні світильники -'
             sensor.count_lights_off:
-                friendly_name: 'Отключенных светильников -'
+                friendly_name: 'Вимкнені світильники -'
             sensor.count_lights_unavailable:
-                friendly_name: 'Недоступных светильников - '
+                friendly_name: 'Недоступні світильники - '
             sensor.count_switches:
-                friendly_name: 'Реле в системе -'
+                friendly_name: 'Реле у системі -'
             sensor.count_switches_on:
-                friendly_name: 'Активных реле -'
+                friendly_name: 'Активні реле -'
             sensor.count_switches_off:
-                friendly_name: 'Отключенных реле -'
+                friendly_name: 'Вимкнені реле -'
             sensor.count_switches_unavailable:
-                friendly_name: 'Недоступных реле -'
+                friendly_name: 'Недоступні реле -'
             sensor.count_climate:
-                friendly_name: 'Термостатов в системе -'
+                friendly_name: 'Термостатів у системі -'
             sensor.climate_on:
-                friendly_name: 'Активных термостатов -'
+                friendly_name: 'Активні термостати -'
             sensor.climate_off:
-                friendly_name: 'Отключенных термостатов -'
+                friendly_name: 'Вимкнені термостати -'
             sensor.count_climate_unavailable:
-                friendly_name: 'Недоступных термостатов -'
+                friendly_name: 'Недоступні термостати -'
             sensor.count_sensors:
-                friendly_name: 'Сенсоров в системе -'
+                friendly_name: 'Сенсорів у системі -'
             sensor.count_sensors_unavailable:
-                friendly_name: 'Недоступных сенсоров -'
+                friendly_name: 'Недоступні сенсори -'
             sensor.count_binary_sensors:
-                friendly_name: 'Бинарных сенсоров в системе -'
+                friendly_name: 'Бінарних сенсорів у системі -'
             sensor.count_binary_sensors_unavailable:
-                friendly_name: 'Недоступных бинарных сенсоров -'
+                friendly_name: 'Недоступні бінарні сенсори -'
             sensor.count_cameras:
-                friendly_name: 'Камер в системе -'
+                friendly_name: 'Камер у системі -'
             sensor.count_cameras_unavailable:
-                friendly_name: 'Недоступных камер -'
+                friendly_name: 'Недоступні камери -'
 
     input_button:
 
         telemetry_reload:
-            name: 'Обновление телеметрии'
+            name: 'Оновлення телеметрії'
             icon: mdi:reload
 
     template:
@@ -529,29 +529,29 @@ telemetry_config:
                     data:
                         target: '{{ trigger.event.data.chat_id }}'
                         message: &msg_tlmtr |
-                            {{'\U00002328'}} *Телеметрия*
+                            {{'\U00002328'}} *Телеметрія*
                             ➖➖➖➖➖➖➖➖➖➖➖➖
                             *{{'\U0001F4C5'}} {{ states('sensor.date') }} {{'\U0001F551'}} {{ states('sensor.time') }}*
                             * *
-                            {{'\U000026A0'}} *Аварийные сенсоры:*
-                            {{'\U0001F6AB'}} *Газ:*{% if (states('sensor.gas_detect') | int) > 0 %} {{'\U000026A0'}} *Обнаружено*{% else %} {{'\U0001F197'}}{% endif %}, {{'\U0001F6AD'}} *Дым:*{% if (states('sensor.smoke_detect') | int) > 0 %} {{'\U000026A0'}} *Обнаружено*{% else %} {{'\U0001F197'}}{% endif %}, {{'\U0001F4A7'}} *Протечка:*{% if (states('sensor.water_leak_detect') | int) > 0 %} {{'\U000026A0'}} *Обнаружено*{% else %} {{'\U0001F197'}}{% endif %}
+                            {{'\U000026A0'}} *Аварійні сенсори:*
+                            {{'\U0001F6AB'}} *Газ:*{% if (states('sensor.gas_detect') | int) > 0 %} {{'\U000026A0'}} *Виявлено*{% else %} {{'\U0001F197'}}{% endif %}, {{'\U0001F6AD'}} *Дим:*{% if (states('sensor.smoke_detect') | int) > 0 %} {{'\U000026A0'}} *Виявлено*{% else %} {{'\U0001F197'}}{% endif %}, {{'\U0001F4A7'}} *Протікання:*{% if (states('sensor.water_leak_detect') | int) > 0 %} {{'\U000026A0'}} *Виявлено*{% else %} {{'\U0001F197'}}{% endif %}
                             * *
-                            {{'\U0001F527'}} *Объекты:*
-                            {{'\U000026A1'}} *Напряжение в сети:* {{ states('sensor.voltage_medium') }} V
-                            {{'\U0001F4A1'}} *Светильники:*{% if (states('sensor.all_light_on') | int) > 0 %} включено {{ states('sensor.all_light_on') }}{% else %} все выключены{% endif %},{% if (states('sensor.all_light_unavailable') | int) > 0 %} *Недоступно:* {{ states('sensor.all_light_unavailable') }}{% else %} {{'\U0001F197'}}{% endif %}
-                            {{'\U0001F50C'}} *Реле > 10W:*{% if (states('sensor.all_switch_on_10') | int) > 0 %} активно {{ states('sensor.all_switch_on_10') }}{% else %} нет активных{% endif %},{% if (states('sensor.all_switch_unavailable') | int) > 0 %} *Недоступно:* {{ states('sensor.all_switch_unavailable') }}{% else %} {{'\U0001F197'}}{% endif %}
-                            {{'\U0001F51F'}} *Бинарные сенсоры:*{% if (states('sensor.all_binary_sensor_unavailable') | int) > 0 %} недоступно - {{ states('sensor.all_binary_sensor_unavailable') }}{% else %} {{'\U0001F197'}}{% endif %}, {{'\U0001F520'}} *Сенсоры:*{% if (states('sensor.all_sensor_unavailable') | int) > 0 %} недоступно - {{ states('sensor.all_sensor_unavailable') }}{% else %} {{'\U0001F197'}}{% endif %}
-                            {{'\U0001F3C3'}} *Движение:*{% if (states('sensor.motion_detected') | int) > 0 %} {{ states('sensor.motion_detected') }} датчиков{% else %} движения нет{% endif %}, {{'\U0001F3E0'}} *Присутствие:*{% if (states('sensor.presence_detected') | int) > 0 %} {{ states('sensor.presence_detected') }} датчиков{% else %} присутствия нет{% endif %}
-                            {{'\U0001FA9F'}} *Окна:*{% if (states('sensor.open_window') | int) > 0 %} открыто {{ states('sensor.open_window') }}{% else %} все закрыты{% endif %}, {{'\U0001F6AA'}} *Двери:*{% if (states('sensor.open_door') | int) > 0 %} открыто {{ states('sensor.open_door') }}{% else %} все закрыты{% endif %}
-                            {{'\U0001F50B'}} *Батарейки ниже 30%:*{% if (states('sensor.battery_lower_30') | int) > 0 %} - {{ states('sensor.battery_lower_30') }}{% else %} {{'\U00002705'}}{% endif %}
+                            {{'\U0001F527'}} *Об'єкти:*
+                            {{'\U000026A1'}} *Напруга в мережі:* {{ states('sensor.voltage_medium') }} V
+                            {{'\U0001F4A1'}} *Світильники:*{% if (states('sensor.all_light_on') | int) > 0 %} увімкнено {{ states('sensor.all_light_on') }}{% else %} всі вимкнені{% endif %},{% if (states('sensor.all_light_unavailable') | int) > 0 %} *Недоступно:* {{ states('sensor.all_light_unavailable') }}{% else %} {{'\U0001F197'}}{% endif %}
+                            {{'\U0001F50C'}} *Реле > 10W:*{% if (states('sensor.all_switch_on_10') | int) > 0 %} активно {{ states('sensor.all_switch_on_10') }}{% else %} нема активних{% endif %},{% if (states('sensor.all_switch_unavailable') | int) > 0 %} *Недоступно:* {{ states('sensor.all_switch_unavailable') }}{% else %} {{'\U0001F197'}}{% endif %}
+                            {{'\U0001F51F'}} *Бінарні сенсори:*{% if (states('sensor.all_binary_sensor_unavailable') | int) > 0 %} недоступно - {{ states('sensor.all_binary_sensor_unavailable') }}{% else %} {{'\U0001F197'}}{% endif %}, {{'\U0001F520'}} *Сенсори:*{% if (states('sensor.all_sensor_unavailable') | int) > 0 %} недоступно - {{ states('sensor.all_sensor_unavailable') }}{% else %} {{'\U0001F197'}}{% endif %}
+                            {{'\U0001F3C3'}} *Рух:*{% if (states('sensor.motion_detected') | int) > 0 %} {{ states('sensor.motion_detected') }} датчиків{% else %} руху немає{% endif %}, {{'\U0001F3E0'}} *Присутність:*{% if (states('sensor.presence_detected') | int) > 0 %} {{ states('sensor.presence_detected') }} датчиків{% else %} присутності немає{% endif %}
+                            {{'\U0001FA9F'}} *Вікна:*{% if (states('sensor.open_window') | int) > 0 %} відчинено {{ states('sensor.open_window') }}{% else %} всі зачинені{% endif %}, {{'\U0001F6AA'}} *Двері:*{% if (states('sensor.open_door') | int) > 0 %} відчинені {{ states('sensor.open_door') }}{% else %} всі зачинені{% endif %}
+                            {{'\U0001F50B'}} *Батарейки нижче 30%:*{% if (states('sensor.battery_lower_30') | int) > 0 %} - {{ states('sensor.battery_lower_30') }}{% else %} {{'\U00002705'}}{% endif %}
                         inline_keyboard: &keyb_tlmtr
-                          - "{{'\U0001F4A1'}} Включенные :/list_light_on, {{'\U000026A0'}} Недоступные :/list_light_unavailable"
-                          - "{{'\U000026A1'}} Более 10 W:/list_all_switch_on_10, {{'\U0001F50C'}} Недоступные :/all_switch_unavailable"
-                          - "{{'\U0001F51F'}} Бинарные сенсоры :/list_all_binary_sensor_unavailable, {{'\U0001F520'}} Сенсоры :/list_all_sensor_unavailable"
-                          - "{{'\U0001F3C3'}} Движение :/list_motion_detected, {{'\U0001F3E0'}} Присутствие :/list_presence_detected"
-                          - "{{'\U0001FA9F'}} Открытые окна :/list_open_window, {{'\U0001F6AA'}} Открытые двери :/list_open_door"
-                          - "{{'\U0001F50B'}} Батарейки ниже 30% :/list_battery_lower_30"
-                          - "{{'\U0001F4D1'}} Меню:/menu, {{'\U0001F501'}} Обновить:/telemetry"
+                          - "{{'\U0001F4A1'}} Увімкнені :/list_light_on, {{'\U000026A0'}} Недоступні :/list_light_unavailable"
+                          - "{{'\U000026A1'}} Більше 10 W:/list_all_switch_on_10, {{'\U0001F50C'}} Недоступні :/all_switch_unavailable"
+                          - "{{'\U0001F51F'}} Бінарні сенсори :/list_all_binary_sensor_unavailable, {{'\U0001F520'}} Сенсори :/list_all_sensor_unavailable"
+                          - "{{'\U0001F3C3'}} Рух :/list_motion_detected, {{'\U0001F3E0'}} Присутність :/list_presence_detected"
+                          - "{{'\U0001FA9F'}} Відчинені вікна :/list_open_window, {{'\U0001F6AA'}} Відчинені двері :/list_open_door"
+                          - "{{'\U0001F50B'}} Батарейки нижче 30% :/list_battery_lower_30"
+                          - "{{'\U0001F501'}} Оновити:/telemetry, {{'\U0001F4D1'}} Меню:/menu"
               - conditions:
                   - condition: template
                     value_template: '{{ trigger.event.data.command == ''/list_light_on'' }}'
@@ -571,7 +571,7 @@ telemetry_config:
                         title: *msg_tlmtr
                         message: |
                             ➖➖➖➖➖➖➖➖➖➖➖➖
-                            {% if (states('sensor.all_light_on') | int) > 0 %}{{'\U0001F4A1'}} *Включенные светильники: * {% else %}*Все светильники выключены* {% endif %}
+                            {% if (states('sensor.all_light_on') | int) > 0 %}{{'\U0001F4A1'}} *Увімкнені світильники: * {% else %}*Усі світильники вимкнені* {% endif %}
                             * *
                             *{% for entity_name, entity_state in state_attr('sensor.all_light_on', 'list_entities')-%} - {{ entity_name }} {{ '\n' -}} {% endfor %}*
                         inline_keyboard: *keyb_tlmtr
@@ -594,7 +594,7 @@ telemetry_config:
                         title: *msg_tlmtr
                         message: |
                             ➖➖➖➖➖➖➖➖➖➖➖➖
-                            {% if (states('sensor.all_light_unavailable') | int) > 0 %}{{"\U000026A0"}} *Недоступные светильники: * {% else %}*Все светильники доступны* {% endif %}
+                            {% if (states('sensor.all_light_unavailable') | int) > 0 %}{{"\U000026A0"}} *Недоступні світильники: * {% else %}*Усі світильники доступні* {% endif %}
                             * *
                             *{% for entity_name, entity_state in state_attr('sensor.all_light_unavailable', 'list_entities')-%} - {{ entity_name }} {{ '\n' -}} {% endfor %}*
                         inline_keyboard: *keyb_tlmtr
@@ -617,7 +617,7 @@ telemetry_config:
                         title: *msg_tlmtr
                         message: |
                             ➖➖➖➖➖➖➖➖➖➖➖➖
-                            {% if (states('sensor.all_switch_on_10') | int) > 0 %}{{"\U000026A1"}} *Потребление более 10W:* {% else %}*Потребление на всех реле менее 10W* {% endif %}
+                            {% if (states('sensor.all_switch_on_10') | int) > 0 %}{{"\U000026A1"}} *Споживання більше 10W:* {% else %}*Споживання на всіх реле менше 10W* {% endif %}
                             * *
                             *{% for entity_name, entity_state in state_attr('sensor.all_switch_on_10', 'list_entities')-%} - {{ entity_name }} {{ '-' }} {{ entity_state }} {{ 'W' }} {{ '\n' -}} {% endfor %}*
                         inline_keyboard: *keyb_tlmtr
@@ -640,7 +640,7 @@ telemetry_config:
                         title: *msg_tlmtr
                         message: |
                             ➖➖➖➖➖➖➖➖➖➖➖➖
-                            {% if (states('sensor.all_switch_unavailable') | int) > 0 %}{{"\U0001F50C"}} *Недоступные реле: * {% else %}*Все реле доступны* {% endif %}
+                            {% if (states('sensor.all_switch_unavailable') | int) > 0 %}{{"\U0001F50C"}} *Недоступні реле: * {% else %}*Усі реле доступні* {% endif %}
                             *{% for entity_name, entity_state in state_attr('sensor.all_switch_unavailable', 'list_entities')-%} - {{ entity_name }} {{ '\n' -}} {% endfor %}*
                             * *
                         inline_keyboard: *keyb_tlmtr
@@ -663,7 +663,7 @@ telemetry_config:
                         title: *msg_tlmtr
                         message: |
                             ➖➖➖➖➖➖➖➖➖➖➖➖
-                            {% if (states('sensor.all_binary_sensor_unavailable') | int) > 0 %}{{"\U0001F50C"}} *Недоступные бинарные сенсоры: * {% else %}*Все бинарные сенсоры доступны* {% endif %}
+                            {% if (states('sensor.all_binary_sensor_unavailable') | int) > 0 %}{{"\U0001F50C"}} *Недоступні бінарні сенсори: * {% else %}*Усі бінарні сенсори доступні* {% endif %}
                             *{% for entity_name, entity_state in state_attr('sensor.all_binary_sensor_unavailable', 'list_entities')-%} - {{ entity_name }} {{ '\n' -}} {% endfor %}*
                             * *
                         inline_keyboard: *keyb_tlmtr
@@ -686,7 +686,7 @@ telemetry_config:
                         title: *msg_tlmtr
                         message: |
                             ➖➖➖➖➖➖➖➖➖➖➖➖
-                            {% if (states('sensor.all_sensor_unavailable') | int) > 0 %}{{"\U0001F50C"}} *Недоступные сенсоры: * {% else %}*Все сенсоры доступны* {% endif %}
+                            {% if (states('sensor.all_sensor_unavailable') | int) > 0 %}{{"\U0001F50C"}} *Недоступні сенсори: * {% else %}*Усі сенсори доступні* {% endif %}
                             *{% for entity_name, entity_state in state_attr('sensor.all_sensor_unavailable', 'list_entities')-%} - {{ entity_name }} {{ '\n' -}} {% endfor %}*
                             * *
                         inline_keyboard: *keyb_tlmtr
@@ -709,7 +709,7 @@ telemetry_config:
                         title: *msg_tlmtr
                         message: |
                             ➖➖➖➖➖➖➖➖➖➖➖➖
-                            {% if (states('sensor.motion_detected') | int) > 0 %}{{"\U0001F3C3"}} *Движение: * {% else %}*Движение не обнаружено* {% endif %}
+                            {% if (states('sensor.motion_detected') | int) > 0 %}{{"\U0001F3C3"}} *Рух: * {% else %}*Рух не виявлено* {% endif %}
                             * *
                             *{% for entity_name, entity_state in state_attr('sensor.motion_detected', 'list_entities')-%} - {{ entity_name }} {{ '\n' -}} {% endfor %}*
                         inline_keyboard: *keyb_tlmtr
@@ -732,7 +732,7 @@ telemetry_config:
                         title: *msg_tlmtr
                         message: |
                             ➖➖➖➖➖➖➖➖➖➖➖➖
-                            {% if (states('sensor.presence_detected') | int) > 0 %}{{"\U0001F3E0"}} *Присутствие: * {% else %}*Присутствия не обнаружено* {% endif %}
+                            {% if (states('sensor.presence_detected') | int) > 0 %}{{"\U0001F3E0"}} *Присутність: * {% else %}*Присутність не виявлено* {% endif %}
                             * *
                             *{% for entity_name, entity_state in state_attr('sensor.presence_detected', 'list_entities')-%} - {{ entity_name }} {{ '\n' -}} {% endfor %}*
                         inline_keyboard: *keyb_tlmtr
@@ -755,7 +755,7 @@ telemetry_config:
                         title: *msg_tlmtr
                         message: |
                             ➖➖➖➖➖➖➖➖➖➖➖➖
-                            {% if (states('sensor.open_window') | int) > 0 %}{{"\U0001FA9F"}} *Открытые окна: * {% else %}*Все окна закрыты* {% endif %}
+                            {% if (states('sensor.open_window') | int) > 0 %}{{"\U0001FA9F"}} *Відчинені вікна: * {% else %}*Усі вікна зачинені* {% endif %}
                             * *
                             *{% for entity_name, entity_state in state_attr('sensor.open_window', 'list_entities')-%} - {{ entity_name }} {{ '\n' -}} {% endfor %}*
                         inline_keyboard: *keyb_tlmtr
@@ -778,7 +778,7 @@ telemetry_config:
                         title: *msg_tlmtr
                         message: |
                             ➖➖➖➖➖➖➖➖➖➖➖➖
-                            {% if (states('sensor.open_door') | int) > 0 %}{{"\U0001F6AA"}} *Открытые двери: * {% else %}*Все двери закрыты* {% endif %}
+                            {% if (states('sensor.open_door') | int) > 0 %}{{"\U0001F6AA"}} *Відчинені двері: * {% else %}*Усі двері зачинені* {% endif %}
                             * *
                             *{% for entity_name, entity_state in state_attr('sensor.open_door', 'list_entities')-%} - {{ entity_name }} {{ '\n' -}} {% endfor %}*
                         inline_keyboard: *keyb_tlmtr
@@ -801,7 +801,7 @@ telemetry_config:
                       title: *msg_tlmtr
                       message: |
                             ➖➖➖➖➖➖➖➖➖➖➖➖
-                            {% if (states('sensor.battery_lower_30') | int) > 0 %}{{"\U0001F50B"}} *Разряжающиеся батарейки: * {% else %}*Все батарейки в порядке* {% endif %}
+                            {% if (states('sensor.battery_lower_30') | int) > 0 %}{{"\U0001F50B"}} *Батарейки, що розряджаються: * {% else %}*Усі батарейки в порядку* {% endif %}
                             * *
                             *{% for entity_name, entity_state in state_attr('sensor.battery_lower_30', 'list_entities')-%} - {{ entity_name }} {{ '-' }} {{ entity_state }} {{ '%' }} {{ '\n' -}} {% endfor %}*
                       inline_keyboard: *keyb_tlmtr

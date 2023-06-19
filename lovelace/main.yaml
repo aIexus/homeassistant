@@ -1,4 +1,4 @@
-title: Главная
+title: Головна
 icon: mdi:home-assistant
 cards:
 
@@ -7,7 +7,7 @@ cards:
 
       - type: entity
         entity: sensor.time_date
-        name: Время/Дата
+        name: Час/Дата
         icon: mdi:calendar-clock
 
       - type: weather-forecast
@@ -81,7 +81,7 @@ cards:
 
       - type: tile
         entity: alarm_control_panel.home_alarm
-        name: Сигнализация
+        name: Сигнализація
         features:
           - type: "alarm-modes"
             modes:
@@ -145,13 +145,13 @@ cards:
               - entity: light.hallway_rgb_bulb
                 show_icon: true
                 state_color: true
-                name: Подсветка
+                name: Лампа
                 tap_action: none
               - entity: binary_sensor.tapo_camera_motion_alarm
                 show_icon: true
                 state_color: true
                 hide_unavailable: true
-                name: Движение
+                name: Рух
                 tap_action: none
               - entity: camera.tapo_camera_sd
                 show_icon: true
@@ -161,7 +161,7 @@ cards:
                 show_icon: true
                 state_color: true
                 tap_action: none
-                name: Дверь
+                name: Двері
             info_entities:
               - entity: sensor.hallway_lumi_weather_humidity
                 format: precision1
@@ -169,7 +169,7 @@ cards:
                 format: precision1
     
           - type: custom:room-card
-            title: Гостинная
+            title: Вітальня
             icon: mdi:sofa
             entity: sensor.living_room_lumi_weather_temperature
             show_icon: true
@@ -180,7 +180,7 @@ cards:
                 show_icon: true
                 state_color: true
                 tap_action: none
-                name: Дым
+                name: Дим
                 hide_if:
                     conditions:
                       - condition: equals
@@ -196,10 +196,10 @@ cards:
                 show_icon: true
                 state_color: true
                 icon: mdi:fishbowl-outline
-                name: Аквариум
+                name: Акваріум
                 tap_action: none
               - entity: binary_sensor.living_room_auto_light_off_sensor
-                name: Таймер Света
+                name: Таймер Світла
                 tap_action: none
                 hide_if:
                   conditions:
@@ -227,12 +227,12 @@ cards:
                     - condition: equals
                       entity: input_boolean.heating_status
                       value: "off"
-                name: Радиатор
+                name: Обігрівач
               - entity: binary_sensor.living_room_air_conditioner_socket_status
                 state_color: true
                 show_icon: true
                 tap_action: none
-                name: Кондиционер
+                name: Кондиціонер
                 hide_if:
                   conditions:
                     - condition: equals
@@ -242,12 +242,12 @@ cards:
                 show_icon: true
                 state_color: true
                 tap_action: none
-                name: Движение
+                name: Рух
               - entity: binary_sensor.living_room_loggia_door_contact
                 show_icon: true
                 state_color: true
                 tap_action: none
-                name: Лоджия
+                name: Лоджія
             info_entities:
               - entity: sensor.living_room_lumi_sensor_motion_illuminance_lux
               - entity: sensor.living_room_lumi_weather_humidity
@@ -267,7 +267,7 @@ cards:
                 show_icon: true
                 state_color: true
                 tap_action: none
-                name: Дым
+                name: Дим
                 hide_if:
                     conditions:
                       - condition: equals
@@ -280,7 +280,7 @@ cards:
                 name: Люстра
                 tap_action: none
               - entity: binary_sensor.bedroom_auto_light_off_sensor
-                name: Таймер Света
+                name: Таймер Світла
                 tap_action: none
                 hide_if:
                   conditions:
@@ -296,9 +296,9 @@ cards:
                     - condition: equals
                       entity: input_boolean.heating_status
                       value: "off"
-                name: Радиатор
+                name: Обігрівач
               - entity: binary_sensor.bedroom_air_conditioner_socket_status
-                name: Кондиционер
+                name: Кондиціонер
                 state_color: true
                 show_icon: true
                 tap_action: none
@@ -311,12 +311,12 @@ cards:
                 show_icon: true
                 state_color: true
                 tap_action: none
-                name: Движение
+                name: Рух
               - entity: binary_sensor.bedroom_windows
                 show_icon: true
                 state_color: true
                 tap_action: none
-                name: Окно
+                name: Вікно
             info_entities:
               - entity: sensor.bedroom_lumi_sensor_motion_illuminance_lux
               - entity: sensor.bedroom_lumi_weather_humidity
@@ -336,7 +336,7 @@ cards:
                 show_icon: true
                 state_color: true
                 tap_action: none
-                name: Дым
+                name: Дим
                 hide_if:
                     conditions:
                       - condition: equals
@@ -355,7 +355,7 @@ cards:
               - entity: binary_sensor.kitchen_water_leak_sensor_water_leak
                 show_icon: true
                 state_color: true
-                name: Протечка
+                name: Протікання
                 tap_action: none
                 hide_if:
                     conditions:
@@ -366,7 +366,7 @@ cards:
                 show_icon: true
                 state_color: true
                 tap_action: none
-                name: Радиатор
+                name: Обігрівач
                 hide_if:
                   conditions:
                     - condition: equals
@@ -380,12 +380,12 @@ cards:
               - entity: binary_sensor.kitchen_coffee_machine_and_microwave_socket_status
                 show_icon: true
                 state_color: true
-                name: Кофемашина
+                name: Кавомашина
                 tap_action: none
               - entity: binary_sensor.kitchen_window_contact
                 show_icon: true
                 state_color: true
-                name: Окно
+                name: Вікно
                 tap_action: none
             info_entities:
               - entity: sensor.kitchen_lumi_weather_humidity
@@ -394,7 +394,7 @@ cards:
                 format: precision1
     
           - type: custom:room-card
-            title: Ванная
+            title: Ванна
             icon: mdi:shower-head
             entity: sensor.bathroom_lumi_weather_temperature
             show_icon: true
@@ -412,7 +412,7 @@ cards:
                         entity: binary_sensor.bathroom_water_leak_under_the_bath_water_leak
                         value: "off"
               - entity: binary_sensor.bathroom_water_leak_under_washing_machine_water_leak
-                name: Стиралка
+                name: Пралка
                 tap_action: none
                 show_icon: true
                 state_color: true
@@ -422,7 +422,7 @@ cards:
                         entity: binary_sensor.bathroom_water_leak_under_washing_machine_water_leak
                         value: "off"
               - entity: binary_sensor.bathroom_washing_machine_socket_status
-                name: Стиралка
+                name: Пралка
                 tap_action: none
                 show_icon: true
                 state_color: true
@@ -433,7 +433,7 @@ cards:
                 format: precision1
     
           - type: custom:room-card
-            title: Лоджия
+            title: Лоджія
             icon: mdi:balcony
             show_icon: true
             entity: sensor.loggia_tuya_weather_temperature
@@ -578,7 +578,7 @@ cards:
                 cards:
                   - type: thermostat
                     entity: climate.living_room_heater
-                    name: Гостинная
+                    name: Вітальня
                   - type: thermostat
                     entity: climate.bedroom_heater
                     name: Спальня
@@ -598,7 +598,7 @@ cards:
                 cards:
                   - type: thermostat
                     entity: climate.living_room_ac
-                    name: Гостинная
+                    name: Вітальня
                   - type: thermostat
                     entity: climate.bedroom_ac
                     name: Спальня
@@ -610,12 +610,12 @@ cards:
             card:
               type: entities
               show_header_toggle: true
-              title: Освещение
+              title: Освітлення
               icon: mdi:ceiling-light-multiple-outline
               state_color: true
               entities:
                 - entity: switch.living_room_light_switch
-                  name: Гостинная
+                  name: Вітальня
                   icon: mdi:ceiling-light
                 - entity: switch.bedroom_light_switch
                   name: Спальня
@@ -633,15 +633,15 @@ cards:
             card:
               type: entities
               show_header_toggle: true
-              title: Гирлянды
+              title: Гірлянди
               icon: mdi:ceiling-light-multiple-outline
               state_color: true
               entities:
                 - entity: switch.living_room_air_conditioner_socket
-                  name: Ёлочка
+                  name: Ялинка
                   icon: mdi:pine-tree
                 - entity: switch.bedroom_air_conditioner_socket
-                  name: Гирлянда в Спальне
+                  name: Гірлянда у Спальні
                   icon: mdi:string-lights
 
           - type: conditional
@@ -654,25 +654,25 @@ cards:
                 cards:
                   - type: entities
                     show_header_toggle: true
-                    title: Освещение
+                    title: Освітлення
                     icon: mdi:fishbowl
                     state_color: true
                     entities:
                       - entity: switch.living_room_aquarium_power_strip_l3
-                        name: Основной свет
+                        name: Основне світло
                         icon: mdi:wall-sconce-flat
                       - entity: switch.living_room_aquarium_power_strip_l4
-                        name: Лунный свет
+                        name: Місячне сяйво
                         icon: mdi:weather-night
                   - type: entities
                     show_header_toggle: true
-                    title: Оборудование
+                    title: Обладнання
                     icon: mdi:wrench-clock
                     state_color: true
                     entities:
                       - entity: switch.living_room_aquarium_power_strip_l1
-                        name: Аэрация
+                        name: Аерація
                         icon: mdi:fish
                       - entity: switch.living_room_aquarium_power_strip_l2
-                        name: Фильтрация
+                        name: Фільтрування
                         icon: mdi:air-filter

@@ -3,11 +3,11 @@ google_config:
     homeassistant:
         customize:
             sensor.snapshots_in_google_drive_train:
-                friendly_name: 'Снапшотов на Googe.Drive'
+                friendly_name: 'Снапшотів на Googe.Drive'
             sensor.last_google_backup_train:
-                friendly_name: 'Последний Удачный Бэкап'
+                friendly_name: 'Останній Вдалий BackUp'
             sensor.snapshots_in_hassio_train:
-                friendly_name: 'Снапшотов в HA'
+                friendly_name: 'Снапшотів в HA'
 
     device_tracker:
       - platform: google_maps

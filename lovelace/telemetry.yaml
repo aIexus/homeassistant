@@ -1,6 +1,6 @@
 # Main idea took from https://github.com/kvazis/training/tree/master/lessons/articles/unit%20telemetry%201
-############################ Телеметрия ############################
-title: Телеметрия
+############################ Телеметрія ############################
+title: Телеметрія
 icon: mdi:keyboard
 cards:
 
@@ -20,9 +20,9 @@ cards:
                      font-size: 16px;
                    }          
               content: >
-                 **Автоматизации и скрипты**
+                 **Автоматизації та скрипти**
 
-################# Автоматизации #################
+################# Автоматизації #################
 
             - type: entities
               style: |
@@ -37,15 +37,15 @@ cards:
               entities:
               - entity: sensor.count_automations
                 type: custom:multiple-entity-row
-                name: Автоматизации
-                state_header: Всего
+                name: Автоматизації
+                state_header: Загалом
                 entities:
                   - entity: sensor.count_automations_on
-                    name: Активно
+                    name: Активні
                   - entity: sensor.count_automations_off
-                    name: Отключено
+                    name: Вимкнені
                   - entity: sensor.count_automations_unavailable
-                    name: Недоступно
+                    name: Недоступні
 
             - type: custom:auto-entities
               show_empty: false
@@ -66,7 +66,7 @@ cards:
                    options:
                       secondary_info: last-changed
                       
-################# Скрипты #################
+################# Скрипти #################
 
             - type: entities
               style: |
@@ -81,15 +81,15 @@ cards:
               entities:
               - entity: sensor.count_scripts
                 type: custom:multiple-entity-row
-                name: Скрипты
-                state_header: Всего
+                name: Скрипти
+                state_header: Загалом
                 entities:
                   - entity: sensor.count_scripts_on
-                    name: Активно
+                    name: Активні
                   - entity: sensor.count_scripts_off
-                    name: Отключено
+                    name: Вимкнені
                   - entity: sensor.count_scripts_unavailable
-                    name: Недоступно
+                    name: Недоступні
 
             - type: custom:auto-entities
               show_empty: false
@@ -110,7 +110,7 @@ cards:
                    options:
                       secondary_info: last-changed 
 
-################# Обновления #################  
+################# Оновлення #################  
         - type: custom:stack-in-card
           mode: vertical
           cards:
@@ -123,7 +123,7 @@ cards:
                      font-size: 16px;
                    }          
               content: >
-                 **Обновления**
+                 **Оновлення**
           
             - type: entities
               style: |
@@ -138,11 +138,11 @@ cards:
               entities:
               - entity: sensor.count_updates
                 type: custom:multiple-entity-row
-                name: Аддоны
-                state_header: Всего
+                name: Додатки
+                state_header: Загалом
                 entities:
                   - entity: sensor.count_updates_on
-                    name: Доступно обновлений
+                    name: Доступно оновлень
                       
 
             - type: custom:auto-entities
@@ -159,9 +159,9 @@ cards:
                      secondary_info: last-changed
                      entities:
                       - attribute: installed_version
-                        name: Установлено
+                        name: Встановлено
                       - attribute: latest_version
-                        name: Последняя
+                        name: Наявна
                         
             - type: markdown
               style: |
@@ -171,7 +171,7 @@ cards:
                      font-size: 16px;
                    }   
               content: |
-                <ha-icon icon="hacs:hacs"></ha-icon>&nbsp;&nbsp;&nbsp;Обновлений для HACS - {{ states('sensor.hacs') | default }}
+                <ha-icon icon="hacs:hacs"></ha-icon>&nbsp;&nbsp;&nbsp;Оновлення для HACS - {{ states('sensor.hacs') | default }}
                 > {% for repo in state_attr('sensor.hacs', 'repositories') %}
                 > {{ repo.display_name }} {{ repo["installed_version"] }} -> {{ repo["available_version"] }}
                 > {% endfor %}
@@ -180,7 +180,7 @@ cards:
     - type: vertical-stack
       cards:
 
-################# Светильники #################
+################# Світильники #################
 
         - type: custom:stack-in-card
           mode: vertical
@@ -194,7 +194,7 @@ cards:
                     font-size: 16px;
                   } 
               content: >
-                  **Cветильники**
+                  **Світильники**
                   
             - type: entities
               style: |
@@ -209,15 +209,15 @@ cards:
               entities:
               - entity: sensor.count_lights
                 type: custom:multiple-entity-row
-                name: Светильники
-                state_header: Всего
+                name: Світильники
+                state_header: Загалом
                 entities:
                   - entity: sensor.count_lights_on
-                    name: Активно
+                    name: Активні
                   - entity: sensor.count_lights_off
-                    name: Отключено
+                    name: Вимкнені
                   - entity: sensor.count_lights_unavailable
-                    name: Недоступно
+                    name: Недоступні
                     
             - type: custom:auto-entities
               show_empty: false
@@ -269,14 +269,14 @@ cards:
               - entity: sensor.count_switches
                 type: custom:multiple-entity-row
                 name: Реле
-                state_header: Всего
+                state_header: Загалом
                 entities:
                   - entity: sensor.count_switches_on
-                    name: Активно
+                    name: Активні
                   - entity: sensor.count_switches_off
-                    name: Отключено
+                    name: Вимкнені
                   - entity: sensor.count_switches_unavailable
-                    name: Недоступно
+                    name: Недоступні
                     
             - type: custom:auto-entities
               show_empty: false
@@ -298,7 +298,7 @@ cards:
                    options:
                       secondary_info: last-changed 
 
-################# Термостаты #################
+################# Термостати #################
 
         - type: custom:stack-in-card
           mode: vertical
@@ -312,7 +312,7 @@ cards:
                     font-size: 16px;
                   } 
               content: >
-                  **Термостаты**
+                  **Термостати**
                   
             - type: entities
               style: |
@@ -327,15 +327,15 @@ cards:
               entities:
               - entity: sensor.count_climate
                 type: custom:multiple-entity-row
-                name: Термостаты
-                state_header: Всего
+                name: Термостати
+                state_header: Загалом
                 entities:
                   - entity: sensor.count_climate_on
-                    name: Активно
+                    name: Активні
                   - entity: sensor.count_climate_off
-                    name: Отключено
+                    name: Вимкнені
                   - entity: sensor.count_climate_unavailable
-                    name: Недоступно
+                    name: Недоступні
                     
             - type: custom:auto-entities
               show_empty: false
@@ -357,7 +357,7 @@ cards:
                    options:
                       secondary_info: last-changed 
                       
-################# Сенсоры #################
+################# Сенсори #################
 
         - type: custom:stack-in-card
           mode: vertical
@@ -370,7 +370,7 @@ cards:
                     font-size: 16px;
                   } 
               content: >
-                  **Сенсоры**
+                  **Сенсори**
                   
             - type: entities
               style: |
@@ -385,11 +385,11 @@ cards:
               entities:
               - entity: sensor.count_sensors
                 type: custom:multiple-entity-row
-                name: Сенсоры
-                state_header: Всего
+                name: Сенсори
+                state_header: Загалом
                 entities:
                   - entity: sensor.count_sensors_unavailable
-                    name: Недоступно
+                    name: Недоступні
                     
             - type: custom:auto-entities
               show_empty: false
@@ -411,7 +411,7 @@ cards:
                    options:
                       secondary_info: last-changed 
                       
-################# Бинарные сенсоры #################
+################# Бінарні сенсори #################
         - type: custom:stack-in-card
           mode: vertical
           cards: 
@@ -424,7 +424,7 @@ cards:
                     font-size: 16px;
                   } 
               content: >
-                  **Бинарные сенсоры**
+                  **Бінарні сенсори**
                   
             - type: entities
               style: |
@@ -439,11 +439,11 @@ cards:
               entities:
               - entity: sensor.count_binary_sensors
                 type: custom:multiple-entity-row
-                name: Бинарные сенсоры
-                state_header: Всего
+                name: Бінарні сенсори
+                state_header: Загалом
                 entities:
                   - entity: sensor.count_binary_sensors_unavailable
-                    name: Недоступно
+                    name: Недоступні
                     
             - type: custom:auto-entities
               show_empty: false
@@ -465,7 +465,7 @@ cards:
                    options:
                       secondary_info: last-changed 
 
-################# Камеры #################
+################# Камери #################
         - type: custom:stack-in-card
           mode: vertical
           cards: 
@@ -478,7 +478,7 @@ cards:
                     font-size: 16px;
                   } 
               content: >
-                  **IP Камеры**
+                  **IP Камери**
                   
             - type: entities
               style: |
@@ -493,11 +493,11 @@ cards:
               entities:
               - entity: sensor.count_cameras
                 type: custom:multiple-entity-row
-                name: IP камеры
-                state_header: Всего
+                name: IP камери
+                state_header: Загалом
                 entities:
                   - entity: sensor.count_cameras_unavailable
-                    name: Недоступно
+                    name: Недоступні
                     
             - type: custom:auto-entities
               show_empty: false
@@ -523,7 +523,7 @@ cards:
     - type: vertical-stack
       cards:
       
-################# Потребление более 10 Ватт #################
+################# Споживання більше 10 Ватт #################
  
         - type: custom:stack-in-card
           mode: vertical
@@ -537,7 +537,7 @@ cards:
                     font-size: 16px;
                   } 
               content: >
-                  **Активные розетки > 10 Ватт**
+                  **Активні розетки > 10 Ватт**
 
             - type: custom:auto-entities
               card:
@@ -556,7 +556,7 @@ cards:
                      secondary_info: last-changed
                      entities:
                       - attribute: power
-                        name: Потребление
+                        name: Споживання
                         unit: 'W'
                 exclude:
                 - domain: switch
@@ -565,7 +565,7 @@ cards:
                     power: '< 10'
                 - entity_id: switch.*power_outage*
 
-################# Включенные светильники #################
+################# Увімкнені світильники #################
                 
         - type: custom:stack-in-card
           mode: vertical
@@ -579,7 +579,7 @@ cards:
                     font-size: 16px;
                   } 
               content: >
-                  **Активные светильники**
+                  **Активні світильники**
 
             - type: custom:auto-entities
               card:
@@ -596,12 +596,12 @@ cards:
                      secondary_info: last-changed
                      entities:
                       - attribute: brightness
-                        name: Яркость
+                        name: Яскравість
                       - attribute: color_temp
                         name: Температура
 
 
-################# Активные термостаты #################
+################# Активні термостати #################
  
         - type: custom:stack-in-card
           mode: vertical
@@ -615,7 +615,7 @@ cards:
                     font-size: 16px;
                   } 
               content: >
-                  **Активные тармостаты**
+                  **Активні термостати**
 
             - type: custom:auto-entities
               card:
@@ -628,7 +628,7 @@ cards:
                   options:
                       secondary_info: last-changed
 
-################# Таймеры #################
+################# Таймери #################
                       
         - type: custom:stack-in-card
           mode: vertical
@@ -642,7 +642,7 @@ cards:
                     font-size: 16px;
                   } 
               content: >
-                  **Активные таймеры**
+                  **Активні таймери**
 
             - type: custom:auto-entities
               show_empty: false
@@ -661,7 +661,7 @@ cards:
     - type: vertical-stack
       cards:
 
-################# Аварийные датчики #################
+################# Аварійні датчики #################
       
         - type: custom:stack-in-card
           mode: vertical
@@ -675,7 +675,7 @@ cards:
                     font-size: 16px;
                   } 
               content: >
-                  **Аварийные датчики**
+                  **Аварійні датчики**
                       
             - type: custom:auto-entities
               card:
@@ -696,7 +696,7 @@ cards:
                   options:
                       secondary_info: last-changed
                       
-################# Присутствие и движение #################
+################# Присутність та рух #################
 
         - type: custom:stack-in-card
           mode: vertical
@@ -710,7 +710,7 @@ cards:
                     font-size: 16px;
                   } 
               content: >
-                  **Активные датчики движения и присутствия**
+                  **Активні датчики руху та присутності**
 
             - type: custom:auto-entities
               card:
@@ -733,7 +733,7 @@ cards:
                 exclude:
                 - entity_id: binary_sensor.*sensors
 
-################# Окна и двери #################
+################# Вікна та двері #################
 
         - type: custom:stack-in-card
           mode: vertical
@@ -747,7 +747,7 @@ cards:
                     font-size: 16px;
                   } 
               content: >
-                  **Открытые окна**
+                  **Відчинені вікна**
                       
             - type: custom:auto-entities
               card:
@@ -772,7 +772,7 @@ cards:
                     font-size: 16px;
                   } 
               content: >
-                  **Открытые двери**
+                  **Відчинені двері**
                       
             - type: custom:auto-entities
               card:
@@ -789,7 +789,7 @@ cards:
                 exclude:
                 - entity_id: binary_sensor.*doors
 
-################# Уровень заряда #################
+################# Рівень заряду #################
         - type: custom:stack-in-card
           mode: vertical
           cards:
@@ -802,7 +802,7 @@ cards:
                     font-size: 16px;
                   } 
               content: >
-                  **Сенсоры < 30% заряда**
+                  **Сенсори < 30% заряду**
             - type: custom:auto-entities
               show_empty: false
               card:

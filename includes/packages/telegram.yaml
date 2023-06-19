@@ -47,15 +47,15 @@ telegram:
           - service: notify.alexus
             data:
               message: |
-                Добро пожаловать в управление Умным Домом!
+                Ласкаво просимо до управління Розумним Будинком!
                 ➖➖➖➖➖➖➖➖➖➖➖➖
-                Выберите раздел:
+                Оберіть розділ:
               data:
                 inline_keyboard: &main_menu
-                  - "{{'\U00002139'}} Статус:/status, {{'\U00002328'}} Телеметрия:/telemetry"
-                  - "{{'\U0001F6E1'}} Безопасность:/security, {{'\U0001F321'}} Климат:/climate" 
-                  - "{{'\U000026A1'}} Электричество:/electricity, {{'\U0001F4A1'}} Освещение:/lights"
-                  - "{{'\U0001F5FA'}} Геолокация:/geo, {{'\U0001F4D1'}} Меню:/menu"
+                  - "{{'\U00002139'}} Статус:/status, {{'\U00002328'}} Телеметрія:/telemetry"
+                  - "{{'\U0001F6E1'}} Безпека:/security, {{'\U0001F321'}} Клімат:/climate" 
+                  - "{{'\U000026A1'}} Електрика:/electricity, {{'\U0001F4A1'}} Освітлення:/lights"
+                  - "{{'\U0001F5FA'}} Геолокація:/geo, {{'\U0001F4D1'}} Меню:/menu"
           mode: single
 
         - alias: "Telegram: Main Menu"
@@ -69,9 +69,9 @@ telegram:
           - service: notify.alexus
             data:
               message: |
-                  {{'\U0001F4D1'}} Главное меню
+                  {{'\U0001F4D1'}} Головне меню
                   ➖➖➖➖➖➖➖➖➖➖➖➖
-                  Выберите раздел:
+                  Оберіть розділ:
               data: 
                 inline_keyboard: *main_menu
           mode: single
@@ -88,22 +88,22 @@ telegram:
           - service: notify.alexus
             data:
               message: &electricity_body |
-                {{'\U000026A1'}} Электричество 
+                {{'\U000026A1'}} Електрика 
                 ➖➖➖➖➖➖➖➖➖➖➖➖
                 {{"\U0001F4C5"}} {{ states("sensor.date") }} {{"\U0001F551"}} {{ states("sensor.time") }}
 
-                {{"\U0001F4DD"}} Текущие показатели: 
-                 - Мощность: {{ states("sensor.tuya_clamp_meter_power")     | float(0) | round(2) }} W
-                 - Напряжение: {{ states("sensor.tuya_clamp_meter_voltage") | float(0) | round(2) }} V
-                 - Ток: {{ states("sensor.tuya_clamp_meter_current")        | float(0) | round(2) }} A
+                {{"\U0001F4DD"}} Поточні показники: 
+                 - Потужність: {{ states("sensor.tuya_clamp_meter_power") | float(0) | round(2) }} W
+                 - Напруга: {{ states("sensor.tuya_clamp_meter_voltage")  | float(0) | round(2) }} V
+                 - Струм: {{ states("sensor.tuya_clamp_meter_current")    | float(0) | round(2) }} A
 
                 {{"\U00002139"}} Тариф, kWh (д/н): {{ states('sensor.tariff_energy_cost_base') | float(0) | round(2) }}/{{ states('sensor.tariff_energy_cost_base') | float(0) * 0.5 | round(2) }} ₴
               data: 
                 inline_keyboard: &keyb_electricity
-                  - "{{'\U0001F5D3'}} Статистика: месяц:/electricity_month"
-                  - "{{'\U0001F4CA'}} Статистика: неделя:/electricity_week"
-                  - "{{'\U0001F4C8'}} Статистика: сутки:/electricity_day"
-                  - "{{'\U0001F4DF'}} Счетчик:/electricity_counter, {{'\U0001F4D1'}} Меню:/menu"
+                  - "{{'\U0001F5D3'}} Статистика: місяць:/electricity_month"
+                  - "{{'\U0001F4CA'}} Статистика: тиждень:/electricity_week"
+                  - "{{'\U0001F4C8'}} Статистика: доба:/electricity_day"
+                  - "{{'\U0001F4DF'}} Лічильник:/electricity_counter, {{'\U0001F4D1'}} Меню:/menu"
           mode: single
 
         - alias: "Telegram: Electricity Menu - counter"
@@ -124,10 +124,10 @@ telegram:
                   title: *electricity_body
                   message: |
                     ➖➖➖➖➖➖➖➖➖➖➖➖
-                    {{"\U0001F4DF"}} Показания счетчика:
-                     - {{"\U0001F4CB"}} Всего: {{ states("sensor.energy_counter_total")       | float(0) | round(0) }} kWh
-                     - {{"\U00002600"}} День:  {{ states("sensor.energy_counter_total_day")   | float(0) | round(0) }} kWh
-                     - {{"\U0001F312"}} Ночь:  {{ states("sensor.energy_counter_total_night") | float(0) | round(0) }} kWh
+                    {{"\U0001F4DF"}} Показники лічильника:
+                     - {{"\U0001F4CB"}} Загалом: {{ states("sensor.energy_counter_total")    | float(0) | round(0) }} kWh
+                     - {{"\U00002600"}} День:  {{ states("sensor.energy_counter_total_day")  | float(0) | round(0) }} kWh
+                     - {{"\U0001F312"}} Ніч:  {{ states("sensor.energy_counter_total_night") | float(0) | round(0) }} kWh
                   data: 
                     inline_keyboard: *keyb_electricity
           mode: single
@@ -150,10 +150,10 @@ telegram:
                   title: *electricity_body
                   message: |
                     ➖➖➖➖➖➖➖➖➖➖➖➖
-                    {{'\U0001F5D3'}} Статистика: текущий месяц
-                     - {{"\U0001F4CB"}} Всего: {{ states("sensor.tuya_clamp_meter_monthly_total") | float(0) | round(0) }} kWh, {{"\U0001F4B8"}} {{ ((states("sensor.tuya_clamp_meter_monthly_day") | float(0) | round(0) * states('sensor.tariff_energy_cost_base') | float(0) | round(2)) +  (states("sensor.tuya_clamp_meter_monthly_night") | float(0) | round(0) * states('sensor.tariff_energy_cost_base') | float(0) * 0.5 | round(2))) | round(2) }} ₴
+                    {{'\U0001F5D3'}} Статистика: поточний місяць
+                     - {{"\U0001F4CB"}} Загалом: {{ states("sensor.tuya_clamp_meter_monthly_total") | float(0) | round(0) }} kWh, {{"\U0001F4B8"}} {{ ((states("sensor.tuya_clamp_meter_monthly_day") | float(0) | round(0) * states('sensor.tariff_energy_cost_base') | float(0) | round(2)) +  (states("sensor.tuya_clamp_meter_monthly_night") | float(0) | round(0) * states('sensor.tariff_energy_cost_base') | float(0) * 0.5 | round(2))) | round(2) }} ₴
                      - {{"\U00002600"}} День: {{ states("sensor.tuya_clamp_meter_monthly_day")    | float(0) | round(0) }} kWh, {{"\U0001F4B8"}} {{ (states("sensor.tuya_clamp_meter_monthly_day") | float(0) | round(0) * states('sensor.tariff_energy_cost_base') | float(0) | round(2)) | round(2) }} ₴
-                     - {{"\U0001F312"}} Ночь: {{ states("sensor.tuya_clamp_meter_monthly_night")  | float(0) | round(0) }} kWh, {{"\U0001F4B8"}} {{ (states("sensor.tuya_clamp_meter_monthly_night") | float(0) | round(0) * states('sensor.tariff_energy_cost_base') | float(0) * 0.5 | round(2)) | round(2) }} ₴
+                     - {{"\U0001F312"}} Ніч: {{ states("sensor.tuya_clamp_meter_monthly_night")  | float(0) | round(0) }} kWh, {{"\U0001F4B8"}} {{ (states("sensor.tuya_clamp_meter_monthly_night") | float(0) | round(0) * states('sensor.tariff_energy_cost_base') | float(0) * 0.5 | round(2)) | round(2) }} ₴
                   data: 
                     inline_keyboard: *keyb_electricity
           mode: single
@@ -176,10 +176,10 @@ telegram:
                   title: *electricity_body
                   message: |
                     ➖➖➖➖➖➖➖➖➖➖➖➖
-                    {{"\U0001F4CA"}} Статистика: текущая неделя
-                     - {{"\U0001F4CB"}} Всего: {{ states("sensor.tuya_clamp_meter_weekly_total") | float(0) | round(0) }} kWh, {{"\U0001F4B8"}} {{ ((states("sensor.tuya_clamp_meter_weekly_day") | float(0) | round(0) * states('sensor.tariff_energy_cost_base') | float(0) | round(2)) +  (states("sensor.tuya_clamp_meter_week_night") | float(0) | round(0) * states('sensor.tariff_energy_cost_base') | float(0) * 0.5 | round(2))) | round(2) }} ₴
+                    {{"\U0001F4CA"}} Статистика: поточний тиждень
+                     - {{"\U0001F4CB"}} Загалом: {{ states("sensor.tuya_clamp_meter_weekly_total") | float(0) | round(0) }} kWh, {{"\U0001F4B8"}} {{ ((states("sensor.tuya_clamp_meter_weekly_day") | float(0) | round(0) * states('sensor.tariff_energy_cost_base') | float(0) | round(2)) +  (states("sensor.tuya_clamp_meter_week_night") | float(0) | round(0) * states('sensor.tariff_energy_cost_base') | float(0) * 0.5 | round(2))) | round(2) }} ₴
                      - {{"\U00002600"}} День:  {{ states("sensor.tuya_clamp_meter_weekly_day")   | float(0) | round(0) }} kWh, {{"\U0001F4B8"}} {{ (states("sensor.tuya_clamp_meter_weekly_day") | float(0) | round(0) * states('sensor.tariff_energy_cost_base') | float(0) | round(2)) | round(2) }} ₴
-                     - {{"\U0001F312"}} Ночь:  {{ states("sensor.tuya_clamp_meter_weekly_night") | float(0) | round(0) }} kWh, {{"\U0001F4B8"}} {{ (states("sensor.tuya_clamp_meter_weekly_night") | float(0) | round(0) * states('sensor.tariff_energy_cost_base') | float(0) * 0.5 | round(2)) | round(2) }} ₴
+                     - {{"\U0001F312"}} Ніч:  {{ states("sensor.tuya_clamp_meter_weekly_night") | float(0) | round(0) }} kWh, {{"\U0001F4B8"}} {{ (states("sensor.tuya_clamp_meter_weekly_night") | float(0) | round(0) * states('sensor.tariff_energy_cost_base') | float(0) * 0.5 | round(2)) | round(2) }} ₴
                   data: 
                     inline_keyboard: *keyb_electricity
           mode: single
@@ -202,10 +202,10 @@ telegram:
                   title: *electricity_body
                   message: |
                     ➖➖➖➖➖➖➖➖➖➖➖➖
-                    {{"\U0001F4C8"}} Статистика: текущие сутки
-                     - {{"\U0001F4CB"}} Всего: {{ states("sensor.tuya_clamp_meter_daily_total") | float(0) | round(0) }} kWh, {{"\U0001F4B8"}} {{ ((states("sensor.tuya_clamp_meter_daily_day") | float(0) | round(0) * states('sensor.tariff_energy_cost_base') | float(0) | round(2)) +  (states("sensor.tuya_clamp_meter_daily_night") | float(0) | round(0) * states('sensor.tariff_energy_cost_base') | float(0) * 0.5 | round(2))) | round(2) }} ₴
+                    {{"\U0001F4C8"}} Статистика: поточна доба
+                     - {{"\U0001F4CB"}} Загалом: {{ states("sensor.tuya_clamp_meter_daily_total") | float(0) | round(0) }} kWh, {{"\U0001F4B8"}} {{ ((states("sensor.tuya_clamp_meter_daily_day") | float(0) | round(0) * states('sensor.tariff_energy_cost_base') | float(0) | round(2)) +  (states("sensor.tuya_clamp_meter_daily_night") | float(0) | round(0) * states('sensor.tariff_energy_cost_base') | float(0) * 0.5 | round(2))) | round(2) }} ₴
                      - {{"\U00002600"}} День:  {{ states("sensor.tuya_clamp_meter_daily_day")   | float(0) | round(0) }} kWh, {{"\U0001F4B8"}} {{ (states("sensor.tuya_clamp_meter_daily_day") | float(0) | round(0) * states('sensor.tariff_energy_cost_base') | float(0) | round(2)) | round(2) }} ₴
-                     - {{"\U0001F312"}} Ночь:  {{ states("sensor.tuya_clamp_meter_daily_night") | float(0) | round(0) }} kWh, {{"\U0001F4B8"}} {{ (states("sensor.tuya_clamp_meter_daily_night") | float(0) | round(0) * states('sensor.tariff_energy_cost_base') | float(0) * 0.5 | round(2)) | round(2) }} ₴
+                     - {{"\U0001F312"}} Ніч:  {{ states("sensor.tuya_clamp_meter_daily_night") | float(0) | round(0) }} kWh, {{"\U0001F4B8"}} {{ (states("sensor.tuya_clamp_meter_daily_night") | float(0) | round(0) * states('sensor.tariff_energy_cost_base') | float(0) * 0.5 | round(2)) | round(2) }} ₴
                   data: 
                     inline_keyboard: *keyb_electricity
           mode: single
@@ -262,38 +262,38 @@ telegram:
           - service: notify.alexus
             data:
               message: &climate_body |
-                {{'\U0001F321'}} Показатели климата в квартире:
+                {{'\U0001F321'}} Показники клімату у квартирі:
                 ➖➖➖➖➖➖➖➖➖➖➖➖
-                {{"\U0001F6CB"}} Гостинная {{"\U0001F321"}}: {% if is_state("sensor.living_room_lumi_weather_temperature",'unavailable') %}{{"\U000026A0"}}Недоступен{% else %}{{ states("sensor.living_room_lumi_weather_temperature") | float(0) | round(1) }}{{"\U00002103"}}   {{"\U0001F4A6"}}: {{ states("sensor.living_room_lumi_weather_humidity") | float(0) | round(1) }} %{% endif %}
-                {% if is_state('input_boolean.heating_status','on') %}Отопление: {% if state_attr('climate.living_room_heater', 'hvac_action') == "off" %}{{"\U0001F4F4"}}{%endif%}
+                {{"\U0001F6CB"}} Вітальня {{"\U0001F321"}}: {% if is_state("sensor.living_room_lumi_weather_temperature",'unavailable') %}{{"\U000026A0"}}Недоступний{% else %}{{ states("sensor.living_room_lumi_weather_temperature") | float(0) | round(1) }}{{"\U00002103"}}   {{"\U0001F4A6"}}: {{ states("sensor.living_room_lumi_weather_humidity") | float(0) | round(1) }} %{% endif %}
+                {% if is_state('input_boolean.heating_status','on') %}Опалення: {% if state_attr('climate.living_room_heater', 'hvac_action') == "off" %}{{"\U0001F4F4"}}{%endif%}
                 - {{"\U0001F525"}}: {{ states("switch.living_room_socket_heating") }}, >{{"\U0001F321"}}: {{ state_attr('climate.living_room_heater', 'temperature') }}{{"\U00002103"}}
                 - {{"\U0001F50C"}}: ({{ states("sensor.living_room_socket_heating_voltage") }} V | {{ states("sensor.living_room_socket_heating_current") | float(0) | round(1) }} A | {{ states("sensor.living_room_socket_heating_power") }} W | {{ states("sensor.living_room_socket_heating_meter_monthly") | float(0) | round(1) }} kWh)
-                {% elif is_state('input_boolean.ac_status','on') %}Кондиционер: {% if is_state('climate.living_room_ac', 'off') %}{{"\U0001F4F4"}}{% elif is_state('climate.living_room_ac', 'cool') %}{{"\U00002744"}}{% elif is_state('climate.living_room_ac', 'heat') %}{{"\U00002600"}}{% elif is_state('climate.living_room_ac', 'dry') %}{{"\U0001F4A7"}}{% else %}{{"\U0001F504"}}{%endif%}
+                {% elif is_state('input_boolean.ac_status','on') %}Кондиціонер: {% if is_state('climate.living_room_ac', 'off') %}{{"\U0001F4F4"}}{% elif is_state('climate.living_room_ac', 'cool') %}{{"\U00002744"}}{% elif is_state('climate.living_room_ac', 'heat') %}{{"\U00002600"}}{% elif is_state('climate.living_room_ac', 'dry') %}{{"\U0001F4A7"}}{% else %}{{"\U0001F504"}}{%endif%}
                 - {{"\U0001F321"}}: {{ state_attr('climate.living_room_ac','temperature') }}{{"\U00002103"}} | {{"\U0001F32C"}}: {{ state_attr('climate.living_room_ac','fan_mode') }}
                 - {{"\U0001F50C"}}: ({{ states("sensor.living_room_air_conditioner_socket_voltage") }} V | {{ states("sensor.living_room_air_conditioner_socket_current") | float(0) | round(1) }} A | {{ states("sensor.living_room_air_conditioner_socket_power") }} W | {{ states("sensor.living_room_air_conditioner_socket_meter_monthly") | float(0) | round(1) }} kWh)
                 {% endif %}
-                {{"\U0001F6CC"}} Спальня {{"\U0001F321"}}: {% if is_state("sensor.bedroom_lumi_weather_temperature",'unavailable') %}{{"\U000026A0"}}Недоступен{% else %}{{ states("sensor.bedroom_lumi_weather_temperature") | float(0) | round(1) }}{{"\U00002103"}}   {{"\U0001F4A6"}}: {{ states("sensor.bedroom_lumi_weather_humidity") | float(0) | round(1) }} %{% endif %}
-                {% if is_state('input_boolean.heating_status','on') %}Отопление: {% if state_attr('climate.bedroom_heater', 'hvac_action') == "off" %}{{"\U0001F4F4"}}{%endif%}
+                {{"\U0001F6CC"}} Спальня {{"\U0001F321"}}: {% if is_state("sensor.bedroom_lumi_weather_temperature",'unavailable') %}{{"\U000026A0"}}Недоступний{% else %}{{ states("sensor.bedroom_lumi_weather_temperature") | float(0) | round(1) }}{{"\U00002103"}}   {{"\U0001F4A6"}}: {{ states("sensor.bedroom_lumi_weather_humidity") | float(0) | round(1) }} %{% endif %}
+                {% if is_state('input_boolean.heating_status','on') %}Опалення: {% if state_attr('climate.bedroom_heater', 'hvac_action') == "off" %}{{"\U0001F4F4"}}{%endif%}
                 - {{"\U0001F525"}}: {{ states("switch.bedroom_socket_heating") }}, >{{"\U0001F321"}}: {{ state_attr('climate.bedroom_heater', 'temperature') }}{{"\U00002103"}}
                 - {{"\U0001F50C"}}: ({{ states("sensor.bedroom_socket_heating_voltage") }} V | {{ states("sensor.bedroom_socket_heating_current") | float(0) | round(1) }} A | {{ states("sensor.bedroom_socket_heating_power") }} W | {{ states("sensor.bedroom_socket_heating_meter_monthly") | float(0) | round(1) }} kWh)
-                {% elif is_state('input_boolean.ac_status','on') %}Кондиционер: {% if is_state('climate.bedroom_ac', 'off') %}{{"\U0001F4F4"}}{% elif is_state('climate.bedroom_ac', 'cool') %}{{"\U00002744"}}{% elif is_state('climate.bedroom_ac', 'heat') %}{{"\U00002600"}}{% elif is_state('climate.bedroom_ac', 'dry') %}{{"\U0001F4A7"}}{% elif is_state('climate.bedroom_ac', 'fan_only') %}{{"\U0001F32C"}}{% else %}{{"\U0001F504"}}{%endif%}
+                {% elif is_state('input_boolean.ac_status','on') %}Кондиціонер: {% if is_state('climate.bedroom_ac', 'off') %}{{"\U0001F4F4"}}{% elif is_state('climate.bedroom_ac', 'cool') %}{{"\U00002744"}}{% elif is_state('climate.bedroom_ac', 'heat') %}{{"\U00002600"}}{% elif is_state('climate.bedroom_ac', 'dry') %}{{"\U0001F4A7"}}{% elif is_state('climate.bedroom_ac', 'fan_only') %}{{"\U0001F32C"}}{% else %}{{"\U0001F504"}}{%endif%}
                 - {{"\U0001F321"}}: {{ state_attr('climate.bedroom_ac','temperature') }}{{"\U00002103"}} | {{"\U0001F32C"}}: {{ state_attr('climate.bedroom_ac','fan_mode') }}
                 - {{"\U0001F50C"}}: ({{ states("sensor.bedroom_air_conditioner_socket_voltage") }} V | {{ states("sensor.bedroom_air_conditioner_socket_current") | float(0) | round(1) }} A | {{ states("sensor.bedroom_air_conditioner_socket_power") }} W | {{ states("sensor.bedroom_air_conditioner_socket_meter_monthly") | float(0) | round(1) }} kWh)
                 {% endif %}
-                {{"\U0001F37D"}} Кухня {{"\U0001F321"}}: {% if is_state("sensor.kitchen_lumi_weather_temperature",'unavailable') %}{{"\U000026A0"}}Недоступен{% else %}{{ states("sensor.kitchen_lumi_weather_temperature") | float(0) | round(1) }}{{"\U00002103"}}   {{"\U0001F4A6"}}: {{ states("sensor.kitchen_lumi_weather_humidity") | float(0) | round(1) }} %{% endif %}
-                {% if is_state('input_boolean.heating_status','on') %}Отопление: {% if state_attr('climate.kitchen_heater', 'hvac_action') == "off" %}{{"\U0001F4F4"}}{%endif%}
+                {{"\U0001F37D"}} Кухня {{"\U0001F321"}}: {% if is_state("sensor.kitchen_lumi_weather_temperature",'unavailable') %}{{"\U000026A0"}}Недоступний{% else %}{{ states("sensor.kitchen_lumi_weather_temperature") | float(0) | round(1) }}{{"\U00002103"}}   {{"\U0001F4A6"}}: {{ states("sensor.kitchen_lumi_weather_humidity") | float(0) | round(1) }} %{% endif %}
+                {% if is_state('input_boolean.heating_status','on') %}Опалення: {% if state_attr('climate.kitchen_heater', 'hvac_action') == "off" %}{{"\U0001F4F4"}}{%endif%}
                 - {{"\U0001F525"}}: {{ states("switch.kitchen_socket_heating") }}, >{{"\U0001F321"}}: {{ state_attr('climate.kitchen_heater', 'temperature') }}{{"\U00002103"}}
                 - {{"\U0001F50C"}}: ({{ states("sensor.kitchen_socket_heating_voltage") }} V | {{ states("sensor.kitchen_socket_heating_current") | float(0) | round(1) }} A | {{ states("sensor.kitchen_socket_heating_power") }} W | {{ states("sensor.kitchen_socket_heating_meter_monthly") | float(0) | round(1) }} kWh)
                 {% endif %}
-                {{"\U0001F6C0"}} Ванная {{"\U0001F321"}}: {% if is_state("sensor.bathroom_lumi_weather_temperature",'unavailable') %}{{"\U000026A0"}}Недоступен{% else %}{{ states("sensor.bathroom_lumi_weather_temperature") | float(0) | round(1) }}{{"\U00002103"}}   {{"\U0001F4A6"}}: {{ states("sensor.bathroom_lumi_weather_humidity") | float(0) | round(1) }} %{% endif %}
-                {{"\U0001F6AA"}} Коридор {{"\U0001F321"}}: {% if is_state("sensor.hallway_lumi_weather_temperature",'unavailable') %}{{"\U000026A0"}}Недоступен{% else %}{{ states("sensor.hallway_lumi_weather_temperature") | float(0) | round(1) }}{{"\U00002103"}}   {{"\U0001F4A6"}}: {{ states("sensor.hallway_lumi_weather_humidity") | float(0) | round(1) }} %{% endif %}
+                {{"\U0001F6C0"}} Ванна {{"\U0001F321"}}: {% if is_state("sensor.bathroom_lumi_weather_temperature",'unavailable') %}{{"\U000026A0"}}Недоступний{% else %}{{ states("sensor.bathroom_lumi_weather_temperature") | float(0) | round(1) }}{{"\U00002103"}}   {{"\U0001F4A6"}}: {{ states("sensor.bathroom_lumi_weather_humidity") | float(0) | round(1) }} %{% endif %}
+                {{"\U0001F6AA"}} Коридор {{"\U0001F321"}}: {% if is_state("sensor.hallway_lumi_weather_temperature",'unavailable') %}{{"\U000026A0"}}Недоступний{% else %}{{ states("sensor.hallway_lumi_weather_temperature") | float(0) | round(1) }}{{"\U00002103"}}   {{"\U0001F4A6"}}: {{ states("sensor.hallway_lumi_weather_humidity") | float(0) | round(1) }} %{% endif %}
 
-                {{"\U0001FA9F"}} Лоджия {{"\U0001F321"}}: {% if is_state("sensor.loggia_tuya_weather_temperature",'unavailable') %}{{"\U000026A0"}}Недоступен{% else %}{{ states("sensor.loggia_tuya_weather_temperature") | float(0) | round(1) }}{{"\U00002103"}}   {{"\U0001F4A6"}}: {{ states("sensor.loggia_tuya_weather_humidity") | float(0) | round(1) }} %{% endif %}
-                {{"\U0001F3DE"}} Улица {{"\U0001F321"}}: {% if is_state("sensor.outdoor_temperature",'unavailable') %}{{"\U000026A0"}}Недоступен{% else %}{{ states("sensor.outdoor_temperature") | float(0) | round(1) }}{{"\U00002103"}}   {{"\U0001F4A6"}}: {{ states("sensor.outdoor_humidity") | float(0) | round(1) }} %{% endif %}
+                {{"\U0001FA9F"}} Лоджія {{"\U0001F321"}}: {% if is_state("sensor.loggia_tuya_weather_temperature",'unavailable') %}{{"\U000026A0"}}Недоступний{% else %}{{ states("sensor.loggia_tuya_weather_temperature") | float(0) | round(1) }}{{"\U00002103"}}   {{"\U0001F4A6"}}: {{ states("sensor.loggia_tuya_weather_humidity") | float(0) | round(1) }} %{% endif %}
+                {{"\U0001F3DE"}} Вулиця {{"\U0001F321"}}: {% if is_state("sensor.outdoor_temperature",'unavailable') %}{{"\U000026A0"}}Недоступен{% else %}{{ states("sensor.outdoor_temperature") | float(0) | round(1) }}{{"\U00002103"}}   {{"\U0001F4A6"}}: {{ states("sensor.outdoor_humidity") | float(0) | round(1) }} %{% endif %}
               data: 
                 inline_keyboard:
-                  - "{% if is_state('input_boolean.ac_status','on') %}{{'\U00002744'}}/{{'\U00002600'}} Управление Кондиционерами:/ac_control{% elif is_state('input_boolean.heating_status','on') %}{{'\U00002668'}} Управление Обогревателями:/heaters_control{% else %}{{'\U00002139'}} Статус:/status, {{'\U0001F6E1'}} Безопасность:/security{% endif %}"
-                  - "{% if is_state('input_boolean.ac_status','on') %}{{'\U00002668'}} Включить Отопление:/turn_on_heaters{% elif is_state('input_boolean.heating_status','on') %}{{'\U00002744'}}/{{'\U00002600'}} Включить Кондиционирование:/turn_on_ac{% else %}{{'\U0001F321'}} Климат:/climate, {{'\U0001F4A1'}} Освещение:/lights{% endif %}"
+                  - "{% if is_state('input_boolean.ac_status','on') %}{{'\U00002744'}}/{{'\U00002600'}} Управління Кондиціонерами:/ac_control{% elif is_state('input_boolean.heating_status','on') %}{{'\U00002668'}} Управління Обігрівачами:/heaters_control{% else %}{{'\U00002139'}} Статус:/status, {{'\U0001F6E1'}} Безпека:/security{% endif %}"
+                  - "{% if is_state('input_boolean.ac_status','on') %}{{'\U00002668'}} Увімкнути Опалення:/turn_on_heaters{% elif is_state('input_boolean.heating_status','on') %}{{'\U00002744'}}/{{'\U00002600'}} Увімкнути Кондиціювання:/turn_on_ac{% else %}{{'\U0001F321'}} Клімат:/climate, {{'\U0001F4A1'}} Освітлення:/lights{% endif %}"
                   - "{{'\U0001F4D1'}} Меню:/menu"
           mode: single
 
@@ -322,10 +322,10 @@ telegram:
               message: *climate_body
               data: 
                 inline_keyboard: &keyb_heaters
-                  - "{{'\U0001F6CB'}} Гостинная {% if is_state('climate.living_room_heater','off') %}{{'\U0001F4F4'}} - Включить{% else %}{{'\U0001F525'}} - Выключить{% endif %}:/toggle_heater_living_room"
-                  - "{{'\U0001F6CC'}} Спальня {% if is_state('climate.bedroom_heater','off') %}{{'\U0001F4F4'}} - Включить{% else %}{{'\U0001F525'}} - Выключить{% endif %}:/toggle_heater_bedroom"
-                  - "{{'\U0001F37D'}} Кухня:{% if is_state('climate.kitchen_heater','off') %}{{'\U0001F4F4'}} - Включить{% else %}{{'\U0001F525'}} - Выключить{% endif %}:/toggle_heater_kitchen"
-                  - "{% if is_state('input_boolean.heating_status','on') %}{{'\U00002668'}} Выключить отопление:/turn_off_heaters{% elif is_state('input_boolean.heating_status','off') %}{{'\U00002668'}} Включить отопление:/turn_on_heaters{% endif %}"
+                  - "{{'\U0001F6CB'}} Вітальня {% if is_state('climate.living_room_heater','off') %}{{'\U0001F4F4'}} - Увімкнути{% else %}{{'\U0001F525'}} - Вимкнути{% endif %}:/toggle_heater_living_room"
+                  - "{{'\U0001F6CC'}} Спальня {% if is_state('climate.bedroom_heater','off') %}{{'\U0001F4F4'}} - Увімкнути{% else %}{{'\U0001F525'}} - Вимкнути{% endif %}:/toggle_heater_bedroom"
+                  - "{{'\U0001F37D'}} Кухня:{% if is_state('climate.kitchen_heater','off') %}{{'\U0001F4F4'}} - Увімкнути{% else %}{{'\U0001F525'}} - Вимкнути{% endif %}:/toggle_heater_kitchen"
+                  - "{% if is_state('input_boolean.heating_status','on') %}{{'\U00002668'}} Вимкнути Опалення:/turn_off_heaters{% elif is_state('input_boolean.heating_status','off') %}{{'\U00002668'}} Увімкнути Опалення:/turn_on_heaters{% endif %}"
                   - "{{'\U0001F4D1'}} Меню:/menu"
           mode: single
 
@@ -354,9 +354,9 @@ telegram:
               message: *climate_body
               data: 
                 inline_keyboard: &keyb_ac
-                  - "{{'\U0001F6CB'}} Гостинная {% if is_state('climate.living_room_ac','off') %}{{'\U0001F4F4'}} - Включить{% else %}{% if is_state('climate.living_room_ac','cool') %}{{'\U00002744'}}{% elif is_state('climate.living_room_ac','heat') %}{{'\U00002600'}}{% elif is_state('climate.living_room_ac','dry') %}{{'\U0001F4A7'}}{% else %}{{'\U0001F504'}}{%endif%} - Выключить{% endif %}:/toggle_ac_living_room"
-                  - "{{'\U0001F6CC'}} Спальня {% if is_state('climate.bedroom_ac','off') %}{{'\U0001F4F4'}} - Включить{% else %}{% if is_state('climate.bedroom_ac','cool') %}{{'\U00002744'}}{% elif is_state('climate.bedroom_ac','heat') %}{{'\U00002600'}}{% elif is_state('climate.bedroom_ac','dry') %}{{'\U0001F4A7'}}{% elif is_state('climate.bedroom_ac','fan_only') %}{{'\U0001F32C'}}{% else %}{{'\U0001F504'}}{% endif %} - Выключить{% endif %}:/toggle_ac_bedroom"
-                  - "{% if is_state('input_boolean.ac_status','on') %}{{'\U00002744'}}/{{'\U00002600'}} Выключить кондиционирование:/turn_off_ac{% elif is_state('input_boolean.ac_status','off') %}{{'\U00002744'}}/{{'\U00002600'}} Включить кондиционирование:/turn_on_ac{% endif %}"
+                  - "{{'\U0001F6CB'}} Вітальня {% if is_state('climate.living_room_ac','off') %}{{'\U0001F4F4'}} - Увімкнути{% else %}{% if is_state('climate.living_room_ac','cool') %}{{'\U00002744'}}{% elif is_state('climate.living_room_ac','heat') %}{{'\U00002600'}}{% elif is_state('climate.living_room_ac','dry') %}{{'\U0001F4A7'}}{% else %}{{'\U0001F504'}}{%endif%} - Вимкнути{% endif %}:/toggle_ac_living_room"
+                  - "{{'\U0001F6CC'}} Спальня {% if is_state('climate.bedroom_ac','off') %}{{'\U0001F4F4'}} - Увімкнути{% else %}{% if is_state('climate.bedroom_ac','cool') %}{{'\U00002744'}}{% elif is_state('climate.bedroom_ac','heat') %}{{'\U00002600'}}{% elif is_state('climate.bedroom_ac','dry') %}{{'\U0001F4A7'}}{% elif is_state('climate.bedroom_ac','fan_only') %}{{'\U0001F32C'}}{% else %}{{'\U0001F504'}}{% endif %} - Вимкнути{% endif %}:/toggle_ac_bedroom"
+                  - "{% if is_state('input_boolean.ac_status','on') %}{{'\U00002744'}}/{{'\U00002600'}} Вимкнути Кондиціонування:/turn_off_ac{% elif is_state('input_boolean.ac_status','off') %}{{'\U00002744'}}/{{'\U00002600'}} Увімкнути Кондиціонування:/turn_on_ac{% endif %}"
                   - "{{'\U0001F4D1'}} Меню:/menu"
           mode: single
 
@@ -559,7 +559,7 @@ telegram:
                 sequence:
                   - service: notify.alexus
                     data:
-                      message: "Включение кондиционера в Гостинной ..."
+                      message: "Ввімкнення кондиціонера у вітальні..."
                   - choose: # turn on socket for Living_Room_AC
                       - conditions:
                           - condition: state
@@ -597,7 +597,7 @@ telegram:
                 sequence:
                   - service: notify.alexus
                     data:
-                      message: "Выключение кондиционера в Гостинной ..."
+                      message: "Вимкнення кондиціонера у вітальні..."
                   - service: climate.turn_off
                     entity_id: climate.living_room_ac
                   - delay: 20
@@ -645,7 +645,7 @@ telegram:
                 sequence:
                   - service: notify.alexus
                     data:
-                      message: "Включение кондиционера в Спальне ..."
+                      message: "Ввімкнення кондиціонера в Спальні..."
                   - choose: # turn on socket for Bedroom_AC
                       - conditions:
                           - condition: state
@@ -683,7 +683,7 @@ telegram:
                 sequence:
                   - service: notify.alexus
                     data:
-                      message: "Выключение кондиционера в Спальне ..."
+                      message: "Вимкнення кондиціонера в Спальні..."
                   - service: climate.turn_off
                     entity_id: climate.bedroom_ac
                   - delay: 20
@@ -722,17 +722,17 @@ telegram:
           - service: notify.alexus
             data:
               message: &light_status_body |
-                {{'\U0001F4A1'}} Освещение в квартире:
+                {{'\U0001F4A1'}} Освітлення у квартирі:
                 ➖➖➖➖➖➖➖➖➖➖➖➖
-                {{"\U0001F6CB"}} Гостинная: {% if is_state("switch.living_room_light_switch","on") %}{{"\U000026AA"}} Включено{% else %}{{"\U000026AB"}} Выключено{% endif %}
-                {{"\U0001F6CC"}} Спальня: {% if is_state("switch.bedroom_light_switch","on") %}{{"\U000026AA"}} Включено{% else %}{{"\U000026AB"}} Выключено{% endif %}
+                {{"\U0001F6CB"}} Вітальня: {% if is_state("switch.living_room_light_switch","on") %}{{"\U000026AA"}} Увімкнено{% else %}{{"\U000026AB"}} Вимкнено{% endif %}
+                {{"\U0001F6CC"}} Спальня: {% if is_state("switch.bedroom_light_switch","on") %}{{"\U000026AA"}} Увімкнено{% else %}{{"\U000026AB"}} Вимкнено{% endif %}
                 {{"\U0001F37D"}} Кухня:
-                {{"\U0001F6C0"}} Ванная:
+                {{"\U0001F6C0"}} Ванна:
                 {{"\U0001F6AA"}} Коридор:
               data:
                   inline_keyboard: &keyb_light
-                    - "{{'\U0001F6CB'}} Гостинная {% if is_state('switch.living_room_light_switch','on') %}{{'\U000026AA'}}{% else %}{{'\U000026AB'}}{% endif %}:/toggle_living_room_light, {{'\U0001F6CC'}} Спальня {% if is_state('switch.bedroom_light_switch','on') %}{{'\U000026AA'}}{% else %}{{'\U000026AB'}}{% endif %}:/toggle_bedroom_light"
-                    - "{{'\U0001F37D'}} Кухня:/toggle_kitchen_light, {{'\U0001F6C0'}} Ванная:/toggle_bathroom_light, {{'\U0001F6AA'}} Коридор:/toggle_corridor_light"
+                    - "{{'\U0001F6CB'}} Вітальня {% if is_state('switch.living_room_light_switch','on') %}{{'\U000026AA'}}{% else %}{{'\U000026AB'}}{% endif %}:/toggle_living_room_light, {{'\U0001F6CC'}} Спальня {% if is_state('switch.bedroom_light_switch','on') %}{{'\U000026AA'}}{% else %}{{'\U000026AB'}}{% endif %}:/toggle_bedroom_light"
+                    - "{{'\U0001F37D'}} Кухня:/toggle_kitchen_light, {{'\U0001F6C0'}} Ванна:/toggle_bathroom_light, {{'\U0001F6AA'}} Коридор:/toggle_corridor_light"
                     - "{{'\U0001F4D1'}} Меню:/menu"
           mode: single
 
@@ -759,7 +759,7 @@ telegram:
               title: *light_status_body
               message: |
                 ➖➖➖➖➖➖➖➖➖➖➖➖
-                Освещение в Спальне: {% if is_state("switch.bedroom_light_switch","on") %}{{"\U00002705"}} Включено{% else %}{{"\U0000274C"}} Выключено{% endif %}
+                Освітлення у Спальні: {% if is_state("switch.bedroom_light_switch","on") %}{{"\U00002705"}} Увімкнено{% else %}{{"\U0000274C"}} Вимкнено{% endif %}
               data:
                   inline_keyboard: *keyb_light
           mode: single
@@ -787,7 +787,7 @@ telegram:
               title: *light_status_body
               message: |
                 ➖➖➖➖➖➖➖➖➖➖➖➖
-                Освещение в Гостинной: {% if is_state("switch.living_room_light_switch","on") %}{{"\U00002705"}} Включено{% else %}{{"\U0000274C"}} Выключено{% endif %}
+                Освітлення у Вітальні: {% if is_state("switch.living_room_light_switch","on") %}{{"\U00002705"}} Увімкнено{% else %}{{"\U0000274C"}} Вимкнено{% endif %}
               data:
                   inline_keyboard: *keyb_light
           mode: single
@@ -804,53 +804,53 @@ telegram:
           - service: notify.alexus
             data:
               message: &security_status |
-                {{"\U0001F6E1"}} Безопасность в квартире:
+                {{"\U0001F6E1"}} Безпека у квартирі
                 ➖➖➖➖➖➖➖➖➖➖➖➖
-                {{"\U0001F3D8"}} Присутствие: {% if is_state("group.family","home") %}{% set Str = '' %}{% if is_state("person.alexus","home") %}{% set Str = '\U0001F468\U0000200D' %}{% endif %}{% if is_state("person.inna","home") %}{% set Str = Str + "\U0001F469\U0000200D" %}{% endif %}{% if is_state("person.vova","home") %}{% set Str = Str + "\U0001F466\U0000200D" %}{% endif %}{% if is_state("person.ivan","home") %}{% set Str = Str + "\U0001F466" %}{% endif %}{{ Str }} Дома {%else%}Не дома {%endif%}
+                {{"\U0001F3D8"}} Присутність: {% if is_state("group.family","home") %}{% set Str = '' %}{% if is_state("person.alexus","home") %}{% set Str = '\U0001F468\U0000200D' %}{% endif %}{% if is_state("person.inna","home") %}{% set Str = Str + "\U0001F469\U0000200D" %}{% endif %}{% if is_state("person.vova","home") %}{% set Str = Str + "\U0001F466\U0000200D" %}{% endif %}{% if is_state("person.ivan","home") %}{% set Str = Str + "\U0001F466" %}{% endif %}{{ Str }} Вдома {%else%}Не вдома {%endif%}
 
                 {%- if is_state('binary_sensor.m_novomoskovsk_alerts','on') %}
                 {{ '' }}
-                {{ '\U0000203C\U0000203C Внимание\U0000203C\U0000203C' }}
+                {{ '\U0000203C\U0000203C УВАГА\U0000203C\U0000203C' }}
                   {% if is_state('binary_sensor.m_novomoskovsk_ta_novomoskovska_teritorialna_gromada_air','on') %}
-                  {{- '\U0001F6EB \U0001F680 ВОЗДУШНАЯ ТРЕВОГА \U0001F680 \U0001F6EC' -}}
+                  {{- '\U0001F6EB \U0001F680 ПОВІТРЯНА ТРИВОГА \U0001F680 \U0001F6EC' -}}
                   {% elif is_state('binary_sensor.m_novomoskovsk_ta_novomoskovska_teritorialna_gromada_artillery','on') %}
-                  {{- '\U0001F680 УГРОЗА АРТОБСТРЕЛА \U0001F680' -}}
+                  {{- '\U0001F680 ЗАГРОЗА АРТОБСТРІЛУ \U0001F680' -}}
                   {% elif is_state('binary_sensor.m_novomoskovsk_ta_novomoskovska_teritorialna_gromada_chemical','on') %}
-                  {{- '\U00002623 ХИМИЧЕСКАЯ УГРОЗА \U00002623' -}}
+                  {{- '\U00002623 ХІМІЧНА ЗАГРОЗА \U00002623' -}}
                   {% elif is_state('binary_sensor.m_novomoskovsk_ta_novomoskovska_teritorialna_gromada_nuclear','on') %}
-                  {{- '\U00002622 ЯДЕРНАЯ УГРОЗА \U00002622' -}}
+                  {{- '\U00002622 ЯДЕРНА ЗАГРОЗА \U00002622' -}}
                   {% elif is_state('binary_sensor.m_novomoskovsk_ta_novomoskovska_teritorialna_gromada_urban_fights','on') %}
-                  {{- '\U00002694 УГРОЗА УЛИЧНЫХ БОЕВ \U00002694' -}}
+                  {{- '\U00002694 ЗАГРОЗА ВУЛИЧНИХ БОЇВ \U00002694' -}}
                   {% else %}
-                  {{- '\U000026A0 НЕИЗВЕСТНАЯ УГРОЗА \U000026A0' -}}
+                  {{- '\U000026A0 НЕВІДОМА ЗАГРОЗА \U000026A0' -}}
                   {% endif -%}
                 {% else -%}
                 {% endif %}
 
-                {{"\U0001F694"}} Сигнализация: {% if is_state("alarm_control_panel.home_alarm",'unavailable') %}{{"\U000026A0"}}Недоступен{% else %}{% if is_state("alarm_control_panel.home_alarm","disarmed") %}{{"\U0001F7E2"}} Отключена{% elif is_state("alarm_control_panel.home_alarm","armed_home") %}{{"\U0001F7E1"}} Охрана(Дома){% elif is_state("alarm_control_panel.home_alarm","armed_away") %}{{"\U0001F534"}} Охрана(Не Дома){% elif is_state("alarm_control_panel.home_alarm","armed_night") %}{{"\U0001F535"}} Охрана(Ночь){% elif is_state("alarm_control_panel.home_alarm","triggered") %}{{"\U0001F6A8"}} ТРЕВОГА{{"\U0000203C"}}{% elif is_state("alarm_control_panel.home_alarm","pending") %}{{"\U0001F536"}} ОЖИДАНИЕ{{"\U00002049"}}{% elif is_state("alarm_control_panel.home_alarm","arming") %}{{"\U0001F550"}} ПОСТАНОВКА...{% endif %}{% endif %}
+                {{"\U0001F694"}} Сигнализація: {% if is_state("alarm_control_panel.home_alarm",'unavailable') %}{{"\U000026A0"}}Недоступний{% else %}{% if is_state("alarm_control_panel.home_alarm","disarmed") %}{{"\U0001F7E2"}} Вимкнено{% elif is_state("alarm_control_panel.home_alarm","armed_home") %}{{"\U0001F7E1"}} Охорона(Вдома){% elif is_state("alarm_control_panel.home_alarm","armed_away") %}{{"\U0001F534"}} Охорона(Не Вдома){% elif is_state("alarm_control_panel.home_alarm","armed_night") %}{{"\U0001F535"}} Охорона(Ніч){% elif is_state("alarm_control_panel.home_alarm","triggered") %}{{"\U0001F6A8"}} ТРИВОГА{{"\U0000203C"}}{% elif is_state("alarm_control_panel.home_alarm","pending") %}{{"\U0001F536"}} ОЧІКУВАННЯ{{"\U00002049"}}{% elif is_state("alarm_control_panel.home_alarm","arming") %}{{"\U0001F550"}} ПОСТАНОВКА...{% endif %}{% endif %}
 
-                {{"\U0001F6AA"}} Входная дверь: {% if is_state("binary_sensor.hallway_entrance_door_contact",'unavailable') %}{{"\U000026A0"}}Недоступен{% else %}{% if is_state("binary_sensor.hallway_entrance_door_contact","off") %}{{"\U0001F7E2"}} Закрыта{%else%}{{"\U0001F534"}} Открыта{%endif%}{% endif %}
-                {{"\U0001F6AA"}} Дверь на Лоджию: {% if is_state("binary_sensor.living_room_loggia_door_contact",'unavailable') %}{{"\U000026A0"}}Недоступен{% else %}{% if is_state("binary_sensor.living_room_loggia_door_contact","off") %}{{"\U0001F7E2"}} Закрыта{%else%}{{"\U0001F534"}} Открыта{%endif%}{% endif %}
+                {{"\U0001F6AA"}} Вхідні двері: {% if is_state("binary_sensor.hallway_entrance_door_contact",'unavailable') %}{{"\U000026A0"}}Недоступний{% else %}{% if is_state("binary_sensor.hallway_entrance_door_contact","off") %}{{"\U0001F7E2"}} Зачинені{%else%}{{"\U0001F534"}} Відчинені{%endif%}{% endif %}
+                {{"\U0001F6AA"}} Двері на Лоджію: {% if is_state("binary_sensor.living_room_loggia_door_contact",'unavailable') %}{{"\U000026A0"}}Недоступний{% else %}{% if is_state("binary_sensor.living_room_loggia_door_contact","off") %}{{"\U0001F7E2"}} Зачинені{%else%}{{"\U0001F534"}} Відчинені{%endif%}{% endif %}
 
-                {{"\U0001FA9F"}} Окно в Спальне: 
-                - Левая створка: {% if is_state("binary_sensor.bedroom_window_left_contact",'unavailable') %}{{"\U000026A0"}}Недоступен{% else %}{% if is_state("binary_sensor.bedroom_window_left_contact","off") %}{{"\U0001F7E2"}} Закрыта{%else%}{{"\U0001F534"}} Открыта{%endif%}{% endif %}
-                - Правая створка: {% if is_state("binary_sensor.bedroom_window_right_contact",'unavailable') %}{{"\U000026A0"}}Недоступен{% else %}{% if is_state("binary_sensor.bedroom_window_right_contact","off") %}{{"\U0001F7E2"}} Закрыта{%else%}{{"\U0001F534"}} Открыта{%endif%}{% endif %}
-                {{"\U0001FA9F"}} Окно в Кухне: {% if is_state("binary_sensor.kitchen_window_contact",'unavailable') %}{{"\U000026A0"}}Недоступен{% else %}{% if is_state("binary_sensor.kitchen_window_contact","off") %}{{"\U0001F7E2"}} Закрыто{%else%}{{"\U0001F534"}} Открыто{%endif%}{% endif %}
+                {{"\U0001FA9F"}} Вікно у Спальні: 
+                - Ліва стулка: {% if is_state("binary_sensor.bedroom_window_left_contact",'unavailable') %}{{"\U000026A0"}}Недоступний{% else %}{% if is_state("binary_sensor.bedroom_window_left_contact","off") %}{{"\U0001F7E2"}} Зачинене{%else%}{{"\U0001F534"}} Відчинене{%endif%}{% endif %}
+                - Права стулка: {% if is_state("binary_sensor.bedroom_window_right_contact",'unavailable') %}{{"\U000026A0"}}Недоступний{% else %}{% if is_state("binary_sensor.bedroom_window_right_contact","off") %}{{"\U0001F7E2"}} Зачинене{%else%}{{"\U0001F534"}} Відчинене{%endif%}{% endif %}
+                {{"\U0001FA9F"}} Вікно на Кухні: {% if is_state("binary_sensor.kitchen_window_contact",'unavailable') %}{{"\U000026A0"}}Недоступний{% else %}{% if is_state("binary_sensor.kitchen_window_contact","off") %}{{"\U0001F7E2"}} Зачинене{%else%}{{"\U0001F534"}} Відчинене{%endif%}{% endif %}
                 
-                {{"\U0001F6B1"}} Датчики протечки 
-                - в Ванной {{"\U0001F4A7"}}:
-                  - под ванной {{"\U0001F6C1"}}: {% if is_state("binary_sensor.bathroom_water_leak_under_the_bath_water_leak",'unavailable') %}{{"\U000026A0"}}Недоступен{% else %}{% if is_state("binary_sensor.bathroom_water_leak_under_the_bath_water_leak","off") %}{{"\U0001F7E2"}} Сухо{%else%}{{"\U0001F534"}}{{"\U000026A0"}} Протечка{{"\U0000203C"}}{%endif%}{% endif %}
-                  - под машинкой {{"\U0001F9FA"}}: {% if is_state("binary_sensor.bathroom_water_leak_under_washing_machine_water_leak",'unavailable') %}{{"\U000026A0"}}Недоступен{% else %}{% if is_state("binary_sensor.bathroom_water_leak_under_washing_machine_water_leak","off") %}{{"\U0001F7E2"}} Сухо{%else%}{{"\U000026A0"}} Протечка{{"\U0000203C"}}{%endif%}{% endif %} 
-                - в Кухне {{"\U0001F37D"}}: {% if is_state("binary_sensor.kitchen_water_leak_sensor_water_leak",'unavailable') %}{{"\U000026A0"}}Недоступен{% else %}{% if is_state("binary_sensor.kitchen_water_leak_sensor_water_leak","off") %}{{"\U0001F7E2"}} Сухо{%else%}{{"\U000026A0"}} Протечка{{"\U0000203C"}}{%endif%}{% endif %}
+                {{"\U0001F6B1"}} Датчики протікання 
+                - у ванні {{"\U0001F4A7"}}:
+                  - під ванною {{"\U0001F6C1"}}: {% if is_state("binary_sensor.bathroom_water_leak_under_the_bath_water_leak",'unavailable') %}{{"\U000026A0"}}Недоступний{% else %}{% if is_state("binary_sensor.bathroom_water_leak_under_the_bath_water_leak","off") %}{{"\U0001F7E2"}} Сухо{%else%}{{"\U0001F534"}}{{"\U000026A0"}} Протікання{{"\U0000203C"}}{%endif%}{% endif %}
+                  - під пралкою {{"\U0001F9FA"}}: {% if is_state("binary_sensor.bathroom_water_leak_under_washing_machine_water_leak",'unavailable') %}{{"\U000026A0"}}Недоступний{% else %}{% if is_state("binary_sensor.bathroom_water_leak_under_washing_machine_water_leak","off") %}{{"\U0001F7E2"}} Сухо{%else%}{{"\U000026A0"}} Протікання{{"\U0000203C"}}{%endif%}{% endif %} 
+                - на кухні {{"\U0001F37D"}}: {% if is_state("binary_sensor.kitchen_water_leak_sensor_water_leak",'unavailable') %}{{"\U000026A0"}}Недоступний{% else %}{% if is_state("binary_sensor.kitchen_water_leak_sensor_water_leak","off") %}{{"\U0001F7E2"}} Сухо{%else%}{{"\U000026A0"}} Протікання{{"\U0000203C"}}{%endif%}{% endif %}
 
-                {{"\U0001F6AB"}} Газ на Кухне: {% if is_state("binary_sensor.kitchen_gas_detector_gas",'unavailable') %}{{"\U000026A0"}}Недоступен{% else %}{% if is_state("binary_sensor.kitchen_gas_detector_gas","off") %}{{"\U0001F7E2"}} Утечки нет{%else%}{{"\U000026A0"}} Обнаружена утечка{{"\U0000203C"}}{%endif%}{% endif %}
+                {{"\U0001F6AB"}} Газ на Кухні: {% if is_state("binary_sensor.kitchen_gas_detector_gas",'unavailable') %}{{"\U000026A0"}}Недоступний{% else %}{% if is_state("binary_sensor.kitchen_gas_detector_gas","off") %}{{"\U0001F7E2"}} Не виявлено{%else%}{{"\U000026A0"}} Виявлено{{"\U0000203C"}}{%endif%}{% endif %}
 
-                {{"\U0001F6AD"}} Дым на Кухне: {% if is_state("binary_sensor.kitchen_smoke_detector_smoke",'unavailable') %}{{"\U000026A0"}}Недоступен{% else %}{% if is_state("binary_sensor.kitchen_smoke_detector_smoke","off") %}{{"\U0001F7E2"}} Без Дыма{%else%}{{"\U000026A0"}} Дым Обнаружен{{"\U0000203C"}}{%endif%}{% endif %}
-                {{"\U0001F6AD"}} Дым в Спальне: {% if is_state("binary_sensor.bedroom_smoke_detector_smoke",'unavailable') %}{{"\U000026A0"}}Недоступен{% else %}{% if is_state("binary_sensor.bedroom_smoke_detector_smoke","off") %}{{"\U0001F7E2"}} Без Дыма{%else%}{{"\U000026A0"}} Дым Обнаружен{{"\U0000203C"}}{%endif%}{% endif %}
-                {{"\U0001F6AD"}} Дым в Гостинной: {% if is_state("binary_sensor.living_room_smoke_detector_smoke",'unavailable') %}{{"\U000026A0"}}Недоступен{% else %}{% if is_state("binary_sensor.living_room_smoke_detector_smoke","off") %}{{"\U0001F7E2"}} Без Дыма{%else%}{{"\U000026A0"}} Дым Обнаружен{{"\U0000203C"}}{%endif%}{% endif %}
+                {{"\U0001F6AD"}} Дим на Кухні: {% if is_state("binary_sensor.kitchen_smoke_detector_smoke",'unavailable') %}{{"\U000026A0"}}Недоступний{% else %}{% if is_state("binary_sensor.kitchen_smoke_detector_smoke","off") %}{{"\U0001F7E2"}} Не виявлено{%else%}{{"\U000026A0"}} Виявлено{{"\U0000203C"}}{%endif%}{% endif %}
+                {{"\U0001F6AD"}} Дим у Спальні: {% if is_state("binary_sensor.bedroom_smoke_detector_smoke",'unavailable') %}{{"\U000026A0"}}Недоступний{% else %}{% if is_state("binary_sensor.bedroom_smoke_detector_smoke","off") %}{{"\U0001F7E2"}} Не виявлено{%else%}{{"\U000026A0"}} Виявлено{{"\U0000203C"}}{%endif%}{% endif %}
+                {{"\U0001F6AD"}} Дим у Вітальні: {% if is_state("binary_sensor.living_room_smoke_detector_smoke",'unavailable') %}{{"\U000026A0"}}Недоступний{% else %}{% if is_state("binary_sensor.living_room_smoke_detector_smoke","off") %}{{"\U0001F7E2"}} Не виявлено{%else%}{{"\U000026A0"}} Виявлено{{"\U0000203C"}}{%endif%}{% endif %}
               data: 
                 inline_keyboard:  
-                  - "{% if is_state('alarm_control_panel.home_alarm','disarmed') %}{{'\U0001F694'}} Поставить на охрану {{'\U0001F534'}}:/set_alarm{% else %}{{'\U0001F694'}} Снять с охраны {{'\U0001F7E2'}}:/cancel_alarm{% endif%}"
+                  - "{% if is_state('alarm_control_panel.home_alarm','disarmed') %}{{'\U0001F694'}} Поставити на охорону {{'\U0001F534'}}:/set_alarm{% else %}{{'\U0001F694'}} Зняти з охорони {{'\U0001F7E2'}}:/cancel_alarm{% endif%}"
                   - "{{'\U0001F4D1'}} Меню:/menu"
           mode: single
 
@@ -864,14 +864,14 @@ telegram:
           action:
             - service: notify.alexus
               data:
-                title: '{{"\U0001F6A8"}} СИГНАЛИЗАЦИЯ{{"\U0000203C"}}'
+                title: '{{"\U0001F6A8"}} СИГНАЛИЗАЦІЯ{{"\U0000203C"}}'
                 message: |
                     ➖➖➖➖➖➖➖➖➖➖➖➖
-                    {{"\U0001F694"}} Включить сигнализацию{{"\U00002049"}}
+                    {{"\U0001F694"}} Увімкнути сигнализацію{{"\U00002049"}}
                 data: 
                   inline_keyboard: 
-                    - "{{'\U0001F534'}} Не Дома:/set_alarm_away, {{'\U0001F7E1'}} Дома:/set_alarm_home"
-                    - "{{'\U0001F535'}} Ночь:/set_alarm_night, {{'\U0001F4D1'}} Меню:/menu"
+                    - "{{'\U0001F534'}} Не Вдома:/set_alarm_away, {{'\U0001F7E1'}} Вдома:/set_alarm_home"
+                    - "{{'\U0001F535'}} Ніч:/set_alarm_night, {{'\U0001F4D1'}} Меню:/menu"
           mode: single
 
         - alias: "Telegram: Set ALARM_NIGHT mode for Alarm"
@@ -939,12 +939,12 @@ telegram:
           - service: notify.alexus
             data:
               message: |
-                  Геолокация {{"\U0001F5FA"}}:
+                  Геолокація {{"\U0001F5FA"}}:
                   ➖➖➖➖➖➖➖➖➖➖➖➖
-                  Выберите члена семьи {{"\U0001F468\U0000200D\U0001F469\U0000200D\U0001F466\U0000200D\U0001F466"}}:
+                  Оберіть члена родини {{"\U0001F468\U0000200D\U0001F469\U0000200D\U0001F466\U0000200D\U0001F466"}}:
               data: 
                 inline_keyboard: &keyb_geo
-                  - "{{'\U0001F469'}} Инна:/inna, {{'\U0001F466'}} Вова:/vova, {{'\U0001F466'}} Иван:/ivan"
+                  - "{{'\U0001F469'}} Інна:/inna, {{'\U0001F466'}} Вова:/vova, {{'\U0001F466'}} Іван:/ivan"
                   - "{{'\U0001F4D1'}} Меню:/menu"
           mode: single
 
@@ -960,11 +960,11 @@ telegram:
             - service: notify.alexus
               data:
                 message: |
-                    Иван сейчас находится здесь:
+                    Іван зараз знаходиться тут:
                     ➖➖➖➖➖➖➖➖➖➖➖➖
             - service: notify.alexus
               data:
-                message: 'Местоположение Ивана'
+                message: 'Місцезнаходження Івана'
                 data:
                   location:
                     latitude: '{{ state_attr("device_tracker.google_maps_116201395133676470264","latitude") }}'
@@ -972,9 +972,9 @@ telegram:
             - service: notify.alexus
               data:
                 message: |
-                    Адрес {{"\U0001F3E1"}}: {{ state_attr("device_tracker.google_maps_116201395133676470264","address") }}
+                    Адреса {{"\U0001F3E1"}}: {{ state_attr("device_tracker.google_maps_116201395133676470264","address") }}
                     Батарея {{"\U0001F50B"}}: {{ state_attr("device_tracker.google_maps_116201395133676470264","battery_level") }}%{% if state_attr("device_tracker.google_maps_116201395133676470264","battery_charging") %} {{"\U0001F50C"}} Charging{%endif%}
-                    Обновленно: {{ as_timestamp(state_attr("device_tracker.google_maps_116201395133676470264","last_seen")) | timestamp_custom("\U0001F4C5 %d.%m.%Y \U0001F551 %H:%M", default = 0) }}
+                    Оновлено: {{ as_timestamp(state_attr("device_tracker.google_maps_116201395133676470264","last_seen")) | timestamp_custom("\U0001F4C5 %d.%m.%Y \U0001F551 %H:%M", default = 0) }}
                 data: 
                   inline_keyboard: *keyb_geo
           mode: single
@@ -991,11 +991,11 @@ telegram:
             - service: notify.alexus
               data:
                 message: |
-                    Инна сейчас находится здесь:
+                    Інна зараз знаходится тут:
                     ➖➖➖➖➖➖➖➖➖➖➖➖
             - service: notify.alexus
               data:
-                message: 'Местоположение Инны'
+                message: 'Місцезнаходження Інни'
                 data:
                   location:
                     latitude: '{{ state_attr("device_tracker.google_maps_104258358112460913017","latitude") }}'
@@ -1003,9 +1003,9 @@ telegram:
             - service: notify.alexus
               data:
                 message: |
-                    Адрес {{"\U0001F3E1"}}: {{ state_attr("device_tracker.google_maps_104258358112460913017","address") }}
+                    Адреса {{"\U0001F3E1"}}: {{ state_attr("device_tracker.google_maps_104258358112460913017","address") }}
                     Батарея {{"\U0001F50B"}}: {{ state_attr("device_tracker.google_maps_104258358112460913017","battery_level") }}%{% if state_attr("device_tracker.google_maps_104258358112460913017","battery_charging") %} {{"\U0001F50C"}} Charging{%endif%}
-                    Обновленно: {{ as_timestamp(state_attr("device_tracker.google_maps_104258358112460913017","last_seen")) | timestamp_custom("\U0001F4C5 %d.%m.%Y \U0001F551 %H:%M", default = 0) }}
+                    Оновлено: {{ as_timestamp(state_attr("device_tracker.google_maps_104258358112460913017","last_seen")) | timestamp_custom("\U0001F4C5 %d.%m.%Y \U0001F551 %H:%M", default = 0) }}
                 data: 
                   inline_keyboard: *keyb_geo
           mode: single
@@ -1022,11 +1022,11 @@ telegram:
             - service: notify.alexus
               data:
                 message: |
-                    Вова сейчас находится здесь:
+                    Вова зараз знаходится тут:
                     ➖➖➖➖➖➖➖➖➖➖➖➖
             - service: notify.alexus
               data:
-                message: 'Местоположение Вовы'
+                message: 'Місцезнаходження Вовы'
                 data:
                   location:
                     latitude: '{{ state_attr("device_tracker.google_maps_105010208332419299900","latitude") }}'
@@ -1034,9 +1034,9 @@ telegram:
             - service: notify.alexus
               data:
                 message: |
-                    Адрес {{"\U0001F3E1"}}: {{ state_attr("device_tracker.google_maps_105010208332419299900","address") }}
+                    Адреса {{"\U0001F3E1"}}: {{ state_attr("device_tracker.google_maps_105010208332419299900","address") }}
                     Батарея {{"\U0001F50B"}}: {{ state_attr("device_tracker.google_maps_105010208332419299900","battery_level") }}%{% if state_attr("device_tracker.google_maps_105010208332419299900","battery_charging") %} {{"\U0001F50C"}} Charging{%endif%}
-                    Обновленно: {{ as_timestamp(state_attr("device_tracker.google_maps_105010208332419299900","last_seen")) | timestamp_custom("\U0001F4C5 %d.%m.%Y \U0001F551 %H:%M", default = 0) }}
+                    Оновлено: {{ as_timestamp(state_attr("device_tracker.google_maps_105010208332419299900","last_seen")) | timestamp_custom("\U0001F4C5 %d.%m.%Y \U0001F551 %H:%M", default = 0) }}
                 data: 
                   inline_keyboard: *keyb_geo
           mode: single

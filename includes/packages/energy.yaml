@@ -37,69 +37,69 @@ energy_config:
     homeassistant:
         customize:
             binary_sensor.bathroom_washing_machine_socket_status:
-                friendly_name: 'Стиральная Машина'
+                friendly_name: 'Пральна Машина'
             binary_sensor.bedroom_air_conditioner_socket_status:
-                friendly_name: 'Кондиционер в Спальне'
+                friendly_name: 'Кондиціонер у Спальні'
             binary_sensor.living_room_air_conditioner_socket_status:
-                friendly_name: 'Кондиционер в Гостинной'
+                friendly_name: 'Кондиціонер у Вітальні'
             binary_sensor.bedroom_socket_heating_status:
-                friendly_name: 'Обогреватель в Спальне'
+                friendly_name: 'Обігрівач у Спальні'
             binary_sensor.living_room_socket_heating_status:
-                friendly_name: 'Обогреватель в Гостинной'
+                friendly_name: 'Обігрівач у Вітальні'
             binary_sensor.kitchen_socket_heating_status:
-                friendly_name: 'Обогреватель в Кухне'
+                friendly_name: 'Обігрівач на Кухні'
             binary_sensor.kitchen_coffee_machine_and_microwave_socket_status:
-                friendly_name: 'Кофемашина и Микроволновка в Кухне'
+                friendly_name: 'Кавомашина та Мікрохвильова піч на Кухні'
             binary_sensor.kitchen_oven_socket_status:
-                friendly_name: 'Духовка в Кухне'
+                friendly_name: 'Духовка на Кухні'
             binary_sensor.exceed_electricity_consumption_limit:
-                friendly_name: 'Превышение Лимита Потребления'
+                friendly_name: 'Перевищення Ліміту Споживання'
             sensor.tuya_clamp_meter_monthly_total:
-                friendly_name: 'Потребление за Месяц (всего)'
+                friendly_name: 'Споживання за Місяць (всього)'
             sensor.energy_counter_total:
-                friendly_name: 'Счетчик (общий)'
+                friendly_name: 'Лічильник (загальний)'
             sensor.energy_counter_total_day:
-                friendly_name: 'Счетчик (день)'
+                friendly_name: 'Лічильник (день)'
             sensor.energy_counter_total_night:
-                friendly_name: 'Счетчик (ночь)'
+                friendly_name: 'Лічильник (ніч)'
             input_number.energy_counter_calibration_day:
-                friendly_name: 'Калибровка Cчетчика (день)'
+                friendly_name: 'Калібрування Лічильника (день)'
             input_number.energy_counter_calibration_night:
-                friendly_name: 'Калибровка Cчетчика (ночь)'
+                friendly_name: 'Калібрування Лічильника (ніч)'
             input_number.tarrif_energy_cost_calibrate_base:
-                friendly_name: 'Калибровка Тарифа на Электроэнергию'
+                friendly_name: 'Калібрування Тарифу на Електроенергію'
             input_number.electricity_consumption_limit:
-                friendly_name: 'Лимит Потребления Электроэнергии'
+                friendly_name: 'Ліміт Споживання Електроенергії'
             switch.bathroom_washing_machine_socket:
-                friendly_name: 'Ванная - Стиральная Машина, Розетка'
+                friendly_name: 'Ванна - Пральна машина, Розетка'
             switch.bedroom_air_conditioner_socket:
-                friendly_name: 'Спальня - Кондиционер, Розетка'
+                friendly_name: 'Спальня - Кондиціонер, Розетка'
             switch.bedroom_socket_heating:
-                friendly_name: 'Спальня - Обогреватель, Розетка'
+                friendly_name: 'Спальня - Обігрівач, Розетка'
             switch.bedroom_light_switch:
-                friendly_name: 'Спальня - Люстра, Выключатель'
+                friendly_name: 'Спальня - Люстра, Вимикач'
             switch.living_room_air_conditioner_socket:
-                friendly_name: 'Гостинная - Кондиционер, Розетка'
+                friendly_name: 'Вітальня - Кондиціонер, Розетка'
             switch.living_room_aquarium_main_lighting:
-                friendly_name: 'Гостинная - Аквариум, Розетка'
+                friendly_name: 'Вітальня - Акваріум, Розетка'
             switch.living_room_aquarium_power_strip_l1:
-                friendly_name: 'Гостинная - Аквариум, Аэрация'
+                friendly_name: 'Вітальня - Акваріум, Аерація'
             switch.living_room_aquarium_power_strip_l2:
-                friendly_name: 'Гостинная - Аквариум, Фильтрация'
+                friendly_name: 'Вітальня - Акваріум, Фільтрація'
             switch.living_room_aquarium_power_strip_l3:
-                friendly_name: 'Гостинная - Аквариум, Освещение'
+                friendly_name: 'Вітальня - Акваріум, Освітлення'
             switch.living_room_aquarium_power_strip_l4:
-                friendly_name: 'Гостинная - Аквариум, Лунный Свет'
+                friendly_name: 'Вітальня - Акваріум, Місячне Сяйво'
             switch.living_room_aquarium_power_strip_l5:
-                friendly_name: 'Гостинная - Аквариум, USB'
+                friendly_name: 'Вітальня - Акваріум, USB'
             switch.living_room_light_switch:
-                friendly_name: 'Гостинная - Люстра, Выключатель'
+                friendly_name: 'Вітальня - Люстра, Вимикач'
             switch.living_room_socket_heating:
-                friendly_name: 'Гостинная - Обогреватель, Розетка'
+                friendly_name: 'Вітальня - Обігрівач, Розетка'
             switch.kitchen_socket_heating:
-                friendly_name: 'Кухня - Обогреватель, Розетка'
+                friendly_name: 'Кухня - Обігрівач, Розетка'
             switch.kitchen_coffee_machine_and_microwave_socket:
-                friendly_name: 'Кухня - Кофемашина/Микроволновка, Розетка'
+                friendly_name: 'Кухня - Кавомашина/Мікрохвильова піч, Розетка'
             switch.kitchen_oven_socket:
                 friendly_name: 'Кухня - Духовка, Розетка'
             light.hallway_rgb_bulb:
@@ -180,7 +180,6 @@ energy_config:
     #         unit_of_measurement: '₴/kWh'
     #         icon: mdi:lightning-bolt-circle
     #         value_template: '{{ value | float(0) / 100 | round(2) }}'
-            # value_template: '{{ value }}'
 
     sensor:
 
@@ -293,7 +292,7 @@ energy_config:
 
         tuya_clamp_meter_daily:
             source: sensor.tuya_clamp_meter_integration
-            name: Потребление за сутки
+            name: Споживання за добу
             unique_id: sensor_tuya_clamp_meter_daily
             cycle: daily
             tariffs:
@@ -302,7 +301,7 @@ energy_config:
 
         tuya_clamp_meter_weekly:
             source: sensor.tuya_clamp_meter_integration
-            name: Потребление за неделю
+            name: Споживання за тиждень
             unique_id: sensor_tuya_clamp_meter_weekly
             cycle: weekly
             tariffs:
@@ -311,7 +310,7 @@ energy_config:
 
         tuya_clamp_meter_monthly:
             source: sensor.tuya_clamp_meter_integration
-            name: Потребление за месяц
+            name: Споживання за місяць
             unique_id: sensor_tuya_clamp_meter_monthly
             cycle: monthly
             tariffs:
@@ -657,19 +656,19 @@ energy_config:
                   - service: notify.alexus
                     data:
                         message: |
-                            {{'\U000026A1'}} Электричество 
+                            {{'\U000026A1'}} Електрика 
                             ➖➖➖➖➖➖➖➖➖➖➖➖
                             {{"\U0001F4C5"}} {{ states("sensor.date") }} {{"\U0001F551"}} {{ states("sensor.time") }}
 
-                            {{"\U0001F4CA"}} Показания счетчика:
-                             - {{"\U0001F4CB"}} Всего: {{ states("sensor.energy_counter_total")       | float(0) | round(0) }} kWh
+                            {{"\U0001F4CA"}} Показники лічильника:
+                             - {{"\U0001F4CB"}} Загалом: {{ states("sensor.energy_counter_total")       | float(0) | round(0) }} kWh
                              - {{"\U00002600"}} День:  {{ states("sensor.energy_counter_total_day")   | float(0) | round(0) }} kWh
-                             - {{"\U0001F312"}} Ночь:  {{ states("sensor.energy_counter_total_night") | float(0) | round(0) }} kWh
+                             - {{"\U0001F312"}} Ніч:  {{ states("sensor.energy_counter_total_night") | float(0) | round(0) }} kWh
 
                             {{"\U0001F4CA"}} {{ now().strftime('%B') }}/{{ now().year }}:
-                             - {{"\U0001F4CB"}} Всего: {{ states("sensor.tuya_clamp_meter_monthly_total") | float(0) | round(0) }} kWh, {{"\U0001F4B8"}} {{ ((states("sensor.tuya_clamp_meter_monthly_day") | float(0) | round(0) * states('sensor.tariff_energy_cost_base') | float(0) | round(2)) +  (states("sensor.tuya_clamp_meter_monthly_night") | float(0) | round(0) * states('sensor.tariff_energy_cost_base') | float(0) * 0.5 | round(2))) | round(2) }} ₴
+                             - {{"\U0001F4CB"}} Загалом: {{ states("sensor.tuya_clamp_meter_monthly_total") | float(0) | round(0) }} kWh, {{"\U0001F4B8"}} {{ ((states("sensor.tuya_clamp_meter_monthly_day") | float(0) | round(0) * states('sensor.tariff_energy_cost_base') | float(0) | round(2)) +  (states("sensor.tuya_clamp_meter_monthly_night") | float(0) | round(0) * states('sensor.tariff_energy_cost_base') | float(0) * 0.5 | round(2))) | round(2) }} ₴
                              - {{"\U00002600"}} День: {{ states("sensor.tuya_clamp_meter_monthly_day")    | float(0) | round(0) }} kWh, {{"\U0001F4B8"}} {{ (states("sensor.tuya_clamp_meter_monthly_day") | float(0) | round(0) * states('sensor.tariff_energy_cost_base') | float(0) | round(2)) | round(2) }} ₴
-                             - {{"\U0001F312"}} Ночь: {{ states("sensor.tuya_clamp_meter_monthly_night")  | float(0) | round(0) }} kWh, {{"\U0001F4B8"}} {{ (states("sensor.tuya_clamp_meter_monthly_night") | float(0) | round(0) * states('sensor.tariff_energy_cost_base') | float(0) * 0.5 | round(2)) | round(2) }} ₴
+                             - {{"\U0001F312"}} Ніч: {{ states("sensor.tuya_clamp_meter_monthly_night")  | float(0) | round(0) }} kWh, {{"\U0001F4B8"}} {{ (states("sensor.tuya_clamp_meter_monthly_night") | float(0) | round(0) * states('sensor.tariff_energy_cost_base') | float(0) * 0.5 | round(2)) | round(2) }} ₴
                         data:
                             inline_keyboard: 
                               - "{{'\U000026A1'}} Электричество:/electricity, {{'\U0001F4D1'}} Меню:/menu"

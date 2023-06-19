@@ -34,7 +34,7 @@ sonos_package:
                     tts_service: >-
                         {% if (service_name is defined) and 
                               (service_name in ('tts.reversotts_say','tts.google_cloud_say')) %}
-                        {{ service_name }}                        
+                        {{ service_name }}
                         {% else %}
                         tts.reversotts_say
                         {% endif %}

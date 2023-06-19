@@ -16,11 +16,11 @@ light_settings:
 
         customize:
             sensor.period_of_day:
-                friendly_name: 'Период Суток'
+                friendly_name: 'Період Доби'
             binary_sensor.living_room_auto_light_off_sensor:
-                friendly_name: 'Автоотключение Света в Гостинной'
+                friendly_name: 'Автоматичне Вимикання Світла у Вітальні'
             binary_sensor.bedroom_auto_light_off_sensor:
-                friendly_name: 'Автоотключение Света в Спальне'
+                friendly_name: 'Автоматичне Вимикання Світла у Спальні'
 
     template:
 
@@ -101,14 +101,14 @@ light_settings:
             icon: mdi:weather-sunny-off
 
     timer:
-        # Таймер отключения света в спальне
+        # Таймер вимкнення світла у спальні
         bedroom_light_off_timer:
-            name: Время до отключения света в спальне
+            name: Час до вимкнення світла у спальні
             duration: '00:10:00'
 
-        # Таймер отключения света в гостинной
+        # Таймер вимкнення світла у вітальні
         living_room_light_off_timer:
-            name: Время до отключения света в гостинной
+            name: Час до вимкнення світла у вітальні
             duration: '00:10:00'
 
     script:
@@ -230,7 +230,7 @@ light_settings:
 
       - alias: "Light: Set Hallway RGB Bulb indicator mode"
         id: light_set_hallway_rgb_bulb_indicator_mode
-        description: 'При активной тревоге, сигнализации, освещении или восходе/закате солнца - включать световой индикатор на RGB лампе'
+        description: 'При активній тривозі, сигналізації, освітленні або сході/заході сонця - вмикати світловий індикатор на RGB лампі'
         trigger:
           - platform: homeassistant
             event: start
@@ -558,10 +558,9 @@ light_settings:
                     entity_id: input_boolean.hallway_rgb_bulb_automation_control_status
         mode: restart
 
-      # Автоматизация выключения света в спальне
       - alias: "Light: Turn OFF light in Bedroom by timer"
         id: bedroom_auto_light_off
-        description: 'Автоматическое Выключение освещения в спальне'
+        description: 'Автоматичне вимкнення освітлення у Спальні'
         trigger:
         # По Таймеру
           - platform: event
@@ -577,10 +576,9 @@ light_settings:
             entity_id: switch.bedroom_light_switch
         mode: single
 
-        # Таймер автоотключения
       - alias: "Light: Start light-off Timer for Bedroom"
         id: bedroom_light_off_timer_start
-        description: 'Активация таймера автоотключения в спальне'
+        description: 'Активація таймера автоматичного вимкнення світла у спальні'
         initial_state: true
         trigger:
         # Условия для запуска таймера освещения
@@ -605,7 +603,6 @@ light_settings:
                     {% endif %} 
         mode: single
 
-      # Сброс таймера при выключении
       - alias: "Light: Cancel light-off Timer for Bedroom"
         id: bedroom_light_off_timer_cancel
         initial_state: true
@@ -621,10 +618,9 @@ light_settings:
             entity_id: timer.bedroom_light_off_timer
         mode: restart
 
-      # Автоматизация выключения света в гостинной
       - alias: "Light: Turn OFF light in Living Room by timer"
         id: living_room_auto_light_off
-        description: 'Автоматическое Выключение освещения в гостинной'
+        description: 'Автоматичне вимкнення освітлення у вітальні'
         trigger:
         # По Таймеру
           - platform: event
@@ -640,13 +636,12 @@ light_settings:
             entity_id: switch.living_room_light_switch
         mode: single
 
-        # Таймер автоотключения
       - alias: "Light: Start light-off Timer for Living Room"
         id: living_room_light_off_timer_start
-        description: 'Активация таймера автоотключения в гостинной'
+        description: 'Активація таймера автоматичного вимкнення світла у вітальні'
         initial_state: true
         trigger:
-        # Условия для запуска таймера освещения
+        # Умови для запуску таймера освітлення
           - platform: state
             entity_id: binary_sensor.living_room_auto_light_off_sensor
             to: 'on'
@@ -668,7 +663,6 @@ light_settings:
                     {% endif %} 
         mode: single
 
-      # Сброс таймера при выключении света в гостинной
       - alias: "Light: Cancel light-off Timer for Living Room"
         id: living_room_light_off_timer_cancel
         initial_state: true
