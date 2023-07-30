@@ -657,7 +657,7 @@ energy_config:
                     data:
                         message: |
                             {{'\U000026A1'}} Електрика 
-                            ➖➖➖➖➖➖➖➖➖➖➖➖
+                            ➖➖➖➖➖➖➖
                             {{"\U0001F4C5"}} {{ states("sensor.date") }} {{"\U0001F551"}} {{ states("sensor.time") }}
 
                             {{"\U0001F4CA"}} Показники лічильника:
