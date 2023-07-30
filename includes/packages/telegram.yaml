@@ -48,7 +48,7 @@ telegram:
             data:
               message: |
                 Ласкаво просимо до управління Розумним Будинком!
-                ➖➖➖➖➖➖➖➖➖➖➖➖
+                ➖➖➖➖➖➖➖
                 Оберіть розділ:
               data:
                 inline_keyboard: &main_menu
@@ -70,7 +70,7 @@ telegram:
             data:
               message: |
                   {{'\U0001F4D1'}} Головне меню
-                  ➖➖➖➖➖➖➖➖➖➖➖➖
+                  ➖➖➖➖➖➖➖
                   Оберіть розділ:
               data: 
                 inline_keyboard: *main_menu
@@ -85,19 +85,27 @@ telegram:
             event_data:
               data: '/electricity'
           action:
+          - service: telegram_bot.delete_message
+            data:
+                message_id: 'last'
+                chat_id: !secret telegram_user_1
           - service: notify.alexus
             data:
               message: &electricity_body |
                 {{'\U000026A1'}} Електрика 
-                ➖➖➖➖➖➖➖➖➖➖➖➖
+                ➖➖➖➖➖➖➖
                 {{"\U0001F4C5"}} {{ states("sensor.date") }} {{"\U0001F551"}} {{ states("sensor.time") }}
 
                 {{"\U0001F4DD"}} Поточні показники: 
                  - Потужність: {{ states("sensor.tuya_clamp_meter_power") | float(0) | round(2) }} W
                  - Напруга: {{ states("sensor.tuya_clamp_meter_voltage")  | float(0) | round(2) }} V
                  - Струм: {{ states("sensor.tuya_clamp_meter_current")    | float(0) | round(2) }} A
-
-                {{"\U00002139"}} Тариф, kWh (д/н): {{ states('sensor.tariff_energy_cost_base') | float(0) | round(2) }}/{{ states('sensor.tariff_energy_cost_base') | float(0) * 0.5 | round(2) }} ₴
+                {% set tarrif =  states.sensor.tariff_energy_cost.state | float (0) %}
+                {% if is_state('sensor.energy_active_tariff','night') %}
+                {% set tarrif = tarrif * 2 %}
+                {% endif -%}
+                {{"\U00002139"}} Тариф, kWh (д/н): {{ tarrif | round(2) }}/{{ tarrif * 0.5 | round(2) }} ₴
+            # {{"\U00002139"}} Тариф, kWh (д/н): {{ states('sensor.tariff_energy_cost') | float(0) | round(2) }}/{{ states('sensor.tariff_energy_cost') | float(0) * 0.5 | round(2) }} ₴
               data: 
                 inline_keyboard: &keyb_electricity
                   - "{{'\U0001F5D3'}} Статистика: місяць:/electricity_month"
@@ -123,7 +131,7 @@ telegram:
                 data:
                   title: *electricity_body
                   message: |
-                    ➖➖➖➖➖➖➖➖➖➖➖➖
+                    ➖➖➖➖➖➖➖
                     {{"\U0001F4DF"}} Показники лічильника:
                      - {{"\U0001F4CB"}} Загалом: {{ states("sensor.energy_counter_total")    | float(0) | round(0) }} kWh
                      - {{"\U00002600"}} День:  {{ states("sensor.energy_counter_total_day")  | float(0) | round(0) }} kWh
@@ -149,11 +157,15 @@ telegram:
                 data:
                   title: *electricity_body
                   message: |
-                    ➖➖➖➖➖➖➖➖➖➖➖➖
+                    ➖➖➖➖➖➖➖
                     {{'\U0001F5D3'}} Статистика: поточний місяць
-                     - {{"\U0001F4CB"}} Загалом: {{ states("sensor.tuya_clamp_meter_monthly_total") | float(0) | round(0) }} kWh, {{"\U0001F4B8"}} {{ ((states("sensor.tuya_clamp_meter_monthly_day") | float(0) | round(0) * states('sensor.tariff_energy_cost_base') | float(0) | round(2)) +  (states("sensor.tuya_clamp_meter_monthly_night") | float(0) | round(0) * states('sensor.tariff_energy_cost_base') | float(0) * 0.5 | round(2))) | round(2) }} ₴
-                     - {{"\U00002600"}} День: {{ states("sensor.tuya_clamp_meter_monthly_day")    | float(0) | round(0) }} kWh, {{"\U0001F4B8"}} {{ (states("sensor.tuya_clamp_meter_monthly_day") | float(0) | round(0) * states('sensor.tariff_energy_cost_base') | float(0) | round(2)) | round(2) }} ₴
-                     - {{"\U0001F312"}} Ніч: {{ states("sensor.tuya_clamp_meter_monthly_night")  | float(0) | round(0) }} kWh, {{"\U0001F4B8"}} {{ (states("sensor.tuya_clamp_meter_monthly_night") | float(0) | round(0) * states('sensor.tariff_energy_cost_base') | float(0) * 0.5 | round(2)) | round(2) }} ₴
+                    {% set tarrif =  states.sensor.tariff_energy_cost.state | float (0) %}
+                    {% if is_state('sensor.energy_active_tariff','night') %}
+                    {% set tarrif = tarrif * 2 %}
+                    {% endif -%}
+                     - {{"\U0001F4CB"}} Загалом: {{ states("sensor.tuya_clamp_meter_monthly_total") | float(0) | round(0) }} kWh, {{"\U0001F4B8"}} {{ ((states("sensor.tuya_clamp_meter_monthly_day") | float(0) | round(0) * tarrif | round(2)) +  (states("sensor.tuya_clamp_meter_monthly_night") | float(0) | round(0) * tarrif * 0.5 | round(2))) | round(2) }} ₴
+                     - {{"\U00002600"}} День: {{ states("sensor.tuya_clamp_meter_monthly_day")    | float(0) | round(0) }} kWh, {{"\U0001F4B8"}} {{ (states("sensor.tuya_clamp_meter_monthly_day") | float(0) | round(0) * tarrif | round(2)) | round(2) }} ₴
+                     - {{"\U0001F312"}} Ніч: {{ states("sensor.tuya_clamp_meter_monthly_night")  | float(0) | round(0) }} kWh, {{"\U0001F4B8"}} {{ (states("sensor.tuya_clamp_meter_monthly_night") | float(0) | round(0) * tarrif * 0.5 | round(2)) | round(2) }} ₴
                   data: 
                     inline_keyboard: *keyb_electricity
           mode: single
@@ -175,11 +187,15 @@ telegram:
                 data:
                   title: *electricity_body
                   message: |
-                    ➖➖➖➖➖➖➖➖➖➖➖➖
+                    ➖➖➖➖➖➖➖
                     {{"\U0001F4CA"}} Статистика: поточний тиждень
-                     - {{"\U0001F4CB"}} Загалом: {{ states("sensor.tuya_clamp_meter_weekly_total") | float(0) | round(0) }} kWh, {{"\U0001F4B8"}} {{ ((states("sensor.tuya_clamp_meter_weekly_day") | float(0) | round(0) * states('sensor.tariff_energy_cost_base') | float(0) | round(2)) +  (states("sensor.tuya_clamp_meter_week_night") | float(0) | round(0) * states('sensor.tariff_energy_cost_base') | float(0) * 0.5 | round(2))) | round(2) }} ₴
-                     - {{"\U00002600"}} День:  {{ states("sensor.tuya_clamp_meter_weekly_day")   | float(0) | round(0) }} kWh, {{"\U0001F4B8"}} {{ (states("sensor.tuya_clamp_meter_weekly_day") | float(0) | round(0) * states('sensor.tariff_energy_cost_base') | float(0) | round(2)) | round(2) }} ₴
-                     - {{"\U0001F312"}} Ніч:  {{ states("sensor.tuya_clamp_meter_weekly_night") | float(0) | round(0) }} kWh, {{"\U0001F4B8"}} {{ (states("sensor.tuya_clamp_meter_weekly_night") | float(0) | round(0) * states('sensor.tariff_energy_cost_base') | float(0) * 0.5 | round(2)) | round(2) }} ₴
+                    {% set tarrif =  states.sensor.tariff_energy_cost.state | float (0) %}
+                    {% if is_state('sensor.energy_active_tariff','night') %}
+                    {% set tarrif = tarrif * 2 %}
+                    {% endif -%}
+                     - {{"\U0001F4CB"}} Загалом: {{ states("sensor.tuya_clamp_meter_weekly_total") | float(0) | round(0) }} kWh, {{"\U0001F4B8"}} {{ ((states("sensor.tuya_clamp_meter_weekly_day") | float(0) | round(0) * tarrif | round(2)) +  (states("sensor.tuya_clamp_meter_week_night") | float(0) | round(0) * tarrif * 0.5 | round(2))) | round(2) }} ₴
+                     - {{"\U00002600"}} День:  {{ states("sensor.tuya_clamp_meter_weekly_day")   | float(0) | round(0) }} kWh, {{"\U0001F4B8"}} {{ (states("sensor.tuya_clamp_meter_weekly_day") | float(0) | round(0) * tarrif | round(2)) | round(2) }} ₴
+                     - {{"\U0001F312"}} Ніч:  {{ states("sensor.tuya_clamp_meter_weekly_night") | float(0) | round(0) }} kWh, {{"\U0001F4B8"}} {{ (states("sensor.tuya_clamp_meter_weekly_night") | float(0) | round(0) * tarrif * 0.5 | round(2)) | round(2) }} ₴
                   data: 
                     inline_keyboard: *keyb_electricity
           mode: single
@@ -201,11 +217,15 @@ telegram:
                 data:
                   title: *electricity_body
                   message: |
-                    ➖➖➖➖➖➖➖➖➖➖➖➖
+                    ➖➖➖➖➖➖➖
                     {{"\U0001F4C8"}} Статистика: поточна доба
-                     - {{"\U0001F4CB"}} Загалом: {{ states("sensor.tuya_clamp_meter_daily_total") | float(0) | round(0) }} kWh, {{"\U0001F4B8"}} {{ ((states("sensor.tuya_clamp_meter_daily_day") | float(0) | round(0) * states('sensor.tariff_energy_cost_base') | float(0) | round(2)) +  (states("sensor.tuya_clamp_meter_daily_night") | float(0) | round(0) * states('sensor.tariff_energy_cost_base') | float(0) * 0.5 | round(2))) | round(2) }} ₴
-                     - {{"\U00002600"}} День:  {{ states("sensor.tuya_clamp_meter_daily_day")   | float(0) | round(0) }} kWh, {{"\U0001F4B8"}} {{ (states("sensor.tuya_clamp_meter_daily_day") | float(0) | round(0) * states('sensor.tariff_energy_cost_base') | float(0) | round(2)) | round(2) }} ₴
-                     - {{"\U0001F312"}} Ніч:  {{ states("sensor.tuya_clamp_meter_daily_night") | float(0) | round(0) }} kWh, {{"\U0001F4B8"}} {{ (states("sensor.tuya_clamp_meter_daily_night") | float(0) | round(0) * states('sensor.tariff_energy_cost_base') | float(0) * 0.5 | round(2)) | round(2) }} ₴
+                    {% set tarrif =  states.sensor.tariff_energy_cost.state | float (0) %}
+                    {% if is_state('sensor.energy_active_tariff','night') %}
+                    {% set tarrif = tarrif * 2 %}
+                    {% endif -%}
+                     - {{"\U0001F4CB"}} Загалом: {{ states("sensor.tuya_clamp_meter_daily_total") | float(0) | round(0) }} kWh, {{"\U0001F4B8"}} {{ ((states("sensor.tuya_clamp_meter_daily_day") | float(0) | round(0) * tarrif | round(2)) +  (states("sensor.tuya_clamp_meter_daily_night") | float(0) | round(0) * tarrif * 0.5 | round(2))) | round(2) }} ₴
+                     - {{"\U00002600"}} День:  {{ states("sensor.tuya_clamp_meter_daily_day")   | float(0) | round(0) }} kWh, {{"\U0001F4B8"}} {{ (states("sensor.tuya_clamp_meter_daily_day") | float(0) | round(0) * tarrif | round(2)) | round(2) }} ₴
+                     - {{"\U0001F312"}} Ніч:  {{ states("sensor.tuya_clamp_meter_daily_night") | float(0) | round(0) }} kWh, {{"\U0001F4B8"}} {{ (states("sensor.tuya_clamp_meter_daily_night") | float(0) | round(0) * tarrif * 0.5 | round(2)) | round(2) }} ₴
                   data: 
                     inline_keyboard: *keyb_electricity
           mode: single
@@ -228,7 +248,7 @@ telegram:
             data:
               message: &system_status_body |
                 {{'\U00002139'}} {{ states("sensor.date") }} {{"\U0001F551"}} {{ states("sensor.time") }} {{"\U0001F1FA\U0001F1E6"}}
-                ➖➖➖➖➖➖➖➖➖➖➖➖
+                ➖➖➖➖➖➖➖
                 {{"\U0001F4BB"}} RPi Power status: {% if is_state("binary_sensor.rpi_ac_power_status",'on') %}{{"\U0001F50C"}}{% else%}{{"\U0001F50B"}}{% endif %}
                 {{"\U0001F4C6"}} RPi Last Boot: {{ states("sensor.last_boot_custom") }} ago
                 {{"\U0001F199"}} HA Uptime: {{ states("sensor.online_custom") }}
@@ -259,11 +279,15 @@ telegram:
             event_data:
               data: '/climate'
           action:
+          - service: telegram_bot.delete_message
+            data:
+                message_id: 'last'
+                chat_id: !secret telegram_user_1
           - service: notify.alexus
             data:
               message: &climate_body |
                 {{'\U0001F321'}} Показники клімату у квартирі:
-                ➖➖➖➖➖➖➖➖➖➖➖➖
+                ➖➖➖➖➖➖➖
                 {{"\U0001F6CB"}} Вітальня {{"\U0001F321"}}: {% if is_state("sensor.living_room_lumi_weather_temperature",'unavailable') %}{{"\U000026A0"}}Недоступний{% else %}{{ states("sensor.living_room_lumi_weather_temperature") | float(0) | round(1) }}{{"\U00002103"}}   {{"\U0001F4A6"}}: {{ states("sensor.living_room_lumi_weather_humidity") | float(0) | round(1) }} %{% endif %}
                 {% if is_state('input_boolean.heating_status','on') %}Опалення: {% if state_attr('climate.living_room_heater', 'hvac_action') == "off" %}{{"\U0001F4F4"}}{%endif%}
                 - {{"\U0001F525"}}: {{ states("switch.living_room_socket_heating") }}, >{{"\U0001F321"}}: {{ state_attr('climate.living_room_heater', 'temperature') }}{{"\U00002103"}}
@@ -271,6 +295,13 @@ telegram:
                 {% elif is_state('input_boolean.ac_status','on') %}Кондиціонер: {% if is_state('climate.living_room_ac', 'off') %}{{"\U0001F4F4"}}{% elif is_state('climate.living_room_ac', 'cool') %}{{"\U00002744"}}{% elif is_state('climate.living_room_ac', 'heat') %}{{"\U00002600"}}{% elif is_state('climate.living_room_ac', 'dry') %}{{"\U0001F4A7"}}{% else %}{{"\U0001F504"}}{%endif%}
                 - {{"\U0001F321"}}: {{ state_attr('climate.living_room_ac','temperature') }}{{"\U00002103"}} | {{"\U0001F32C"}}: {{ state_attr('climate.living_room_ac','fan_mode') }}
                 - {{"\U0001F50C"}}: ({{ states("sensor.living_room_air_conditioner_socket_voltage") }} V | {{ states("sensor.living_room_air_conditioner_socket_current") | float(0) | round(1) }} A | {{ states("sensor.living_room_air_conditioner_socket_power") }} W | {{ states("sensor.living_room_air_conditioner_socket_meter_monthly") | float(0) | round(1) }} kWh)
+                {% endif %}
+                {%- if not is_state('fan.lr_levoit_air_purifier_300s', 'unavailable') %}
+                Очищувач повітря{% if is_state('binary_sensor.living_room_air_purifier_status', 'on') %}{{"\U0001F32C"}}: {% if state_attr('fan.lr_levoit_air_purifier_300s','preset_mode') == 'auto' %}Авто{% elif state_attr('fan.lr_levoit_air_purifier_300s','preset_mode') == 'sleep' %}{{"\U0001F4A4"}}{% else %}{{ states.number.lr_levoit_air_purifier_300s_fan_speed_level.state }}{% endif %}{% else %}: {{"\U0001F4F4"}}{% endif %}
+                - Термін служби фільтра: {{ states.sensor.lr_levoit_air_purifier_300s_filter_life.state }}%
+                - Якість повітря PM2.5: {{ states.sensor.lr_levoit_air_purifier_300s_air_quality.state }} µg/m³
+                {% else %}
+                Очищувач повітря недоступний
                 {% endif %}
                 {{"\U0001F6CC"}} Спальня {{"\U0001F321"}}: {% if is_state("sensor.bedroom_lumi_weather_temperature",'unavailable') %}{{"\U000026A0"}}Недоступний{% else %}{{ states("sensor.bedroom_lumi_weather_temperature") | float(0) | round(1) }}{{"\U00002103"}}   {{"\U0001F4A6"}}: {{ states("sensor.bedroom_lumi_weather_humidity") | float(0) | round(1) }} %{% endif %}
                 {% if is_state('input_boolean.heating_status','on') %}Опалення: {% if state_attr('climate.bedroom_heater', 'hvac_action') == "off" %}{{"\U0001F4F4"}}{%endif%}
@@ -527,6 +558,10 @@ telegram:
             event_data:
               data: '/ac_control'
           action:
+          - service: telegram_bot.delete_message
+            data:
+                message_id: 'last'
+                chat_id: !secret telegram_user_1
           - service: notify.alexus
             data:
               message: *climate_body
@@ -557,9 +592,16 @@ telegram:
                     entity_id: binary_sensor.living_room_loggia_door_contact
                     state: 'off'
                 sequence:
+                  - service: telegram_bot.delete_message
+                    data:
+                        message_id: 'last'
+                        chat_id: !secret telegram_user_1
                   - service: notify.alexus
                     data:
-                      message: "Ввімкнення кондиціонера у вітальні..."
+                        title: *climate_body
+                        message: |
+                            ➖➖➖➖➖➖➖
+                            "Увімкнення кондиціонера у вітальні..."
                   - choose: # turn on socket for Living_Room_AC
                       - conditions:
                           - condition: state
@@ -570,22 +612,22 @@ telegram:
                             entity_id: switch.living_room_air_conditioner_socket
                           - delay: 20
                   - repeat:
-                      until:
-                        - condition: or
-                          conditions:
-                            - condition: state
-                              entity_id: binary_sensor.living_room_air_conditioner_socket_status
-                              state: 'on'
-                            - condition: state
-                              entity_id: input_boolean.ac_status
-                              state: 'off'
-                            - condition: state
-                              entity_id: binary_sensor.living_room_loggia_door_contact
-                              state: 'on'
-                      sequence:
-                        - service: climate.turn_on
-                          entity_id: climate.living_room_ac
-                        - delay: '00:00:30'
+                        until:
+                          - condition: or
+                            conditions:
+                              - condition: state
+                                entity_id: binary_sensor.living_room_air_conditioner_socket_status
+                                state: 'on'
+                              - condition: state
+                                entity_id: input_boolean.ac_status
+                                state: 'off'
+                              - condition: state
+                                entity_id: binary_sensor.living_room_loggia_door_contact
+                                state: 'on'
+                        sequence:
+                          - service: climate.turn_on
+                            entity_id: climate.living_room_ac
+                          - delay: '00:00:30'
               - conditions:
                   - condition: state
                     entity_id: input_boolean.ac_status
@@ -595,29 +637,35 @@ telegram:
                         entity_id: climate.living_room_ac
                         state: 'off'
                 sequence:
+                  - service: telegram_bot.delete_message
+                    data:
+                        message_id: 'last'
+                        chat_id: !secret telegram_user_1
                   - service: notify.alexus
                     data:
-                      message: "Вимкнення кондиціонера у вітальні..."
+                        title: *climate_body
+                        message: |
+                            ➖➖➖➖➖➖➖
+                            "Вимкнення кондиціонера у вітальні..."
                   - service: climate.turn_off
                     entity_id: climate.living_room_ac
                   - delay: 20
                   - service: switch.turn_off
                     entity_id: switch.living_room_air_conditioner_socket
-                  - wait_template: "{{ is_state('binary_sensor.living_room_air_conditioner_socket_status','off') }}" 
-          - choose:
-              - conditions:
-                  - condition: template
-                    value_template: '{{ status_before_action != states.binary_sensor.living_room_air_conditioner_socket_status.state }}'
-                sequence:
-                  - service: telegram_bot.delete_message
-                    data:
-                      message_id: 'last'
-                      chat_id: !secret telegram_user_1
+                  - wait_template: "{{ is_state('binary_sensor.living_room_air_conditioner_socket_status','off') }}"
+          - service: telegram_bot.delete_message
+            data:
+                message_id: 'last'
+                chat_id: !secret telegram_user_1
           - service: notify.alexus
             data:
-              message: *climate_body
-              data: 
-                inline_keyboard: *keyb_ac
+                title: *climate_body
+                message: |
+                    ➖➖➖➖➖➖➖
+                    Кондиціонер у Вітальні {% if is_state("binary_sensor.living_room_air_conditioner_socket_status","on") %}увімкнено у режимі {% if is_state('climate.living_room_ac', 'cool') %}{{"\U00002744"}} охолодження{% elif is_state('climate.living_room_ac', 'heat') %}{{"\U0001F525"}} обігріву{% elif is_state('climate.living_room_ac', 'dry') %}{{"\U0001F4A7"}} осушення{% else %} Авто{%endif%}{% else %} вимкнено{% endif %}{{"\U0000203C"}}
+                    Поточна температура: {{ states("sensor.living_room_lumi_weather_temperature") | round(1) }}{{"\U00002103"}}
+                data: 
+                    inline_keyboard: *keyb_ac
           mode: single
 
         - alias: "Telegram: Toggle AC in Bedroom"
@@ -643,9 +691,16 @@ telegram:
                     entity_id: binary_sensor.bedroom_windows
                     state: 'off'
                 sequence:
+                  - service: telegram_bot.delete_message
+                    data:
+                        message_id: 'last'
+                        chat_id: !secret telegram_user_1
                   - service: notify.alexus
                     data:
-                      message: "Ввімкнення кондиціонера в Спальні..."
+                        title: *climate_body
+                        message: |
+                            ➖➖➖➖➖➖➖
+                            "Увімкнення кондиціонера у Спальні..."
                   - choose: # turn on socket for Bedroom_AC
                       - conditions:
                           - condition: state
@@ -656,22 +711,22 @@ telegram:
                             entity_id: switch.bedroom_air_conditioner_socket
                           - delay: 20
                   - repeat:
-                      until:
-                        - condition: or
-                          conditions:
-                            - condition: state
-                              entity_id: binary_sensor.bedroom_air_conditioner_socket_status
-                              state: 'on'
-                            - condition: state
-                              entity_id: input_boolean.ac_status
-                              state: 'off'
-                            - condition: state
-                              entity_id: binary_sensor.bedroom_windows
-                              state: 'on'
-                      sequence:
-                        - service: climate.turn_on
-                          entity_id: climate.bedroom_ac
-                        - delay: '00:00:30'
+                        until:
+                          - condition: or
+                            conditions:
+                              - condition: state
+                                entity_id: binary_sensor.bedroom_air_conditioner_socket_status
+                                state: 'on'
+                              - condition: state
+                                entity_id: input_boolean.ac_status
+                                state: 'off'
+                              - condition: state
+                                entity_id: binary_sensor.bedroom_windows
+                                state: 'on'
+                        sequence:
+                          - service: climate.turn_on
+                            entity_id: climate.bedroom_ac
+                          - delay: '00:00:30'
               - conditions:
                   - condition: state
                     entity_id: input_boolean.ac_status
@@ -681,29 +736,35 @@ telegram:
                         entity_id: climate.bedroom_ac
                         state: 'off'
                 sequence:
+                  - service: telegram_bot.delete_message
+                    data:
+                        message_id: 'last'
+                        chat_id: !secret telegram_user_1
                   - service: notify.alexus
                     data:
-                      message: "Вимкнення кондиціонера в Спальні..."
+                        title: *climate_body
+                        message: |
+                            ➖➖➖➖➖➖➖
+                            "Вимкнення кондиціонера у Спальні..."
                   - service: climate.turn_off
                     entity_id: climate.bedroom_ac
                   - delay: 20
                   - service: switch.turn_off
                     entity_id: switch.bedroom_air_conditioner_socket
                   - wait_template: "{{ is_state('binary_sensor.bedroom_air_conditioner_socket_status','off') }}" 
-          - choose:
-              - conditions:
-                  - condition: template
-                    value_template: '{{ status_before_action != states.binary_sensor.bedroom_air_conditioner_socket_status.state }}'
-                sequence:
-                  - service: telegram_bot.delete_message
-                    data:
-                      message_id: 'last'
-                      chat_id: !secret telegram_user_1
+          - service: telegram_bot.delete_message
+            data:
+              message_id: 'last'
+              chat_id: !secret telegram_user_1
           - service: notify.alexus
             data:
-              message: *climate_body
-              data: 
-                inline_keyboard: *keyb_ac
+                title: *climate_body
+                message: |
+                    ➖➖➖➖➖➖➖
+                    Кондиціонер у Спальні {% if is_state("binary_sensor.bedroom_air_conditioner_socket_status","on") %}увімкнено у режимі {% if is_state('climate.bedroom_ac', 'cool') %}{{"\U00002744"}} охолодження{% elif is_state('climate.bedroom_ac', 'heat') %}{{"\U0001F525"}} обігріву{% elif is_state('climate.bedroom_ac', 'dry') %}{{"\U0001F4A7"}} осушення{% elif is_state('climate.bedroom_ac', 'fan_only') %}{{"\U0001F32C"}} обдування{% else %} Авто{%endif%}{% else %}вимкнено{% endif %}{{"\U0000203C"}}
+                    Поточна температура: {{ states("sensor.bedroom_lumi_weather_temperature") | round(1) }}{{"\U00002103"}}
+                data: 
+                    inline_keyboard: *keyb_ac
           mode: single
 
         - alias: "Telegram: Light Menu"
@@ -723,7 +784,7 @@ telegram:
             data:
               message: &light_status_body |
                 {{'\U0001F4A1'}} Освітлення у квартирі:
-                ➖➖➖➖➖➖➖➖➖➖➖➖
+                ➖➖➖➖➖➖➖
                 {{"\U0001F6CB"}} Вітальня: {% if is_state("switch.living_room_light_switch","on") %}{{"\U000026AA"}} Увімкнено{% else %}{{"\U000026AB"}} Вимкнено{% endif %}
                 {{"\U0001F6CC"}} Спальня: {% if is_state("switch.bedroom_light_switch","on") %}{{"\U000026AA"}} Увімкнено{% else %}{{"\U000026AB"}} Вимкнено{% endif %}
                 {{"\U0001F37D"}} Кухня:
@@ -758,7 +819,7 @@ telegram:
             data:
               title: *light_status_body
               message: |
-                ➖➖➖➖➖➖➖➖➖➖➖➖
+                ➖➖➖➖➖➖➖
                 Освітлення у Спальні: {% if is_state("switch.bedroom_light_switch","on") %}{{"\U00002705"}} Увімкнено{% else %}{{"\U0000274C"}} Вимкнено{% endif %}
               data:
                   inline_keyboard: *keyb_light
@@ -786,7 +847,7 @@ telegram:
             data:
               title: *light_status_body
               message: |
-                ➖➖➖➖➖➖➖➖➖➖➖➖
+                ➖➖➖➖➖➖➖
                 Освітлення у Вітальні: {% if is_state("switch.living_room_light_switch","on") %}{{"\U00002705"}} Увімкнено{% else %}{{"\U0000274C"}} Вимкнено{% endif %}
               data:
                   inline_keyboard: *keyb_light
@@ -801,11 +862,15 @@ telegram:
             event_data:
               data: '/security'
           action:
+          - service: telegram_bot.delete_message
+            data:
+                message_id: 'last'
+                chat_id: !secret telegram_user_1
           - service: notify.alexus
             data:
               message: &security_status |
                 {{"\U0001F6E1"}} Безпека у квартирі
-                ➖➖➖➖➖➖➖➖➖➖➖➖
+                ➖➖➖➖➖➖➖
                 {{"\U0001F3D8"}} Присутність: {% if is_state("group.family","home") %}{% set Str = '' %}{% if is_state("person.alexus","home") %}{% set Str = '\U0001F468\U0000200D' %}{% endif %}{% if is_state("person.inna","home") %}{% set Str = Str + "\U0001F469\U0000200D" %}{% endif %}{% if is_state("person.vova","home") %}{% set Str = Str + "\U0001F466\U0000200D" %}{% endif %}{% if is_state("person.ivan","home") %}{% set Str = Str + "\U0001F466" %}{% endif %}{{ Str }} Вдома {%else%}Не вдома {%endif%}
 
                 {%- if is_state('binary_sensor.m_novomoskovsk_alerts','on') %}
@@ -862,11 +927,15 @@ telegram:
             event_data:
               command: '/set_alarm'
           action:
-            - service: notify.alexus
-              data:
+          - service: telegram_bot.delete_message
+            data:
+                message_id: 'last'
+                chat_id: !secret telegram_user_1
+          - service: notify.alexus
+            data:
                 title: '{{"\U0001F6A8"}} СИГНАЛИЗАЦІЯ{{"\U0000203C"}}'
                 message: |
-                    ➖➖➖➖➖➖➖➖➖➖➖➖
+                    ➖➖➖➖➖➖➖
                     {{"\U0001F694"}} Увімкнути сигнализацію{{"\U00002049"}}
                 data: 
                   inline_keyboard: 
@@ -940,7 +1009,7 @@ telegram:
             data:
               message: |
                   Геолокація {{"\U0001F5FA"}}:
-                  ➖➖➖➖➖➖➖➖➖➖➖➖
+                  ➖➖➖➖➖➖➖
                   Оберіть члена родини {{"\U0001F468\U0000200D\U0001F469\U0000200D\U0001F466\U0000200D\U0001F466"}}:
               data: 
                 inline_keyboard: &keyb_geo
@@ -961,7 +1030,7 @@ telegram:
               data:
                 message: |
                     Іван зараз знаходиться тут:
-                    ➖➖➖➖➖➖➖➖➖➖➖➖
+                    ➖➖➖➖➖➖➖
             - service: notify.alexus
               data:
                 message: 'Місцезнаходження Івана'
@@ -992,7 +1061,7 @@ telegram:
               data:
                 message: |
                     Інна зараз знаходится тут:
-                    ➖➖➖➖➖➖➖➖➖➖➖➖
+                    ➖➖➖➖➖➖➖
             - service: notify.alexus
               data:
                 message: 'Місцезнаходження Інни'
@@ -1023,7 +1092,7 @@ telegram:
               data:
                 message: |
                     Вова зараз знаходится тут:
-                    ➖➖➖➖➖➖➖➖➖➖➖➖
+                    ➖➖➖➖➖➖➖
             - service: notify.alexus
               data:
                 message: 'Місцезнаходження Вовы'
