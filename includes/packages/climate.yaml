@@ -25,6 +25,8 @@ climate_configuration:
               - sensor.loggia_tuya_weather_temperature
               - sensor.nous_weather_lcd_humidity
               - sensor.nous_weather_lcd_temperature
+              - sensor.lr_levoit_air_purifier_300s_air_quality
+              - sensor.lr_levoit_air_purifier_300s_filter_life
               - binary_sensor.bedroom_window_right_contact
               - binary_sensor.bedroom_window_left_contact
               - binary_sensor.bedroom_windows
@@ -37,11 +39,15 @@ climate_configuration:
               - climate.kitchen_heater
               - climate.living_room_ac
               - climate.bedroom_ac
+              - fan.lr_levoit_air_purifier_300s
 
     homeassistant:
 
         customize:
 
+            sensor.lr_levoit_air_purifier_300s_air_quality:
+                device_class: 'pm25'
+                unit_of_measurement: 'µg/m³'
             sensor.outdoor_mean_temperature:
                 friendly_name: 'Середньодобова (24h)'
             sensor.outdoor_humidity:
@@ -153,6 +159,30 @@ climate_configuration:
             state: "{{ state_attr('weather.home', 'temperature') }}"
             device_class: temperature
             unit_of_measurement: '°C'
+
+      - binary_sensor:
+
+          - name: living_room_air_purifier_status
+            unique_id: binary_sensor_living_room_air_purifier_status
+            state: "{{ states.fan.lr_levoit_air_purifier_300s.state == 'on' }}"
+            icon: >-
+                {% if is_state('fan.lr_levoit_air_purifier_300s','on') %}
+                   {% if state_attr('fan.lr_levoit_air_purifier_300s','preset_mode') == 'auto' %}
+                   mdi:fan-auto
+                   {% elif state_attr('fan.lr_levoit_air_purifier_300s','preset_mode') == 'manual' %}
+                      {% if states.number.lr_levoit_air_purifier_300s_fan_speed_level.state | int (0) < 4 %}
+                      mdi:fan-speed-{{ states.number.lr_levoit_air_purifier_300s_fan_speed_level.state }}
+                      {% else %}
+                      mdi:fan-alert
+                      {% endif %}
+                   {% elif state_attr('fan.lr_levoit_air_purifier_300s','preset_mode') == 'sleep' %}
+                   mdi:sleep
+                   {% else %}
+                   mdi:fan
+                   {% endif %}
+                {% else %}
+                mdi:fan-off
+                {% endif %}
 
     climate: 
 
@@ -1149,9 +1179,11 @@ climate_configuration:
           - condition: or
             conditions:
               - condition: template
-                value_template: "{{ states('sensor.living_room_lumi_weather_temperature') | float(24) > state_attr('climate.living_room_ac','temperature') + 2 }}"
+                value_template: "{{ states('sensor.living_room_lumi_weather_temperature') | float(24) > state_attr('climate.living_room_ac','temperature') + 1 }}"
+                # value_template: "{{ states('sensor.living_room_lumi_weather_temperature') | float(24) > state_attr('climate.living_room_ac','temperature') + 2 }}"
               - condition: template
-                value_template: "{{ states('sensor.bedroom_lumi_weather_temperature') | float(24) > state_attr('climate.bedroom_ac','temperature') + 2 }}"
+                value_template: "{{ states('sensor.bedroom_lumi_weather_temperature') | float(24) > state_attr('climate.bedroom_ac','temperature') + 1 }}"
+                # value_template: "{{ states('sensor.bedroom_lumi_weather_temperature') | float(24) > state_attr('climate.bedroom_ac','temperature') + 2 }}"
           - condition: state
             entity_id: input_boolean.disable_climate
             state: 'off'
@@ -1177,7 +1209,8 @@ climate_configuration:
                     entity_id: switch.living_room_air_conditioner_socket
                     state: 'off'
                   - condition: template
-                    value_template: "{{ states('sensor.living_room_lumi_weather_temperature') | float(24) > state_attr('climate.living_room_ac','temperature') + 2 }}"
+                    value_template: "{{ states('sensor.living_room_lumi_weather_temperature') | float(24) > state_attr('climate.living_room_ac','temperature') + 1 }}"
+                    # value_template: "{{ states('sensor.living_room_lumi_weather_temperature') | float(24) > state_attr('climate.living_room_ac','temperature') + 2 }}"
                   - condition: state
                     entity_id: binary_sensor.living_room_loggia_door_contact
                     state: 'off'
@@ -1193,7 +1226,8 @@ climate_configuration:
                         entity_id: climate.living_room_ac
                         state: 'cool'
                   - condition: template
-                    value_template: "{{ states('sensor.living_room_lumi_weather_temperature') | float(24) > state_attr('climate.living_room_ac','temperature') + 2 }}"
+                    value_template: "{{ states('sensor.living_room_lumi_weather_temperature') | float(24) > state_attr('climate.living_room_ac','temperature') + 1 }}"
+                    # value_template: "{{ states('sensor.living_room_lumi_weather_temperature') | float(24) > state_attr('climate.living_room_ac','temperature') + 2 }}"
                   - condition: state
                     entity_id: binary_sensor.living_room_loggia_door_contact
                     state: 'off'
@@ -1228,7 +1262,8 @@ climate_configuration:
                     entity_id: switch.bedroom_air_conditioner_socket
                     state: 'off'
                   - condition: template
-                    value_template: "{{ states('sensor.bedroom_lumi_weather_temperature') | float(24) > state_attr('climate.bedroom_ac','temperature') + 2 }}"
+                    value_template: "{{ states('sensor.bedroom_lumi_weather_temperature') | float(24) > state_attr('climate.bedroom_ac','temperature') + 1 }}"
+                    # value_template: "{{ states('sensor.bedroom_lumi_weather_temperature') | float(24) > state_attr('climate.bedroom_ac','temperature') + 2 }}"
                   - condition: state
                     entity_id: binary_sensor.bedroom_windows
                     state: 'off'
@@ -1247,7 +1282,8 @@ climate_configuration:
                     entity_id: binary_sensor.bedroom_windows
                     state: 'off'
                   - condition: template
-                    value_template: "{{ states('sensor.bedroom_lumi_weather_temperature') | float(24) > state_attr('climate.bedroom_ac','temperature') + 2 }}"
+                    value_template: "{{ states('sensor.bedroom_lumi_weather_temperature') | float(24) > state_attr('climate.bedroom_ac','temperature') + 1 }}"
+                    # value_template: "{{ states('sensor.bedroom_lumi_weather_temperature') | float(24) > state_attr('climate.bedroom_ac','temperature') + 2 }}"
                 sequence:
                   - service: climate.set_hvac_mode
                     target:
@@ -1796,7 +1832,7 @@ climate_configuration:
                 title: '{{"\U0001F3E0"}} Повідомлення{{"\U0000203C"}}'
                 message: |
                     ➖➖➖➖➖➖➖➖➖➖➖➖
-                    Кондиціонер у Спальні {% if is_state("binary_sensor.bedroom_air_conditioner_socket_status","on") %}ввімкнено у режимі {% if is_state('climate.bedroom_ac', 'cool') %}{{"\U00002744"}} охолодження{% elif is_state('climate.bedroom_ac', 'heat') %}{{"\U0001F525"}} обігріву{% elif is_state('climate.bedroom_ac', 'dry') %}{{"\U0001F4A7"}} осушення{% elif is_state('climate.bedroom_ac', 'fan_only') %}{{"\U0001F32C"}} обдування{% else %} Авто{%endif%}{% else %}вимкнено{% endif %}{{"\U0000203C"}}
+                    Кондиціонер у Спальні {% if is_state("binary_sensor.bedroom_air_conditioner_socket_status","on") %}увімкнено у режимі {% if is_state('climate.bedroom_ac', 'cool') %}{{"\U00002744"}} охолодження{% elif is_state('climate.bedroom_ac', 'heat') %}{{"\U0001F525"}} обігріву{% elif is_state('climate.bedroom_ac', 'dry') %}{{"\U0001F4A7"}} осушення{% elif is_state('climate.bedroom_ac', 'fan_only') %}{{"\U0001F32C"}} обдування{% else %} Авто{%endif%}{% else %}вимкнено{% endif %}{{"\U0000203C"}}
                     Поточна температура: {{ states("sensor.bedroom_lumi_weather_temperature") | round(1) }}{{"\U00002103"}}
                 data:
                     inline_keyboard:
@@ -1805,7 +1841,7 @@ climate_configuration:
 
       - alias: "Climate: Notification about A/C status in Living Room"
         id: climate_ac_living_room_status_notification
-        description: 'Сообщение о статусе кондиционера в Гостинной'
+        description: 'Повідомлення про статус кондиціонера у Вітальні'
         trigger:
           - platform: state
             entity_id: binary_sensor.living_room_air_conditioner_socket_status
@@ -1822,9 +1858,109 @@ climate_configuration:
                 title: '{{"\U0001F3E0"}} Повідомлення{{"\U0000203C"}}'
                 message: |
                     ➖➖➖➖➖➖➖➖➖➖➖➖
-                    Кондиціонер у Вітальні {% if is_state("binary_sensor.living_room_air_conditioner_socket_status","on") %}ввімкнено у режимі {% if is_state('climate.living_room_ac', 'cool') %}{{"\U00002744"}} охолодження{% elif is_state('climate.living_room_ac', 'heat') %}{{"\U0001F525"}} обігріву{% elif is_state('climate.living_room_ac', 'dry') %}{{"\U0001F4A7"}} осушення{% else %} Авто{%endif%}{% else %} вимкнено{% endif %}{{"\U0000203C"}}
+                    Кондиціонер у Вітальні {% if is_state("binary_sensor.living_room_air_conditioner_socket_status","on") %}увімкнено у режимі {% if is_state('climate.living_room_ac', 'cool') %}{{"\U00002744"}} охолодження{% elif is_state('climate.living_room_ac', 'heat') %}{{"\U0001F525"}} обігріву{% elif is_state('climate.living_room_ac', 'dry') %}{{"\U0001F4A7"}} осушення{% else %} Авто{%endif%}{% else %} вимкнено{% endif %}{{"\U0000203C"}}
                     Поточна температура: {{ states("sensor.living_room_lumi_weather_temperature") | round(1) }}{{"\U00002103"}}
                 data:
                     inline_keyboard:
                       - "{{'\U0001F321'}} Клімат:/climate, {{'\U0001F4D1'}} Меню:/menu"
+        mode: single
+
+    # =================== Air Purifier Automations ===================
+
+      - alias: "Climate: Change mode for Air Purifiers"
+        id: climate_air_purifiers_mode_change
+        description: 'Зміна режиму роботи приладів фільтрації повітря'
+        trigger:
+          - platform: time
+            at: '08:00:00'
+          - platform: time
+            at: '23:00:00'
+          - platform: state
+            entity_id: sensor.lr_levoit_air_purifier_300s_air_quality
+        condition:
+          - not:
+              - condition: state
+                entity_id: fan.lr_levoit_air_purifier_300s
+                state: 'unavailable'
+        action:
+          - choose:
+              - conditions: # turn on
+                  - condition: numeric_state
+                    entity_id: sensor.lr_levoit_air_purifier_300s_air_quality
+                    above: 15
+                  - condition: state
+                    entity_id: binary_sensor.living_room_air_purifier_status
+                    state: 'off'
+                sequence:
+                  - choose:
+                      - conditions: # night
+                          - condition: template
+                            value_template: >-
+                                {% set m_hour = now().hour %}
+                                {{ (m_hour > 22) or (m_hour < 8) }}
+                        sequence:
+                          - service: fan.turn_on
+                            data:
+                                preset_mode: sleep
+                            target:
+                                entity_id: fan.lr_levoit_air_purifier_300s
+                      - conditions: # day
+                          - condition: template
+                            value_template: >-
+                                {% set m_hour = now().hour %}
+                                {{ (m_hour < 23) and (m_hour > 7) }}
+                        sequence:
+                          - service: fan.turn_on
+                            data:
+                                preset_mode: auto
+                            target:
+                                entity_id: fan.lr_levoit_air_purifier_300s
+              - conditions: #  working mode correction
+                  - condition: numeric_state
+                    entity_id: sensor.lr_levoit_air_purifier_300s_air_quality
+                    above: 10
+                  - condition: state
+                    entity_id: binary_sensor.living_room_air_purifier_status
+                    state: 'on'
+                  - condition: template
+                    value_template: "{{ not state_attr('fan.lr_levoit_air_purifier_300s','preset_mode') == 'manual' }}"
+                sequence:
+                  - choose:
+                      - conditions: # night
+                          - condition: template
+                            value_template: >-
+                                {% set m_hour = now().hour %}
+                                {{ (m_hour > 22) or (m_hour < 8) }}
+                          - condition: template
+                            value_template: "{{ not state_attr('fan.lr_levoit_air_purifier_300s','preset_mode') == 'sleep' }}"
+                        sequence:
+                          - service: fan.turn_on
+                            data:
+                                preset_mode: sleep
+                            target:
+                                entity_id: fan.lr_levoit_air_purifier_300s
+                      - conditions: # day
+                          - condition: template
+                            value_template: >-
+                                {% set m_hour = now().hour %}
+                                {{ (m_hour < 23) and (m_hour > 7) }}
+                          - condition: template
+                            value_template: "{{ not state_attr('fan.lr_levoit_air_purifier_300s','preset_mode') == 'auto' }}"
+                        sequence:
+                          - service: fan.turn_on
+                            data:
+                                preset_mode: auto
+                            target:
+                                entity_id: fan.lr_levoit_air_purifier_300s
+              - conditions: # turn off
+                  - condition: numeric_state
+                    entity_id: sensor.lr_levoit_air_purifier_300s_air_quality
+                    below: 10
+                  - condition: state
+                    entity_id: binary_sensor.living_room_air_purifier_status
+                    state: 'on'
+                sequence:
+                  - service: fan.turn_off
+                    target:
+                        entity_id: fan.lr_levoit_air_purifier_300s
         mode: single
