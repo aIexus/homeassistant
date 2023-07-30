@@ -530,11 +530,13 @@ telemetry_config:
                         target: '{{ trigger.event.data.chat_id }}'
                         message: &msg_tlmtr |
                             {{'\U00002328'}} *Телеметрія*
-                            ➖➖➖➖➖➖➖➖➖➖➖➖
+                            ➖➖➖➖➖➖➖
                             *{{'\U0001F4C5'}} {{ states('sensor.date') }} {{'\U0001F551'}} {{ states('sensor.time') }}*
                             * *
                             {{'\U000026A0'}} *Аварійні сенсори:*
-                            {{'\U0001F6AB'}} *Газ:*{% if (states('sensor.gas_detect') | int) > 0 %} {{'\U000026A0'}} *Виявлено*{% else %} {{'\U0001F197'}}{% endif %}, {{'\U0001F6AD'}} *Дим:*{% if (states('sensor.smoke_detect') | int) > 0 %} {{'\U000026A0'}} *Виявлено*{% else %} {{'\U0001F197'}}{% endif %}, {{'\U0001F4A7'}} *Протікання:*{% if (states('sensor.water_leak_detect') | int) > 0 %} {{'\U000026A0'}} *Виявлено*{% else %} {{'\U0001F197'}}{% endif %}
+                             - {{'\U0001F6AB'}} *Газ:*{% if (states('sensor.gas_detect') | int) > 0 %} {{'\U000026A0'}} *Виявлено*{% else %} {{'\U0001F197'}}{% endif %}
+                             - {{'\U0001F6AD'}} *Дим:*{% if (states('sensor.smoke_detect') | int) > 0 %} {{'\U000026A0'}} *Виявлено*{% else %} {{'\U0001F197'}}{% endif %}
+                             - {{'\U0001F4A7'}} *Протікання:*{% if (states('sensor.water_leak_detect') | int) > 0 %} {{'\U000026A0'}} *Виявлено*{% else %} {{'\U0001F197'}}{% endif %}
                             * *
                             {{'\U0001F527'}} *Об'єкти:*
                             {{'\U000026A1'}} *Напруга в мережі:* {{ states('sensor.voltage_medium') }} V
@@ -570,7 +572,7 @@ telemetry_config:
                         target: '{{ trigger.event.data.chat_id }}'
                         title: *msg_tlmtr
                         message: |
-                            ➖➖➖➖➖➖➖➖➖➖➖➖
+                            ➖➖➖➖➖➖➖
                             {% if (states('sensor.all_light_on') | int) > 0 %}{{'\U0001F4A1'}} *Увімкнені світильники: * {% else %}*Усі світильники вимкнені* {% endif %}
                             * *
                             *{% for entity_name, entity_state in state_attr('sensor.all_light_on', 'list_entities')-%} - {{ entity_name }} {{ '\n' -}} {% endfor %}*
@@ -593,7 +595,7 @@ telemetry_config:
                         target: '{{ trigger.event.data.chat_id }}'
                         title: *msg_tlmtr
                         message: |
-                            ➖➖➖➖➖➖➖➖➖➖➖➖
+                            ➖➖➖➖➖➖➖
                             {% if (states('sensor.all_light_unavailable') | int) > 0 %}{{"\U000026A0"}} *Недоступні світильники: * {% else %}*Усі світильники доступні* {% endif %}
                             * *
                             *{% for entity_name, entity_state in state_attr('sensor.all_light_unavailable', 'list_entities')-%} - {{ entity_name }} {{ '\n' -}} {% endfor %}*
@@ -616,7 +618,7 @@ telemetry_config:
                         target: '{{ trigger.event.data.chat_id }}'
                         title: *msg_tlmtr
                         message: |
-                            ➖➖➖➖➖➖➖➖➖➖➖➖
+                            ➖➖➖➖➖➖➖
                             {% if (states('sensor.all_switch_on_10') | int) > 0 %}{{"\U000026A1"}} *Споживання більше 10W:* {% else %}*Споживання на всіх реле менше 10W* {% endif %}
                             * *
                             *{% for entity_name, entity_state in state_attr('sensor.all_switch_on_10', 'list_entities')-%} - {{ entity_name }} {{ '-' }} {{ entity_state }} {{ 'W' }} {{ '\n' -}} {% endfor %}*
@@ -639,7 +641,7 @@ telemetry_config:
                         target: '{{ trigger.event.data.chat_id }}'
                         title: *msg_tlmtr
                         message: |
-                            ➖➖➖➖➖➖➖➖➖➖➖➖
+                            ➖➖➖➖➖➖➖
                             {% if (states('sensor.all_switch_unavailable') | int) > 0 %}{{"\U0001F50C"}} *Недоступні реле: * {% else %}*Усі реле доступні* {% endif %}
                             *{% for entity_name, entity_state in state_attr('sensor.all_switch_unavailable', 'list_entities')-%} - {{ entity_name }} {{ '\n' -}} {% endfor %}*
                             * *
@@ -662,7 +664,7 @@ telemetry_config:
                         target: '{{ trigger.event.data.chat_id }}'
                         title: *msg_tlmtr
                         message: |
-                            ➖➖➖➖➖➖➖➖➖➖➖➖
+                            ➖➖➖➖➖➖➖
                             {% if (states('sensor.all_binary_sensor_unavailable') | int) > 0 %}{{"\U0001F50C"}} *Недоступні бінарні сенсори: * {% else %}*Усі бінарні сенсори доступні* {% endif %}
                             *{% for entity_name, entity_state in state_attr('sensor.all_binary_sensor_unavailable', 'list_entities')-%} - {{ entity_name }} {{ '\n' -}} {% endfor %}*
                             * *
@@ -685,7 +687,7 @@ telemetry_config:
                         target: '{{ trigger.event.data.chat_id }}'
                         title: *msg_tlmtr
                         message: |
-                            ➖➖➖➖➖➖➖➖➖➖➖➖
+                            ➖➖➖➖➖➖➖
                             {% if (states('sensor.all_sensor_unavailable') | int) > 0 %}{{"\U0001F50C"}} *Недоступні сенсори: * {% else %}*Усі сенсори доступні* {% endif %}
                             *{% for entity_name, entity_state in state_attr('sensor.all_sensor_unavailable', 'list_entities')-%} - {{ entity_name }} {{ '\n' -}} {% endfor %}*
                             * *
@@ -708,7 +710,7 @@ telemetry_config:
                         target: '{{ trigger.event.data.chat_id }}'
                         title: *msg_tlmtr
                         message: |
-                            ➖➖➖➖➖➖➖➖➖➖➖➖
+                            ➖➖➖➖➖➖➖
                             {% if (states('sensor.motion_detected') | int) > 0 %}{{"\U0001F3C3"}} *Рух: * {% else %}*Рух не виявлено* {% endif %}
                             * *
                             *{% for entity_name, entity_state in state_attr('sensor.motion_detected', 'list_entities')-%} - {{ entity_name }} {{ '\n' -}} {% endfor %}*
@@ -731,7 +733,7 @@ telemetry_config:
                         target: '{{ trigger.event.data.chat_id }}'
                         title: *msg_tlmtr
                         message: |
-                            ➖➖➖➖➖➖➖➖➖➖➖➖
+                            ➖➖➖➖➖➖➖
                             {% if (states('sensor.presence_detected') | int) > 0 %}{{"\U0001F3E0"}} *Присутність: * {% else %}*Присутність не виявлено* {% endif %}
                             * *
                             *{% for entity_name, entity_state in state_attr('sensor.presence_detected', 'list_entities')-%} - {{ entity_name }} {{ '\n' -}} {% endfor %}*
@@ -754,7 +756,7 @@ telemetry_config:
                         target: '{{ trigger.event.data.chat_id }}'
                         title: *msg_tlmtr
                         message: |
-                            ➖➖➖➖➖➖➖➖➖➖➖➖
+                            ➖➖➖➖➖➖➖
                             {% if (states('sensor.open_window') | int) > 0 %}{{"\U0001FA9F"}} *Відчинені вікна: * {% else %}*Усі вікна зачинені* {% endif %}
                             * *
                             *{% for entity_name, entity_state in state_attr('sensor.open_window', 'list_entities')-%} - {{ entity_name }} {{ '\n' -}} {% endfor %}*
@@ -777,7 +779,7 @@ telemetry_config:
                         target: '{{ trigger.event.data.chat_id }}'
                         title: *msg_tlmtr
                         message: |
-                            ➖➖➖➖➖➖➖➖➖➖➖➖
+                            ➖➖➖➖➖➖➖
                             {% if (states('sensor.open_door') | int) > 0 %}{{"\U0001F6AA"}} *Відчинені двері: * {% else %}*Усі двері зачинені* {% endif %}
                             * *
                             *{% for entity_name, entity_state in state_attr('sensor.open_door', 'list_entities')-%} - {{ entity_name }} {{ '\n' -}} {% endfor %}*
@@ -800,7 +802,7 @@ telemetry_config:
                       target: '{{ trigger.event.data.chat_id }}'
                       title: *msg_tlmtr
                       message: |
-                            ➖➖➖➖➖➖➖➖➖➖➖➖
+                            ➖➖➖➖➖➖➖
                             {% if (states('sensor.battery_lower_30') | int) > 0 %}{{"\U0001F50B"}} *Батарейки, що розряджаються: * {% else %}*Усі батарейки в порядку* {% endif %}
                             * *
                             *{% for entity_name, entity_state in state_attr('sensor.battery_lower_30', 'list_entities')-%} - {{ entity_name }} {{ '-' }} {{ entity_state }} {{ '%' }} {{ '\n' -}} {% endfor %}*
