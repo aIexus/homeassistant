@@ -109,6 +109,24 @@ cards:
                     name: За місяць
                     unit: "kWh"
 
+              - type: custom:multiple-entity-row
+                entity: fan.lr_levoit_air_purifier_300s
+                icon: mdi:air-purifier
+                name: Очищувач повітря
+                secondary_info: last-changed
+                state_color: true
+                show_state: false
+                entities:
+                  - entity: binary_sensor.living_room_air_purifier_status
+                    name: false
+                    icon: true
+                    state_color: true
+                  - entity: sensor.lr_levoit_air_purifier_300s_filter_life
+                    name: Фільтр
+                  - entity: sensor.lr_levoit_air_purifier_300s_air_quality
+                    name: PM2.5
+                    unit: "µg/m³"
+
       - type: custom:stack-in-card
         mode: vertical
         cards:
