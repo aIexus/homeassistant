@@ -378,7 +378,7 @@ system_config:
                     data:
                         title: '{{"\U000026A0"}} УВАГА{{"\U0000203C"}}'
                         message: |
-                            ➖➖➖➖➖➖➖➖➖➖➖➖
+                            ➖➖➖➖➖➖➖
                             Інтернет з'єднання: {{"\U0001F50C"}} {% if is_state("binary_sensor.internet_connection_ping", "on") %}Відновлено{% elif is_state("binary_sensor.internet_connection_ping", "off") %}Відсутнє{% else %}Недоступне{% endif %}
                         data:
                             inline_keyboard: 
@@ -597,7 +597,7 @@ system_config:
             data:
                 title: '{{"\U000026A0"}} УВАГА{{"\U0000203C"}}'
                 message: |
-                  ➖➖➖➖➖➖➖➖➖➖➖➖
+                  ➖➖➖➖➖➖➖
                   {{'\U0001F199'}} Сервер Home Assistant був перезапущений{{"\U0000203C"}}
                 data:
                     inline_keyboard:
@@ -621,7 +621,7 @@ system_config:
             data:
                 title: '{{"\U000026A0"}} УВАГА{{"\U0000203C"}}'
                 message: |
-                  ➖➖➖➖➖➖➖➖➖➖➖➖
+                  ➖➖➖➖➖➖➖
                   {{'\U00002139'}} Сервер Home Assistant вимикається{{"\U0000203C"}}
         mode: single
 
@@ -666,7 +666,7 @@ system_config:
             data:
                 title: '{{"\U0001F199"}} {{ trigger.to_state.attributes.friendly_name }}{{"\U0000203C"}}'
                 message:  |
-                    ➖➖➖➖➖➖➖➖➖➖➖➖
+                    ➖➖➖➖➖➖➖
                     Додаток {{ trigger.to_state.attributes.friendly_name }}
                       Встановлена версія: {{ trigger.to_state.attributes.installed_version }}
                       Наявна версія: {{ trigger.to_state.attributes.latest_version }}
@@ -698,7 +698,7 @@ system_config:
                     data:
                         title: '{{"\U000026A0"}} УВАГА{{"\U0000203C"}}'
                         message: |
-                          ➖➖➖➖➖➖➖➖➖➖➖➖
+                          ➖➖➖➖➖➖➖
                           Зовнішнє живлення: {{"\U0001F50C"}} {% if is_state("binary_sensor.rpi_ac_power_status", "on") %}Підключене{% elif is_state("binary_sensor.rpi_ac_power_status", "off") %}Відсутнє{% else %}Недоступне{% endif %}
                           
                           {{"\U0001F50B"}} UPS Battery Status: ({% if is_state("binary_sensor.ups_battery_low","off") %}OK{%else%}Low{{"\U0000203C"}}{%endif%}) {{ states("sensor.ups_battery_capacity") }}% / {{ states("sensor.ups_battery_voltage") }}V
@@ -743,7 +743,7 @@ system_config:
                     data:
                         title: '{{"\U0001F50B"}} УВАГА{{"\U0000203C"}}'
                         message: |
-                          ➖➖➖➖➖➖➖➖➖➖➖➖
+                          ➖➖➖➖➖➖➖
                           Низький рівень заряду батареї сервера Home Assistant: {{ states("sensor.ups_battery_capacity") }}% / {{ states("sensor.ups_battery_voltage") }}V {{"\U0000203C"}}
                           Зовнішнє живлення: {{"\U0001F50C"}} {% if is_state("binary_sensor.rpi_ac_power_status", "on") %}Підключене{% else %}Відсутнє{% endif %}
                           
@@ -796,7 +796,7 @@ system_config:
             data:
                 title: '{{"\U0001F50B"}} УВАГА{{"\U0000203C"}}'
                 message: |
-                  ➖➖➖➖➖➖➖➖➖➖➖➖
+                  ➖➖➖➖➖➖➖
                   Батарея UPS повністю заряджена: {{ states("sensor.ups_battery_capacity") }}% / {{ states("sensor.ups_battery_voltage") }}V{{"\U0000203C"}}
                   Зовнішнє живлення {% if is_state("binary_sensor.rpi_ac_power_status", "on") %}підключено{% else %}відсутнє{% endif %}!
                 data:
@@ -954,7 +954,7 @@ system_config:
             data:
                 title: '{{"\U0001F4CC"}} Зміна місцезнаходження{{"\U0000203C"}}'
                 message: |
-                    ➖➖➖➖➖➖➖➖➖➖➖➖
+                    ➖➖➖➖➖➖➖
                     {% if (trigger.event) == "leave" %}{{ states('sensor.time') }}: {{ trigger.to_state.name }} залишив(ла) {{ trigger.zone.attributes.friendly_name }}!
                     {% else %}{{ states('sensor.time') }}: {{ trigger.to_state.name }} прибув(ла) в {{ trigger.zone.attributes.friendly_name }}!
                     {% endif %}
