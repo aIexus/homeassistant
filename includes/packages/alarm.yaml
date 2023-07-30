@@ -358,7 +358,7 @@ home_alarm_settings:
                     data:
                         title: '{{"\U0001F6A8"}} СИГНАЛІЗАЦІЯ{{"\U0000203C"}}'
                         message: |
-                            ➖➖➖➖➖➖➖➖➖➖➖➖
+                            ➖➖➖➖➖➖➖
                             {{"\U0001F694"}} Увімкнення сигналізації{{"\U0000203C"}}
                             {{"\U0001F550"}} {{ states('sensor.date') }}, {{ states('sensor.time') }}
                         data: 
@@ -385,7 +385,7 @@ home_alarm_settings:
                     data:
                         title: '{{"\U0001F6A8"}} СИГНАЛІЗАЦІЯ{{"\U0000203C"}}'
                         message: |
-                            ➖➖➖➖➖➖➖➖➖➖➖➖
+                            ➖➖➖➖➖➖➖
                             {{"\U0001F694"}} Увімкнення сигналізації{{"\U0000203C"}}
                             {{"\U0001F550"}} {{ states('sensor.date') }}, {{ states('sensor.time') }}
                         data: 
@@ -423,7 +423,7 @@ home_alarm_settings:
                     data:
                         title: '{{"\U0001F6A8"}} СИГНАЛІЗАЦІЯ{{"\U0000203C"}}'
                         message: |
-                            ➖➖➖➖➖➖➖➖➖➖➖➖
+                            ➖➖➖➖➖➖➖
                             {{"\U0001F694"}} Увімкнення сигналізації{{"\U0000203C"}}
                             {{"\U0001F550"}} {{ states('sensor.date') }}, {{ states('sensor.time') }}
                         data: 
@@ -474,7 +474,7 @@ home_alarm_settings:
                     data:
                         title: '{{"\U0001F6A8"}} СИГНАЛІЗАЦІЯ{{"\U0000203C"}}'
                         message: |
-                            ➖➖➖➖➖➖➖➖➖➖➖➖
+                            ➖➖➖➖➖➖➖
                             {{"\U0001F694"}} Сигналізація відключена{{"\U0000203C"}}{{"\U0000203C"}}
                             {{"\U0001F550"}} {{ states('sensor.date') }}, {{ states('sensor.time') }}
                         
@@ -560,7 +560,7 @@ home_alarm_settings:
                   data:
                     title: '{{"\U0001F6A8"}} СИГНАЛІЗАЦІЯ{{"\U0000203C"}}'
                     message: |
-                        ➖➖➖➖➖➖➖➖➖➖➖➖
+                        ➖➖➖➖➖➖➖
                         {{"\U0001F694"}} Виявлено проникнення{{"\U0000203C"}}{{"\U0000203C"}}
                         {{"\U0001F550"}} {{ states('sensor.date') }}, {{ states('sensor.time') }}
                     data: 
@@ -637,10 +637,10 @@ home_alarm_settings:
                 sequence:
                   - service: notify.alexus
                     data:
-                        title: '{{"\U0001F6A8"}} СИГНАЛИЗАЦИЯ{{"\U0000203C"}}'
+                        title: '{{"\U0001F6A8"}} СИГНАЛИЗАЦІЯ{{"\U0000203C"}}'
                         message: |
-                            ➖➖➖➖➖➖➖➖➖➖➖➖
-                            Снимите систему с охраны, иначе будет активирована сирена{{"\U0000203C"}}
+                            ➖➖➖➖➖➖➖
+                            Зніміть систему з охорони, інакше буде активовано сирену{{"\U0000203C"}}
                         data: 
                             inline_keyboard: 
                               - "{{'\U0001F694'}} Зняти з охорони {% if (trigger.from_state.state == 'armed_away') %}{{'\U0001F534'}} [ Не Вдома ]{% elif (trigger.from_state.state == 'armed_home') %}{{'\U0001F7E1'}} [ Вдома ]{% elif (trigger.from_state.state == 'armed_night') %}{{'\U0001F535'}} [ Ніч ]{% endif%}:/cancel_alarm"
@@ -703,11 +703,11 @@ home_alarm_settings:
                     data:
                         title: '{{"\U0001F6A8"}} СИГНАЛІЗАЦІЯ{{"\U0000203C"}}'
                         message: |
-                            ➖➖➖➖➖➖➖➖➖➖➖➖
+                            ➖➖➖➖➖➖➖
                             {{"\U0001F3E1"}} Нікого немає вдома{{"\U0000203C"}}
                             {{"\U0001F550"}} {{ states('sensor.date') }}, {{ states('sensor.time') }}
 
-                            {{"\U0001F694"}} В даний момент: {% if (trigger.from_state.state == 'disarmed') %}{{'\U0001F7E2'}} [ Вимкнено ]{% elif (trigger.from_state.state == 'armed_home') %}{{'\U0001F7E1'}} [ Вдома ]{% elif (trigger.from_state.state == 'armed_night') %}{{'\U0001F535'}} [ Ніч ]{% endif%}
+                            {{"\U0001F694"}} Поточний стан: {% if (trigger.from_state.state == 'disarmed') %}{{'\U0001F7E2'}} [ Вимкнено ]{% elif (trigger.from_state.state == 'armed_home') %}{{'\U0001F7E1'}} [ Вдома ]{% elif (trigger.from_state.state == 'armed_night') %}{{'\U0001F535'}} [ Ніч ]{% endif%}
 
                             Бажаєте змінити режим сигналізації{{"\U00002049"}}
                         data: 
@@ -798,7 +798,7 @@ home_alarm_settings:
                     data:
                         title: '{{"\U000026A0"}} УВАГА{{"\U0000203C"}}'
                         message:  |
-                            ➖➖➖➖➖➖➖➖➖➖➖➖
+                            ➖➖➖➖➖➖➖
                             Зафіксовано *перевищення ліміту* споживання електроенергії на *{{ states("sensor.tuya_clamp_meter_power") | float(0) | round(0) - states("input_number.electricity_consumption_limit") | int(0) }} Вт.*!
                             *Поточне споживання*: {{"\U0001F4C8"}} {{ states("sensor.tuya_clamp_meter_power") | float(0) | round(0) }} Вт.
                             *Ліміт*: {{"\U0001F6A7"}} {{ states("input_number.electricity_consumption_limit") | int(0) }} Вт.
@@ -857,7 +857,7 @@ home_alarm_settings:
                     data:
                         title: '{{"\U000026A0"}} УВАГА{{"\U0000203C"}}'
                         message:  |
-                            ➖➖➖➖➖➖➖➖➖➖➖➖
+                            ➖➖➖➖➖➖➖
                             Зафіксовано стрибок напруги: {{ trigger.to_state.state | int }} V{{"\U0000203C"}}
 
                             Рекомендується відключити чутливі електроприлади від мережі до стабілізації напруги!
@@ -910,8 +910,8 @@ home_alarm_settings:
                           - service: notify.alexus
                             data:
                                 title: '{{"\U000026A0"}} УВАГА{{"\U0000203C"}}'
-                                message:  |
-                                    ➖➖➖➖➖➖➖➖➖➖➖➖
+                                message: |
+                                    ➖➖➖➖➖➖➖
                                     {{"\U0001F525"}} Виявлено дим{{"\U0000203C"}}
 
                                     *{% for entity_name, entity_state in state_attr('sensor.smoke_detect', 'list_entities')-%} - {{ entity_name }}{{ '\n' -}} {% endfor %}*
@@ -945,8 +945,8 @@ home_alarm_settings:
                           - service: notify.alexus
                             data:
                                 title: '{{"\U000026A0"}} УВАГА{{"\U0000203C"}}'
-                                message:  |
-                                    ➖➖➖➖➖➖➖➖➖➖➖➖
+                                message: |
+                                    ➖➖➖➖➖➖➖
                                     {{"\U0001F44C"}} Джерело диму усунуто{{"\U0000203C"}}
                                 data: 
                                     inline_keyboard: 
@@ -991,8 +991,8 @@ home_alarm_settings:
                           - service: notify.alexus
                             data:
                                 title: '{{"\U000026A0"}} УВАГА{{"\U0000203C"}}'
-                                message:  |
-                                    ➖➖➖➖➖➖➖➖➖➖➖➖
+                                message: |
+                                    ➖➖➖➖➖➖➖
                                     {{"\U0001F4A7"}} Виявлено протікання води{{"\U0000203C"}}
 
                                     *{% for entity_name, entity_state in state_attr('sensor.water_leak_detect', 'list_entities')-%} - {{ entity_name }}{{ '\n' -}} {% endfor %}*
@@ -1026,8 +1026,8 @@ home_alarm_settings:
                           - service: notify.alexus
                             data:
                                 title: '{{"\U000026A0"}} УВАГА{{"\U0000203C"}}'
-                                message:  |
-                                    ➖➖➖➖➖➖➖➖➖➖➖➖
+                                message: |
+                                    ➖➖➖➖➖➖➖
                                     {{"\U0001F44C"}} Протікання води усунуто{{"\U0000203C"}}
                                 data: 
                                     inline_keyboard: 
@@ -1096,7 +1096,7 @@ home_alarm_settings:
                     data:
                         title: '{{"\U000026A0"}} УВАГА{{"\U0000203C"}}'
                         message: |
-                            ➖➖➖➖➖➖➖➖➖➖➖➖
+                            ➖➖➖➖➖➖➖
                             {{"\U0001F525"}} Виявлено витік газу на кухні{{"\U0000203C"}}
                         data: 
                             inline_keyboard: 
@@ -1217,7 +1217,7 @@ home_alarm_settings:
                     data:
                         title: '{{"\U000026A0"}} УВАГА{{"\U0000203C"}}'
                         message: |
-                            ➖➖➖➖➖➖➖➖➖➖➖➖
+                            ➖➖➖➖➖➖➖
                             Вхідні двері відчинені більше трьох хвилин{{"\U0000203C"}}
                         data: 
                             inline_keyboard: 
@@ -1308,8 +1308,8 @@ home_alarm_settings:
                   - service: notify.alexus
                     data:
                         title: '{{"\U0001F504"}} Пральна машина{{"\U0000203C"}}'
-                        message:  |
-                            ➖➖➖➖➖➖➖➖➖➖➖➖
+                        message: |
+                            ➖➖➖➖➖➖➖
                             {{"\U0001F9FA"}} Програму прання завершено{{"\U0000203C"}}
                         data: 
                             inline_keyboard: 
