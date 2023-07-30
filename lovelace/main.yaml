@@ -202,10 +202,10 @@ cards:
                 name: Таймер Світла
                 tap_action: none
                 hide_if:
-                  conditions:
-                    - condition: equals
-                      entity: input_boolean.disable_occupancy
-                      value: "on"
+                    conditions:
+                      - condition: equals
+                        entity: input_boolean.disable_occupancy
+                        value: "on"
               - entity: media_player.sonos_living_room
                 icon: mdi:speaker-wireless
                 name: Sonos One
@@ -213,20 +213,20 @@ cards:
                 state_color: true
                 tap_action: none
                 hide_if:
-                  conditions:
-                    - condition: equals
-                      value: "paused"
-                    - condition: equals
-                      value: "unavailable"
+                    conditions:
+                      - condition: equals
+                        value: "paused"
+                      - condition: equals
+                        value: "unavailable"
               - entity: binary_sensor.living_room_socket_heating_status
                 show_icon: true
                 state_color: true
                 tap_action: none
                 hide_if:
-                  conditions:
-                    - condition: equals
-                      entity: input_boolean.heating_status
-                      value: "off"
+                    conditions:
+                      - condition: equals
+                        entity: input_boolean.heating_status
+                        value: "off"
                 name: Обігрівач
               - entity: binary_sensor.living_room_air_conditioner_socket_status
                 state_color: true
@@ -234,10 +234,21 @@ cards:
                 tap_action: none
                 name: Кондиціонер
                 hide_if:
-                  conditions:
-                    - condition: equals
-                      entity: input_boolean.ac_status
-                      value: "off"
+                    conditions:
+                      - condition: equals
+                        entity: input_boolean.ac_status
+                        value: "off"
+              - entity: fan.lr_levoit_air_purifier_300s
+                state_color: true
+                show_icon: true
+                icon: mdi:air-purifier
+                tap_action: none
+                name: Очищувач
+                hide_if:
+                    conditions:
+                      - condition: equals
+                        entity: fan.lr_levoit_air_purifier_300s
+                        value: "unavailable"
               - entity: binary_sensor.living_room_lumi_sensor_motion_occupancy
                 show_icon: true
                 state_color: true
@@ -249,6 +260,7 @@ cards:
                 tap_action: none
                 name: Лоджія
             info_entities:
+              - entity: sensor.lr_levoit_air_purifier_300s_air_quality
               - entity: sensor.living_room_lumi_sensor_motion_illuminance_lux
               - entity: sensor.living_room_lumi_weather_humidity
                 format: precision1
@@ -283,19 +295,19 @@ cards:
                 name: Таймер Світла
                 tap_action: none
                 hide_if:
-                  conditions:
-                    - condition: equals
-                      entity: input_boolean.disable_occupancy
-                      value: "on"
+                    conditions:
+                      - condition: equals
+                        entity: input_boolean.disable_occupancy
+                        value: "on"
               - entity: binary_sensor.bedroom_socket_heating_status
                 show_icon: true
                 state_color: true
                 tap_action: none
                 hide_if:
-                  conditions:
-                    - condition: equals
-                      entity: input_boolean.heating_status
-                      value: "off"
+                    conditions:
+                      - condition: equals
+                        entity: input_boolean.heating_status
+                        value: "off"
                 name: Обігрівач
               - entity: binary_sensor.bedroom_air_conditioner_socket_status
                 name: Кондиціонер
@@ -303,10 +315,10 @@ cards:
                 show_icon: true
                 tap_action: none
                 hide_if:
-                  conditions:
-                    - condition: equals
-                      entity: input_boolean.ac_status
-                      value: "off"
+                    conditions:
+                      - condition: equals
+                        entity: input_boolean.ac_status
+                        value: "off"
               - entity: binary_sensor.bedroom_lumi_sensor_motion_occupancy
                 show_icon: true
                 state_color: true
@@ -368,10 +380,10 @@ cards:
                 tap_action: none
                 name: Обігрівач
                 hide_if:
-                  conditions:
-                    - condition: equals
-                      entity: input_boolean.heating_status
-                      value: "off"
+                    conditions:
+                      - condition: equals
+                        entity: input_boolean.heating_status
+                        value: "off"
               - entity: binary_sensor.kitchen_oven_socket_status
                 show_icon: true
                 state_color: true
