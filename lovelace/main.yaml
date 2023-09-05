@@ -438,6 +438,11 @@ cards:
                 tap_action: none
                 show_icon: true
                 state_color: true
+                hide_if:
+                    conditions:
+                      - condition: equals
+                        entity: binary_sensor.bathroom_washing_machine_socket_status
+                        value: "off"
             info_entities:
               - entity: sensor.bathroom_lumi_weather_humidity
                 format: precision1
