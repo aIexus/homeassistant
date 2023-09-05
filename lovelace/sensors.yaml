@@ -485,6 +485,10 @@ cards:
                 name: Коридор
               - entity: sensor.living_room_lumi_weather_temperature
                 name: Вітальня
+              - entity: sensor.nous_weather_lcd_temperature
+                name: Спальня Nous
+              - entity: sensor.bedroom_average_temperature
+                name: Спальня average
               - entity: sensor.bedroom_lumi_weather_temperature
                 name: Спальня
               - entity: sensor.kitchen_lumi_weather_temperature
