@@ -456,7 +456,7 @@ energy_config:
 
           - name: bedroom_air_conditioner_socket_status
             unique_id: binary_sensor_bedroom_air_conditioner_socket_status
-            device_class: cold
+            device_class: power
             state: >-
                 {% if (states("sensor.bedroom_air_conditioner_socket_power") | int(0) > 5) %}
                 on
@@ -490,7 +490,7 @@ energy_config:
 
           - name: living_room_air_conditioner_socket_status
             unique_id:  binary_sensor_living_room_air_conditioner_socket_status
-            device_class: cold
+            device_class: power
             state: >-
                 {% if (states("sensor.living_room_air_conditioner_socket_power") | int(0) > 5) %}
                 on
