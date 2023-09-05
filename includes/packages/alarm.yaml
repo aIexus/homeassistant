@@ -858,7 +858,7 @@ home_alarm_settings:
                         title: '{{"\U000026A0"}} УВАГА{{"\U0000203C"}}'
                         message:  |
                             ➖➖➖➖➖➖➖
-                            Зафіксовано стрибок напруги: {{ trigger.to_state.state | int }} V{{"\U0000203C"}}
+                            Зафіксовано {% if (trigger.to_state.state | int < 198) %}заниження{% elif (trigger.to_state.state | int > 242) %}стрибок{% endif %} напруги: {{ trigger.to_state.state | int }} V{{"\U0000203C"}}
 
                             Рекомендується відключити чутливі електроприлади від мережі до стабілізації напруги!
                         data: 
@@ -882,7 +882,7 @@ home_alarm_settings:
                         service_name: tts.google_cloud_say
                         volume: 0.5
                         duration: '00:00:10'
-                        message: 'УВАГА!!! Зафіксовано стрибок напруги в мережі: {{ trigger.to_state.state | int }} вольт! Рекомендується відключити чутливі електроприлади від мережі до стабілізації напруги!'
+                        message: 'УВАГА!!! Зафіксовано {% if (trigger.to_state.state | int < 198) %}заниження{% elif (trigger.to_state.state | int > 242) %}стрибок{% endif %} напруги в мережі: {{ trigger.to_state.state | int }} вольт! Рекомендується відключити чутливі електроприлади від мережі до стабілізації напруги!'
                         # message: 'ВНИМАНИЕ!!! Зафиксирован скачок напряжения в сети: {{ trigger.to_state.state | int }} вольт! Рекомендуется отключить чувствительные электроприборы от сети до стабилизации напряжения!'
         mode: single
 
@@ -1115,7 +1115,7 @@ home_alarm_settings:
                         sequence:
                           - service: switch.turn_off
                             entity_id: switch.tapo_camera_privacy
-                          - delay: '00:00:03'
+                          - delay: '00:00:04'
                     # Move tapo_camera to Kitchen preset
                   - service: select.select_option
                     entity_id: select.tapo_camera_move_to_preset
@@ -1203,7 +1203,7 @@ home_alarm_settings:
                             service_name: tts.google_cloud_say
                             volume: 0.4
                             duration: '00:00:05'
-                            message: 'УВАГА!!! Вхідні двері відчинені більше трьох хвилин!'
+                            message: 'УВАГА!!! Вхідні двері відчинені більше ніж три хвилини!'
                             # message: 'ВНИМАНИЕ!!! Входная дверь открыта более трёх минут!'
             # Notify alexus
           - choose:
@@ -1218,7 +1218,7 @@ home_alarm_settings:
                         title: '{{"\U000026A0"}} УВАГА{{"\U0000203C"}}'
                         message: |
                             ➖➖➖➖➖➖➖
-                            Вхідні двері відчинені більше трьох хвилин{{"\U0000203C"}}
+                            Вхідні двері відчинені більше ніж три хвилини{{"\U0000203C"}}
                         data: 
                             inline_keyboard: 
                               - "{{'\U0001F6E1'}} Безпека:/security, {{'\U0001F4D1'}} Меню:/menu"
@@ -1236,7 +1236,7 @@ home_alarm_settings:
                         sequence:
                           - service: switch.turn_off
                             entity_id: switch.tapo_camera_privacy
-                          - delay: '00:00:03'
+                          - delay: '00:00:04'
                     # Move tapo_camera to Entrance preset
                   - service: select.select_option
                     target:
@@ -1291,7 +1291,7 @@ home_alarm_settings:
 
       - alias: "Alarm: Finished programm by Washing Machine"
         id: alarm_bathroom_washing_machine_cycle_finihed
-        description: 'Повідомлення про закінчення циклу прання у пральній машині'
+        description: 'Повідомлення про завершення циклу прання у пральній машині'
         trigger:
           - platform: state
             entity_id: binary_sensor.bathroom_washing_machine_socket_status
