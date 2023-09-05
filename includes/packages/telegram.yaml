@@ -1026,26 +1026,40 @@ telegram:
             event_data:
               data: '/ivan'
           action:
-            - service: notify.alexus
-              data:
-                message: |
-                    Іван зараз знаходиться тут:
-                    ➖➖➖➖➖➖➖
-            - service: notify.alexus
-              data:
-                message: 'Місцезнаходження Івана'
+            - choose:
+              - conditions:
+                  - condition: template
+                    value_template: >-
+                        {{  not ( states.device_tracker.google_maps_105010208332419299900.attributes.latitude  is not defined or
+                                  states.device_tracker.google_maps_105010208332419299900.attributes.longitude is not defined ) }}
+                sequence:
+                - service: notify.alexus
+                  data:
+                    message: |
+                        Іван зараз знаходиться тут:
+                        ➖➖➖➖➖➖➖
+                - service: notify.alexus
+                  data:
+                    message: 'Місцезнаходження Івана'
+                    data:
+                      location:
+                        latitude: '{{ state_attr("device_tracker.google_maps_116201395133676470264","latitude") }}'
+                        longitude: '{{ state_attr("device_tracker.google_maps_116201395133676470264","longitude") }}'
+                - service: notify.alexus
+                  data:
+                    message: |
+                        Адреса {{"\U0001F3E1"}}: {{ state_attr("device_tracker.google_maps_116201395133676470264","address") }}
+                        Батарея {{"\U0001F50B"}}: {{ state_attr("device_tracker.google_maps_116201395133676470264","battery_level") }}%{% if state_attr("device_tracker.google_maps_116201395133676470264","battery_charging") %} {{"\U0001F50C"}} Charging{%endif%}
+                        Оновлено: {{ as_timestamp(state_attr("device_tracker.google_maps_116201395133676470264","last_seen")) | timestamp_custom("\U0001F4C5 %d.%m.%Y \U0001F551 %H:%M", default = 0) }}
+                    data: 
+                      inline_keyboard: *keyb_geo
+              default:
+              - service: notify.alexus
                 data:
-                  location:
-                    latitude: '{{ state_attr("device_tracker.google_maps_116201395133676470264","latitude") }}'
-                    longitude: '{{ state_attr("device_tracker.google_maps_116201395133676470264","longitude") }}'
-            - service: notify.alexus
-              data:
-                message: |
-                    Адреса {{"\U0001F3E1"}}: {{ state_attr("device_tracker.google_maps_116201395133676470264","address") }}
-                    Батарея {{"\U0001F50B"}}: {{ state_attr("device_tracker.google_maps_116201395133676470264","battery_level") }}%{% if state_attr("device_tracker.google_maps_116201395133676470264","battery_charging") %} {{"\U0001F50C"}} Charging{%endif%}
-                    Оновлено: {{ as_timestamp(state_attr("device_tracker.google_maps_116201395133676470264","last_seen")) | timestamp_custom("\U0001F4C5 %d.%m.%Y \U0001F551 %H:%M", default = 0) }}
-                data: 
-                  inline_keyboard: *keyb_geo
+                    message: |
+                        Геолокація {{"\U0001F5FA"}}:
+                        ➖➖➖➖➖➖➖
+                        {{"\U0000203C"}} Дані геолокації від Івана відсутні {{"\U0001F974"}}
           mode: single
 
         - alias: "Telegram: Geolocation for Inna"
@@ -1057,26 +1071,40 @@ telegram:
             event_data:
               data: '/inna'
           action:
-            - service: notify.alexus
-              data:
-                message: |
-                    Інна зараз знаходится тут:
-                    ➖➖➖➖➖➖➖
-            - service: notify.alexus
-              data:
-                message: 'Місцезнаходження Інни'
+            - choose:
+              - conditions:
+                  - condition: template
+                    value_template: >-
+                        {{  not ( states.device_tracker.google_maps_105010208332419299900.attributes.latitude  is not defined or
+                                  states.device_tracker.google_maps_105010208332419299900.attributes.longitude is not defined ) }}
+                sequence:
+                - service: notify.alexus
+                  data:
+                    message: |
+                        Інна зараз знаходиться тут:
+                        ➖➖➖➖➖➖➖
+                - service: notify.alexus
+                  data:
+                    message: 'Місцезнаходження Інни'
+                    data:
+                      location:
+                        latitude: '{{ state_attr("device_tracker.google_maps_104258358112460913017","latitude") }}'
+                        longitude: '{{ state_attr("device_tracker.google_maps_104258358112460913017","longitude") }}'
+                - service: notify.alexus
+                  data:
+                    message: |
+                        Адреса {{"\U0001F3E1"}}: {{ state_attr("device_tracker.google_maps_104258358112460913017","address") }}
+                        Батарея {{"\U0001F50B"}}: {{ state_attr("device_tracker.google_maps_104258358112460913017","battery_level") }}%{% if state_attr("device_tracker.google_maps_104258358112460913017","battery_charging") %} {{"\U0001F50C"}} Charging{%endif%}
+                        Оновлено: {{ as_timestamp(state_attr("device_tracker.google_maps_104258358112460913017","last_seen")) | timestamp_custom("\U0001F4C5 %d.%m.%Y \U0001F551 %H:%M", default = 0) }}
+                    data: 
+                      inline_keyboard: *keyb_geo
+              default:
+              - service: notify.alexus
                 data:
-                  location:
-                    latitude: '{{ state_attr("device_tracker.google_maps_104258358112460913017","latitude") }}'
-                    longitude: '{{ state_attr("device_tracker.google_maps_104258358112460913017","longitude") }}'
-            - service: notify.alexus
-              data:
-                message: |
-                    Адреса {{"\U0001F3E1"}}: {{ state_attr("device_tracker.google_maps_104258358112460913017","address") }}
-                    Батарея {{"\U0001F50B"}}: {{ state_attr("device_tracker.google_maps_104258358112460913017","battery_level") }}%{% if state_attr("device_tracker.google_maps_104258358112460913017","battery_charging") %} {{"\U0001F50C"}} Charging{%endif%}
-                    Оновлено: {{ as_timestamp(state_attr("device_tracker.google_maps_104258358112460913017","last_seen")) | timestamp_custom("\U0001F4C5 %d.%m.%Y \U0001F551 %H:%M", default = 0) }}
-                data: 
-                  inline_keyboard: *keyb_geo
+                    message: |
+                        Геолокація {{"\U0001F5FA"}}:
+                        ➖➖➖➖➖➖➖
+                        {{"\U0000203C"}} Дані геолокації від Інни відсутні {{"\U0001F974"}}
           mode: single
 
         - alias: "Telegram: Geolocation for Vova"
@@ -1088,24 +1116,38 @@ telegram:
             event_data:
               data: '/vova'
           action:
-            - service: notify.alexus
-              data:
-                message: |
-                    Вова зараз знаходится тут:
-                    ➖➖➖➖➖➖➖
-            - service: notify.alexus
-              data:
-                message: 'Місцезнаходження Вовы'
+            - choose:
+              - conditions:
+                  - condition: template
+                    value_template: >-
+                        {{  not ( states.device_tracker.google_maps_105010208332419299900.attributes.latitude  is not defined or
+                                  states.device_tracker.google_maps_105010208332419299900.attributes.longitude is not defined ) }}
+                sequence:
+                  - service: notify.alexus
+                    data:
+                        message: |
+                            Вова зараз знаходиться тут:
+                            ➖➖➖➖➖➖➖
+                  - service: notify.alexus
+                    data:
+                        message: 'Місцезнаходження Вови'
+                        data:
+                            location:
+                                latitude: '{{ state_attr("device_tracker.google_maps_105010208332419299900","latitude") }}'
+                                longitude: '{{ state_attr("device_tracker.google_maps_105010208332419299900","longitude") }}'
+                  - service: notify.alexus
+                    data:
+                        message: |
+                            Адреса {{"\U0001F3E1"}}: {{ state_attr("device_tracker.google_maps_105010208332419299900","address") }}
+                            Батарея {{"\U0001F50B"}}: {{ state_attr("device_tracker.google_maps_105010208332419299900","battery_level") }}%{% if state_attr("device_tracker.google_maps_105010208332419299900","battery_charging") %} {{"\U0001F50C"}} Charging{%endif%}
+                            Оновлено: {{ as_timestamp(state_attr("device_tracker.google_maps_105010208332419299900","last_seen")) | timestamp_custom("\U0001F4C5 %d.%m.%Y \U0001F551 %H:%M", default = 0) }}
+                        data: 
+                            inline_keyboard: *keyb_geo
+              default:
+              - service: notify.alexus
                 data:
-                  location:
-                    latitude: '{{ state_attr("device_tracker.google_maps_105010208332419299900","latitude") }}'
-                    longitude: '{{ state_attr("device_tracker.google_maps_105010208332419299900","longitude") }}'
-            - service: notify.alexus
-              data:
-                message: |
-                    Адреса {{"\U0001F3E1"}}: {{ state_attr("device_tracker.google_maps_105010208332419299900","address") }}
-                    Батарея {{"\U0001F50B"}}: {{ state_attr("device_tracker.google_maps_105010208332419299900","battery_level") }}%{% if state_attr("device_tracker.google_maps_105010208332419299900","battery_charging") %} {{"\U0001F50C"}} Charging{%endif%}
-                    Оновлено: {{ as_timestamp(state_attr("device_tracker.google_maps_105010208332419299900","last_seen")) | timestamp_custom("\U0001F4C5 %d.%m.%Y \U0001F551 %H:%M", default = 0) }}
-                data: 
-                  inline_keyboard: *keyb_geo
+                    message: |
+                        Геолокація {{"\U0001F5FA"}}:
+                        ➖➖➖➖➖➖➖
+                        {{"\U0000203C"}} Дані геолокації від Вови відсутні {{"\U0001F974"}}
           mode: single
