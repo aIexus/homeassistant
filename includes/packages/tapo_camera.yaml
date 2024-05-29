@@ -8,10 +8,10 @@ tapo_camera_package:
     homeassistant:
 
         customize:
-            binary_sensor.tapo_camera_motion_alarm:
-                friendly_name: 'Рух у Коридорі, Камера'
-            binary_sensor.tapo_camera_cell_motion_detection:
-                friendly_name: 'Рух у Коридорі, Камера 2'
+            binary_sensor.tapo_camera_c200_motion_alarm:
+                friendly_name: 'Рух у Передпокої, Камера'
+            binary_sensor.tapo_camera_c200_cell_motion_detection:
+                friendly_name: 'Рух у Передпокої, Камера 2'
 
     script:
 
@@ -21,18 +21,18 @@ tapo_camera_package:
               - condition: template
                 value_template: "{{ not is_state(tapo_camera_id,'unavailable') }}"
               - service: switch.turn_off
-                entity_id: switch.tapo_camera_privacy
+                entity_id: switch.tapo_camera_c200_privacy
               - service: select.select_option
-                entity_id: select.tapo_camera_move_to_preset
+                entity_id: select.tapo_camera_c200_move_to_preset
                 data: 
                     option: 'Living Room'
               - delay: '00:00:04'
                 # - variables:
                 #     snapshot_file_name: |
-                #       {{ "/config/files/camera/" + state_attr('camera.tapo_camera_hd', 'friendly_name') +  "/snapshot_" + now().strftime('%Y%m%d-%H%M%S') + ".jpg" }}
+                #       {{ "/config/files/camera/" + state_attr('camera.tapo_camera_c200_hd', 'friendly_name') +  "/snapshot_" + now().strftime('%Y%m%d-%H%M%S') + ".jpg" }}
                 # - service: script.tapo_camera_save_snapshot
                 #   data:
-                #     tapo_camera_id: camera.tapo_camera_hd
+                #     tapo_camera_id: camera.tapo_camera_c200_hd
                 #     filename: '{{ snapshot_file_name }}'
                 # - service: telegram_bot.send_photo
                 #   data_template:
@@ -42,10 +42,10 @@ tapo_camera_package:
                 # - delay: '00:00:05'
                 # - variables:
                 #     record_file_name: |
-                #       {{ "/config/files/camera/" + state_attr('camera.tapo_camera_hd', 'friendly_name') +  "/record_" + now().strftime('%Y%m%d-%H%M%S') + ".mp4" }}
+                #       {{ "/config/files/camera/" + state_attr('camera.tapo_camera_c200_hd', 'friendly_name') +  "/record_" + now().strftime('%Y%m%d-%H%M%S') + ".mp4" }}
                 # - service: script.tapo_camera_save_record
                 #   data:
-                #     tapo_camera_id: camera.tapo_camera_hd
+                #     tapo_camera_id: camera.tapo_camera_c200_hd
                 #     filename: '{{ record_file_name }}'
                 #     time_duration: 15
                 # - delay: '00:00:03'
@@ -55,12 +55,12 @@ tapo_camera_package:
                 #     file: '{{ record_file_name }}'
                 #     caption: Тревога!
               - service: select.select_option
-                entity_id: select.tapo_camera_move_to_preset
+                entity_id: select.tapo_camera_c200_move_to_preset
                 data: 
                     option: 'Kitchen'
               - delay: '00:00:04'
               - service: switch.turn_on
-                entity_id: switch.tapo_camera_privacy
+                entity_id: switch.tapo_camera_c200_privacy
             mode: single
 
         tapo_camera_save_record:
@@ -69,7 +69,7 @@ tapo_camera_package:
                 tapo_camera_id:
                     description: The entity of the TAPO Camera
                     example: camera.tapo_01
-                    default: camera.tapo_camera_sd
+                    default: camera.tapo_camera_c200_sd_stream
                 file_name:
                     description: The path/name of saved file
                     example: '/config/files/camera/record01.mp4'
@@ -104,7 +104,7 @@ tapo_camera_package:
                 tapo_camera_id:
                     description: The entity of the TAPO Camera
                     example: camera.tapo_01
-                    default: camera.tapo_camera_sd
+                    default: camera.tapo_camera_c200_sd_stream
                 file_name:
                     description: The path/name of saved file
                     example: '/config/files/camera/snapshot01.jpg'
@@ -123,3 +123,24 @@ tapo_camera_package:
                     filename: '{{ snapshot_file_name }}'
               - delay: '00:00:03'
             mode: queued
+
+    automation:
+
+      - alias: "Tapo Camera: Setup Camera on System Startup"
+        id: tapo_camera_settings_on_statrup
+        description: 'Установки камеры при старте системы'
+        trigger: 
+          - platform: homeassistant
+            event: start
+        condition: 
+          - condition: state
+            entity_id: switch.tapo_camera_c200_privacy
+            state: 'on'
+        action:
+          - service: switch.turn_off
+            entity_id: switch.tapo_camera_c200_privacy
+          - delay: 
+                minutes: 3
+          - service: switch.turn_on
+            entity_id: switch.tapo_camera_c200_privacy
+        mode: single
