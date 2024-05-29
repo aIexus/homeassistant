@@ -1,4 +1,9 @@
 title: Система
+visible:
+#   - user: c95c6095c99342e980335fc45f93584b # Ivan
+  - user: 3da46ad97a5d4bedbd4bf4d770d9f714 # alexus
+  - user: 0bae28547b584a2fae4ceb544b33539c # Vova
+  - user: fd6364b295834039a8ea6137739fd937 # Inna
 icon: mdi:tune-vertical
 cards:
 
@@ -219,6 +224,7 @@ cards:
               - entity: input_boolean.disable_ups_battery_status_notifications
               - entity: input_boolean.disable_climate_notifications
               - entity: input_boolean.disable_voice_notifications
+              - entity: input_boolean.disable_voltage_voice_alarms
               - entity: input_boolean.disable_startup_notifications
               - entity: input_boolean.disable_zone_notifications
 

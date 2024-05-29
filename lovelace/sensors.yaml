@@ -1,4 +1,9 @@
 title: Сенсори
+visible:
+#   - user: c95c6095c99342e980335fc45f93584b # Ivan
+  - user: 3da46ad97a5d4bedbd4bf4d770d9f714 # alexus
+#   - user: 0bae28547b584a2fae4ceb544b33539c # Vova
+#   - user: fd6364b295834039a8ea6137739fd937 # Inna
 icon: mdi:view-dashboard
 cards:
   - type: vertical-stack
@@ -58,6 +63,94 @@ cards:
                     name: Вологість
 
               - type: custom:multiple-entity-row
+                entity: fan.lr_levoit_air_purifier_300s
+                icon: mdi:air-purifier
+                name: Очищувач повітря
+                secondary_info: last-changed
+                state_color: true
+                show_state: false
+                entities:
+                  - entity: binary_sensor.living_room_air_purifier_status
+                    name: false
+                    icon: true
+                    state_color: true
+                  - entity: sensor.lr_levoit_air_purifier_300s_filter_life
+                    name: Фільтр
+                  - entity: sensor.lr_levoit_air_purifier_300s_air_quality
+                    name: Якість
+                  - entity: sensor.lr_levoit_air_purifier_300s_air_quality_value
+                    name: PM2.5
+                    unit: "µg/m³"
+
+              - type: custom:multiple-entity-row
+                entity: binary_sensor.living_room_desktop_pc_strip_socket_status
+                name: ПК
+                secondary_info: last-changed
+                state_color: true
+                show_state: false
+                entities:
+                  - entity: sensor.living_room_desktop_pc_strip_socket_voltage
+                    name: Напруга
+                    unit: "V"
+                  - entity: sensor.living_room_desktop_pc_strip_socket_power
+                    name: Потужність
+                    unit: "W"
+                  - entity: sensor.living_room_desktop_pc_strip_socket_meter_monthly
+                    name: Спожито
+                    unit: "kWh"
+
+              - type: custom:multiple-entity-row
+                entity: binary_sensor.living_room_desktop_equipment_socket_status
+                name: Обладнання
+                secondary_info: last-changed
+                state_color: true
+                show_state: false
+                entities:
+                  - entity: sensor.living_room_desktop_equipment_socket_voltage
+                    name: Напруга
+                    unit: "V"
+                  - entity: sensor.living_room_desktop_equipment_socket_power
+                    name: Потужність
+                    unit: "W"
+                  - entity: sensor.living_room_desktop_equipment_socket_meter_monthly
+                    name: Спожито
+                    unit: "kWh"
+
+              - type: custom:multiple-entity-row
+                entity: binary_sensor.living_room_laptop_charging_socket_status
+                name: Ноутбук
+                secondary_info: last-changed
+                state_color: true
+                show_state: false
+                entities:
+                  - entity: sensor.living_room_laptop_charging_socket_voltage
+                    name: Напруга
+                    unit: "V"
+                  - entity: sensor.living_room_laptop_charging_socket_power
+                    name: Потужність
+                    unit: "W"
+                  - entity: sensor.living_room_laptop_charging_socket_meter_monthly
+                    name: Спожито
+                    unit: "kWh"
+
+              - type: custom:multiple-entity-row
+                entity: binary_sensor.living_room_ns_socket_status
+                name: NSwitch
+                secondary_info: last-changed
+                state_color: true
+                show_state: false
+                entities:
+                  - entity: sensor.living_room_ns_socket_voltage
+                    name: Напруга
+                    unit: "V"
+                  - entity: sensor.living_room_ns_socket_power
+                    name: Потужність
+                    unit: "W"
+                  - entity: sensor.living_room_ns_socket_meter_monthly
+                    name: Спожито
+                    unit: "kWh"
+
+              - type: custom:multiple-entity-row
                 entity: switch.living_room_aquarium_power_strip_l3
                 icon: mdi:fishbowl-outline
                 name: Акваріум
@@ -72,7 +165,7 @@ cards:
                     name: Потужність
                     unit: "W"
                   - entity: sensor.living_room_aquarium_main_lighting_meter_monthly
-                    name: За місяць
+                    name: Спожито
                     unit: "kWh"
 
               - type: custom:multiple-entity-row
@@ -89,7 +182,7 @@ cards:
                     name: Потужність
                     unit: "W"
                   - entity: sensor.living_room_socket_heating_meter_monthly
-                    name: За місяць
+                    name: Спожито
                     unit: "kWh"
 
               - type: custom:multiple-entity-row
@@ -106,26 +199,8 @@ cards:
                     name: Потужність
                     unit: "W"
                   - entity: sensor.living_room_air_conditioner_socket_meter_monthly
-                    name: За місяць
+                    name: Спожито
                     unit: "kWh"
-
-              - type: custom:multiple-entity-row
-                entity: fan.lr_levoit_air_purifier_300s
-                icon: mdi:air-purifier
-                name: Очищувач повітря
-                secondary_info: last-changed
-                state_color: true
-                show_state: false
-                entities:
-                  - entity: binary_sensor.living_room_air_purifier_status
-                    name: false
-                    icon: true
-                    state_color: true
-                  - entity: sensor.lr_levoit_air_purifier_300s_filter_life
-                    name: Фільтр
-                  - entity: sensor.lr_levoit_air_purifier_300s_air_quality
-                    name: PM2.5
-                    unit: "µg/m³"
 
       - type: custom:stack-in-card
         mode: vertical
@@ -191,6 +266,35 @@ cards:
                     name: Вологість
 
               - type: custom:multiple-entity-row
+                entity: sensor.nous_weather_lcd_temperature
+                icon: mdi:home-thermometer
+                name: Клімат NOUS
+                secondary_info: last-changed
+                state_header: Температура
+                entities:
+                  - entity: sensor.bedroom_average_temperature
+                    name: Середня
+                  - entity: sensor.nous_weather_lcd_humidity
+                    name: Вологість
+
+              - type: custom:multiple-entity-row
+                entity: binary_sensor.bedroom_prusa_mk3_printer_socket_status
+                name: Prusa MK3 Printer
+                secondary_info: last-changed
+                state_color: true
+                show_state: false
+                entities:
+                  - entity: sensor.bedroom_prusa_mk3_printer_socket_voltage
+                    name: Напруга
+                    unit: "V"
+                  - entity: sensor.bedroom_prusa_mk3_printer_socket_power
+                    name: Потужність
+                    unit: "W"
+                  - entity: sensor.bedroom_prusa_mk3_printer_socket_meter_monthly
+                    name: Спожито
+                    unit: "kWh"
+
+              - type: custom:multiple-entity-row
                 entity: binary_sensor.bedroom_socket_heating_status
                 name: Обігрівач
                 secondary_info: last-changed
@@ -204,7 +308,7 @@ cards:
                     name: Потужність
                     unit: "W"
                   - entity: sensor.bedroom_socket_heating_meter_monthly
-                    name: За місяць
+                    name: Спожито
                     unit: "kWh"
 
               - type: custom:multiple-entity-row
@@ -221,7 +325,7 @@ cards:
                     name: Потужність
                     unit: "W"
                   - entity: sensor.bedroom_air_conditioner_socket_meter_monthly
-                    name: За місяць
+                    name: Спожито
                     unit: "kWh"
 
   - type: vertical-stack
@@ -298,7 +402,7 @@ cards:
                     name: Потужність
                     unit: "W"
                   - entity: sensor.kitchen_socket_heating_meter_monthly
-                    name: За місяць
+                    name: Спожито
                     unit: "kWh"
 
               - type: custom:multiple-entity-row
@@ -315,7 +419,7 @@ cards:
                     name: Потужність
                     unit: "W"
                   - entity: sensor.kitchen_oven_socket_meter_monthly
-                    name: За місяць
+                    name: Спожито
                     unit: "kWh"
 
               - type: custom:multiple-entity-row
@@ -332,7 +436,7 @@ cards:
                     name: Потужність
                     unit: "W"
                   - entity: sensor.kitchen_coffee_machine_and_microwave_socket_meter_monthly
-                    name: За місяць
+                    name: Спожито
                     unit: "kWh"
 
       - type: custom:stack-in-card
@@ -364,7 +468,7 @@ cards:
                 secondary_info: last-changed
                 state_header: Стан
                 state_color: true
-                name: Датчик протікання, під пралькою
+                name: Датчик протікання, під пралкою
 
               - type: custom:multiple-entity-row
                 entity: sensor.bathroom_lumi_weather_temperature
@@ -392,7 +496,7 @@ cards:
                     name: Потужність
                     unit: "W"
                   - entity: sensor.bathroom_washing_machine_socket_meter_monthly
-                    name: За місяць
+                    name: Спожито
                     unit: "kWh"
 
       - type: custom:stack-in-card
@@ -407,7 +511,7 @@ cards:
                     font-size: 16px;
                 } 
             content: >
-                **Коридор**
+                **Передпокій**
 
           - type: entities
             state_color: true
@@ -418,10 +522,10 @@ cards:
                 state_header: Стан
                 state_color: true
                 name: Вхідні двері
-              - entity: binary_sensor.tapo_camera_motion_alarm
+              - entity: binary_sensor.tapo_camera_c200_motion_alarm
                 name: Датчик руху, Камера
               - entity: light.hallway_rgb_bulb
-                name: Коридор, сигнальна лампа
+                name: Передпокій, сигнальна лампа
               - type: custom:multiple-entity-row
                 entity: sensor.hallway_lumi_weather_temperature
                 icon: mdi:home-thermometer
@@ -482,7 +586,7 @@ cards:
             hours_to_show: 72
             entities:
               - entity: sensor.hallway_lumi_weather_temperature
-                name: Коридор
+                name: Передпокій
               - entity: sensor.living_room_lumi_weather_temperature
                 name: Вітальня
               - entity: sensor.nous_weather_lcd_temperature

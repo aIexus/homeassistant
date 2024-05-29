@@ -1,6 +1,11 @@
 # Main idea took from https://github.com/kvazis/training/tree/master/lessons/articles/unit%20telemetry%201
 ############################ Телеметрія ############################
 title: Телеметрія
+visible:
+#   - user: c95c6095c99342e980335fc45f93584b # Ivan
+  - user: 3da46ad97a5d4bedbd4bf4d770d9f714 # alexus
+#   - user: 0bae28547b584a2fae4ceb544b33539c # Vova
+#   - user: fd6364b295834039a8ea6137739fd937 # Inna
 icon: mdi:keyboard
 cards:
 
@@ -11,28 +16,30 @@ cards:
         - type: custom:stack-in-card
           mode: vertical
           cards:
-      
+
             - type: markdown
-              style: |
-                   ha-card {
-                     color: #00BFFF;
-                     font-weight: bold;
-                     font-size: 16px;
-                   }          
+              card_mod:
+                style: |
+                    ha-card {
+                        color: #00BFFF;
+                        font-weight: bold;
+                        font-size: 16px;
+                    }
               content: >
                  **Автоматизації та скрипти**
 
 ################# Автоматизації #################
 
             - type: entities
-              style: |
-                   ha-card {
-                     color: #00BFFF;
-                     --paper-item-icon-color: #00BFFF;
-                     --iron-icon-stroke-color: #FFFFE0;
-                     font-weight: bold;
-                     font-size: 14px;
-                   }                 
+              card_mod:
+                style: |
+                    ha-card {
+                      color: #00BFFF;
+                      --paper-item-icon-color: #00BFFF;
+                      --iron-icon-stroke-color: #FFFFE0;
+                      font-weight: bold;
+                      font-size: 14px;
+                    }
               show_header_toggle: false
               entities:
               - entity: sensor.count_automations
@@ -52,13 +59,14 @@ cards:
               card:
                 type: entities
                 show_header_toggle: false
-                style: |
-                  ha-card {
-                    color: #00BFFF;
-                    --paper-item-icon-color: #E6E6FA;
-                    font-weight: bold;
-                    font-size: 14px;
-                  }
+                card_mod:
+                    style: |
+                      ha-card {
+                        color: #00BFFF;
+                        --paper-item-icon-color: #E6E6FA;
+                        font-weight: bold;
+                        font-size: 14px;
+                      }
               filter:
                 include:
                  - domain: automation
@@ -69,14 +77,15 @@ cards:
 ################# Скрипти #################
 
             - type: entities
-              style: |
-                   ha-card {
-                     color: #00BFFF;
-                     --paper-item-icon-color: #00BFFF;
-                     --iron-icon-stroke-color: #FFFFE0;
-                     font-weight: bold;
-                     font-size: 14px;
-                   }                 
+              card_mod:
+                  style: |
+                       ha-card {
+                         color: #00BFFF;
+                         --paper-item-icon-color: #00BFFF;
+                         --iron-icon-stroke-color: #FFFFE0;
+                         font-weight: bold;
+                         font-size: 14px;
+                       }                 
               show_header_toggle: false
               entities:
               - entity: sensor.count_scripts
@@ -96,13 +105,14 @@ cards:
               card:
                 type: entities
                 show_header_toggle: false
-                style: |
-                  ha-card {
-                    color: #00BFFF;
-                    --paper-item-icon-color: #E6E6FA;
-                    font-weight: bold;
-                    font-size: 14px;
-                  }
+                card_mod:
+                    style: |
+                      ha-card {
+                        color: #00BFFF;
+                        --paper-item-icon-color: #E6E6FA;
+                        font-weight: bold;
+                        font-size: 14px;
+                      }
               filter:
                 include:
                  - domain: script
@@ -116,24 +126,26 @@ cards:
           cards:
 
             - type: markdown
-              style: |
-                   ha-card {
-                     color: #00BFFF;
-                     font-weight: bold;
-                     font-size: 16px;
-                   }          
+              card_mod:
+                  style: |
+                       ha-card {
+                         color: #00BFFF;
+                         font-weight: bold;
+                         font-size: 16px;
+                       }
               content: >
                  **Оновлення**
           
             - type: entities
-              style: |
-                   ha-card {
-                     color: #00BFFF;
-                     --paper-item-icon-color: #00BFFF;
-                     --iron-icon-stroke-color: #FFFFE0;
-                     font-weight: bold;
-                     font-size: 14px;
-                   }                 
+              card_mod:
+                  style: |
+                       ha-card {
+                         color: #00BFFF;
+                         --paper-item-icon-color: #00BFFF;
+                         --iron-icon-stroke-color: #FFFFE0;
+                         font-weight: bold;
+                         font-size: 14px;
+                       }
               show_header_toggle: false
               entities:
               - entity: sensor.count_updates
@@ -164,17 +176,21 @@ cards:
                         name: Наявна
                         
             - type: markdown
-              style: |
-                   ha-card {
-                     color: #00BFFF;
-                     font-weight: bold;
-                     font-size: 16px;
-                   }   
+              card_mod:
+                  style: |
+                       ha-card {
+                         color: #00BFFF;
+                         font-weight: bold;
+                         font-size: 16px;
+                       }
               content: |
-                <ha-icon icon="hacs:hacs"></ha-icon>&nbsp;&nbsp;&nbsp;Оновлення для HACS - {{ states('sensor.hacs') | default }}
-                > {% for repo in state_attr('sensor.hacs', 'repositories') %}
-                > {{ repo.display_name }} {{ repo["installed_version"] }} -> {{ repo["available_version"] }}
-                > {% endfor %}
+                <ha-icon icon="hacs:hacs"></ha-icon>&nbsp;&nbsp;&nbsp;Оновлення для HACS - {{ states('sensor.hacs') | default(0) }}
+                > {% set mylist = state_attr('sensor.hacs', 'repositories') %}
+                > {% if mylist != None %}
+                >  {% for repo in mylist %}
+                >  {{ repo.display_name }} {{ repo["installed_version"] }} -> {{ repo["available_version"] }}
+                >  {% endfor %}
+                > {% endif %}
                       
 ############################ Колонка 2 ############################
     - type: vertical-stack
@@ -187,24 +203,26 @@ cards:
           cards:
       
             - type: markdown
-              style: |
-                  ha-card {
-                    color: #FA8072;
-                    font-weight: bold;
-                    font-size: 16px;
-                  } 
+              card_mod:
+                  style: |
+                      ha-card {
+                        color: #FA8072;
+                        font-weight: bold;
+                        font-size: 16px;
+                      }
               content: >
                   **Світильники**
                   
             - type: entities
-              style: |
-                    ha-card {
-                      color: #FA8072;
-                      --paper-item-icon-color: #E6E6FA;
-                      --iron-icon-stroke-color: #E6E6FA;
-                      font-weight: bold;
-                      font-size: 14px;
-                    }               
+              card_mod:
+                  style: |
+                        ha-card {
+                          color: #FA8072;
+                          --paper-item-icon-color: #E6E6FA;
+                          --iron-icon-stroke-color: #E6E6FA;
+                          font-weight: bold;
+                          font-size: 14px;
+                        }
               show_header_toggle: false
               entities:
               - entity: sensor.count_lights
@@ -224,14 +242,15 @@ cards:
               card:
                 type: entities
                 show_header_toggle: false
-                style: |
-                    ha-card {
-                      color: #FA8072;
-                      --paper-item-icon-color: #E6E6FA;
-                      --iron-icon-stroke-color: #E6E6FA;
-                      font-weight: bold;
-                      font-size: 14px;
-                    }  
+                card_mod:
+                    style: |
+                        ha-card {
+                          color: #FA8072;
+                          --paper-item-icon-color: #E6E6FA;
+                          --iron-icon-stroke-color: #E6E6FA;
+                          font-weight: bold;
+                          font-size: 14px;
+                        }
               filter:
                 include:
                  - domain: light
@@ -246,24 +265,26 @@ cards:
           cards: 
       
             - type: markdown
-              style: |
-                  ha-card {
-                    color: #FA8072;
-                    font-weight: bold;
-                    font-size: 16px;
-                  } 
+              card_mod:
+                  style: |
+                      ha-card {
+                        color: #FA8072;
+                        font-weight: bold;
+                        font-size: 16px;
+                      }
               content: >
                   **Реле**
                   
             - type: entities
-              style: |
-                    ha-card {
-                      color: #FA8072;
-                      --paper-item-icon-color: #E6E6FA;
-                      --iron-icon-stroke-color: #E6E6FA;
-                      font-weight: bold;
-                      font-size: 14px;
-                    }               
+              card_mod:
+                  style: |
+                        ha-card {
+                          color: #FA8072;
+                          --paper-item-icon-color: #E6E6FA;
+                          --iron-icon-stroke-color: #E6E6FA;
+                          font-weight: bold;
+                          font-size: 14px;
+                        }
               show_header_toggle: false
               entities:
               - entity: sensor.count_switches
@@ -283,14 +304,15 @@ cards:
               card:
                 type: entities
                 show_header_toggle: false
-                style: |
-                    ha-card {
-                      color: #FA8072;
-                      --paper-item-icon-color: #E6E6FA;
-                      --iron-icon-stroke-color: #E6E6FA;
-                      font-weight: bold;
-                      font-size: 14px;
-                    }  
+                card_mod:
+                    style: |
+                        ha-card {
+                          color: #FA8072;
+                          --paper-item-icon-color: #E6E6FA;
+                          --iron-icon-stroke-color: #E6E6FA;
+                          font-weight: bold;
+                          font-size: 14px;
+                        }
               filter:
                 include:
                  - domain: switch
@@ -305,24 +327,26 @@ cards:
           cards: 
           
             - type: markdown
-              style: |
-                  ha-card {
-                    color: #FA8072;
-                    font-weight: bold;
-                    font-size: 16px;
-                  } 
+              card_mod:
+                  style: |
+                      ha-card {
+                        color: #FA8072;
+                        font-weight: bold;
+                        font-size: 16px;
+                      }
               content: >
                   **Термостати**
                   
             - type: entities
-              style: |
-                    ha-card {
-                      color: #FA8072;
-                      --paper-item-icon-color: #E6E6FA;
-                      --iron-icon-stroke-color: #E6E6FA;
-                      font-weight: bold;
-                      font-size: 14px;
-                    }               
+              card_mod:
+                  style: |
+                        ha-card {
+                          color: #FA8072;
+                          --paper-item-icon-color: #E6E6FA;
+                          --iron-icon-stroke-color: #E6E6FA;
+                          font-weight: bold;
+                          font-size: 14px;
+                        }
               show_header_toggle: false
               entities:
               - entity: sensor.count_climate
@@ -342,14 +366,15 @@ cards:
               card:
                 type: entities
                 show_header_toggle: false
-                style: |
-                    ha-card {
-                      color: #FA8072;
-                      --paper-item-icon-color: #E6E6FA;
-                      --iron-icon-stroke-color: #E6E6FA;
-                      font-weight: bold;
-                      font-size: 14px;
-                    }  
+                card_mod:
+                    style: |
+                        ha-card {
+                          color: #FA8072;
+                          --paper-item-icon-color: #E6E6FA;
+                          --iron-icon-stroke-color: #E6E6FA;
+                          font-weight: bold;
+                          font-size: 14px;
+                        }
               filter:
                 include:
                  - domain: climate
@@ -363,24 +388,26 @@ cards:
           mode: vertical
           cards: 
             - type: markdown
-              style: |
-                  ha-card {
-                    color: #FA8072;
-                    font-weight: bold;
-                    font-size: 16px;
-                  } 
+              card_mod:
+                  style: |
+                      ha-card {
+                        color: #FA8072;
+                        font-weight: bold;
+                        font-size: 16px;
+                      }
               content: >
                   **Сенсори**
                   
             - type: entities
-              style: |
-                    ha-card {
-                      color: #FA8072;
-                      --paper-item-icon-color: #E6E6FA;
-                      --iron-icon-stroke-color: #E6E6FA;
-                      font-weight: bold;
-                      font-size: 14px;
-                    }               
+              card_mod:
+                  style: |
+                        ha-card {
+                          color: #FA8072;
+                          --paper-item-icon-color: #E6E6FA;
+                          --iron-icon-stroke-color: #E6E6FA;
+                          font-weight: bold;
+                          font-size: 14px;
+                        }
               show_header_toggle: false
               entities:
               - entity: sensor.count_sensors
@@ -396,14 +423,15 @@ cards:
               card:
                 type: entities
                 show_header_toggle: false
-                style: |
-                    ha-card {
-                      color: #FA8072;
-                      --paper-item-icon-color: #E6E6FA;
-                      --iron-icon-stroke-color: #E6E6FA;
-                      font-weight: bold;
-                      font-size: 14px;
-                    }  
+                card_mod:
+                    style: |
+                        ha-card {
+                          color: #FA8072;
+                          --paper-item-icon-color: #E6E6FA;
+                          --iron-icon-stroke-color: #E6E6FA;
+                          font-weight: bold;
+                          font-size: 14px;
+                        }
               filter:
                 include:
                  - domain: sensor
@@ -417,24 +445,26 @@ cards:
           cards: 
           
             - type: markdown
-              style: |
-                  ha-card {
-                    color: #FA8072;
-                    font-weight: bold;
-                    font-size: 16px;
-                  } 
+              card_mod:
+                  style: |
+                      ha-card {
+                        color: #FA8072;
+                        font-weight: bold;
+                        font-size: 16px;
+                      }
               content: >
                   **Бінарні сенсори**
                   
             - type: entities
-              style: |
-                    ha-card {
-                      color: #FA8072;
-                      --paper-item-icon-color: #E6E6FA;
-                      --iron-icon-stroke-color: #E6E6FA;
-                      font-weight: bold;
-                      font-size: 14px;
-                    }               
+              card_mod:
+                  style: |
+                        ha-card {
+                          color: #FA8072;
+                          --paper-item-icon-color: #E6E6FA;
+                          --iron-icon-stroke-color: #E6E6FA;
+                          font-weight: bold;
+                          font-size: 14px;
+                        }
               show_header_toggle: false
               entities:
               - entity: sensor.count_binary_sensors
@@ -450,14 +480,15 @@ cards:
               card:
                 type: entities
                 show_header_toggle: false
-                style: |
-                    ha-card {
-                      color: #FA8072;
-                      --paper-item-icon-color: #E6E6FA;
-                      --iron-icon-stroke-color: #E6E6FA;
-                      font-weight: bold;
-                      font-size: 14px;
-                    }  
+                card_mod:
+                    style: |
+                        ha-card {
+                          color: #FA8072;
+                          --paper-item-icon-color: #E6E6FA;
+                          --iron-icon-stroke-color: #E6E6FA;
+                          font-weight: bold;
+                          font-size: 14px;
+                        }
               filter:
                 include:
                  - domain: binary_sensor
@@ -471,24 +502,26 @@ cards:
           cards: 
           
             - type: markdown
-              style: |
-                  ha-card {
-                    color: #FA8072;
-                    font-weight: bold;
-                    font-size: 16px;
-                  } 
+              card_mod:
+                  style: |
+                      ha-card {
+                        color: #FA8072;
+                        font-weight: bold;
+                        font-size: 16px;
+                      }
               content: >
                   **IP Камери**
                   
             - type: entities
-              style: |
-                    ha-card {
-                      color: #FA8072;
-                      --paper-item-icon-color: #E6E6FA;
-                      --iron-icon-stroke-color: #E6E6FA;
-                      font-weight: bold;
-                      font-size: 14px;
-                    }               
+              card_mod:
+                  style: |
+                        ha-card {
+                          color: #FA8072;
+                          --paper-item-icon-color: #E6E6FA;
+                          --iron-icon-stroke-color: #E6E6FA;
+                          font-weight: bold;
+                          font-size: 14px;
+                        }
               show_header_toggle: false
               entities:
               - entity: sensor.count_cameras
@@ -504,14 +537,15 @@ cards:
               card:
                 type: entities
                 show_header_toggle: false
-                style: |
-                    ha-card {
-                      color: #FA8072;
-                      --paper-item-icon-color: #E6E6FA;
-                      --iron-icon-stroke-color: #E6E6FA;
-                      font-weight: bold;
-                      font-size: 14px;
-                    }  
+                card_mod:
+                    style: |
+                        ha-card {
+                          color: #FA8072;
+                          --paper-item-icon-color: #E6E6FA;
+                          --iron-icon-stroke-color: #E6E6FA;
+                          font-weight: bold;
+                          font-size: 14px;
+                        }
               filter:
                 include:
                  - domain: camera
@@ -530,12 +564,13 @@ cards:
           cards:
 
             - type: markdown
-              style: |
-                  ha-card {
-                    color: #FFA500;
-                    font-weight: bold;
-                    font-size: 16px;
-                  } 
+              card_mod:
+                  style: |
+                      ha-card {
+                        color: #FFA500;
+                        font-weight: bold;
+                        font-size: 16px;
+                      }
               content: >
                   **Активні розетки > 10 Ватт**
 
@@ -572,12 +607,13 @@ cards:
           cards:
 
             - type: markdown
-              style: |
-                  ha-card {
-                    color: #FFA500;
-                    font-weight: bold;
-                    font-size: 16px;
-                  } 
+              card_mod:
+                  style: |
+                      ha-card {
+                        color: #FFA500;
+                        font-weight: bold;
+                        font-size: 16px;
+                      }
               content: >
                   **Активні світильники**
 
@@ -608,12 +644,13 @@ cards:
           cards:
 
             - type: markdown
-              style: |
-                  ha-card {
-                    color: #FFA500;
-                    font-weight: bold;
-                    font-size: 16px;
-                  } 
+              card_mod:
+                  style: |
+                      ha-card {
+                        color: #FFA500;
+                        font-weight: bold;
+                        font-size: 16px;
+                      }
               content: >
                   **Активні термостати**
 
@@ -635,12 +672,13 @@ cards:
           cards:
 
             - type: markdown
-              style: |
-                  ha-card {
-                    color: #FFA500;
-                    font-weight: bold;
-                    font-size: 16px;
-                  } 
+              card_mod:
+                  style: |
+                      ha-card {
+                        color: #FFA500;
+                        font-weight: bold;
+                        font-size: 16px;
+                      }
               content: >
                   **Активні таймери**
 
@@ -666,14 +704,15 @@ cards:
         - type: custom:stack-in-card
           mode: vertical
           cards:
-                                   
+
             - type: markdown
-              style: |
-                  ha-card {
-                    color: #00FA9A;
-                    font-weight: bold;
-                    font-size: 16px;
-                  } 
+              card_mod:
+                  style: |
+                      ha-card {
+                        color: #00FA9A;
+                        font-weight: bold;
+                        font-size: 16px;
+                      }
               content: >
                   **Аварійні датчики**
                       
@@ -703,12 +742,13 @@ cards:
           cards:
 
             - type: markdown
-              style: |
-                  ha-card {
-                    color: #00FA9A;
-                    font-weight: bold;
-                    font-size: 16px;
-                  } 
+              card_mod:
+                  style: |
+                      ha-card {
+                        color: #00FA9A;
+                        font-weight: bold;
+                        font-size: 16px;
+                      }
               content: >
                   **Активні датчики руху та присутності**
 
@@ -738,14 +778,15 @@ cards:
         - type: custom:stack-in-card
           mode: vertical
           cards:
-                                   
+
             - type: markdown
-              style: |
-                  ha-card {
-                    color: #00FA9A;
-                    font-weight: bold;
-                    font-size: 16px;
-                  } 
+              card_mod:
+                  style: |
+                      ha-card {
+                        color: #00FA9A;
+                        font-weight: bold;
+                        font-size: 16px;
+                      }
               content: >
                   **Відчинені вікна**
                       
@@ -765,12 +806,13 @@ cards:
                 - entity_id: binary_sensor.*windows
 
             - type: markdown
-              style: |
-                  ha-card {
-                    color: #00FA9A;
-                    font-weight: bold;
-                    font-size: 16px;
-                  } 
+              card_mod:
+                  style: |
+                      ha-card {
+                        color: #00FA9A;
+                        font-weight: bold;
+                        font-size: 16px;
+                      }
               content: >
                   **Відчинені двері**
                       
@@ -795,12 +837,13 @@ cards:
           cards:
            
             - type: markdown
-              style: |
-                  ha-card {
-                    color: #00FA9A;
-                    font-weight: bold;
-                    font-size: 16px;
-                  } 
+              card_mod:
+                  style: |
+                      ha-card {
+                        color: #00FA9A;
+                        font-weight: bold;
+                        font-size: 16px;
+                      }
               content: >
                   **Сенсори < 30% заряду**
             - type: custom:auto-entities
@@ -808,12 +851,13 @@ cards:
               card:
                 type: custom:battery-state-card
                 show_header_toggle: false
-                style: |
-                    ha-card {
-                      color: #00FA9A;
-                      font-weight: bold;
-                      font-size: 14px;
-                    } 
+                card_mod:
+                    style: |
+                        ha-card {
+                          color: #00FA9A;
+                          font-weight: bold;
+                          font-size: 14px;
+                        }
               filter:
                 include:
                  - entity_id: sensor.*battery

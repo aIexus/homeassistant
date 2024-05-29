@@ -1,4 +1,9 @@
 title: Головна
+visible:
+  - user: c95c6095c99342e980335fc45f93584b # Ivan
+  - user: 3da46ad97a5d4bedbd4bf4d770d9f714 # alexus
+  - user: 0bae28547b584a2fae4ceb544b33539c # Vova
+  - user: fd6364b295834039a8ea6137739fd937 # Inna
 icon: mdi:home-assistant
 cards:
 
@@ -117,11 +122,11 @@ cards:
 
       - type: conditional
         conditions:
-          - entity: switch.tapo_camera_privacy
+          - entity: switch.tapo_camera_c200_privacy
             state: "off"
         card:
             type: picture-entity
-            entity: camera.tapo_camera_sd
+            entity: camera.tapo_camera_c200_sd_stream
             show_state: true
             show_name: true
             camera_view: auto
@@ -134,7 +139,7 @@ cards:
         cards:
 
           - type: custom:room-card
-            title: Коридор
+            title: Передпокій
             hide_title: false
             icon: mdi:door-closed-lock
             entity: sensor.hallway_lumi_weather_temperature
@@ -142,32 +147,33 @@ cards:
             tap_action: none
             double_tap_action: none
             entities:
-              - entity: light.hallway_rgb_bulb
-                show_icon: true
-                state_color: true
-                name: Лампа
-                tap_action: none
-              - entity: binary_sensor.tapo_camera_motion_alarm
-                show_icon: true
-                state_color: true
-                hide_unavailable: true
-                name: Рух
-                tap_action: none
-              - entity: camera.tapo_camera_sd
-                show_icon: true
-                name: Камера
-                tap_action: none
               - entity: binary_sensor.hallway_entrance_door_contact
                 show_icon: true
                 state_color: true
                 tap_action: none
                 name: Двері
+              - entity: binary_sensor.tapo_camera_c200_motion_alarm
+                show_icon: true
+                state_color: true
+                hide_unavailable: true
+                name: Рух
+                tap_action: none
+              - entity: light.hallway_rgb_bulb
+                show_icon: true
+                icon: mdi:alarm-light
+                state_color: true
+                name: Лампа
+                tap_action: none
+              - entity: camera.tapo_camera_c200_sd_stream
+                show_icon: true
+                name: Камера
+                tap_action: none
             info_entities:
               - entity: sensor.hallway_lumi_weather_humidity
                 format: precision1
               - entity: sensor.hallway_lumi_weather_temperature
                 format: precision1
-    
+
           - type: custom:room-card
             title: Вітальня
             icon: mdi:sofa
@@ -175,106 +181,171 @@ cards:
             show_icon: true
             tap_action: none
             double_tap_action: none
-            entities:
-              - entity: binary_sensor.living_room_smoke_detector_smoke
-                show_icon: true
-                state_color: true
-                tap_action: none
-                name: Дим
-                hide_if:
-                    conditions:
-                      - condition: equals
-                        entity: binary_sensor.living_room_smoke_detector_smoke
-                        value: "off"
-              - entity: switch.living_room_light_switch
-                show_icon: true
-                state_color: true
-                icon: mdi:ceiling-light
-                name: Люстра
-                tap_action: none
-              - entity: switch.living_room_aquarium_power_strip_l3
-                show_icon: true
-                state_color: true
-                icon: mdi:fishbowl-outline
-                name: Акваріум
-                tap_action: none
-              - entity: binary_sensor.living_room_auto_light_off_sensor
-                name: Таймер Світла
-                tap_action: none
-                hide_if:
-                    conditions:
-                      - condition: equals
-                        entity: input_boolean.disable_occupancy
-                        value: "on"
-              - entity: media_player.sonos_living_room
-                icon: mdi:speaker-wireless
-                name: Sonos One
-                show_icon: true
-                state_color: true
-                tap_action: none
-                hide_if:
-                    conditions:
-                      - condition: equals
-                        value: "paused"
-                      - condition: equals
-                        value: "unavailable"
-              - entity: binary_sensor.living_room_socket_heating_status
-                show_icon: true
-                state_color: true
-                tap_action: none
-                hide_if:
-                    conditions:
-                      - condition: equals
-                        entity: input_boolean.heating_status
-                        value: "off"
-                name: Обігрівач
-              - entity: binary_sensor.living_room_air_conditioner_socket_status
-                state_color: true
-                show_icon: true
-                tap_action: none
-                name: Кондиціонер
-                hide_if:
-                    conditions:
-                      - condition: equals
-                        entity: input_boolean.ac_status
-                        value: "off"
-              - entity: fan.lr_levoit_air_purifier_300s
-                state_color: true
-                show_icon: true
-                icon: mdi:air-purifier
-                tap_action: none
-                name: Очищувач
-                hide_if:
-                    conditions:
-                      - condition: equals
-                        entity: fan.lr_levoit_air_purifier_300s
-                        value: "unavailable"
-              - entity: binary_sensor.living_room_lumi_sensor_motion_occupancy
-                show_icon: true
-                state_color: true
-                tap_action: none
-                name: Рух
-              - entity: binary_sensor.living_room_loggia_door_contact
-                show_icon: true
-                state_color: true
-                tap_action: none
-                name: Лоджія
+            rows:
+              - entities:
+                  - entity: binary_sensor.living_room_loggia_door_contact
+                    show_icon: true
+                    state_color: true
+                    tap_action: none
+                    name: Лоджія
+                  - entity: binary_sensor.living_room_lumi_sensor_motion_occupancy
+                    show_icon: true
+                    state_color: true
+                    tap_action: none
+                    name: Рух
+                  - entity: light.living_room_tuya_rgb_strip
+                    show_icon: true
+                    icon: mdi:led-strip-variant
+                    state_color: true
+                    name: Підсвітка
+                    tap_action: none
+                  - entity: binary_sensor.living_room_auto_light_off_sensor
+                    name: Таймер
+                    tap_action: none
+                    hide_if:
+                        conditions:
+                          - condition: equals
+                            entity: input_boolean.disable_occupancy
+                            value: "on"
+                  - entity: binary_sensor.living_room_smoke_detector_smoke
+                    show_icon: true
+                    state_color: true
+                    tap_action: none
+                    name: Дим
+                    hide_if:
+                        conditions:
+                          - condition: equals
+                            entity: binary_sensor.living_room_smoke_detector_smoke
+                            value: "off"
+                  - entity: media_player.sonos_living_room
+                    icon: mdi:speaker-wireless
+                    name: Sonos One
+                    show_icon: true
+                    state_color: true
+                    tap_action: none
+                    hide_if:
+                        conditions:
+                          - condition: equals
+                            value: "paused"
+                          - condition: equals
+                            value: "unavailable"
+                  - entity: fan.lr_levoit_air_purifier_300s
+                    state_color: true
+                    show_icon: true
+                    icon: mdi:air-purifier
+                    tap_action: none
+                    name: Очищувач
+                    hide_if:
+                        conditions:
+                          - condition: equals
+                            entity: fan.lr_levoit_air_purifier_300s
+                            value: "unavailable"
+                  - entity: binary_sensor.living_room_socket_heating_status
+                    show_icon: true
+                    state_color: true
+                    tap_action: none
+                    hide_if:
+                        conditions:
+                          - condition: equals
+                            entity: input_boolean.heating_status
+                            value: "off"
+                    name: Обігрівач
+                  - entity: binary_sensor.living_room_air_conditioner_socket_status
+                    state_color: true
+                    show_icon: true
+                    tap_action: none
+                    name: Кондиціонер
+                    hide_if:
+                        conditions:
+                          - condition: equals
+                            entity: input_boolean.ac_status
+                            value: "off"
+              - entities:
+                  - entity: switch.living_room_light_switch
+                    show_icon: true
+                    state_color: true
+                    icon: mdi:ceiling-light
+                    name: Люстра
+                    tap_action: none
+                  - entity: switch.living_room_aquarium_power_strip_l3
+                    show_icon: true
+                    state_color: true
+                    icon: mdi:fishbowl-outline
+                    name: Акваріум
+                    tap_action: none
+                  - entity: binary_sensor.living_room_desktop_pc_strip_socket_status
+                    show_icon: true
+                    state_color: true
+                    name: ПК
+                  - entity: binary_sensor.living_room_desktop_equipment_socket_status
+                    show_icon: true
+                    state_color: true
+                    name: Обладнання
+                  - entity: switch.living_room_laptop_charging_socket
+                    show_icon: true
+                    state_color: true
+                    icon:
+                        conditions:
+                          - icon: mdi:laptop
+                            condition: equals
+                            entity: binary_sensor.living_room_laptop_charging_socket_status
+                            value: 'on'
+                          - icon: mdi:laptop-off
+                            condition: equals
+                            entity: binary_sensor.living_room_laptop_charging_socket_status
+                            value: 'off'
+                    tap_action: 
+                        action: toggle
+                    name: Ноутбук
+                  - entity: switch.living_room_ns_socket
+                    show_icon: true
+                    state_color: true
+                    icon:
+                        conditions:
+                          - icon: mdi:microsoft-xbox-controller-battery-charging
+                            condition: equals
+                            entity: binary_sensor.living_room_ns_socket_status
+                            value: 'on'
+                          - icon: mdi:microsoft-xbox-controller-off
+                            condition: equals
+                            entity: binary_sensor.living_room_ns_socket_status
+                            value: 'off'
+                    tap_action: 
+                        action: toggle
+                    name: NSwitch
             info_entities:
-              - entity: sensor.lr_levoit_air_purifier_300s_air_quality
+              - entity: sensor.lr_levoit_air_purifier_300s_air_quality_value
               - entity: sensor.living_room_lumi_sensor_motion_illuminance_lux
               - entity: sensor.living_room_lumi_weather_humidity
                 format: precision1
               - entity: sensor.living_room_lumi_weather_temperature
                 format: precision1
-    
+
           - type: custom:room-card
             title: Спальня
             icon: mdi:bed-clock
-            entity: sensor.bedroom_lumi_weather_temperature
+            entity: sensor.bedroom_average_temperature
+            # entity: sensor.bedroom_lumi_weather_temperature
             show_icon: true
             tap_action: none
             double_tap_action: none
             entities:
+              - entity: binary_sensor.bedroom_windows
+                show_icon: true
+                state_color: true
+                tap_action: none
+                name: Вікно
+              - entity: binary_sensor.bedroom_lumi_sensor_motion_occupancy
+                show_icon: true
+                state_color: true
+                tap_action: none
+                name: Рух
+              - entity: light.bedroom_tuya_rgb_strip
+                show_icon: true
+                icon: mdi:led-strip-variant
+                state_color: true
+                name: Підсвітка
+                tap_action: none
               - entity: binary_sensor.bedroom_smoke_detector_smoke
                 show_icon: true
                 state_color: true
@@ -292,13 +363,24 @@ cards:
                 name: Люстра
                 tap_action: none
               - entity: binary_sensor.bedroom_auto_light_off_sensor
-                name: Таймер Світла
+                name: Таймер
                 tap_action: none
                 hide_if:
                     conditions:
                       - condition: equals
                         entity: input_boolean.disable_occupancy
                         value: "on"
+              - entity: binary_sensor.bedroom_prusa_mk3_printer_socket_status
+                show_icon: true
+                state_color: true
+                tap_action: 
+                    action: none
+                hide_if:
+                    conditions:
+                      - condition: equals
+                        entity: binary_sensor.bedroom_prusa_mk3_printer_socket_status
+                        value: "off"
+                name: Prusa MK3
               - entity: binary_sensor.bedroom_socket_heating_status
                 show_icon: true
                 state_color: true
@@ -319,21 +401,12 @@ cards:
                       - condition: equals
                         entity: input_boolean.ac_status
                         value: "off"
-              - entity: binary_sensor.bedroom_lumi_sensor_motion_occupancy
-                show_icon: true
-                state_color: true
-                tap_action: none
-                name: Рух
-              - entity: binary_sensor.bedroom_windows
-                show_icon: true
-                state_color: true
-                tap_action: none
-                name: Вікно
             info_entities:
               - entity: sensor.bedroom_lumi_sensor_motion_illuminance_lux
               - entity: sensor.bedroom_lumi_weather_humidity
                 format: precision1
-              - entity: sensor.bedroom_lumi_weather_temperature
+              - entity: sensor.bedroom_average_temperature
+            #   - entity: sensor.bedroom_lumi_weather_temperature
                 format: precision1
     
           - type: custom:room-card
@@ -344,6 +417,11 @@ cards:
             tap_action: none
             double_tap_action: none
             entities:
+              - entity: binary_sensor.kitchen_window_contact
+                show_icon: true
+                state_color: true
+                name: Вікно
+                tap_action: none
               - entity: binary_sensor.kitchen_smoke_detector_smoke
                 show_icon: true
                 state_color: true
@@ -374,6 +452,16 @@ cards:
                       - condition: equals
                         entity: binary_sensor.kitchen_water_leak_sensor_water_leak
                         value: "off"
+              - entity: binary_sensor.kitchen_coffee_machine_and_microwave_socket_status
+                show_icon: true
+                state_color: true
+                name: Кавомашина
+                tap_action: none
+              - entity: binary_sensor.kitchen_oven_socket_status
+                show_icon: true
+                state_color: true
+                name: Духовка
+                tap_action: none
               - entity: binary_sensor.kitchen_socket_heating_status
                 show_icon: true
                 state_color: true
@@ -384,21 +472,6 @@ cards:
                       - condition: equals
                         entity: input_boolean.heating_status
                         value: "off"
-              - entity: binary_sensor.kitchen_oven_socket_status
-                show_icon: true
-                state_color: true
-                name: Духовка
-                tap_action: none
-              - entity: binary_sensor.kitchen_coffee_machine_and_microwave_socket_status
-                show_icon: true
-                state_color: true
-                name: Кавомашина
-                tap_action: none
-              - entity: binary_sensor.kitchen_window_contact
-                show_icon: true
-                state_color: true
-                name: Вікно
-                tap_action: none
             info_entities:
               - entity: sensor.kitchen_lumi_weather_humidity
                 format: precision1
@@ -639,7 +712,7 @@ cards:
                   icon: mdi:ceiling-light
                 - entity: input_boolean.hallway_rgb_bulb_switch_single_status
                   icon: mdi:lightbulb
-                  name: Коридор
+                  name: Передпокій
 
           - type: conditional
             conditions:
