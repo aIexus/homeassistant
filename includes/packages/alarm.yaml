@@ -11,7 +11,8 @@ home_alarm_settings:
             entity_globs:
               - binary_sensor.*_smoke_detector_smoke
               - binary_sensor.*_water_leak_*_water_leak
-              - binary_sensor.*_gas_detector_gas
+              - binary_sensor.*_gas_detector_gas*
+              - sensor.*_gas_detector_*
 
 
     homeassistant:
@@ -48,6 +49,10 @@ home_alarm_settings:
         disable_voice_notifications:
             name: Disable Voice Notifications
             icon: mdi:speaker-off
+        
+        disable_voltage_voice_alarms:
+            name: Disable Voltage Voice Alarms
+            icon: mdi:account-voice-off
 
     binary_sensor:
 
@@ -58,7 +63,7 @@ home_alarm_settings:
         entities:
           - binary_sensor.bedroom_lumi_sensor_motion_occupancy
           - binary_sensor.living_room_lumi_sensor_motion_occupancy
-          - binary_sensor.tapo_camera_motion_alarm
+          - binary_sensor.tapo_camera_c200_motion_alarm
 
       - platform: group
         name: home_doors
@@ -169,7 +174,7 @@ home_alarm_settings:
           #   from: 'off'
           #   to: 'on'
           # - platform: state
-          #   entity_id: binary_sensor.tapo_camera_motion_alarm
+          #   entity_id: binary_sensor.tapo_camera_c200_motion_alarm
           #   from: 'off'
           #   to: 'on'
         condition:
@@ -181,16 +186,16 @@ home_alarm_settings:
           - variables:
                 trigger_area_name: "{{ area_name(trigger.entity_id) }}"
                 snapshot_file_name: |
-                    {{ "/config/files/camera/" + state_attr('camera.tapo_camera_hd', 'friendly_name') +  "/snapshot_armed_away_" + now().strftime('%Y%m%d-%H%M%S') + ".jpg" }}
+                    {{ "/config/files/camera/" + state_attr('camera.tapo_camera_c200_hd_stream', 'friendly_name') +  "/snapshot_armed_away_" + now().strftime('%Y%m%d-%H%M%S') + ".jpg" }}
                 record_file_name: |
-                    {{ "/config/files/camera/" + state_attr('camera.tapo_camera_hd', 'friendly_name') +  "/record_armed_away_" + now().strftime('%Y%m%d-%H%M%S') + ".mp4" }}
+                    {{ "/config/files/camera/" + state_attr('camera.tapo_camera_c200_hd_stream', 'friendly_name') +  "/record_armed_away_" + now().strftime('%Y%m%d-%H%M%S') + ".mp4" }}
             # trigger alarm
           - service: alarm_control_panel.alarm_trigger
             entity_id: alarm_control_panel.home_alarm
           - choose:
               - conditions:
                   - condition: template
-                    value_template: "{{ not is_state('camera.tapo_camera_hd','unavailable') }}"
+                    value_template: "{{ not is_state('camera.tapo_camera_c200_hd_stream','unavailable') }}"
                 sequence:
                     # camera positioning
                   - choose:
@@ -199,7 +204,7 @@ home_alarm_settings:
                             value_template: "{{ trigger_area_name == 'Hallway' }}"
                         sequence:
                           - service: select.select_option
-                            entity_id: select.tapo_camera_move_to_preset
+                            entity_id: select.tapo_camera_c200_move_to_preset
                             data: 
                                 option: 'Entrance'
                       - conditions:
@@ -207,7 +212,7 @@ home_alarm_settings:
                             value_template: "{{ trigger_area_name == 'Bedroom' }}"
                         sequence:
                           - service: select.select_option
-                            entity_id: select.tapo_camera_move_to_preset
+                            entity_id: select.tapo_camera_c200_move_to_preset
                             data: 
                                 option: 'Bedroom'
                       - conditions:
@@ -215,7 +220,7 @@ home_alarm_settings:
                             value_template: "{{ trigger_area_name == 'Living Room' }}"
                         sequence:
                           - service: select.select_option
-                            entity_id: select.tapo_camera_move_to_preset
+                            entity_id: select.tapo_camera_c200_move_to_preset
                             data: 
                                 option: 'Living Room'
                       - conditions:
@@ -223,7 +228,7 @@ home_alarm_settings:
                             value_template: "{{ trigger_area_name == 'Kitchen' }}"
                         sequence:
                           - service: select.select_option
-                            entity_id: select.tapo_camera_move_to_preset
+                            entity_id: select.tapo_camera_c200_move_to_preset
                             data: 
                                 option: 'Kitchen'
                       - conditions:
@@ -231,7 +236,7 @@ home_alarm_settings:
                             value_template: "{{ trigger_area_name == 'Bathroom' }}"
                         sequence:
                           - service: select.select_option
-                            entity_id: select.tapo_camera_move_to_preset
+                            entity_id: select.tapo_camera_c200_move_to_preset
                             data: 
                                 option: 'Bathroom'
             # notification about alarm triggering
@@ -253,12 +258,12 @@ home_alarm_settings:
           - choose:
               - conditions:
                   - condition: template
-                    value_template: "{{ not is_state('camera.tapo_camera_hd','unavailable') }}"
+                    value_template: "{{ not is_state('camera.tapo_camera_c200_hd_stream','unavailable') }}"
                 sequence:
                     # take snapshot from detected area
                   - service: script.tapo_camera_save_snapshot
                     data:
-                        tapo_camera_id: camera.tapo_camera_hd
+                        tapo_camera_id: camera.tapo_camera_c200_hd_stream
                         file_name: '{{ snapshot_file_name }}'
                     # send snapshot to alexus mobile/telegram
                   - choose:
@@ -277,7 +282,7 @@ home_alarm_settings:
                     # record short video from detected area
                   - service: script.tapo_camera_save_record
                     data:
-                        tapo_camera_id: camera.tapo_camera_hd
+                        tapo_camera_id: camera.tapo_camera_c200_hd_stream
                         file_name: '{{ record_file_name }}'
                         time_duration: 15
                   - choose:
@@ -433,14 +438,14 @@ home_alarm_settings:
           - choose:
               - conditions:
                   - condition: state
-                    entity_id: switch.tapo_camera_privacy
+                    entity_id: switch.tapo_camera_c200_privacy
                     state: 'on'
                 sequence:
                   - service: switch.turn_off
-                    entity_id: switch.tapo_camera_privacy
+                    entity_id: switch.tapo_camera_c200_privacy
                   - delay: '00:00:06'
                   - service: select.select_option
-                    entity_id: select.tapo_camera_move_to_preset
+                    entity_id: select.tapo_camera_c200_move_to_preset
                     data: 
                         option: 'Entrance'
         mode: single
@@ -486,16 +491,16 @@ home_alarm_settings:
           - choose:
               - conditions:
                   - condition: state
-                    entity_id: switch.tapo_camera_privacy
+                    entity_id: switch.tapo_camera_c200_privacy
                     state: 'off'
                 sequence:
                   - service: select.select_option
-                    entity_id: select.tapo_camera_move_to_preset
+                    entity_id: select.tapo_camera_c200_move_to_preset
                     data: 
                         option: 'Parking'
                   - delay: '00:00:05'
                   - service: switch.turn_on
-                    entity_id: switch.tapo_camera_privacy
+                    entity_id: switch.tapo_camera_c200_privacy
         mode: single
 
       - alias: "Alarm: Set ARMED_NIGHT if anyone home at 22:00"
@@ -839,12 +844,12 @@ home_alarm_settings:
             entity_id: sensor.tuya_clamp_meter_voltage
             below: 198
             for: 
-                minutes: 1
+                minutes: 2
           - platform: numeric_state
             entity_id: sensor.tuya_clamp_meter_voltage
             above: 242
             for: 
-                minutes: 1
+                minutes: 2
         condition: []
         action:
           - choose:
@@ -867,7 +872,7 @@ home_alarm_settings:
           - choose:
               - conditions:
                   - condition: state
-                    entity_id: input_boolean.disable_voice_notifications
+                    entity_id: input_boolean.disable_voltage_voice_alarms
                     state: 'off'
                   - condition: state
                     entity_id: binary_sensor.anyone_home
@@ -882,8 +887,10 @@ home_alarm_settings:
                         service_name: tts.google_cloud_say
                         volume: 0.5
                         duration: '00:00:10'
-                        message: 'УВАГА!!! Зафіксовано {% if (trigger.to_state.state | int < 198) %}заниження{% elif (trigger.to_state.state | int > 242) %}стрибок{% endif %} напруги в мережі: {{ trigger.to_state.state | int }} вольт! Рекомендується відключити чутливі електроприлади від мережі до стабілізації напруги!'
-                        # message: 'ВНИМАНИЕ!!! Зафиксирован скачок напряжения в сети: {{ trigger.to_state.state | int }} вольт! Рекомендуется отключить чувствительные электроприборы от сети до стабилизации напряжения!'
+                        message: 'УВАГА!!! Зафіксовано {% if (trigger.to_state.state | int < 198) %}заниження{% elif (trigger.to_state.state | int > 242) %}стрибок{% endif %} напруги в мережі: {{ trigger.to_state.state | int }} вольт!' 
+                        # Рекомендується відключити чутливі електроприлади від мережі до стабілізації напруги!'
+                        # message: 'ВНИМАНИЕ!!! Зафиксирован скачок напряжения в сети: {{ trigger.to_state.state | int }} вольт! 
+                        # Рекомендуется отключить чувствительные электроприборы от сети до стабилизации напряжения!'
         mode: single
 
       - alias: "Alarm: Smoke Detected"
@@ -963,7 +970,7 @@ home_alarm_settings:
                         service_name: tts.google_cloud_say
                         volume: 0.4
                         duration: '00:00:05'
-                        message: "Усе гаразд, джерело диму усунуто!"
+                        message: "Все гаразд, джерело диму усунуто!"
                         # message: "Все в порядке, источник дыма устранен!"
         mode: single
 
@@ -1044,7 +1051,7 @@ home_alarm_settings:
                         service_name: tts.google_cloud_say
                         volume: 0.4
                         duration: '00:00:04'
-                        message: "Усе добре, протікання води усунуто"
+                        message: "Все добре, протікання води усунуто"
                         # message: "Все в порядке, протечка устранена"
         mode: single
 
@@ -1058,11 +1065,11 @@ home_alarm_settings:
         condition: []
         action:
           - variables:
-                tapo_camera_privacy_mode: '{{ states("switch.tapo_camera_privacy") }}'
+                tapo_camera_privacy_mode: '{{ states("switch.tapo_camera_c200_privacy") }}'
                 snapshot_file_name: |
-                    {{ "/config/files/camera/" + state_attr('camera.tapo_camera_hd', 'friendly_name') +  "/snapshot_gas_" + now().strftime('%Y%m%d-%H%M%S') + ".jpg" }}
+                    {{ "/config/files/camera/" + state_attr('camera.tapo_camera_c200_hd_stream', 'friendly_name') +  "/snapshot_gas_" + now().strftime('%Y%m%d-%H%M%S') + ".jpg" }}
                 record_file_name: |
-                    {{ "/config/files/camera/" + state_attr('camera.tapo_camera_hd', 'friendly_name') +  "/record_gas_" + now().strftime('%Y%m%d-%H%M%S') + ".mp4" }}
+                    {{ "/config/files/camera/" + state_attr('camera.tapo_camera_c200_hd_stream', 'friendly_name') +  "/record_gas_" + now().strftime('%Y%m%d-%H%M%S') + ".mp4" }}
             # Voice notification
           - choose:
               - conditions:
@@ -1104,28 +1111,28 @@ home_alarm_settings:
           - choose:
               - conditions:
                   - condition: template
-                    value_template: "{{ not is_state('camera.tapo_camera_hd','unavailable') }}"
+                    value_template: "{{ not is_state('camera.tapo_camera_c200_hd_stream','unavailable') }}"
                 sequence:
                     # Disable privacy mode for tapo_camera
                   - choose:
                       - conditions:
                           - condition: state
-                            entity_id: switch.tapo_camera_privacy
+                            entity_id: switch.tapo_camera_c200_privacy
                             state: 'on'
                         sequence:
                           - service: switch.turn_off
-                            entity_id: switch.tapo_camera_privacy
+                            entity_id: switch.tapo_camera_c200_privacy
                           - delay: '00:00:04'
                     # Move tapo_camera to Kitchen preset
                   - service: select.select_option
-                    entity_id: select.tapo_camera_move_to_preset
+                    entity_id: select.tapo_camera_c200_move_to_preset
                     data: 
                         option: 'Kitchen'
                     # take snapshot from Kitchen area
                   - delay: '00:00:04'
                   - service: script.tapo_camera_save_snapshot
                     data:
-                        tapo_camera_id: camera.tapo_camera_hd
+                        tapo_camera_id: camera.tapo_camera_c200_hd_stream
                         file_name: '{{ snapshot_file_name }}'
                     # send snapshot
                   - service: notify.alexus
@@ -1138,7 +1145,7 @@ home_alarm_settings:
                     # record short video from Kitchen area
                   - service: script.tapo_camera_save_record
                     data:
-                        tapo_camera_id: camera.tapo_camera_hd
+                        tapo_camera_id: camera.tapo_camera_c200_hd_stream
                         file_name: '{{ record_file_name }}'
                         time_duration: 15
                   - choose:
@@ -1160,11 +1167,11 @@ home_alarm_settings:
                           - condition: template
                             value_template: "{{ tapo_camera_privacy_mode == 'on' }}"
                           - condition: state
-                            entity_id: switch.tapo_camera_privacy
+                            entity_id: switch.tapo_camera_c200_privacy
                             state: 'off'
                         sequence:
                           - service: switch.turn_on
-                            entity_id: switch.tapo_camera_privacy
+                            entity_id: switch.tapo_camera_c200_privacy
         mode: single
 
       - alias: "Alarm: Entrance Door Opened for more than 3 minutes"
@@ -1179,11 +1186,11 @@ home_alarm_settings:
         condition: []
         action:
           - variables:
-                tapo_camera_privacy_mode: '{{ states("switch.tapo_camera_privacy") }}'
+                tapo_camera_privacy_mode: '{{ states("switch.tapo_camera_c200_privacy") }}'
                 snapshot_file_name: |
-                    {{ "/config/files/camera/" + state_attr('camera.tapo_camera_hd', 'friendly_name') +  "/snapshot_entrance_door_" + now().strftime('%Y%m%d-%H%M%S') + ".jpg" }}
+                    {{ "/config/files/camera/" + state_attr('camera.tapo_camera_c200_hd_stream', 'friendly_name') +  "/snapshot_entrance_door_" + now().strftime('%Y%m%d-%H%M%S') + ".jpg" }}
                 record_file_name: |
-                    {{ "/config/files/camera/" + state_attr('camera.tapo_camera_hd', 'friendly_name') +  "/record_entrance_door_" + now().strftime('%Y%m%d-%H%M%S') + ".mp4" }}
+                    {{ "/config/files/camera/" + state_attr('camera.tapo_camera_c200_hd_stream', 'friendly_name') +  "/record_entrance_door_" + now().strftime('%Y%m%d-%H%M%S') + ".mp4" }}
             # Voice notification
           - choose:
               - conditions:
@@ -1225,29 +1232,29 @@ home_alarm_settings:
           - choose:
               - conditions:
                   - condition: template
-                    value_template: "{{ not is_state('camera.tapo_camera_hd','unavailable') }}"
+                    value_template: "{{ not is_state('camera.tapo_camera_c200_hd_stream','unavailable') }}"
                 sequence:
                     # Disable privacy mode for tapo_camera
                   - choose:
                       - conditions:
                           - condition: state
-                            entity_id: switch.tapo_camera_privacy
+                            entity_id: switch.tapo_camera_c200_privacy
                             state: 'on'
                         sequence:
                           - service: switch.turn_off
-                            entity_id: switch.tapo_camera_privacy
+                            entity_id: switch.tapo_camera_c200_privacy
                           - delay: '00:00:04'
                     # Move tapo_camera to Entrance preset
                   - service: select.select_option
                     target:
-                        entity_id: select.tapo_camera_move_to_preset
+                        entity_id: select.tapo_camera_c200_move_to_preset
                     data: 
                         option: 'Entrance'
                   - delay: '00:00:04'
                     # take snapshot from Entrance area
                   - service: script.tapo_camera_save_snapshot
                     data:
-                        tapo_camera_id: camera.tapo_camera_hd
+                        tapo_camera_id: camera.tapo_camera_c200_hd_stream
                         file_name: '{{ snapshot_file_name }}'
                     # send snapshot
                   - service: notify.alexus
@@ -1260,7 +1267,7 @@ home_alarm_settings:
                     # record short video from Entrance area
                   - service: script.tapo_camera_save_record
                     data:
-                        tapo_camera_id: camera.tapo_camera_hd
+                        tapo_camera_id: camera.tapo_camera_c200_hd_stream
                         file_name: '{{ record_file_name }}'
                         time_duration: 15
                   - choose:
@@ -1282,11 +1289,11 @@ home_alarm_settings:
                           - condition: template
                             value_template: "{{ tapo_camera_privacy_mode == 'on' }}"
                           - condition: state
-                            entity_id: switch.tapo_camera_privacy
+                            entity_id: switch.tapo_camera_c200_privacy
                             state: 'off'
                         sequence:
                           - service: switch.turn_on
-                            entity_id: switch.tapo_camera_privacy
+                            entity_id: switch.tapo_camera_c200_privacy
         mode: single
 
       - alias: "Alarm: Finished programm by Washing Machine"
