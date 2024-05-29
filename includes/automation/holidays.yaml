@@ -7,8 +7,8 @@
       - platform: template
         value_template: > 
             {% set n = now() %}
-            {{ ( ( n.month == 12 and n.day == 20 ) or 
-                 ( n.month == 1  and n.day == 15 ) ) }}
+            {{ ( ( n.month == 12 and n.day == 5 ) or 
+                 ( n.month == 1  and n.day == 19 ) ) }}
     action:
       - choose:
           - conditions:
@@ -81,11 +81,11 @@
         state: 'on'
       - condition: time
         before: '23:00:00'
-      - condition: template # Only between December 19 and January 15.
+      - condition: template # Only between December 5 and January 19.
         value_template: >
             {% set n = now() %}
-            {{ ( n.month == 12 and ( n.day >  19 and n.day <= 31 ) ) or 
-               ( n.month == 1  and ( n.day >= 1  and n.day <  15 ) ) }}
+            {{ ( n.month == 12 and ( n.day >  4 and n.day <= 31 ) ) or 
+               ( n.month == 1  and ( n.day >= 1 and n.day <  19 ) ) }}
     action:
       - service: switch.turn_on
         entity_id:
@@ -111,11 +111,11 @@
         for:
           minutes: 2
     condition: 
-      - condition: template # Only between Dec 19 and Jan 15, except for Dec 31
+      - condition: template # Only between Dec 5 and Jan 19, except for Dec 31
         value_template: >
             {% set n = now() %}
-            {{ ( n.month == 12 and ( n.day >  18 and n.day < 31 ) ) or 
-               ( n.month == 1  and ( n.day >= 1  and n.day < 16 )) }}
+            {{ ( n.month == 12 and ( n.day >  4 and n.day < 31 ) ) or 
+               ( n.month == 1  and ( n.day >= 1 and n.day < 19 )) }}
       - condition: or
         conditions:
           - condition: state
