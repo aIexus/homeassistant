@@ -9,9 +9,14 @@ energy_config:
               - sensor.energy_active_tariff
               - binary_sensor.exceed_electricity_consumption_limit
               - binary_sensor.bedroom_air_conditioner_socket_status
+              - binary_sensor.bedroom_prusa_mk3_printer_socket_status
               - binary_sensor.bedroom_socket_heating_status
               - binary_sensor.living_room_air_conditioner_socket_status
+              - binary_sensor.living_room_desktop_equipment_socket_status
+              - binary_sensor.living_room_desktop_pc_strip_socket_status
               - binary_sensor.living_room_socket_heating_status
+              - binary_sensor.living_room_laptop_charging_socket_status
+              - binary_sensor.living_room_ns_socket_status
               - binary_sensor.kitchen_socket_heating_status
               - binary_sensor.kitchen_coffee_machine_and_microwave_socket_status
               - binary_sensor.kitchen_oven_socket_status
@@ -21,15 +26,20 @@ energy_config:
             entity_globs:
               - select.tuya_clamp_meter_*
               - sensor.tuya_clamp_meter_*
-              - sensor.energy_counter_total*
+              - sensor.energy_counter_total
+              - sensor.girier_socket_2_*
               - sensor.bathroom_washing_machine_socket*
               - sensor.bedroom_air_conditioner_socket*
+              - sensor.bedroom_prusa_mk3_printer_socket*
               - sensor.bedroom_socket_heating*
               - sensor.kitchen_socket_heating*
               - sensor.kitchen_coffee_machine_and_microwave_socket*
               - sensor.kitchen_oven_socket*
               - sensor.living_room_aquarium_main_lighting*
               - sensor.living_room_air_conditioner_socket*
+              - sensor.living_room_laptop_charging_socket*
+              - sensor.living_room_ns_socket*
+              - sensor.living_room_desktop_*
               - sensor.living_room_socket_heating*
               - switch.living_room_aquarium_power_strip_*
               - switch.*_socket*
@@ -92,6 +102,14 @@ energy_config:
                 friendly_name: 'Вітальня - Акваріум, Місячне Сяйво'
             switch.living_room_aquarium_power_strip_l5:
                 friendly_name: 'Вітальня - Акваріум, USB'
+            switch.living_room_laptop_charging_socket:
+                friendly_name: 'Вітальня - Laptop Charger, Розетка'
+            switch.living_room_ns_socket:
+                friendly_name: 'Вітальня - Nintendo Switch, Розетка'
+            switch.living_room_desktop_equipment_socket:
+                friendly_name: 'Вітальня - Робочий Стіл - Обладнання, Розетка'
+            switch.living_room_desktop_pc_strip_socket:
+                friendly_name: 'Вітальня - Робочий Стіл - ПК, Розетка'
             switch.living_room_light_switch:
                 friendly_name: 'Вітальня - Люстра, Вимикач'
             switch.living_room_socket_heating:
@@ -103,12 +121,14 @@ energy_config:
             switch.kitchen_oven_socket:
                 friendly_name: 'Кухня - Духовка, Розетка'
             light.hallway_rgb_bulb:
-                friendly_name: 'Коридор - RGB-Лампа'
+                friendly_name: 'Передпокій - RGB-Лампа'
             sensor.bathroom_washing_machine_socket_integration:
                 icon: mdi:chart-histogram
             sensor.bedroom_air_conditioner_socket_integration:
                 icon: mdi:chart-histogram
             sensor.bedroom_socket_heating_integration:
+                icon: mdi:chart-histogram
+            sensor.bedroom_prusa_mk3_printer_socket_integration:
                 icon: mdi:chart-histogram
             sensor.kitchen_socket_heating_integration:
                 icon: mdi:chart-histogram
@@ -121,6 +141,16 @@ energy_config:
             sensor.living_room_aquarium_main_lighting_integration:
                 icon: mdi:chart-histogram
             sensor.living_room_socket_heating_integration:
+                icon: mdi:chart-histogram
+            sensor.living_room_ns_socket_integration:
+                icon: mdi:chart-histogram
+            sensor.living_room_laptop_charging_socket_integration:
+                icon: mdi:chart-histogram
+            sensor.living_room_desktop_equipment_socket_integration:
+                icon: mdi:chart-histogram
+            sensor.living_room_desktop_pc_strip_socket_integration:
+                icon: mdi:chart-histogram
+            sensor.girier_socket_2_integration:
                 icon: mdi:chart-histogram
             sensor.tuya_clamp_meter_integration:
                 icon: mdi:chart-histogram
@@ -166,20 +196,10 @@ energy_config:
         sensor:
           - name: 'Tariff Energy Cost BASE'
             unique_id: sensor_tariff_energy_cost_base
-            select: '#branding-wrapper > section > div > div > div:nth-child(11) > div.row.row-last > div:nth-child(5) > p'
+            select: '#branding-wrapper > section > div > div > div.table-currency > div.row.row-last > div:nth-child(5) > p'
             unit_of_measurement: '₴/kWh'
             icon: mdi:lightning-bolt-circle
             value_template: '{{ value | float(0) / 100 | round(2) }}'
-
-    #   - resource: https://index.minfin.com.ua/ua/tariff/electric/
-    #     scan_interval: 86400
-    #     sensor:
-    #       - name: 'Tariff Energy Cost BASE Test'
-    #         unique_id: sensor_tariff_energy_cost_base_test
-    #         select: '#idx-content > table > tbody > tr:nth-child(2) > td:nth-child(3)'
-    #         unit_of_measurement: '₴/kWh'
-    #         icon: mdi:lightning-bolt-circle
-    #         value_template: '{{ value | float(0) / 100 | round(2) }}'
 
     sensor:
 
@@ -191,10 +211,12 @@ energy_config:
         entity_ids:
           - sensor.bathroom_washing_machine_socket_voltage
           - sensor.bedroom_air_conditioner_socket_voltage
+          - sensor.bedroom_prusa_mk3_printer_socket_voltage
           - sensor.bedroom_socket_heating_voltage
           - sensor.kitchen_socket_heating_voltage
           - sensor.kitchen_coffee_machine_and_microwave_socket_voltage
           - sensor.kitchen_oven_socket_voltage
+          - sensor.living_room_ns_socket_voltage
           - sensor.living_room_air_conditioner_socket_voltage
           - sensor.living_room_socket_heating_voltage
 
@@ -217,9 +239,54 @@ energy_config:
         round: 2
 
       - platform: integration
+        name: living_room_laptop_charging_socket_integration
+        unique_id: sensor_living_room_laptop_charging_socket_integration
+        source: sensor.living_room_laptop_charging_socket_power
+        unit_prefix: k
+        unit_time: h
+        method: trapezoidal
+        round: 2
+
+      - platform: integration
+        name: living_room_desktop_equipment_socket_integration
+        unique_id: sensor_living_room_desktop_equipment_socket_integration
+        source: sensor.living_room_desktop_equipment_socket_power
+        unit_prefix: k
+        unit_time: h
+        method: trapezoidal
+        round: 2
+
+      - platform: integration
+        name: living_room_ns_socket_integration
+        unique_id: sensor_living_room_ns_socket_integration
+        source: sensor.living_room_ns_socket_power
+        unit_prefix: k
+        unit_time: h
+        method: trapezoidal
+        round: 2
+
+      - platform: integration
+        name: living_room_desktop_pc_strip_socket_integration
+        unique_id: sensor_living_room_desktop_pc_strip_socket_integration
+        source: sensor.living_room_desktop_pc_strip_socket_power
+        unit_prefix: k
+        unit_time: h
+        method: trapezoidal
+        round: 2
+
+      - platform: integration
         name: bedroom_air_conditioner_socket_integration
         unique_id: sensor_bedroom_air_conditioner_socket_integration
         source: sensor.bedroom_air_conditioner_socket_power
+        unit_prefix: k
+        unit_time: h
+        method: trapezoidal
+        round: 2
+
+      - platform: integration
+        name: bedroom_prusa_mk3_printer_socket_integration
+        unique_id: sensor_bedroom_prusa_mk3_printer_socket_integration
+        source: sensor.bedroom_prusa_mk3_printer_socket_power
         unit_prefix: k
         unit_time: h
         method: trapezoidal
@@ -288,6 +355,16 @@ energy_config:
         method: trapezoidal
         round: 2
 
+      - platform: integration
+        name: girier_socket_2_integration
+        unique_id: sensor_girier_socket_2_integration
+        source: sensor.girier_socket_2_power
+        unit_prefix: k
+        unit_time: h
+        method: trapezoidal
+        round: 2
+
+
     utility_meter:
 
         tuya_clamp_meter_daily:
@@ -339,6 +416,11 @@ energy_config:
             source: sensor.bedroom_air_conditioner_socket_integration
             cycle: monthly
 
+        bedroom_prusa_mk3_printer_socket_meter_monthly:
+            unique_id: sensor_bedroom_prusa_mk3_printer_socket_meter_monthly
+            source: sensor.bedroom_prusa_mk3_printer_socket_integration
+            cycle: monthly
+
         bedroom_socket_heating_meter_monthly:
             unique_id: sensor_bedroom_socket_heating_meter_monthly
             source: sensor.bedroom_socket_heating_integration
@@ -359,6 +441,26 @@ energy_config:
             source: sensor.kitchen_oven_socket_integration
             cycle: monthly
 
+        living_room_laptop_charging_socket_meter_monthly:
+            unique_id: sensor_living_room_laptop_charging_socket_meter_monthly
+            source: sensor.living_room_laptop_charging_socket_integration
+            cycle: monthly
+
+        living_room_ns_socket_meter_monthly:
+            unique_id: sensor_living_room_ns_socket_meter_monthly
+            source: sensor.living_room_ns_socket_integration
+            cycle: monthly
+
+        living_room_desktop_pc_strip_socket_meter_monthly:
+            unique_id: sensor_living_room_desktop_pc_strip_socket_meter_monthly
+            source: sensor.living_room_desktop_pc_strip_socket_integration
+            cycle: monthly
+
+        living_room_desktop_equipment_socket_meter_monthly:
+            unique_id: sensor_living_room_desktop_equipment_socket_meter_monthly
+            source: sensor.living_room_desktop_equipment_socket_integration
+            cycle: monthly
+
         living_room_air_conditioner_socket_meter_monthly:
             unique_id: sensor_living_room_air_conditioner_socket_meter_monthly
             source: sensor.living_room_air_conditioner_socket_integration
@@ -372,6 +474,11 @@ energy_config:
         living_room_socket_heating_meter_monthly:
             unique_id: sensor_living_room_socket_heating_meter_monthly
             source: sensor.living_room_socket_heating_integration
+            cycle: monthly
+
+        girier_socket_2_meter_monthly:
+            unique_id: sensor_girier_socket_2_meter_monthly
+            source: sensor.girier_socket_2_integration
             cycle: monthly
 
     template:
@@ -399,6 +506,8 @@ energy_config:
                 {% set k = 0.5 %}
                 {% endif %}
                 {% if is_state("sensor.tariff_energy_cost_base","unavailable") or
+                      is_state("sensor.tariff_energy_cost_base","0.0") or 
+                      is_state("sensor.tariff_energy_cost_base","0") or 
                       is_state("sensor.tariff_energy_cost_base","unknown") %}
                 {{ states("input_number.tarrif_energy_cost_calibrate_base") | float(0) * k | round(2) }}
                 {% else %}
@@ -456,7 +565,7 @@ energy_config:
 
           - name: bedroom_air_conditioner_socket_status
             unique_id: binary_sensor_bedroom_air_conditioner_socket_status
-            device_class: power
+            device_class: cold
             state: >-
                 {% if (states("sensor.bedroom_air_conditioner_socket_power") | int(0) > 5) %}
                 on
@@ -468,6 +577,22 @@ energy_config:
                 mdi:hvac
                 {% else %}
                 mdi:hvac-off
+                {% endif %}
+
+          - name: bedroom_prusa_mk3_printer_socket_status
+            unique_id:  binary_sensor_bedroom_prusa_mk3_printer_socket_status
+            device_class: heat
+            state: >-
+                {% if (states("sensor.bedroom_prusa_mk3_printer_socket_power") | int(0) > 0) %}
+                on
+                {% else %}
+                off
+                {% endif %}
+            icon: >-
+                {% if is_state("binary_sensor.bedroom_prusa_mk3_printer_socket_status","on") %}
+                mdi:printer-3d
+                {% else %}
+                mdi:printer-3d-off
                 {% endif %}
 
           - name: bedroom_socket_heating_status
@@ -488,9 +613,73 @@ energy_config:
                 mdi:radiator-disabled
                 {% endif %}
 
+          - name: living_room_ns_socket_status
+            unique_id:  binary_sensor_living_room_ns_socket_status
+            device_class: power
+            state: >-
+                {% if (states("sensor.living_room_ns_socket_power") | int(0) > 0) %}
+                on
+                {% else %}
+                off
+                {% endif %}
+            icon: >-
+                {% if is_state("binary_sensor.living_room_ns_socket_status","on") %}
+                mdi:microsoft-xbox-controller-battery-charging
+                {% else %}
+                mdi:microsoft-xbox-controller-off
+                {% endif %}
+
+          - name: living_room_laptop_charging_socket_status
+            unique_id:  binary_sensor_living_room_laptop_charging_socket_status
+            device_class: power
+            state: >-
+                {% if (states("sensor.living_room_laptop_charging_socket_power") | int(0) > 0) %}
+                on
+                {% else %}
+                off
+                {% endif %}
+            icon: >-
+                {% if is_state("binary_sensor.living_room_laptop_charging_socket_status","on") %}
+                mdi:laptop
+                {% else %}
+                mdi:laptop-off
+                {% endif %}
+
+          - name: living_room_desktop_equipment_socket_status
+            unique_id:  binary_sensor_living_room_desktop_equipment_socket_status
+            device_class: power
+            state: >-
+                {% if (states("sensor.living_room_desktop_equipment_socket_power") | int(0) > 0) %}
+                on
+                {% else %}
+                off
+                {% endif %}
+            icon: >-
+                {% if is_state("binary_sensor.living_room_desktop_equipment_socket_status","on") %}
+                mdi:desk-lamp-on
+                {% else %}
+                mdi:desk-lamp-off
+                {% endif %}
+
+          - name: living_room_desktop_pc_strip_socket_status
+            unique_id:  binary_sensor_living_room_desktop_pc_strip_socket_status
+            device_class: power
+            state: >-
+                {% if (states("sensor.living_room_desktop_pc_strip_socket_power") | int(0) > 0) %}
+                on
+                {% else %}
+                off
+                {% endif %}
+            icon: >-
+                {% if is_state("binary_sensor.living_room_desktop_pc_strip_socket_status","on") %}
+                mdi:monitor-speaker
+                {% else %}
+                mdi:monitor-speaker-off
+                {% endif %}
+
           - name: living_room_air_conditioner_socket_status
             unique_id:  binary_sensor_living_room_air_conditioner_socket_status
-            device_class: power
+            device_class: cold
             state: >-
                 {% if (states("sensor.living_room_air_conditioner_socket_power") | int(0) > 5) %}
                 on
@@ -553,7 +742,7 @@ energy_config:
 
           - name: kitchen_oven_socket_status
             unique_id: binary_sensor_kitchen_oven_socket_status
-            device_class: power
+            device_class: heat
             state: >-
                 {% if (states("sensor.kitchen_oven_socket_power") | int(0) > 1) %}
                 on
@@ -578,6 +767,22 @@ energy_config:
                 mdi:washing-machine-alert
                 {% else %}
                 mdi:washing-machine-off
+                {% endif %}
+
+          - name: girier_socket_2_status
+            unique_id:  binary_sensor_girier_socket_2_status
+            device_class: power
+            state: >-
+                {% if (states("sensor.girier_socket_2_power") | int(0) > 0) %}
+                on
+                {% else %}
+                off
+                {% endif %}
+            icon: >-
+                {% if is_state("binary_sensor.girier_socket_2_status","on") %}
+                mdi:power-plug-outline
+                {% else %}
+                mdi:power-plug-off-outline
                 {% endif %}
 
     notify:
@@ -640,7 +845,7 @@ energy_config:
         id: energy_save_energy_consumption_logs
         trigger:
           - platform: time
-            at: '23:59:59'
+            at: '23:59:50'
         action:
           - choose:
               - conditions:
@@ -685,4 +890,127 @@ energy_config:
             data:
                 message: >
                     {"date": "{{ now().date() }}", "day": {{ states('sensor.tuya_clamp_meter_daily_day') | float(0) | round(2) }}, "night": {{ states('sensor.tuya_clamp_meter_daily_night') | float(0) | round(2) }}, "total": {{ states('sensor.tuya_clamp_meter_daily_total') | float(0) | round(2) }}},
+        mode: single
+
+      - alias: "Energy: Turn OFF AC Socket in Bedroom if Not Active"
+        id: energy_ac_bedroom_turn_off_socket
+        description: 'Вимкнення розетки для кондиціонера в спальні'
+        trigger:
+          - platform: state
+            entity_id: binary_sensor.bedroom_air_conditioner_socket_status
+            to: 'off'
+            for: '00:05:00'
+        condition:
+          - condition: state
+            entity_id: switch.bedroom_air_conditioner_socket
+            state: 'on'
+          - condition: state
+            entity_id: input_boolean.enable_christmas_automations
+            state: 'off'
+        action:
+          - service: switch.turn_off
+            entity_id: switch.bedroom_air_conditioner_socket
+        mode: single
+
+      - alias: "Energy: Turn OFF AC Socket in Living Room if Not Active"
+        id: energy_ac_living_room_turn_off_socket
+        description: 'Вимкнення розетки для кондиціонера в вітальні'
+        trigger:
+          - platform: state
+            entity_id: binary_sensor.living_room_air_conditioner_socket_status
+            to: 'off'
+            for: '00:05:00'
+        condition:
+          - condition: state
+            entity_id: switch.living_room_air_conditioner_socket
+            state: 'on'
+          - condition: state
+            entity_id: input_boolean.enable_christmas_automations
+            state: 'off'
+        action:
+          - service: switch.turn_off
+            entity_id: switch.living_room_air_conditioner_socket
+        mode: single
+
+      - alias: "Energy: Turn OFF Laptop Charging Socket in Living Room if Not Active"
+        id: energy_living_room_laptop_charging_socket_turn_off
+        description: 'Вимкнення розетки Laptop Charging у вітальні'
+        trigger:
+          - platform: state
+            entity_id: binary_sensor.living_room_laptop_charging_socket_status
+            to: 'off'
+            for: '00:00:05'
+        condition:
+          - condition: state
+            entity_id: switch.living_room_laptop_charging_socket
+            state: 'on'
+        action:
+          - service: switch.turn_off
+            entity_id: switch.living_room_laptop_charging_socket
+        mode: single
+
+      - alias: "Energy: Turn ON Nintendo Switch Charging Socket in Living Room by Schedule"
+        id: energy_living_room_ns_charging_socket_turn_on
+        description: 'Увімкнення розетки Nintendo Switch Charging Socket у вітальні'
+        trigger:
+          - platform: template
+            value_template: '{{ now().weekday() == 2 or now().weekday() == 5 }}'
+        condition:
+          - condition: state
+            entity_id: switch.living_room_ns_socket
+            state: 'off'
+        action:
+          - service: switch.turn_on
+            entity_id: switch.living_room_ns_socket
+        mode: single
+
+      - alias: "Energy: Turn OFF Nintendo Switch Charging Socket in Living Room if Not Active"
+        id: energy_living_room_ns_charging_socket_turn_off
+        description: 'Вимкнення розетки Nintendo Switch Charging Socket у вітальні'
+        trigger:
+          - platform: state
+            entity_id: binary_sensor.living_room_ns_socket_status
+            to: 'off'
+            for: '00:00:05'
+        condition:
+          - condition: state
+            entity_id: switch.living_room_ns_socket
+            state: 'on'
+        action:
+          - service: switch.turn_off
+            entity_id: switch.living_room_ns_socket
+        mode: single
+
+      - alias: "Energy: Turn OFF Prusa MK3 Printer Socket in Bedroom if Not Active"
+        id: energy_bedroom_prusa_mk3_printer_socket_turn_off
+        description: 'Вимкнення розетки Prusa MK3 Printer у спальні'
+        trigger:
+          - platform: state
+            entity_id: binary_sensor.bedroom_prusa_mk3_printer_socket_status
+            to: 'off'
+            for: '00:05:00'
+        condition:
+          - condition: state
+            entity_id: switch.bedroom_prusa_mk3_printer_socket
+            state: 'on'
+        action:
+          - service: switch.turn_off
+            entity_id: switch.bedroom_prusa_mk3_printer_socket
+        mode: single
+
+      - alias: "Energy: Turn OFF Girier Socket 2 if Not Active"
+        id: energy_girier_socket_2_turn_off
+        description: 'Вимкнення розетки Girier Socket 2'
+        trigger:
+          - platform: state
+            entity_id: binary_sensor.girier_socket_2_status
+            to: 'off'
+            for: '00:05:00'
+        condition:
+          - condition: state
+            entity_id: switch.girier_socket_2
+            state: 'on'
+        action:
+          - service: switch.turn_off
+            entity_id: switch.girier_socket_2
         mode: single
