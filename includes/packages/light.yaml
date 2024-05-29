@@ -7,10 +7,12 @@ light_settings:
                 - switch.bedroom_light_switch
                 - switch.living_room_light_switch
                 - light.hallway_rgb_bulb
+                - light.bedroom_tuya_rgb_strip
+                - light.living_room_tuya_rgb_strip
                 - sensor.bedroom_lumi_sensor_motion_illuminance_lux
                 - sensor.living_room_lumi_sensor_motion_illuminance_lux
             entity_globs:
-                - sensor.hallway_rgb_bulb_*
+                - sensor.hallway_rgb_bulb_switch_*
 
     homeassistant:
 
@@ -116,54 +118,67 @@ light_settings:
         light_rgb_test:
             alias: "Light: RGB Test"
             sequence:
-              - service: input_boolean.turn_on
-                entity_id: input_boolean.hallway_rgb_bulb_automation_control_status
-              - service: light.toggle
-                target:
-                    entity_id: light.hallway_rgb_bulb
-                data_template:
-                    brightness_pct: '{{ 90 }}'
-                    color_temp: 400
+            #   - service: input_boolean.turn_on
+            #     entity_id: input_boolean.hallway_rgb_bulb_automation_control_status
+            #   - service: light.toggle
+            #     target:
+            #         entity_id: light.hallway_rgb_bulb
+            #     data_template:
+            #         brightness_pct: '{{ 90 }}'
+            #         color_temp: 400
             #   - delay: '00:00:01'
             #   - service: scene.create
             #     data:
             #       scene_id: scene_rgb_bulb_white
             #       snapshot_entities:
             #         - light.hallway_rgb_bulb
-            #   - service: script.turn_on
-            #     target:
-            #         entity_id: script.rgb_bulb_flashing_while_condition
-            #     data:
-            #         variables:
-            #             rgb_bulb_entity_id: light.hallway_rgb_bulb
-            #             rgb_bulb_automation_control: input_boolean.hallway_rgb_bulb_automation_control_status
-            #             condition_entity_id: switch.living_room_light_switch
-            #             repeat_while_state: 'on'
-            #             color: 'red'
+              - service: script.turn_on
+                target:
+                    entity_id: script.rgb_light_flashing_while_condition
+                data:
+                    variables:
+                        rgb_light_entity_id: light.hallway_rgb_bulb
+                        rgb_light_automation_control: input_boolean.hallway_rgb_bulb_automation_control_status
+                        condition_entity_id: switch.living_room_light_switch
+                        repeat_while_state: 'on'
+                        color: 'red'
+                        # color_two: 'blue'
+              - delay: '00:00:05'
             #   - service: script.turn_on
             #     target: 
-            #         entity_id: script.rgb_bulb_flashing_x_times
+            #         entity_id: script.rgb_light_flashing_x_times
             #     data:
             #         variables:
-            #             rgb_bulb_entity_id: light.hallway_rgb_bulb
-            #             rgb_bulb_automation_control: input_boolean.hallway_rgb_bulb_automation_control_status
+            #             # rgb_light_entity_id: light.living_room_tuya_rgb_strip
+            #             rgb_light_entity_id: light.hallway_rgb_bulb
+            #             rgb_light_automation_control: input_boolean.hallway_rgb_bulb_automation_control_status
             #             count: 3
             #             color: 'green'
-              - delay: '00:00:04'
-              - service: input_boolean.turn_off
-                entity_id: input_boolean.hallway_rgb_bulb_automation_control_status
+            #   - delay: '00:00:04'
+            #   - service: input_boolean.turn_off
+            #     entity_id: input_boolean.hallway_rgb_bulb_automation_control_status
             mode: single
 
-        rgb_bulb_flashing_while_condition:
-            alias: "Light: Flashing RGB Bulb with Color While Condition"
+        rgb_light_flashing_while_condition:
+            alias: "Light: Flashing RGB Light with Color While Condition"
             sequence:
-              - wait_template: "{{ is_state('script.rgb_bulb_flashing_x_times', 'off') }}"
-              - service: scene.create
-                data:
-                  scene_id: scene_before_flashing_while_condition
-                  snapshot_entities:
-                    - '{{ rgb_bulb_entity_id }}'
-              - delay: '00:00:01'
+              - variables:
+                    rgb_light_automation_control: |
+                        {% if (rgb_light_automation_control is not defined) %}
+                          {% set rgb_light_automation_control = "undefined_control" %}
+                        {% endif %}
+                        {{ rgb_light_automation_control }}
+                    color_one: |
+                        {% if color is defined %}
+                          {{ color }}
+                        {% elif color_one is defined %}
+                          {{ color_one }}
+                        {% else %}
+                          white
+                        {% endif %}
+              - service: light.turn_off
+                target:
+                    entity_id: '{{ rgb_light_entity_id }}'
               - repeat:
                     while:
                       - condition: template
@@ -171,65 +186,123 @@ light_settings:
                       - condition: template
                         value_template: '{{ repeat.index <= 500 }}'
                     sequence:
-                      - service: input_boolean.turn_off
-                        data_template:
-                            entity_id: '{{ rgb_bulb_automation_control }}' 
-                      - service: input_boolean.turn_on
-                        data_template:
-                            entity_id: '{{ rgb_bulb_automation_control }}'
-                      - service: light.toggle
-                        target:
-                            entity_id: '{{ rgb_bulb_entity_id }}'
-                        data:
-                            color_name: '{{ color }}'
-                            brightness: 255
-                      - delay: '00:00:01'
-              - service: scene.turn_on
-                entity_id: scene.scene_before_flashing_while_condition
-              - delay: '00:00:01'
-              - service: input_boolean.turn_off
-                data_template:
-                    entity_id: '{{ rgb_bulb_automation_control }}' 
-            mode: single
-
-        rgb_bulb_flashing_x_times:
-            alias: "Light: Flashing RGB Bulb X times with Color"
-            sequence:
-              - wait_template: "{{ is_state('script.rgb_bulb_flashing_while_condition', 'off') }}"
-              - service: scene.create
-                data:
-                  scene_id: scene_before_flashing_x_times
-                  snapshot_entities:
-                    - '{{ rgb_bulb_entity_id }}'
-              - delay: '00:00:01'
-              - repeat:
-                    count: '{{ count | int * 2 }}'
+                      - choose:
+                          - conditions: # flash with color_one
+                              - condition: template
+                                value_template: '{{ color_one is defined }}'
+                            sequence:
+                              - choose:
+                                  - conditions:
+                                      - condition: template
+                                        value_template: "{{ states(rgb_light_automation_control) not in ['unknown', 'unavailable', 'none'] }}"
+                                    sequence:
+                                      - service: input_boolean.turn_on
+                                        data_template:
+                                            entity_id: '{{ rgb_light_automation_control }}'
+                              - service: light.turn_on
+                                target:
+                                    entity_id: '{{ rgb_light_entity_id }}'
+                                data:
+                                    color_name: '{{ color_one }}'
+                                    brightness: 255
+                              - delay: '00:00:02'
+                              - service: light.turn_off
+                                target:
+                                    entity_id: '{{ rgb_light_entity_id }}'
+                              - delay: '00:00:02'
+                      - choose:
+                          - conditions: # flash with color_two
+                              - condition: template
+                                value_template: '{{ color_two is defined }}'
+                            sequence:
+                              - choose:
+                                  - conditions:
+                                      - condition: template
+                                        value_template: "{{ states(rgb_light_automation_control) not in ['unknown', 'unavailable', 'none'] }}"
+                                    sequence:
+                                      - service: input_boolean.turn_on
+                                        data_template:
+                                            entity_id: '{{ rgb_light_automation_control }}'
+                              - service: light.turn_on
+                                target:
+                                    entity_id: '{{ rgb_light_entity_id }}'
+                                data:
+                                    color_name: '{{ color_two }}'
+                                    brightness: 255
+                              - delay: '00:00:02'
+                              - service: light.turn_off
+                                target:
+                                    entity_id: '{{ rgb_light_entity_id }}'
+                              - delay: '00:00:02'
+              - service: light.turn_off
+                target:
+                    entity_id: '{{ rgb_light_entity_id }}'
+              - choose:
+                  - conditions:
+                      - condition: template
+                        value_template: "{{ states(rgb_light_automation_control) not in ['unknown', 'unavailable', 'none'] }}"
                     sequence:
                       - service: input_boolean.turn_off
                         data_template:
-                            entity_id: '{{ rgb_bulb_automation_control }}' 
-                      - service: input_boolean.turn_on
-                        data_template:
-                            entity_id: '{{ rgb_bulb_automation_control }}' 
+                            entity_id: '{{ rgb_light_automation_control }}' 
+            mode: parallel
+
+        rgb_light_flashing_x_times:
+            alias: "Light: Flashing RGB Light X times with One Color"
+            sequence:
+              - variables:
+                    rgb_light_automation_control: |
+                        {% if (rgb_light_automation_control is not defined) %}
+                          {% set rgb_light_automation_control = "undefined_control" %}
+                        {% endif %}
+                        {{ rgb_light_automation_control }}
+                    color: |
+                        {% if color is defined %}
+                          {{ color }}
+                        {% else %}
+                          white
+                        {% endif %}
+              - service: light.turn_off
+                target:
+                    entity_id: '{{ rgb_light_entity_id }}'
+              - repeat:
+                    count: '{{ count | int * 2 }}'
+                    sequence:
+                      - choose:
+                          - conditions:
+                              - condition: template
+                                value_template: "{{ states(rgb_light_automation_control) not in ['unknown', 'unavailable', 'none'] }}"
+                            sequence:
+                              - service: input_boolean.turn_off
+                                data_template:
+                                    entity_id: '{{ rgb_light_automation_control }}' 
+                              - service: input_boolean.turn_on
+                                data_template:
+                                    entity_id: '{{ rgb_light_automation_control }}' 
                       - service: light.toggle
                         target:
-                            entity_id: '{{ rgb_bulb_entity_id }}'
+                            entity_id: '{{ rgb_light_entity_id }}'
                         data:
                             color_name: '{{ color }}'
                             brightness: 255
-                      - delay: '00:00:01'
-              - service: scene.turn_on
-                entity_id: scene.scene_before_flashing_x_times
-              - delay: '00:00:01'
-              - service: input_boolean.turn_off
-                data_template:
-                    entity_id: '{{ rgb_bulb_automation_control }}' 
-            mode: single
+                      - delay: '00:00:02'
+              - service: light.turn_off
+                target:
+                    entity_id: '{{ rgb_light_entity_id }}'
+              - choose:
+                  - conditions:
+                      - condition: template
+                        value_template: "{{ states(rgb_light_automation_control) not in ['unknown', 'unavailable', 'none'] }}"
+                    sequence:
+                      - service: input_boolean.turn_off
+                        data_template:
+                            entity_id: '{{ rgb_light_automation_control }}' 
+            mode: parallel
 
     automation:
 
-      - alias: "Light: Set Hallway RGB Bulb indicator mode"
-        id: light_set_hallway_rgb_bulb_indicator_mode
+      - alias: "Light: Set RGB Lights Indicator Modes"
+        id: light_set_rgb_lights_indicator_modes
         description: 'При активній тривозі, сигналізації, освітленні або сході/заході сонця - вмикати світловий індикатор на RGB лампі'
         trigger:
           - platform: homeassistant
@@ -287,26 +360,64 @@ light_settings:
                     state: 'on'
                 sequence:
                   - choose:
-                      - conditions:
+                      - conditions: 
                           - condition: template
                             value_template: '{{ trigger.to_state.state == "on" }}'
                         sequence:
-                          - service: script.rgb_bulb_flashing_x_times
+                          - service: script.turn_on
+                            target:
+                                entity_id: script.rgb_light_flashing_x_times
                             data:
-                                rgb_bulb_entity_id: light.hallway_rgb_bulb
-                                rgb_bulb_automation_control: input_boolean.hallway_rgb_bulb_automation_control_status
-                                count: 5
-                                color: 'red'
+                                variables:
+                                    rgb_light_entity_id: light.hallway_rgb_bulb
+                                    rgb_light_automation_control: input_boolean.hallway_rgb_bulb_automation_control_status
+                                    count: 5
+                                    color: 'red'
+                          - service: script.turn_on
+                            target:
+                                entity_id: script.rgb_light_flashing_x_times
+                            data:
+                                variables:
+                                    rgb_light_entity_id: light.living_room_tuya_rgb_strip
+                                    count: 5
+                                    color: 'red'
+                          - service: script.turn_on
+                            target:
+                                entity_id: script.rgb_light_flashing_x_times
+                            data:
+                                variables:
+                                    rgb_light_entity_id: light.bedroom_tuya_rgb_strip
+                                    count: 5
+                                    color: 'red'
                       - conditions:
                           - condition: template
                             value_template: '{{ trigger.to_state.state == "off" }}'
                         sequence:
-                          - service: script.rgb_bulb_flashing_x_times
+                          - service: script.turn_on
+                            target:
+                                entity_id: script.rgb_light_flashing_x_times
                             data:
-                                rgb_bulb_entity_id: light.hallway_rgb_bulb
-                                rgb_bulb_automation_control: input_boolean.hallway_rgb_bulb_automation_control_status
-                                count: 5
-                                color: 'green'
+                                variables:
+                                    rgb_light_entity_id: light.hallway_rgb_bulb
+                                    rgb_light_automation_control: input_boolean.hallway_rgb_bulb_automation_control_status
+                                    count: 5
+                                    color: 'green'
+                          - service: script.turn_on
+                            target:
+                                entity_id: script.rgb_light_flashing_x_times
+                            data:
+                                variables:
+                                    rgb_light_entity_id: light.living_room_tuya_rgb_strip
+                                    count: 5
+                                    color: 'green'
+                          - service: script.turn_on
+                            target:
+                                entity_id: script.rgb_light_flashing_x_times
+                            data:
+                                variables:
+                                    rgb_light_entity_id: light.bedroom_tuya_rgb_strip
+                                    count: 5
+                                    color: 'green'
               - conditions:
                   - condition: template
                     value_template: '{{ trigger.entity_id == "alarm_control_panel.home_alarm" }}'
@@ -320,13 +431,31 @@ light_settings:
                             entity_id: binary_sensor.anyone_home
                             state: 'on'
                         sequence:
-                          - service: script.rgb_bulb_flashing_x_times
+                          - service: script.turn_on
+                            target:
+                                entity_id: script.rgb_light_flashing_x_times
                             data:
-                                rgb_bulb_entity_id: light.hallway_rgb_bulb
-                                rgb_bulb_automation_control: input_boolean.hallway_rgb_bulb_automation_control_status
-                                count: 3
-                                color: 'yellow'
-                        # armed_night
+                                variables:
+                                    rgb_light_entity_id: light.hallway_rgb_bulb
+                                    rgb_light_automation_control: input_boolean.hallway_rgb_bulb_automation_control_status
+                                    count: 3
+                                    color: 'yellow'
+                          - service: script.turn_on
+                            target:
+                                entity_id: script.rgb_light_flashing_x_times
+                            data:
+                                variables:
+                                    rgb_light_entity_id: light.living_room_tuya_rgb_strip
+                                    count: 3
+                                    color: 'yellow'
+                          - service: script.turn_on
+                            target:
+                                entity_id: script.rgb_light_flashing_x_times
+                            data:
+                                variables:
+                                    rgb_light_entity_id: light.bedroom_tuya_rgb_strip
+                                    count: 3
+                                    color: 'yellow'
                       - conditions:
                           - condition: template
                             value_template: '{{ trigger.to_state.state == "armed_night" }}'
@@ -334,63 +463,165 @@ light_settings:
                             entity_id: binary_sensor.anyone_home
                             state: 'on'
                         sequence:
-                          - service: script.rgb_bulb_flashing_x_times
+                          - service: script.turn_on
+                            target:
+                                entity_id: script.rgb_light_flashing_x_times
                             data:
-                                rgb_bulb_entity_id: light.hallway_rgb_bulb
-                                rgb_bulb_automation_control: input_boolean.hallway_rgb_bulb_automation_control_status
-                                count: 3
-                                color: 'blue'
-                        # disarmed
+                                variables:
+                                    rgb_light_entity_id: light.hallway_rgb_bulb
+                                    rgb_light_automation_control: input_boolean.hallway_rgb_bulb_automation_control_status
+                                    count: 3
+                                    color: 'blue'
+                          - service: script.turn_on
+                            target:
+                                entity_id: script.rgb_light_flashing_x_times
+                            data:
+                                variables:
+                                    rgb_light_entity_id: light.living_room_tuya_rgb_strip
+                                    count: 3
+                                    color: 'blue'
+                          - service: script.turn_on
+                            target:
+                                entity_id: script.rgb_light_flashing_x_times
+                            data:
+                                variables:
+                                    rgb_light_entity_id: light.bedroom_tuya_rgb_strip
+                                    count: 3
+                                    color: 'blue'
                       - conditions:
                           - condition: template
                             value_template: '{{ trigger.to_state.state == "disarmed" }}'
                         sequence:
-                          - service: script.rgb_bulb_flashing_x_times
+                          - service: script.turn_on
+                            target:
+                                entity_id: script.rgb_light_flashing_x_times
                             data:
-                                rgb_bulb_entity_id: light.hallway_rgb_bulb
-                                rgb_bulb_automation_control: input_boolean.hallway_rgb_bulb_automation_control_status
-                                count: 3
-                                color: 'green'
-                        # arming
+                                variables:
+                                    rgb_light_entity_id: light.hallway_rgb_bulb
+                                    rgb_light_automation_control: input_boolean.hallway_rgb_bulb_automation_control_status
+                                    count: 3
+                                    color: 'green'
+                          - service: script.turn_on
+                            target:
+                                entity_id: script.rgb_light_flashing_x_times
+                            data:
+                                variables:
+                                    rgb_light_entity_id: light.living_room_tuya_rgb_strip
+                                    count: 3
+                                    color: 'green'
+                          - service: script.turn_on
+                            target:
+                                entity_id: script.rgb_light_flashing_x_times
+                            data:
+                                variables:
+                                    rgb_light_entity_id: light.bedroom_tuya_rgb_strip
+                                    count: 3
+                                    color: 'green'
                       - conditions:
                           - condition: template
                             value_template: '{{ trigger.from_state.state == "disarmed" }}'
                           - condition: template
                             value_template: '{{ trigger.to_state.state == "arming" }}'
                         sequence:
-                          - service: script.rgb_bulb_flashing_while_condition
+                          - service: script.turn_on
+                            target:
+                                entity_id: script.rgb_light_flashing_while_condition
                             data:
-                                rgb_bulb_entity_id: light.hallway_rgb_bulb
-                                rgb_bulb_automation_control: input_boolean.hallway_rgb_bulb_automation_control_status
-                                condition_entity_id: alarm_control_panel.home_alarm
-                                repeat_while_state: 'arming'
-                                color: 'yellow'
-                        # pending
+                                variables:
+                                    rgb_light_entity_id: light.hallway_rgb_bulb
+                                    rgb_light_automation_control: input_boolean.hallway_rgb_bulb_automation_control_status
+                                    condition_entity_id: alarm_control_panel.home_alarm
+                                    repeat_while_state: 'arming'
+                                    color: 'yellow'
+                          - service: script.turn_on
+                            target:
+                                entity_id: script.rgb_light_flashing_while_condition
+                            data:
+                                variables:
+                                    rgb_light_entity_id: light.living_room_tuya_rgb_strip
+                                    condition_entity_id: alarm_control_panel.home_alarm
+                                    repeat_while_state: 'arming'
+                                    color: 'yellow'
+                          - service: script.turn_on
+                            target:
+                                entity_id: script.rgb_light_flashing_while_condition
+                            data:
+                                variables:
+                                    rgb_light_entity_id: light.bedroom_tuya_rgb_strip
+                                    condition_entity_id: alarm_control_panel.home_alarm
+                                    repeat_while_state: 'arming'
+                                    color: 'yellow'
                       - conditions:
                           - condition: template
                             value_template: '{{ trigger.from_state.state == "armed_away" }}'
                           - condition: template
                             value_template: '{{ trigger.to_state.state == "pending" }}'
                         sequence:
-                          - service: script.rgb_bulb_flashing_while_condition
+                          - service: script.turn_on
+                            target:
+                                entity_id: script.rgb_light_flashing_while_condition
                             data:
-                                rgb_bulb_entity_id: light.hallway_rgb_bulb
-                                rgb_bulb_automation_control: input_boolean.hallway_rgb_bulb_automation_control_status
-                                condition_entity_id: alarm_control_panel.home_alarm
-                                repeat_while_state: 'pending'
-                                color: 'yellow'
+                                variables:
+                                    rgb_light_entity_id: light.hallway_rgb_bulb
+                                    rgb_light_automation_control: input_boolean.hallway_rgb_bulb_automation_control_status
+                                    condition_entity_id: alarm_control_panel.home_alarm
+                                    repeat_while_state: 'pending'
+                                    color: 'yellow'
+                          - service: script.turn_on
+                            target:
+                                entity_id: script.rgb_light_flashing_while_condition
+                            data:
+                                variables:
+                                    rgb_light_entity_id: light.living_room_tuya_rgb_strip
+                                    condition_entity_id: alarm_control_panel.home_alarm
+                                    repeat_while_state: 'pending'
+                                    color: 'yellow'
+                          - service: script.turn_on
+                            target:
+                                entity_id: script.rgb_light_flashing_while_condition
+                            data:
+                                variables:
+                                    rgb_light_entity_id: light.bedroom_tuya_rgb_strip
+                                    condition_entity_id: alarm_control_panel.home_alarm
+                                    repeat_while_state: 'pending'
+                                    color: 'yellow'
                       - conditions:
                           - condition: template
                             value_template: '{{ trigger.to_state.state == "triggered" }}'
                         sequence:
-                          - service: script.rgb_bulb_flashing_while_condition
+                          - service: script.turn_on
+                            target:
+                                entity_id: script.rgb_light_flashing_while_condition
                             data:
-                                rgb_bulb_entity_id: light.hallway_rgb_bulb
-                                rgb_bulb_automation_control: input_boolean.hallway_rgb_bulb_automation_control_status
-                                condition_entity_id: alarm_control_panel.home_alarm
-                                repeat_while_state: 'triggered'
-                                color: 'red'
-          - wait_template: "{{ is_state('script.rgb_bulb_flashing_x_times', 'off') and is_state('script.rgb_bulb_flashing_while_condition', 'off') }}"
+                                variables:
+                                    rgb_light_entity_id: light.hallway_rgb_bulb
+                                    rgb_light_automation_control: input_boolean.hallway_rgb_bulb_automation_control_status
+                                    condition_entity_id: alarm_control_panel.home_alarm
+                                    repeat_while_state: 'triggered'
+                                    color_one: 'red'
+                                    color_two: 'blue'
+                          - service: script.turn_on
+                            target:
+                                entity_id: script.rgb_light_flashing_while_condition
+                            data:
+                                variables:
+                                    rgb_light_entity_id: light.living_room_tuya_rgb_strip
+                                    condition_entity_id: alarm_control_panel.home_alarm
+                                    repeat_while_state: 'triggered'
+                                    color_one: 'red'
+                                    color_two: 'blue'
+                          - service: script.turn_on
+                            target:
+                                entity_id: script.rgb_light_flashing_while_condition
+                            data:
+                                variables:
+                                    rgb_light_entity_id: light.bedroom_tuya_rgb_strip
+                                    condition_entity_id: alarm_control_panel.home_alarm
+                                    repeat_while_state: 'triggered'
+                                    color_one: 'blue'
+                                    color_two: 'red'
+          - wait_template: "{{ is_state('script.rgb_light_flashing_x_times', 'off') and is_state('script.rgb_light_flashing_while_condition', 'off') }}"
+          - delay: '00:00:03'
           - choose:
               - conditions:
                   - condition: state
@@ -417,7 +648,10 @@ light_settings:
                     entity_id: input_boolean.hallway_rgb_bulb_automation_control_status
                   - service: light.turn_on
                     target:
-                        entity_id: light.hallway_rgb_bulb
+                        entity_id: 
+                          - light.hallway_rgb_bulb
+                          - light.living_room_tuya_rgb_strip
+                          - light.bedroom_tuya_rgb_strip
                     data: 
                         brightness: 100
                         color_name: 'red'
@@ -433,7 +667,10 @@ light_settings:
                     entity_id: input_boolean.hallway_rgb_bulb_automation_control_status
                   - service: light.turn_off
                     target:
-                        entity_id: light.hallway_rgb_bulb
+                        entity_id: 
+                          - light.hallway_rgb_bulb
+                          - light.living_room_tuya_rgb_strip
+                          - light.bedroom_tuya_rgb_strip
               - conditions:
                   - not:
                       - condition: state
@@ -456,7 +693,10 @@ light_settings:
                             entity_id: input_boolean.hallway_rgb_bulb_automation_control_status
                           - service: light.turn_on
                             target:
-                                entity_id: light.hallway_rgb_bulb
+                                entity_id: 
+                                  - light.hallway_rgb_bulb
+                                  - light.living_room_tuya_rgb_strip
+                                  - light.bedroom_tuya_rgb_strip
                             data: 
                                 brightness: 100
                                 rgb_color: [255, 254, 72]
@@ -472,7 +712,10 @@ light_settings:
                             entity_id: input_boolean.hallway_rgb_bulb_automation_control_status
                           - service: light.turn_on
                             target:
-                                entity_id: light.hallway_rgb_bulb
+                                entity_id: 
+                                  - light.hallway_rgb_bulb
+                                  - light.living_room_tuya_rgb_strip
+                                  - light.bedroom_tuya_rgb_strip
                             data: 
                                 brightness: 13
                                 rgb_color: [5, 69, 255]
@@ -495,7 +738,10 @@ light_settings:
                             entity_id: input_boolean.hallway_rgb_bulb_automation_control_status
                           - service: light.turn_on
                             target:
-                                entity_id: light.hallway_rgb_bulb
+                                entity_id: 
+                                  - light.hallway_rgb_bulb
+                                  - light.living_room_tuya_rgb_strip
+                                  - light.bedroom_tuya_rgb_strip
                             data_template:
                                 brightness_pct: >
                                     {% set bright_pct = (((state_attr("sun.sun", "elevation") | float ) + 12) * 100 / 12 / 8 ) | round(0) %}
@@ -546,7 +792,10 @@ light_settings:
                                 entity_id: input_boolean.hallway_rgb_bulb_automation_control_status
                               - service: light.turn_off
                                 target:
-                                    entity_id: light.hallway_rgb_bulb
+                                    entity_id: 
+                                      - light.hallway_rgb_bulb
+                                      - light.living_room_tuya_rgb_strip
+                                      - light.bedroom_tuya_rgb_strip
           - choose:
               - conditions:
                   - condition: state
@@ -556,6 +805,19 @@ light_settings:
                   - delay: '00:00:04'
                   - service: input_boolean.turn_off
                     entity_id: input_boolean.hallway_rgb_bulb_automation_control_status
+          - delay: '00:00:03'
+          - choose:
+              - conditions: 
+                  - condition: state
+                    entity_id: sensor.period_of_day
+                    state: 'daylight'
+                sequence:
+                  - service: light.turn_off
+                    target:
+                        entity_id: 
+                          - light.living_room_tuya_rgb_strip
+                          - light.bedroom_tuya_rgb_strip
+                        
         mode: restart
 
       - alias: "Light: Turn OFF light in Bedroom by timer"
