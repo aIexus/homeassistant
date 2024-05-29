@@ -265,7 +265,7 @@ telegram:
 
                 External IP: {{ states("sensor.archer_c80_router_external_ip") }}
 
-                Курс 1$ = {{ states("sensor.exchange_rate_usd") }} ₴
+            # Курс 1$ = {{ states("sensor.exchange_rate_usd") }} ₴
               data: 
                 inline_keyboard: *main_menu
           mode: single
@@ -317,7 +317,7 @@ telegram:
                 - {{"\U0001F50C"}}: ({{ states("sensor.kitchen_socket_heating_voltage") }} V | {{ states("sensor.kitchen_socket_heating_current") | float(0) | round(1) }} A | {{ states("sensor.kitchen_socket_heating_power") }} W | {{ states("sensor.kitchen_socket_heating_meter_monthly") | float(0) | round(1) }} kWh)
                 {% endif %}
                 {{"\U0001F6C0"}} Ванна {{"\U0001F321"}}: {% if is_state("sensor.bathroom_lumi_weather_temperature",'unavailable') %}{{"\U000026A0"}}Недоступний{% else %}{{ states("sensor.bathroom_lumi_weather_temperature") | float(0) | round(1) }}{{"\U00002103"}}   {{"\U0001F4A6"}}: {{ states("sensor.bathroom_lumi_weather_humidity") | float(0) | round(1) }} %{% endif %}
-                {{"\U0001F6AA"}} Коридор {{"\U0001F321"}}: {% if is_state("sensor.hallway_lumi_weather_temperature",'unavailable') %}{{"\U000026A0"}}Недоступний{% else %}{{ states("sensor.hallway_lumi_weather_temperature") | float(0) | round(1) }}{{"\U00002103"}}   {{"\U0001F4A6"}}: {{ states("sensor.hallway_lumi_weather_humidity") | float(0) | round(1) }} %{% endif %}
+                {{"\U0001F6AA"}} Передпокій {{"\U0001F321"}}: {% if is_state("sensor.hallway_lumi_weather_temperature",'unavailable') %}{{"\U000026A0"}}Недоступний{% else %}{{ states("sensor.hallway_lumi_weather_temperature") | float(0) | round(1) }}{{"\U00002103"}}   {{"\U0001F4A6"}}: {{ states("sensor.hallway_lumi_weather_humidity") | float(0) | round(1) }} %{% endif %}
 
                 {{"\U0001FA9F"}} Лоджія {{"\U0001F321"}}: {% if is_state("sensor.loggia_tuya_weather_temperature",'unavailable') %}{{"\U000026A0"}}Недоступний{% else %}{{ states("sensor.loggia_tuya_weather_temperature") | float(0) | round(1) }}{{"\U00002103"}}   {{"\U0001F4A6"}}: {{ states("sensor.loggia_tuya_weather_humidity") | float(0) | round(1) }} %{% endif %}
                 {{"\U0001F3DE"}} Вулиця {{"\U0001F321"}}: {% if is_state("sensor.outdoor_temperature",'unavailable') %}{{"\U000026A0"}}Недоступен{% else %}{{ states("sensor.outdoor_temperature") | float(0) | round(1) }}{{"\U00002103"}}   {{"\U0001F4A6"}}: {{ states("sensor.outdoor_humidity") | float(0) | round(1) }} %{% endif %}
@@ -789,11 +789,11 @@ telegram:
                 {{"\U0001F6CC"}} Спальня: {% if is_state("switch.bedroom_light_switch","on") %}{{"\U000026AA"}} Увімкнено{% else %}{{"\U000026AB"}} Вимкнено{% endif %}
                 {{"\U0001F37D"}} Кухня:
                 {{"\U0001F6C0"}} Ванна:
-                {{"\U0001F6AA"}} Коридор:
+                {{"\U0001F6AA"}} Передпокій:
               data:
                   inline_keyboard: &keyb_light
                     - "{{'\U0001F6CB'}} Вітальня {% if is_state('switch.living_room_light_switch','on') %}{{'\U000026AA'}}{% else %}{{'\U000026AB'}}{% endif %}:/toggle_living_room_light, {{'\U0001F6CC'}} Спальня {% if is_state('switch.bedroom_light_switch','on') %}{{'\U000026AA'}}{% else %}{{'\U000026AB'}}{% endif %}:/toggle_bedroom_light"
-                    - "{{'\U0001F37D'}} Кухня:/toggle_kitchen_light, {{'\U0001F6C0'}} Ванна:/toggle_bathroom_light, {{'\U0001F6AA'}} Коридор:/toggle_corridor_light"
+                    - "{{'\U0001F37D'}} Кухня:/toggle_kitchen_light, {{'\U0001F6C0'}} Ванна:/toggle_bathroom_light, {{'\U0001F6AA'}} Передпокій:/toggle_corridor_light"
                     - "{{'\U0001F4D1'}} Меню:/menu"
           mode: single
 
