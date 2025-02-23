@@ -3,9 +3,11 @@ visible:
 #   - user: c95c6095c99342e980335fc45f93584b # Ivan
   - user: 3da46ad97a5d4bedbd4bf4d770d9f714 # alexus
 #   - user: 0bae28547b584a2fae4ceb544b33539c # Vova
-#   - user: fd6364b295834039a8ea6137739fd937 # Inna
+#   - user: 026423d607f54fa2889fd8d13bd07b38 # inna
 icon: mdi:lightning-bolt-circle
+
 cards:
+
   - type: vertical-stack
     cards:
       - type: custom:stack-in-card
@@ -83,6 +85,14 @@ cards:
                 format: precision1
               - entity: sensor.tuya_clamp_meter_current
                 format: precision1
+              - entity: binary_sensor.voltage_out_of_range
+                show_icon: true
+                state_color: true
+                hide_if:
+                        conditions:
+                          - condition: equals
+                            entity: binary_sensor.voltage_out_of_range
+                            value: on
               - entity: sensor.tuya_clamp_meter_voltage
                 format: precision1
               - entity: sensor.energy_active_tariff
@@ -90,8 +100,8 @@ cards:
                 icon:
                     template:
                         icon: >
-                          if (entity.state == 'day'  ) return 'mdi:weather-sunny';  
-                          if (entity.state == 'night') return 'mdi:power-sleep';  
+                          if (entity.state == 'day'  ) return 'mdi:weather-sunny';
+                          if (entity.state == 'night') return 'mdi:power-sleep';
                           else return 'mdi:counter';
             cards:
               - type: glance
@@ -125,6 +135,9 @@ cards:
                 format: precision1
               - entity: sensor.tuya_clamp_meter_current
                 format: precision1
+              - entity: binary_sensor.voltage_out_of_range
+                show_icon: true
+                state_color: true
               - entity: sensor.tuya_clamp_meter_voltage
                 format: precision1
               - entity: sensor.energy_active_tariff
@@ -165,6 +178,9 @@ cards:
                 format: precision1
               - entity: sensor.tuya_clamp_meter_current
                 format: precision1
+              - entity: binary_sensor.voltage_out_of_range
+                show_icon: true
+                state_color: true
               - entity: sensor.tuya_clamp_meter_voltage
                 format: precision1
               - entity: sensor.energy_active_tariff
@@ -205,6 +221,9 @@ cards:
                 format: precision1
               - entity: sensor.tuya_clamp_meter_current
                 format: precision1
+              - entity: binary_sensor.voltage_out_of_range
+                show_icon: true
+                state_color: true
               - entity: sensor.tuya_clamp_meter_voltage
                 format: precision1
               - entity: sensor.energy_active_tariff
