@@ -9,8 +9,10 @@ light_settings:
                 - light.hallway_rgb_bulb
                 - light.bedroom_tuya_rgb_strip
                 - light.living_room_tuya_rgb_strip
+                - light.kitchen_tuya_cob_led_strip
                 - sensor.bedroom_lumi_sensor_motion_illuminance_lux
                 - sensor.living_room_lumi_sensor_motion_illuminance_lux
+                - sensor.led_strip_brightness_pct
             entity_globs:
                 - sensor.hallway_rgb_bulb_switch_*
 
@@ -49,6 +51,65 @@ light_settings:
                 {% else %}
                 mdi:weather-sunny
                 {% endif %}
+
+          - name: led_strip_brightness_pct
+            unique_id: sensor_led_strip_brightness_pct
+            state: >
+                {% set value_day = 75 | int %}
+                {% set value_night = 40 | int %}
+
+                {% set transitionwise_event_position = 0.3 %}
+                {% set transition_length = 7200 %}
+
+                {% set      sunrise = today_at((state_attr('sun.sun', 'next_rising') | as_datetime | as_local).strftime('%H:%M')) %}
+                {% set  pre_sunrise = sunrise - timedelta(seconds=transition_length*(1-transitionwise_event_position)) %}
+                {% set post_sunrise = sunrise + timedelta(seconds=transition_length*transitionwise_event_position) %}
+
+                {% set      sunset = today_at((state_attr('sun.sun', 'next_setting') | as_datetime | as_local).strftime('%H:%M')) %}
+                {% set  pre_sunset = sunset - timedelta(seconds=transition_length*transitionwise_event_position) %}
+                {% set post_sunset = sunset + timedelta(seconds=transition_length*(1-transitionwise_event_position)) %}
+
+                {% set time = now() %}
+                {% set result = value_day %}
+
+                {% if (post_sunrise <= time < pre_sunset) %}
+                    {% set result = value_day %}
+                {% elif (pre_sunset <= time < post_sunset) %} 
+                    {% set progress = (as_timestamp(time) - as_timestamp(pre_sunset))/(as_timestamp(post_sunset)-(as_timestamp(pre_sunset))) %}
+                    {% set transition_progress = 1 / (1 + e ** (1/(0.01+progress)-1/(1.01-progress))) %}
+                    {% set result = (value_day + (value_night-value_day)*transition_progress) | int %} 
+                {% elif (post_sunset <= time) or (time < pre_sunrise) %}
+                    {% set result = value_night %}
+                {% elif (pre_sunrise <= time < post_sunrise) %}
+                    {% set progress = (as_timestamp(time) - as_timestamp(pre_sunrise))/(as_timestamp(post_sunrise)-(as_timestamp(pre_sunrise))) %}
+                    {% set transition_progress = 1 / (1 + e ** (1/(0.01+progress)-1/(1.01-progress))) %}
+                    {% set result = (value_night + (value_day-value_night)*transition_progress) | int %} 
+                {% endif %}
+                {% if states('sensor.period_of_day','nightlight') and ((time.hour > 22) or (time.hour < 4)) %}
+                    {% set result = 25 %}
+                {% endif %}
+
+                {{ result }}
+            attributes:
+                sunrise: '{{ today_at((state_attr(''sun.sun'', ''next_rising'' ) | as_datetime | as_local).strftime(''%H:%M'')) }}'
+                pre_sunrise: >
+                    {% set transitionwise_event_position = 0.3 %}
+                    {% set transition_length = 7200 %}
+                    {{ today_at((state_attr('sun.sun', 'next_rising' ) | as_datetime | as_local).strftime('%H:%M')) - timedelta(seconds = transition_length * (1 - transitionwise_event_position)) }}
+                post_sunrise: >
+                    {% set transitionwise_event_position = 0.3 %}
+                    {% set transition_length = 7200 %}
+                    {{ today_at((state_attr('sun.sun', 'next_rising' ) | as_datetime | as_local).strftime('%H:%M')) + timedelta(seconds = transition_length * transitionwise_event_position) }}
+                sunset:  '{{ today_at((state_attr(''sun.sun'', ''next_setting'') | as_datetime | as_local).strftime(''%H:%M'')) }}'
+                pre_sunset: >
+                    {% set transitionwise_event_position = 0.3 %}
+                    {% set transition_length = 7200 %}
+                    {{ today_at((state_attr('sun.sun', 'next_setting') | as_datetime | as_local).strftime('%H:%M')) - timedelta(seconds=transition_length*transitionwise_event_position) }}
+                post_sunset: >
+                    {% set transitionwise_event_position = 0.3 %}
+                    {% set transition_length = 7200 %}
+                    {{ today_at((state_attr('sun.sun', 'next_setting') | as_datetime | as_local).strftime('%H:%M')) + timedelta(seconds=transition_length*(1-transitionwise_event_position)) }}
+            icon: mdi:brightness-percent
 
       - binary_sensor:
           - name: bedroom_auto_light_off_sensor
@@ -89,7 +150,7 @@ light_settings:
         hallway_rgb_bulb_switch_single_status:
           name: Hallway RGB Bulb Switch Status
           icon: mdi:toggle-switch-off-outline
-    
+
         hallway_rgb_bulb_automation_control_status:
           name: Hallway RGB Bulb Automation Control Status
           icon: mdi:toggle-switch-off-outline
@@ -101,6 +162,10 @@ light_settings:
         disable_sunrise_sunset_simulation:
             name: Disable Sunrise & Sunset Simulation
             icon: mdi:weather-sunny-off
+
+        disable_kitchen_cob_led_strip_brightness_adaptation:
+            name: Disable Brightness Adaptation for COB LED strip in Kitchen
+            icon: mdi:brightness-auto
 
     timer:
         # Таймер вимкнення світла у спальні
@@ -341,8 +406,8 @@ light_settings:
                             target:
                                 entity_id: light.hallway_rgb_bulb
                             data:
-                                brightness: 140
-                                color_temp: 155
+                                brightness_pct: 100
+                                color_temp_kelvin: 6329
                       - conditions:
                           - condition: state
                             entity_id: input_boolean.hallway_rgb_bulb_switch_single_status
@@ -400,7 +465,7 @@ light_settings:
                                 variables:
                                     rgb_light_entity_id: light.hallway_rgb_bulb
                                     rgb_light_automation_control: input_boolean.hallway_rgb_bulb_automation_control_status
-                                    count: 5
+                                    count: 3
                                     color: 'green'
                           - service: script.turn_on
                             target:
@@ -408,7 +473,7 @@ light_settings:
                             data:
                                 variables:
                                     rgb_light_entity_id: light.living_room_tuya_rgb_strip
-                                    count: 5
+                                    count: 3
                                     color: 'green'
                           - service: script.turn_on
                             target:
@@ -416,7 +481,7 @@ light_settings:
                             data:
                                 variables:
                                     rgb_light_entity_id: light.bedroom_tuya_rgb_strip
-                                    count: 5
+                                    count: 3
                                     color: 'green'
               - conditions:
                   - condition: template
@@ -438,7 +503,7 @@ light_settings:
                                 variables:
                                     rgb_light_entity_id: light.hallway_rgb_bulb
                                     rgb_light_automation_control: input_boolean.hallway_rgb_bulb_automation_control_status
-                                    count: 3
+                                    count: 2
                                     color: 'yellow'
                           - service: script.turn_on
                             target:
@@ -446,7 +511,7 @@ light_settings:
                             data:
                                 variables:
                                     rgb_light_entity_id: light.living_room_tuya_rgb_strip
-                                    count: 3
+                                    count: 2
                                     color: 'yellow'
                           - service: script.turn_on
                             target:
@@ -454,7 +519,7 @@ light_settings:
                             data:
                                 variables:
                                     rgb_light_entity_id: light.bedroom_tuya_rgb_strip
-                                    count: 3
+                                    count: 2
                                     color: 'yellow'
                       - conditions:
                           - condition: template
@@ -470,7 +535,7 @@ light_settings:
                                 variables:
                                     rgb_light_entity_id: light.hallway_rgb_bulb
                                     rgb_light_automation_control: input_boolean.hallway_rgb_bulb_automation_control_status
-                                    count: 3
+                                    count: 2
                                     color: 'blue'
                           - service: script.turn_on
                             target:
@@ -478,7 +543,7 @@ light_settings:
                             data:
                                 variables:
                                     rgb_light_entity_id: light.living_room_tuya_rgb_strip
-                                    count: 3
+                                    count: 2
                                     color: 'blue'
                           - service: script.turn_on
                             target:
@@ -486,7 +551,7 @@ light_settings:
                             data:
                                 variables:
                                     rgb_light_entity_id: light.bedroom_tuya_rgb_strip
-                                    count: 3
+                                    count: 2
                                     color: 'blue'
                       - conditions:
                           - condition: template
@@ -499,7 +564,7 @@ light_settings:
                                 variables:
                                     rgb_light_entity_id: light.hallway_rgb_bulb
                                     rgb_light_automation_control: input_boolean.hallway_rgb_bulb_automation_control_status
-                                    count: 3
+                                    count: 2
                                     color: 'green'
                           - service: script.turn_on
                             target:
@@ -507,7 +572,7 @@ light_settings:
                             data:
                                 variables:
                                     rgb_light_entity_id: light.living_room_tuya_rgb_strip
-                                    count: 3
+                                    count: 2
                                     color: 'green'
                           - service: script.turn_on
                             target:
@@ -515,7 +580,7 @@ light_settings:
                             data:
                                 variables:
                                     rgb_light_entity_id: light.bedroom_tuya_rgb_strip
-                                    count: 3
+                                    count: 2
                                     color: 'green'
                       - conditions:
                           - condition: template
@@ -653,7 +718,7 @@ light_settings:
                           - light.living_room_tuya_rgb_strip
                           - light.bedroom_tuya_rgb_strip
                     data: 
-                        brightness: 100
+                        brightness_pct: "{{ states('sensor.led_strip_brightness_pct') | int }}"
                         color_name: 'red'
               - conditions:
                   - condition: state
@@ -698,8 +763,8 @@ light_settings:
                                   - light.living_room_tuya_rgb_strip
                                   - light.bedroom_tuya_rgb_strip
                             data: 
-                                brightness: 100
-                                rgb_color: [255, 254, 72]
+                                brightness_pct: "{{ states('sensor.led_strip_brightness_pct') | int }}"
+                                color_name: 'yellow'
                       - conditions:
                           - condition: state
                             entity_id: alarm_control_panel.home_alarm
@@ -717,9 +782,9 @@ light_settings:
                                   - light.living_room_tuya_rgb_strip
                                   - light.bedroom_tuya_rgb_strip
                             data: 
-                                brightness: 13
-                                rgb_color: [5, 69, 255]
-                      - conditions:
+                                brightness_pct: "{{ states('sensor.led_strip_brightness_pct') | int }}"
+                                color_name: 'blue'
+                      - conditions: # subrise|sunset simulation
                           - condition: state
                             entity_id: binary_sensor.anyone_home
                             state: 'on'
@@ -743,7 +808,8 @@ light_settings:
                                   - light.living_room_tuya_rgb_strip
                                   - light.bedroom_tuya_rgb_strip
                             data_template:
-                                brightness_pct: >
+                                # brightness_pct: "{{ states('sensor.led_strip_brightness_pct') | int }}"
+                                brightness_pct: |
                                     {% set bright_pct = (((state_attr("sun.sun", "elevation") | float ) + 12) * 100 / 12 / 8 ) | round(0) %}
                                     {% if bright_pct > 100 %}
                                     100
@@ -752,35 +818,57 @@ light_settings:
                                     {% else %}
                                     {{ bright_pct }}
                                     {% endif  %}
-                                color_temp: >
+                                color_temp_kelvin: >
                                     {% set sun_elevation = state_attr('sun.sun', 'elevation') | float | round(0) %}
                                     {% if   sun_elevation >= -1  %}
-                                    385
+                                    {{ (1000000 / 385) | int }}
                                     {% elif sun_elevation >= -2  %}
-                                    395
+                                    {{ (1000000 / 395) | int }}
                                     {% elif sun_elevation >= -3  %}
-                                    405
+                                    {{ (1000000 / 405) | int }}
                                     {% elif sun_elevation >= -4  %}
-                                    415
+                                    {{ (1000000 / 415) | int }}
                                     {% elif sun_elevation >= -5  %}
-                                    425
+                                    {{ (1000000 / 425) | int }}
                                     {% elif sun_elevation >= -6  %}
-                                    435
+                                    {{ (1000000 / 435) | int }}
                                     {% elif sun_elevation >= -7  %}
-                                    445
+                                    {{ (1000000 / 445) | int }}
                                     {% elif sun_elevation >= -8  %}
-                                    455
+                                    {{ (1000000 / 455) | int }}
                                     {% elif sun_elevation >= -9  %}
-                                    465
+                                    {{ (1000000 / 465) | int }}
                                     {% elif sun_elevation >= -10 %}
-                                    475
+                                    {{ (1000000 / 475) | int }}
                                     {% elif sun_elevation >= -11 %}
-                                    485
+                                    {{ (1000000 / 485) | int }}
                                     {% elif sun_elevation >= -12 %}
-                                    495
+                                    {{ (1000000 / 495) | int }}
                                     {% else %}
-                                    495
+                                    {{ (1000000 / 500) | int }}
                                     {% endif %}
+                        # Christmass Lights
+                      - conditions:
+                          - condition: state
+                            entity_id: binary_sensor.anyone_home
+                            state: 'on'
+                          - condition: state
+                            entity_id: input_boolean.disable_sunrise_sunset_simulation
+                            state: 'on'
+                          - condition: state
+                            entity_id: input_boolean.led_strip_color_changer
+                            state: 'on'
+                          - condition: template
+                            value_template: "{{ is_state('script.holidays_christmass_rgb_strips_cycle', 'off') }}"
+                        sequence:
+                          - action: script.turn_on
+                            target:
+                                entity_id: script.holidays_christmass_rgb_strips_cycle
+                          - action: switch.turn_on
+                            target:
+                                entity_id:
+                                  - switch.bedroom_air_conditioner_socket
+                                  - switch.living_room_air_conditioner_socket
                     default:
                       - choose:
                           - conditions:
@@ -788,9 +876,9 @@ light_settings:
                                 entity_id: light.hallway_rgb_bulb
                                 state: 'on'
                             sequence:
-                              - service: input_boolean.turn_on
+                              - action: input_boolean.turn_on
                                 entity_id: input_boolean.hallway_rgb_bulb_automation_control_status
-                              - service: light.turn_off
+                              - action: light.turn_off
                                 target:
                                     entity_id: 
                                       - light.hallway_rgb_bulb
@@ -812,7 +900,7 @@ light_settings:
                     entity_id: sensor.period_of_day
                     state: 'daylight'
                 sequence:
-                  - service: light.turn_off
+                  - action: light.turn_off
                     target:
                         entity_id: 
                           - light.living_room_tuya_rgb_strip
@@ -834,7 +922,7 @@ light_settings:
             entity_id: switch.bedroom_light_switch
             state: 'on'
         action:
-          - service: switch.turn_off
+          - action: switch.turn_off
             entity_id: switch.bedroom_light_switch
         mode: single
 
@@ -852,7 +940,7 @@ light_settings:
             entity_id: input_boolean.disable_occupancy
             state: 'off'
         action:
-          - service: timer.start
+          - action: timer.start
             entity_id: timer.bedroom_light_off_timer
             data_template: 
                 duration: > 
@@ -876,7 +964,7 @@ light_settings:
             entity_id: input_boolean.disable_occupancy
             to: 'on'
         action:
-          - service: timer.cancel
+          - action: timer.cancel
             entity_id: timer.bedroom_light_off_timer
         mode: restart
 
@@ -894,7 +982,7 @@ light_settings:
             entity_id: switch.living_room_light_switch
             state: 'on'
         action:
-          - service: switch.turn_off
+          - action: switch.turn_off
             entity_id: switch.living_room_light_switch
         mode: single
 
@@ -912,7 +1000,7 @@ light_settings:
             entity_id: input_boolean.disable_occupancy
             state: 'off'
         action:
-          - service: timer.start
+          - action: timer.start
             entity_id: timer.living_room_light_off_timer
             data_template: 
                 duration: > 
@@ -936,7 +1024,7 @@ light_settings:
             entity_id: input_boolean.disable_occupancy
             to: 'on'
         action:
-          - service: timer.cancel
+          - action: timer.cancel
             entity_id: timer.living_room_light_off_timer
         mode: restart
 
@@ -945,7 +1033,6 @@ light_settings:
         trigger:
           - platform: state
             entity_id: sensor.hallway_rgb_bulb_switch_action
-            attribute: action
             to:
               - single
               - double
@@ -954,18 +1041,18 @@ light_settings:
           - choose:
               - conditions:
                   - condition: template
-                    value_template: "{{ trigger.to_state.attributes.action == 'single' }}"
+                    value_template: "{{ trigger.to_state.state == 'single' }}"
                 sequence:
-                  - service: input_boolean.toggle
+                  - action: input_boolean.toggle
                     entity_id: input_boolean.hallway_rgb_bulb_switch_single_status
               - conditions:
                   - condition: template
-                    value_template: "{{ trigger.to_state.attributes.action == 'double' }}"
+                    value_template: "{{ trigger.to_state.state == 'double' }}"
                 sequence:
             #       some actions
               - conditions:
                   - condition: template
-                    value_template: "{{ trigger.to_state.attributes.action == 'hold'   }}"
+                    value_template: "{{ trigger.to_state.state == 'hold'   }}"
                 sequence:
             #       some actions
         mode: single
@@ -982,6 +1069,71 @@ light_settings:
           entity_id: binary_sensor.hallway_rgb_bulb_control
           state: 'off'
         action:
-        - service: light.turn_off
+        - action: light.turn_off
           entity_id: light.hallway_rgb_bulb
+        mode: single
+
+      - alias: "Light: Turn OFF all lights when no one is home"
+        id: light_turn_off_no_one_home
+        trigger:
+          - platform: state
+            entity_id: binary_sensor.anyone_home
+            from: 'on'
+            to: 'off'
+            for:
+                minutes: 5
+        action:
+          - action: light.turn_off
+            target:
+                entity_id:
+                  - light.bedroom_tuya_rgb_strip
+                  - light.hallway_rgb_bulb
+                  - light.kitchen_tuya_cob_led_strip
+                  - light.living_room_tuya_rgb_strip
+          - action: switch.turn_off
+            target:
+                entity_id:
+                  - switch.bedroom_light_switch
+                  - switch.living_room_light_switch
+        mode: single
+
+      - alias: "Light: Set the brightness of the COB LED strip in the kitchen"
+        id: light_brightness_cob_led_in_kitchen
+        triggers:
+          - trigger: state
+            entity_id: sensor.period_of_day
+            not_from:
+              - unknown
+              - unavailable
+            not_to:
+              - unknown
+              - unavailable
+          - trigger: state
+            entity_id: sun.sun
+            attribute: elevation
+          - trigger: state
+            entity_id: binary_sensor.anyone_home
+            from: 'off'
+            to: 'on'
+          - trigger: state
+            entity_id: light.kitchen_tuya_cob_led_strip
+            from: 'off'
+            to: 'on'
+        condition:
+          - condition: state
+            entity_id: binary_sensor.anyone_home
+            state: 'on'
+          - condition: state
+            entity_id: light.kitchen_tuya_cob_led_strip
+            state: 'on'
+          - condition: state
+            entity_id: input_boolean.disable_kitchen_cob_led_strip_brightness_adaptation
+            state: 'off'
+        action:
+          - action: light.turn_on
+            target:
+                entity_id: 
+                  - light.kitchen_tuya_cob_led_strip
+            data_template:
+                brightness_pct: "{{ states('sensor.led_strip_brightness_pct') | int }}"
         mode: single
