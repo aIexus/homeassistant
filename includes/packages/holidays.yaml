@@ -1,0 +1,227 @@
+holidays_package:
+
+    recorder:
+        include:
+            entities:
+              - input_boolean.led_strip_color_changer
+
+    homeassistant:
+
+    input_boolean:
+
+        led_strip_color_changer:
+            name: 'LED Strip Color Changer'
+            icon: 'mdi:palette'
+
+    script:
+    
+        holidays_christmass_rgb_strips_cycle:
+            alias: 'Holidays: Christmass RGB Strips Cycle'
+            sequence: 
+              - variables:
+                    colors:
+                      - red
+                      - blue
+                      - green
+                      - yellow
+              - repeat:
+                    while: |
+                        {{ is_state('input_boolean.led_strip_color_changer', 'on') and 
+                           is_state('binary_sensor.m_novomoskovsk_alerts', 'off') and
+                           not (is_state('light.bedroom_tuya_rgb_strip',['unavailable','unknown']) and
+                                is_state('light.living_room_tuya_rgb_strip',['unavailable','unknown'])
+                           )
+                        }}
+                    sequence:
+                      - action: light.turn_on
+                        target:
+                            entity_id: 
+                              - light.bedroom_tuya_rgb_strip
+                              - light.living_room_tuya_rgb_strip
+                        data:
+                            color_name: "{{ colors[(repeat.index - 1) % (colors | count )] }}"
+                      - delay:
+                           seconds: "{{ range(1, 6) | random }}"
+              - action: light.turn_off
+                target:
+                    entity_id:
+                      - light.bedroom_tuya_rgb_strip
+                      - light.living_room_tuya_rgb_strip
+            mode: single
+
+    automation:
+
+    #---=== Chritmass ===---
+
+      - alias: 'Holiday: Christmas - Enable|Disable Automations'
+        id: holiday_christmas_enable_disable_automations
+        description: 'Change mode of automations for Christmas'
+        trigger:
+          - platform: template
+            value_template: > 
+                {% set n = now() %}
+                {{ ( ( n.month == 12 and n.day == 19 ) or 
+                     ( n.month == 1  and n.day == 16 ) ) }}
+        action:
+          - choose:
+              - conditions:
+                  - condition: template
+                    value_template: '{{ now().month == 12 }}'
+                  - condition: state
+                    entity_id: input_boolean.enable_christmas_automations
+                    state: 'off'
+                sequence:
+                  - service: input_boolean.turn_on
+                    entity_id: input_boolean.enable_christmas_automations
+              - conditions:
+                  - condition: template
+                    value_template: '{{ now().month == 1 }}'
+                  - condition: state
+                    entity_id: input_boolean.enable_christmas_automations
+                    state: 'on'
+                sequence:
+                  - service: input_boolean.turn_off
+                    entity_id: input_boolean.enable_christmas_automations
+        mode: single
+    
+      - alias: 'Holiday: Christmas - Control Automaions'
+        id: holiday_christmas_control_automation
+        description: 'Control automation by input_boolean switch'
+        trigger:
+          - platform: state
+            entity_id: input_boolean.enable_christmas_automations
+        action:
+          - choose:
+              - conditions:
+                  - condition: state
+                    entity_id: input_boolean.enable_christmas_automations
+                    state: 'off'
+                sequence:
+                  - action: input_boolean.turn_off
+                    target:
+                       entity_id: input_boolean.led_strip_color_changer
+                  - action: automation.turn_off
+                    entity_id: 
+                      - automation.holiday_christmas_turn_on_garlands
+                      - automation.holiday_christmas_turn_off_garlands
+              - conditions:
+                  - condition: state
+                    entity_id: input_boolean.enable_christmas_automations
+                    state: 'on'
+                sequence:
+                  - service: automation.turn_on
+                    entity_id: 
+                      - automation.holiday_christmas_turn_on_garlands
+                      - automation.holiday_christmas_turn_off_garlands
+        mode: single
+    
+      - alias: 'Holiday: Christmas - Turn ON Garlands'
+        id: holiday_christmas_turn_on_garlands
+        description: 'when anyone at home AND after sunset'
+        trigger:
+          - platform: sun
+            event: sunset
+            offset: '00:05:01'
+          - platform: state
+            entity_id: binary_sensor.anyone_home
+            from: 'off'
+            to: 'on'
+            for:
+              minutes: 2
+        condition:
+          - condition: state
+            entity_id: sun.sun
+            state: below_horizon
+          - condition: state
+            entity_id: binary_sensor.anyone_home
+            state: 'on'
+          - condition: time
+            before: '23:00:00'
+          - condition: template # Only between December 22 and January 19.
+            value_template: >
+                {% set n = now() %}
+                {{ ( n.month == 12 and ( n.day > 19 and n.day <= 31 ) ) or 
+                   ( n.month == 1  and ( n.day >= 1 and n.day <  16 ) ) }}
+        action:
+          - action: switch.turn_on
+            entity_id:
+              - switch.bedroom_air_conditioner_socket
+              - switch.living_room_air_conditioner_socket
+          - action: input_boolean.turn_on
+            target:
+               entity_id: input_boolean.led_strip_color_changer
+        mode: single
+    
+      - alias: 'Holiday: Christmas - Turn OFF Garlands'
+        id: holiday_christmas_turn_off_garlands
+        description: 'when no one at home or sunrise OR after 23:00|02:00'
+        trigger:
+          - platform: time
+            at: '23:00'
+          - platform: time
+            at: '02:00'
+          - platform: sun
+            event: sunrise
+            offset: '0'
+          - platform: state
+            entity_id: binary_sensor.anyone_home
+            from: 'on'
+            to: 'off'
+            for:
+              minutes: 2
+        condition: 
+          - condition: template # Only between Dec 22 and Jan 19, except for Dec 31
+            value_template: >
+                {% set n = now() %}
+                {{ ( n.month == 12 and ( n.day > 19 and n.day < 31 ) ) or 
+                   ( n.month == 1  and ( n.day >= 1 and n.day < 16 )) }}
+          - condition: or
+            conditions:
+              - condition: state
+                entity_id: switch.bedroom_air_conditioner_socket
+                state: 'on'
+              - condition: state
+                entity_id: switch.living_room_air_conditioner_socket
+                state: 'on'
+              - condition: state
+                entity_id: input_boolean.led_strip_color_changer
+                state: 'on'
+        action:
+          - action: switch.turn_off
+            entity_id: 
+              - switch.bedroom_air_conditioner_socket
+              - switch.living_room_air_conditioner_socket
+          - action: input_boolean.turn_off
+            target:
+               entity_id: input_boolean.led_strip_color_changer
+        mode: single
+
+      - alias: "Holiday: Christmas LED Lights Color Change Cycle"
+        id: holiday_christmas_led_lights_color_change_cycle
+        trigger:
+          - platform: state
+            entity_id: input_boolean.led_strip_color_changer
+            from: 'off'
+            to: 'on'
+          - platform: state
+            entity_id: binary_sensor.m_novomoskovsk_alerts
+            from: 'on'
+            to: 'off'
+        condition:
+          - condition: state
+            entity_id: binary_sensor.m_novomoskovsk_alerts
+            state: 'off'
+          - condition: state
+            entity_id: input_boolean.led_strip_color_changer
+            state: 'on'
+          - condition: template
+            value_template: >
+                {{ not (is_state('light.bedroom_tuya_rgb_strip',['unavailable','unknown']) or
+                        is_state('light.living_room_tuya_rgb_strip',['unavailable','unknown'])
+                   )
+                }}
+        action:
+          - action: script.turn_on
+            target:
+                entity_id: script.holidays_christmass_rgb_strips_cycle
+        mode: single
