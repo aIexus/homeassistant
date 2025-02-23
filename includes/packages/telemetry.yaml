@@ -299,8 +299,11 @@ telemetry_config:
           - name: all_switch_on_10
             state: >
                 {% set variable = namespace(value = {}) %}
-                {% for entity in states.switch if is_state(entity.entity_id, 'on') and state_attr(entity.entity_id, 'power') | int(0) > 10 %}
-                    {% set variable.value = dict(variable.value, **{entity.name: state_attr(entity.entity_id, 'power') }) %}
+                {% for entity in states.switch %} 
+                    {% set list_name = entity.entity_id.split('.') %}
+                    {% if is_state(entity.entity_id, 'on') and states('sensor.'+list_name[1]+'_power') | int(0) > 10 %}
+                      {% set variable.value = dict(variable.value, **{entity.name: states('sensor.'+list_name[1]+'_power')}) %}
+                    {% endif %}
                 {% endfor %}
                 {% if (variable.value | length) | int > 0 %}
                     {{ variable.value | length }}
@@ -310,8 +313,11 @@ telemetry_config:
             attributes:
                 list_entities: >
                     {% set variable = namespace(value = {}) %}
-                    {% for entity in states.switch if is_state(entity.entity_id, 'on') and state_attr(entity.entity_id, 'power') |int(0) > 10 %}
-                        {% set variable.value = dict(variable.value, **{entity.name: state_attr(entity.entity_id, 'power') }) %}
+                    {% for entity in states.switch %} 
+                        {% set list_name = entity.entity_id.split('.') %}
+                        {% if is_state(entity.entity_id, 'on') and states('sensor.'+list_name[1]+'_power') | int(0) > 10 %}
+                            {% set variable.value = dict(variable.value, **{entity.name: states('sensor.'+list_name[1]+'_power')}) %}
+                        {% endif %}
                     {% endfor %}
                     {{ variable.value |dictsort(false, 'value') }}
           - name: all_switch_unavailable
@@ -461,11 +467,12 @@ telemetry_config:
                 {% set variable = namespace(value = {}) %}
                 {% set voltage = namespace(value = 0) %}
                 {% for entity in states.sensor if ( is_state_attr(entity.entity_id, 'device_class', 'voltage') and 
-                                                   is_state_attr(entity.entity_id, 'unit_of_measurement', 'V') and 
-                                                   states(entity.entity_id) not in ['unavailable','unknown','None'] and 
-                                                   not (entity.entity_id.endswith("_meter_voltage")) and
-                                                   not (entity.entity_id.endswith("battery_voltage")) and
-                                                   not (entity.entity_id.endswith("aquarium_main_lighting_voltage")) ) %}
+                                                    is_state_attr(entity.entity_id, 'unit_of_measurement', 'V') and 
+                                                    states(entity.entity_id) not in ['unavailable','unknown','None'] and 
+                                                    not (entity.entity_id.endswith("_meter_voltage")) and
+                                                    not (entity.entity_id.endswith("battery_voltage")) and
+                                                    not (entity.entity_id.startswith("sensor.river_pro_")) and
+                                                    not (entity.entity_id.endswith("aquarium_main_lighting_voltage")) ) %}
                     {% set variable.value = dict(variable.value, **{entity.name: entity.state }) %}
                     {% set voltage.value = voltage.value |int + entity.state |int %}
                 {% endfor %}
@@ -478,6 +485,7 @@ telemetry_config:
                                                         states(entity.entity_id) not in ['unavailable','unknown','None'] and 
                                                         not (entity.entity_id.endswith("_meter_voltage")) and
                                                         not (entity.entity_id.endswith("battery_voltage")) and
+                                                        not (entity.entity_id.startswith("sensor.river_pro_")) and
                                                         not (entity.entity_id.endswith("aquarium_main_lighting_voltage")) ) %}
                         {% set variable.value = dict(variable.value, **{entity.name: entity.state }) %}
                     {% endfor %}
