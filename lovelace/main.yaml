@@ -3,7 +3,7 @@ visible:
   - user: c95c6095c99342e980335fc45f93584b # Ivan
   - user: 3da46ad97a5d4bedbd4bf4d770d9f714 # alexus
   - user: 0bae28547b584a2fae4ceb544b33539c # Vova
-  - user: fd6364b295834039a8ea6137739fd937 # Inna
+  - user: 026423d607f54fa2889fd8d13bd07b38 # inna
 icon: mdi:home-assistant
 cards:
 
@@ -199,6 +199,12 @@ cards:
                     state_color: true
                     name: Підсвітка
                     tap_action: none
+                  - entity: switch.living_room_light_switch
+                    show_icon: true
+                    state_color: true
+                    icon: mdi:ceiling-light
+                    name: Люстра
+                    tap_action: none
                   - entity: binary_sensor.living_room_auto_light_off_sensor
                     name: Таймер
                     tap_action: none
@@ -261,12 +267,6 @@ cards:
                             entity: input_boolean.ac_status
                             value: "off"
               - entities:
-                  - entity: switch.living_room_light_switch
-                    show_icon: true
-                    state_color: true
-                    icon: mdi:ceiling-light
-                    name: Люстра
-                    tap_action: none
                   - entity: switch.living_room_aquarium_power_strip_l3
                     show_icon: true
                     state_color: true
@@ -281,6 +281,14 @@ cards:
                     show_icon: true
                     state_color: true
                     name: Обладнання
+                    hide_if:
+                        conditions:
+                          - condition: equals
+                            entity: binary_sensor.living_room_desktop_equipment_socket_status
+                            value: "off"
+                          - condition: equals
+                            entity: binary_sensor.living_room_desktop_equipment_socket_status
+                            value: "unavailable"
                   - entity: switch.living_room_laptop_charging_socket
                     show_icon: true
                     state_color: true
@@ -313,6 +321,17 @@ cards:
                     tap_action: 
                         action: toggle
                     name: NSwitch
+                  - entity: binary_sensor.ecoflow_charging_socket_status
+                    show_icon: true
+                    state_color: true
+                    hide_if:
+                        conditions:
+                          - condition: equals
+                            entity: binary_sensor.ecoflow_charging_socket_status
+                            value: 'unavailable'
+                    tap_action: 
+                        action: none
+                    name: ECOFLOW
             info_entities:
               - entity: sensor.lr_levoit_air_purifier_300s_air_quality_value
               - entity: sensor.living_room_lumi_sensor_motion_illuminance_lux
@@ -370,7 +389,7 @@ cards:
                       - condition: equals
                         entity: input_boolean.disable_occupancy
                         value: "on"
-              - entity: binary_sensor.bedroom_prusa_mk3_printer_socket_status
+              - entity: binary_sensor.bluetti_charging_socket_status
                 show_icon: true
                 state_color: true
                 tap_action: 
@@ -378,9 +397,9 @@ cards:
                 hide_if:
                     conditions:
                       - condition: equals
-                        entity: binary_sensor.bedroom_prusa_mk3_printer_socket_status
-                        value: "off"
-                name: Prusa MK3
+                        entity: binary_sensor.bluetti_charging_socket_status
+                        value: 'unavailable'
+                name: BLUETTI
               - entity: binary_sensor.bedroom_socket_heating_status
                 show_icon: true
                 state_color: true
@@ -408,7 +427,7 @@ cards:
               - entity: sensor.bedroom_average_temperature
             #   - entity: sensor.bedroom_lumi_weather_temperature
                 format: precision1
-    
+
           - type: custom:room-card
             title: Кухня
             icon: mdi:silverware-fork-knife
@@ -421,6 +440,12 @@ cards:
                 show_icon: true
                 state_color: true
                 name: Вікно
+                tap_action: none
+              - entity: light.kitchen_tuya_cob_led_strip
+                show_icon: true
+                icon: mdi:led-strip-variant
+                state_color: true
+                name: Підсвітка
                 tap_action: none
               - entity: binary_sensor.kitchen_smoke_detector_smoke
                 show_icon: true
@@ -711,8 +736,11 @@ cards:
                   name: Спальня
                   icon: mdi:ceiling-light
                 - entity: input_boolean.hallway_rgb_bulb_switch_single_status
-                  icon: mdi:lightbulb
+                  icon: mdi:bulkhead-light
                   name: Передпокій
+                - entity: light.kitchen_tuya_cob_led_strip
+                  name: Кухня підсвітка
+                  icon: mdi:led-strip-variant
 
           - type: conditional
             conditions:
@@ -733,6 +761,8 @@ cards:
                 - entity: switch.bedroom_air_conditioner_socket
                   name: Гірлянда у Спальні
                   icon: mdi:string-lights
+                - entity: input_boolean.led_strip_color_changer
+                  name: LED ленти
 
           - type: conditional
             conditions:
@@ -760,7 +790,7 @@ cards:
                     icon: mdi:wrench-clock
                     state_color: true
                     entities:
-                      - entity: switch.living_room_aquarium_power_strip_l1
+                      - entity: switch.living_room_aquarium_power_strip_l5
                         name: Аерація
                         icon: mdi:fish
                       - entity: switch.living_room_aquarium_power_strip_l2
