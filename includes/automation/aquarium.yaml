@@ -41,8 +41,9 @@
       description: 'Акваріум - Вмикання місячного сяйва'
       mode: single
       trigger:
-        - platform: time
-          at: '20:00'
+          - platform: sun
+            event: sunset
+            offset: '00:05:01'
       condition:
         - condition: state
           entity_id: switch.living_room_aquarium_power_strip_l4
@@ -63,5 +64,22 @@
           entity_id: switch.living_room_aquarium_power_strip_l4
           state: 'on'
       action:
-        - service: switch.turn_off
-          entity_id: switch.living_room_aquarium_power_strip_l4
+        - action: switch.turn_off
+          entity_id: 
+            - switch.living_room_aquarium_power_strip_l4 # Moonlight
+            - switch.living_room_aquarium_power_strip_l5 # USB air pump
+
+    - alias: "Aquarium: Turn ON USB Air Pump Charging by Schedule"
+      id: living_room_aquarioum_usb_air_pump_charging_on
+      description: 'Акваріум - Вмикання зарядки компресора'
+      mode: single
+      trigger:
+          - platform: time
+            at: '08:00:00'
+      condition:
+        - condition: state
+          entity_id: switch.living_room_aquarium_power_strip_l5
+          state: 'off'
+      action:
+        - service: switch.turn_on
+          entity_id: switch.living_room_aquarium_power_strip_l5
