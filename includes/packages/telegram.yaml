@@ -264,6 +264,8 @@ telegram:
                 Chassis Fan: {{ states("sensor.chassis_fan_speed") }}% speed
 
                 External IP: {{ states("sensor.archer_c80_router_external_ip") }}
+                Ping: {{ states("sensor.speedtest_ping") }} ms
+                Download/Upload: {{ states("sensor.speedtest_download") | int(0) }}/{{ states("sensor.speedtest_upload") | int(0) }} Mbit/s
 
             # Курс 1$ = {{ states("sensor.exchange_rate_usd") }} ₴
               data: 
@@ -299,7 +301,7 @@ telegram:
                 {%- if not is_state('fan.lr_levoit_air_purifier_300s', 'unavailable') %}
                 Очищувач повітря{% if is_state('binary_sensor.living_room_air_purifier_status', 'on') %}{{"\U0001F32C"}}: {% if state_attr('fan.lr_levoit_air_purifier_300s','preset_mode') == 'auto' %}Авто{% elif state_attr('fan.lr_levoit_air_purifier_300s','preset_mode') == 'sleep' %}{{"\U0001F4A4"}}{% else %}{{ states.number.lr_levoit_air_purifier_300s_fan_speed_level.state }}{% endif %}{% else %}: {{"\U0001F4F4"}}{% endif %}
                 - Термін служби фільтра: {{ states.sensor.lr_levoit_air_purifier_300s_filter_life.state }}%
-                - Якість повітря PM2.5: {{ states.sensor.lr_levoit_air_purifier_300s_air_quality.state }} µg/m³
+                - Якість повітря PM2.5: {{ states.sensor.lr_levoit_air_purifier_300s_air_quality_value.state }} µg/m³
                 {% else %}
                 Очищувач повітря недоступний
                 {% endif %}
@@ -916,7 +918,1222 @@ telegram:
               data: 
                 inline_keyboard:  
                   - "{% if is_state('alarm_control_panel.home_alarm','disarmed') %}{{'\U0001F694'}} Поставити на охорону {{'\U0001F534'}}:/set_alarm{% else %}{{'\U0001F694'}} Зняти з охорони {{'\U0001F7E2'}}:/cancel_alarm{% endif%}"
+                  - "{{'\U0001F4F9'}} Камера {{'\U0001F4F7'}}:/camera_menu"
                   - "{{'\U0001F4D1'}} Меню:/menu"
+          mode: single
+
+        - alias: "Telegram: Camera Menu"
+          id: telegram_menu_camera
+          trigger:
+            platform: event
+            event_type: telegram_callback
+            event_data:
+              command: '/camera_menu'
+          action:
+          - service: telegram_bot.delete_message
+            data:
+                message_id: 'last'
+                chat_id: !secret telegram_user_1
+          - service: notify.alexus
+            data:
+                title: '{{"\U0001F3A6"}} КАМЕРА{{"\U0000203C"}}'
+                message: |
+                    ➖➖➖➖➖➖➖
+                    {{"\U0001F694"}} Оберіть режим {{"\U0001F447"}}
+                data: 
+                  inline_keyboard: 
+                    - "{{'\U0001F4F9'}} Відео:/camera_menu_video"
+                    - "{{'\U0001F4F7'}} Фото:/camera_menu_photo"
+                    - "{{'\U0001F4D1'}} Меню:/menu, {{'\U0001F6E1'}} Безпека:/security"
+          mode: single
+
+        - alias: "Telegram: Camera Photo Menu"
+          id: telegram_menu_camera_photo
+          trigger:
+            platform: event
+            event_type: telegram_callback
+            event_data:
+              command: '/camera_menu_photo'
+          action:
+          - service: telegram_bot.delete_message
+            data:
+                message_id: 'last'
+                chat_id: !secret telegram_user_1
+          - service: notify.alexus
+            data:
+                message: &camera_photo_body |
+                    {{"\U0001F3A6"}} КАМЕРА: ФОТО {{"\U0001F39E"}}
+                    ➖➖➖➖➖➖➖
+                    {{"\U0001F4F7"}} Оберіть варіант зйомки {{"\U0001F447"}}
+                data: 
+                  inline_keyboard: &camera_photo_keyb 
+                    - "{{'\U0001F693'}} Патруль:/camera_menu_photo_patrol"
+                    - "{{'\U0001F6CB'}} Вітальня:/camera_menu_photo_living_room, {{'\U0001F6CC'}} Спальня:/camera_menu_photo_bedroom"
+                    - "{{'\U0001F37D'}} Кухня:/camera_menu_photo_kitchen, {{'\U0001F6C0'}} Ванна:/camera_menu_photo_bathroom"
+                    - "{{'\U0001F6AA'}} Передпокій:/camera_menu_photo_entrance"
+                    - "{{'\U0001F4D1'}} Меню:/menu, {{'\U0001F6E1'}} Безпека:/security"
+          mode: single
+
+        - alias: "Telegram: Camera Video Menu"
+          id: telegram_menu_camera_video
+          trigger:
+            platform: event
+            event_type: telegram_callback
+            event_data:
+              command: '/camera_menu_video'
+          action:
+          - service: telegram_bot.delete_message
+            data:
+                message_id: 'last'
+                chat_id: !secret telegram_user_1
+          - service: notify.alexus
+            data:
+                message: &camera_video_body |
+                    {{"\U0001F3A6"}} КАМЕРА: ВІДЕО {{"\U0001F39E"}}
+                    ➖➖➖➖➖➖➖
+                    {{"\U0001F4F9"}} Оберіть варіант зйомки {{"\U0001F447"}}
+                data: 
+                  inline_keyboard: &camera_video_keyb 
+                    - "{{'\U0001F693'}} Патруль:/camera_menu_video_patrol"
+                    - "{{'\U0001F6CB'}} Вітальня:/camera_menu_video_living_room, {{'\U0001F6CC'}} Спальня:/camera_menu_video_bedroom"
+                    - "{{'\U0001F37D'}} Кухня:/camera_menu_video_kitchen, {{'\U0001F6C0'}} Ванна:/camera_menu_video_bathroom"
+                    - "{{'\U0001F6AA'}} Передпокій:/camera_menu_video_entrance"
+                    - "{{'\U0001F4D1'}} Меню:/menu, {{'\U0001F6E1'}} Безпека:/security"
+          mode: single
+
+        - alias: "Telegram: Camera Photo Patrol Menu"
+          id: telegram_menu_camera_photo_patrol
+          trigger:
+            platform: event
+            event_type: telegram_callback
+            event_data:
+              command: '/camera_menu_photo_patrol'
+          action:
+          - variables:
+                tapo_camera_privacy_mode: '{{ states("switch.tapo_camera_c200_privacy") }}'
+                snapshot_file_name_begin: |
+                    {{ "/config/files/camera/" + state_attr('camera.tapo_camera_c200_hd_stream', 'friendly_name') + "/snapshot_patrol_" }}
+          - service: telegram_bot.delete_message
+            data:
+                message_id: 'last'
+                chat_id: !secret telegram_user_1
+          - choose:
+              - conditions:
+                  - condition: template
+                    value_template: > 
+                        {{ not states('camera.tapo_camera_c200_hd_stream') in ('unknown','unavailable') }}
+                sequence:
+                    # Disable privacy mode for tapo_camera
+                  - choose:
+                      - conditions:
+                          - condition: state
+                            entity_id: switch.tapo_camera_c200_privacy
+                            state: 'on'
+                        sequence:
+                          - service: switch.turn_off
+                            entity_id: switch.tapo_camera_c200_privacy
+                          - delay: '00:00:04'
+                    # Move tapo_camera to Entrance preset
+                  - service: select.select_option
+                    target:
+                        entity_id: select.tapo_camera_c200_move_to_preset
+                    data: 
+                        option: 'Entrance'
+                  - delay: '00:00:03'
+                    # take snapshot from Entrance area
+                  - variables:
+                        snapshot_file_name_end: |
+                            {{ now().strftime('%Y%m%d-%H%M%S') + ".jpg" }}
+                  - service: script.tapo_camera_save_snapshot
+                    data:
+                        tapo_camera_id: camera.tapo_camera_c200_hd_stream
+                        file_name: '{{ snapshot_file_name_begin }} + "entrance_" + {{ snapshot_file_name_end }}'
+                    # send snapshot to alexus mobile/telegram
+                  - choose:
+                      - conditions:
+                          - condition: state
+                            entity_id: binary_sensor.internet_connection_ping
+                            state: 'on'
+                        sequence:
+                          - service: notify.alexus
+                            data:
+                                message: 'Entrance'
+                                data:
+                                    photo:
+                                      - file: '{{ snapshot_file_name_begin }} + "entrance_" + {{ snapshot_file_name_end }}'
+                                        caption: 'Фото: Entrance'
+                    # Move tapo_camera to Living Room preset
+                  - service: select.select_option
+                    target:
+                        entity_id: select.tapo_camera_c200_move_to_preset
+                    data: 
+                        option: 'Living Room'
+                  - delay: '00:00:03'
+                    # take snapshot from Living Room area
+                  - variables:
+                        snapshot_file_name_end: |
+                            {{ now().strftime('%Y%m%d-%H%M%S') + ".jpg" }}
+                  - service: script.tapo_camera_save_snapshot
+                    data:
+                        tapo_camera_id: camera.tapo_camera_c200_hd_stream
+                        file_name: '{{ snapshot_file_name_begin }} + "living_room_" + {{ snapshot_file_name_end }}'
+                    # send snapshot to alexus mobile/telegram
+                  - choose:
+                      - conditions:
+                          - condition: state
+                            entity_id: binary_sensor.internet_connection_ping
+                            state: 'on'
+                        sequence:
+                          - service: notify.alexus
+                            data:
+                                message: 'Living Room'
+                                data:
+                                    photo:
+                                      - file: '{{ snapshot_file_name_begin }} + "living_room_" + {{ snapshot_file_name_end }}'
+                                        caption: 'Фото: Living Room'
+                    # Move tapo_camera to Bedroom preset
+                  - service: select.select_option
+                    target:
+                        entity_id: select.tapo_camera_c200_move_to_preset
+                    data: 
+                        option: 'Bedroom'
+                  - delay: '00:00:03'
+                    # take snapshot from Bedroom area
+                  - variables:
+                        snapshot_file_name_end: |
+                            {{ now().strftime('%Y%m%d-%H%M%S') + ".jpg" }}
+                  - service: script.tapo_camera_save_snapshot
+                    data:
+                        tapo_camera_id: camera.tapo_camera_c200_hd_stream
+                        file_name: '{{ snapshot_file_name_begin }} + "bedroom_" + {{ snapshot_file_name_end }}'
+                    # send snapshot to alexus mobile/telegram
+                  - choose:
+                      - conditions:
+                          - condition: state
+                            entity_id: binary_sensor.internet_connection_ping
+                            state: 'on'
+                        sequence:
+                          - service: notify.alexus
+                            data:
+                                message: 'Bedroom'
+                                data:
+                                    photo:
+                                      - file: '{{ snapshot_file_name_begin }} + "bedroom_" + {{ snapshot_file_name_end }}'
+                                        caption: 'Фото: Bedroom'
+                    # Move tapo_camera to Kitchen preset
+                  - service: select.select_option
+                    target:
+                        entity_id: select.tapo_camera_c200_move_to_preset
+                    data: 
+                        option: 'Kitchen'
+                  - delay: '00:00:03'
+                    # take snapshot from Kitchen area
+                  - variables:
+                        snapshot_file_name_end: |
+                            {{ now().strftime('%Y%m%d-%H%M%S') + ".jpg" }}
+                  - service: script.tapo_camera_save_snapshot
+                    data:
+                        tapo_camera_id: camera.tapo_camera_c200_hd_stream
+                        file_name: '{{ snapshot_file_name_begin }} + "kitchen_" + {{ snapshot_file_name_end }}'
+                    # send snapshot to alexus mobile/telegram
+                  - choose:
+                      - conditions:
+                          - condition: state
+                            entity_id: binary_sensor.internet_connection_ping
+                            state: 'on'
+                        sequence:
+                          - service: notify.alexus
+                            data:
+                                message: 'Kitchen'
+                                data:
+                                    photo:
+                                      - file: '{{ snapshot_file_name_begin }} + "kitchen_" + {{ snapshot_file_name_end }}'
+                                        caption: 'Фото: Kitchen'
+                    # Move tapo_camera to Bathroom preset
+                  - service: select.select_option
+                    target:
+                        entity_id: select.tapo_camera_c200_move_to_preset
+                    data: 
+                        option: 'Bathroom'
+                  - delay: '00:00:03'
+                    # take snapshot from Bathroom area
+                  - variables:
+                        snapshot_file_name_end: |
+                            {{ now().strftime('%Y%m%d-%H%M%S') + ".jpg" }}
+                  - service: script.tapo_camera_save_snapshot
+                    data:
+                        tapo_camera_id: camera.tapo_camera_c200_hd_stream
+                        file_name: '{{ snapshot_file_name_begin }} + "bathroom_" + {{ snapshot_file_name_end }}'
+                    # send snapshot to alexus mobile/telegram
+                  - choose:
+                      - conditions:
+                          - condition: state
+                            entity_id: binary_sensor.internet_connection_ping
+                            state: 'on'
+                        sequence:
+                          - service: notify.alexus
+                            data:
+                                message: 'Bathroom'
+                                data:
+                                    photo:
+                                      - file: '{{ snapshot_file_name_begin }} + "bathroom_" + {{ snapshot_file_name_end }}'
+                                        caption: 'Фото: Bathroom'
+                    # restore privacy mode for tapo_camera
+                  - choose:
+                      - conditions:
+                          - condition: template
+                            value_template: "{{ tapo_camera_privacy_mode == 'on' }}"
+                          - condition: state
+                            entity_id: switch.tapo_camera_c200_privacy
+                            state: 'off'
+                        sequence:
+                          - service: switch.turn_on
+                            entity_id: switch.tapo_camera_c200_privacy
+            default:
+              - service: notify.alexus
+                data:
+                    title: "{{'\U000026A0'}} ПОМИЛКА {{'\U0000203C'}}{{'\U0000203C'}}"
+                    message: |
+                        {{"\U0001F3A6"}} Камера недоступна {{'\U0000203C'}}
+          - service: notify.alexus
+            data:
+                message: *camera_photo_body
+                data: 
+                  inline_keyboard: *camera_photo_keyb
+          mode: single
+
+        - alias: "Telegram: Camera Photo Entrance Menu"
+          id: telegram_menu_camera_photo_entrance
+          trigger:
+            platform: event
+            event_type: telegram_callback
+            event_data:
+              command: '/camera_menu_photo_entrance'
+          action:
+          - variables:
+                tapo_camera_privacy_mode: '{{ states("switch.tapo_camera_c200_privacy") }}'
+                snapshot_file_name_begin: |
+                    {{ "/config/files/camera/" + state_attr('camera.tapo_camera_c200_hd_stream', 'friendly_name') + "/snapshot_patrol_" }}
+          - service: telegram_bot.delete_message
+            data:
+                message_id: 'last'
+                chat_id: !secret telegram_user_1
+          - choose:
+              - conditions:
+                  - condition: template
+                    value_template: > 
+                        {{ not states('camera.tapo_camera_c200_hd_stream') in ('unknown','unavailable') }}
+                sequence:
+                    # Disable privacy mode for tapo_camera
+                  - choose:
+                      - conditions:
+                          - condition: state
+                            entity_id: switch.tapo_camera_c200_privacy
+                            state: 'on'
+                        sequence:
+                          - service: switch.turn_off
+                            entity_id: switch.tapo_camera_c200_privacy
+                          - delay: '00:00:04'
+                    # Move tapo_camera to Entrance preset
+                  - service: select.select_option
+                    target:
+                        entity_id: select.tapo_camera_c200_move_to_preset
+                    data: 
+                        option: 'Entrance'
+                  - delay: '00:00:03'
+                    # take snapshot from Entrance area
+                  - variables:
+                        snapshot_file_name_end: |
+                            {{ now().strftime('%Y%m%d-%H%M%S') + ".jpg" }}
+                  - service: script.tapo_camera_save_snapshot
+                    data:
+                        tapo_camera_id: camera.tapo_camera_c200_hd_stream
+                        file_name: '{{ snapshot_file_name_begin }} + "entrance_" + {{ snapshot_file_name_end }}'
+                    # send snapshot to alexus mobile/telegram
+                  - choose:
+                      - conditions:
+                          - condition: state
+                            entity_id: binary_sensor.internet_connection_ping
+                            state: 'on'
+                        sequence:
+                          - service: notify.alexus
+                            data:
+                                message: 'Entrance'
+                                data:
+                                    photo:
+                                      - file: '{{ snapshot_file_name_begin }} + "entrance_" + {{ snapshot_file_name_end }}'
+                                        caption: 'Фото: Entrance'
+                    # restore privacy mode for tapo_camera
+                  - choose:
+                      - conditions:
+                          - condition: template
+                            value_template: "{{ tapo_camera_privacy_mode == 'on' }}"
+                          - condition: state
+                            entity_id: switch.tapo_camera_c200_privacy
+                            state: 'off'
+                        sequence:
+                          - service: switch.turn_on
+                            entity_id: switch.tapo_camera_c200_privacy
+            default:
+              - service: notify.alexus
+                data:
+                    title: "{{'\U000026A0'}} ПОМИЛКА {{'\U0000203C'}}{{'\U0000203C'}}"
+                    message: |
+                        {{"\U0001F3A6"}} Камера недоступна {{'\U0000203C'}}
+          - service: notify.alexus
+            data:
+                message: *camera_photo_body
+                data: 
+                  inline_keyboard: *camera_photo_keyb
+          mode: single
+
+        - alias: "Telegram: Camera Photo Living Room Menu"
+          id: telegram_menu_camera_photo_living_room
+          trigger:
+            platform: event
+            event_type: telegram_callback
+            event_data:
+              command: '/camera_menu_photo_living_room'
+          action:
+          - variables:
+                tapo_camera_privacy_mode: '{{ states("switch.tapo_camera_c200_privacy") }}'
+                snapshot_file_name_begin: |
+                    {{ "/config/files/camera/" + state_attr('camera.tapo_camera_c200_hd_stream', 'friendly_name') + "/snapshot_patrol_" }}
+          - service: telegram_bot.delete_message
+            data:
+                message_id: 'last'
+                chat_id: !secret telegram_user_1
+          - choose:
+              - conditions:
+                  - condition: template
+                    value_template: > 
+                        {{ not states('camera.tapo_camera_c200_hd_stream') in ('unknown','unavailable') }}
+                sequence:
+                    # Disable privacy mode for tapo_camera
+                  - choose:
+                      - conditions:
+                          - condition: state
+                            entity_id: switch.tapo_camera_c200_privacy
+                            state: 'on'
+                        sequence:
+                          - service: switch.turn_off
+                            entity_id: switch.tapo_camera_c200_privacy
+                          - delay: '00:00:04'
+                    # Move tapo_camera to Living Room preset
+                  - service: select.select_option
+                    target:
+                        entity_id: select.tapo_camera_c200_move_to_preset
+                    data: 
+                        option: 'Living Room'
+                  - delay: '00:00:03'
+                    # take snapshot from Living Room area
+                  - variables:
+                        snapshot_file_name_end: |
+                            {{ now().strftime('%Y%m%d-%H%M%S') + ".jpg" }}
+                  - service: script.tapo_camera_save_snapshot
+                    data:
+                        tapo_camera_id: camera.tapo_camera_c200_hd_stream
+                        file_name: '{{ snapshot_file_name_begin }} + "living_room_" + {{ snapshot_file_name_end }}'
+                    # send snapshot to alexus mobile/telegram
+                  - choose:
+                      - conditions:
+                          - condition: state
+                            entity_id: binary_sensor.internet_connection_ping
+                            state: 'on'
+                        sequence:
+                          - service: notify.alexus
+                            data:
+                                message: 'Living Room'
+                                data:
+                                    photo:
+                                      - file: '{{ snapshot_file_name_begin }} + "living_room_" + {{ snapshot_file_name_end }}'
+                                        caption: 'Фото: Living Room'
+                    # restore privacy mode for tapo_camera
+                  - choose:
+                      - conditions:
+                          - condition: template
+                            value_template: "{{ tapo_camera_privacy_mode == 'on' }}"
+                          - condition: state
+                            entity_id: switch.tapo_camera_c200_privacy
+                            state: 'off'
+                        sequence:
+                          - service: switch.turn_on
+                            entity_id: switch.tapo_camera_c200_privacy
+            default:
+              - service: notify.alexus
+                data:
+                    title: "{{'\U000026A0'}} ПОМИЛКА {{'\U0000203C'}}{{'\U0000203C'}}"
+                    message: |
+                        {{"\U0001F3A6"}} Камера недоступна {{'\U0000203C'}}
+          - service: notify.alexus
+            data:
+                message: *camera_photo_body
+                data: 
+                  inline_keyboard: *camera_photo_keyb
+          mode: single
+
+        - alias: "Telegram: Camera Photo Bedroom Menu"
+          id: telegram_menu_camera_photo_bedroom
+          trigger:
+            platform: event
+            event_type: telegram_callback
+            event_data:
+              command: '/camera_menu_photo_bedroom'
+          action:
+          - variables:
+                tapo_camera_privacy_mode: '{{ states("switch.tapo_camera_c200_privacy") }}'
+                snapshot_file_name_begin: |
+                    {{ "/config/files/camera/" + state_attr('camera.tapo_camera_c200_hd_stream', 'friendly_name') + "/snapshot_patrol_" }}
+          - service: telegram_bot.delete_message
+            data:
+                message_id: 'last'
+                chat_id: !secret telegram_user_1
+          - choose:
+              - conditions:
+                  - condition: template
+                    value_template: > 
+                        {{ not states('camera.tapo_camera_c200_hd_stream') in ('unknown','unavailable') }}
+                sequence:
+                    # Disable privacy mode for tapo_camera
+                  - choose:
+                      - conditions:
+                          - condition: state
+                            entity_id: switch.tapo_camera_c200_privacy
+                            state: 'on'
+                        sequence:
+                          - service: switch.turn_off
+                            entity_id: switch.tapo_camera_c200_privacy
+                          - delay: '00:00:04'
+                    # Move tapo_camera to Bedroom preset
+                  - service: select.select_option
+                    target:
+                        entity_id: select.tapo_camera_c200_move_to_preset
+                    data: 
+                        option: 'Bedroom'
+                  - delay: '00:00:03'
+                    # take snapshot from Bedroom area
+                  - variables:
+                        snapshot_file_name_end: |
+                            {{ now().strftime('%Y%m%d-%H%M%S') + ".jpg" }}
+                  - service: script.tapo_camera_save_snapshot
+                    data:
+                        tapo_camera_id: camera.tapo_camera_c200_hd_stream
+                        file_name: '{{ snapshot_file_name_begin }} + "bedroom_" + {{ snapshot_file_name_end }}'
+                    # send snapshot to alexus mobile/telegram
+                  - choose:
+                      - conditions:
+                          - condition: state
+                            entity_id: binary_sensor.internet_connection_ping
+                            state: 'on'
+                        sequence:
+                          - service: notify.alexus
+                            data:
+                                message: 'Bedroom'
+                                data:
+                                    photo:
+                                      - file: '{{ snapshot_file_name_begin }} + "bedroom_" + {{ snapshot_file_name_end }}'
+                                        caption: 'Фото: Bedroom'
+                    # restore privacy mode for tapo_camera
+                  - choose:
+                      - conditions:
+                          - condition: template
+                            value_template: "{{ tapo_camera_privacy_mode == 'on' }}"
+                          - condition: state
+                            entity_id: switch.tapo_camera_c200_privacy
+                            state: 'off'
+                        sequence:
+                          - service: switch.turn_on
+                            entity_id: switch.tapo_camera_c200_privacy
+            default:
+              - service: notify.alexus
+                data:
+                    title: "{{'\U000026A0'}} ПОМИЛКА {{'\U0000203C'}}{{'\U0000203C'}}"
+                    message: |
+                        {{"\U0001F3A6"}} Камера недоступна {{'\U0000203C'}}
+          - service: notify.alexus
+            data:
+                message: *camera_photo_body
+                data: 
+                  inline_keyboard: *camera_photo_keyb
+          mode: single
+
+        - alias: "Telegram: Camera Photo Kitchen Menu"
+          id: telegram_menu_camera_photo_kitchen
+          trigger:
+            platform: event
+            event_type: telegram_callback
+            event_data:
+              command: '/camera_menu_photo_kitchen'
+          action:
+          - variables:
+                tapo_camera_privacy_mode: '{{ states("switch.tapo_camera_c200_privacy") }}'
+                snapshot_file_name_begin: |
+                    {{ "/config/files/camera/" + state_attr('camera.tapo_camera_c200_hd_stream', 'friendly_name') + "/snapshot_patrol_" }}
+          - service: telegram_bot.delete_message
+            data:
+                message_id: 'last'
+                chat_id: !secret telegram_user_1
+          - choose:
+              - conditions:
+                  - condition: template
+                    value_template: > 
+                        {{ not states('camera.tapo_camera_c200_hd_stream') in ('unknown','unavailable') }}
+                sequence:
+                    # Disable privacy mode for tapo_camera
+                  - choose:
+                      - conditions:
+                          - condition: state
+                            entity_id: switch.tapo_camera_c200_privacy
+                            state: 'on'
+                        sequence:
+                          - service: switch.turn_off
+                            entity_id: switch.tapo_camera_c200_privacy
+                          - delay: '00:00:04'
+                    # Move tapo_camera to Kitchen preset
+                  - service: select.select_option
+                    target:
+                        entity_id: select.tapo_camera_c200_move_to_preset
+                    data: 
+                        option: 'Kitchen'
+                  - delay: '00:00:03'
+                    # take snapshot from Kitchen area
+                  - variables:
+                        snapshot_file_name_end: |
+                            {{ now().strftime('%Y%m%d-%H%M%S') + ".jpg" }}
+                  - service: script.tapo_camera_save_snapshot
+                    data:
+                        tapo_camera_id: camera.tapo_camera_c200_hd_stream
+                        file_name: '{{ snapshot_file_name_begin }} + "kitchen_" + {{ snapshot_file_name_end }}'
+                    # send snapshot to alexus mobile/telegram
+                  - choose:
+                      - conditions:
+                          - condition: state
+                            entity_id: binary_sensor.internet_connection_ping
+                            state: 'on'
+                        sequence:
+                          - service: notify.alexus
+                            data:
+                                message: 'Kichen'
+                                data:
+                                    photo:
+                                      - file: '{{ snapshot_file_name_begin }} + "kitchen_" + {{ snapshot_file_name_end }}'
+                                        caption: 'Фото: Kitchen'
+                    # restore privacy mode for tapo_camera
+                  - choose:
+                      - conditions:
+                          - condition: template
+                            value_template: "{{ tapo_camera_privacy_mode == 'on' }}"
+                          - condition: state
+                            entity_id: switch.tapo_camera_c200_privacy
+                            state: 'off'
+                        sequence:
+                          - service: switch.turn_on
+                            entity_id: switch.tapo_camera_c200_privacy
+            default:
+              - service: notify.alexus
+                data:
+                    title: "{{'\U000026A0'}} ПОМИЛКА {{'\U0000203C'}}{{'\U0000203C'}}"
+                    message: |
+                        {{"\U0001F3A6"}} Камера недоступна {{'\U0000203C'}}
+          - service: notify.alexus
+            data:
+                message: *camera_photo_body
+                data: 
+                  inline_keyboard: *camera_photo_keyb
+          mode: single
+
+        - alias: "Telegram: Camera Photo Bathroom Menu"
+          id: telegram_menu_camera_photo_bathroom
+          trigger:
+            platform: event
+            event_type: telegram_callback
+            event_data:
+              command: '/camera_menu_photo_bathroom'
+          action:
+          - variables:
+                tapo_camera_privacy_mode: '{{ states("switch.tapo_camera_c200_privacy") }}'
+                snapshot_file_name_begin: |
+                    {{ "/config/files/camera/" + state_attr('camera.tapo_camera_c200_hd_stream', 'friendly_name') + "/snapshot_patrol_" }}
+          - service: telegram_bot.delete_message
+            data:
+                message_id: 'last'
+                chat_id: !secret telegram_user_1
+          - choose:
+              - conditions:
+                  - condition: template
+                    value_template: > 
+                        {{ not states('camera.tapo_camera_c200_hd_stream') in ('unknown','unavailable') }}
+                sequence:
+                    # Disable privacy mode for tapo_camera
+                  - choose:
+                      - conditions:
+                          - condition: state
+                            entity_id: switch.tapo_camera_c200_privacy
+                            state: 'on'
+                        sequence:
+                          - service: switch.turn_off
+                            entity_id: switch.tapo_camera_c200_privacy
+                          - delay: '00:00:04'
+                    # Move tapo_camera to Bathroom preset
+                  - service: select.select_option
+                    target:
+                        entity_id: select.tapo_camera_c200_move_to_preset
+                    data: 
+                        option: 'Bathroom'
+                  - delay: '00:00:03'
+                    # take snapshot from Bathroom area
+                  - variables:
+                        snapshot_file_name_end: |
+                            {{ now().strftime('%Y%m%d-%H%M%S') + ".jpg" }}
+                  - service: script.tapo_camera_save_snapshot
+                    data:
+                        tapo_camera_id: camera.tapo_camera_c200_hd_stream
+                        file_name: '{{ snapshot_file_name_begin }} + "bathroom_" + {{ snapshot_file_name_end }}'
+                    # send snapshot to alexus mobile/telegram
+                  - choose:
+                      - conditions:
+                          - condition: state
+                            entity_id: binary_sensor.internet_connection_ping
+                            state: 'on'
+                        sequence:
+                          - service: notify.alexus
+                            data:
+                                message: 'Bathroom'
+                                data:
+                                    photo:
+                                      - file: '{{ snapshot_file_name_begin }} + "bathroom_" + {{ snapshot_file_name_end }}'
+                                        caption: 'Фото: Bathroom'
+                    # restore privacy mode for tapo_camera
+                  - choose:
+                      - conditions:
+                          - condition: template
+                            value_template: "{{ tapo_camera_privacy_mode == 'on' }}"
+                          - condition: state
+                            entity_id: switch.tapo_camera_c200_privacy
+                            state: 'off'
+                        sequence:
+                          - service: switch.turn_on
+                            entity_id: switch.tapo_camera_c200_privacy
+            default:
+              - service: notify.alexus
+                data:
+                    title: "{{'\U000026A0'}} ПОМИЛКА {{'\U0000203C'}}{{'\U0000203C'}}"
+                    message: |
+                        {{"\U0001F3A6"}} Камера недоступна {{'\U0000203C'}}
+          - service: notify.alexus
+            data:
+                message: *camera_photo_body
+                data: 
+                  inline_keyboard: *camera_photo_keyb
+          mode: single
+
+        - alias: "Telegram: Camera Video Patrol Menu"
+          id: telegram_menu_camera_video_patrol
+          trigger:
+            platform: event
+            event_type: telegram_callback
+            event_data:
+              command: '/camera_menu_video_patrol'
+          action:
+          - variables:
+                tapo_camera_privacy_mode: '{{ states("switch.tapo_camera_c200_privacy") }}'
+                record_file_name: |
+                    {{ "/config/files/camera/" + state_attr('camera.tapo_camera_c200_hd_stream', 'friendly_name') +  "/record_patrol_" + now().strftime('%Y%m%d-%H%M%S') + ".mp4" }}
+          - service: telegram_bot.delete_message
+            data:
+                message_id: 'last'
+                chat_id: !secret telegram_user_1
+          - choose:
+              - conditions:
+                  - condition: template
+                    value_template: > 
+                        {{ not states('camera.tapo_camera_c200_hd_stream') in ('unknown','unavailable') }}
+                sequence:
+                    # Disable privacy mode for tapo_camera
+                  - choose:
+                      - conditions:
+                          - condition: state
+                            entity_id: switch.tapo_camera_c200_privacy
+                            state: 'on'
+                        sequence:
+                          - service: switch.turn_off
+                            entity_id: switch.tapo_camera_c200_privacy
+                          - delay: '00:00:04'
+                    # Move tapo_camera to Entrance preset
+                  - service: select.select_option
+                    target:
+                        entity_id: select.tapo_camera_c200_move_to_preset
+                    data: 
+                        option: 'Entrance'
+                  - delay: '00:00:03'
+                    # activate horizontal patrol mode
+                  - service: select.select_option
+                    target:
+                        entity_id: select.tapo_camera_c200_patrol_mode
+                    data: 
+                        option: 'Horizontal'
+                    # record short video
+                  - service: script.tapo_camera_save_record
+                    data:
+                        tapo_camera_id: camera.tapo_camera_c200_hd_stream
+                        file_name: '{{ record_file_name }}'
+                        time_duration: 20
+                  - service: select.select_option
+                    target:
+                        entity_id: select.tapo_camera_c200_patrol_mode
+                    data: 
+                        option: 'off'
+                    # send record
+                  - choose:
+                      - conditions:
+                          - condition: state
+                            entity_id: binary_sensor.internet_connection_ping
+                            state: 'on'
+                        sequence:
+                          - service: notify.alexus
+                            data:
+                                message: 'Відео обзор'
+                                data:
+                                    video:
+                                      - file: '{{ record_file_name }}'
+                                        caption: 'Відео: Patrol'
+                    # restore privacy mode for tapo_camera
+                  - choose:
+                      - conditions:
+                          - condition: template
+                            value_template: "{{ tapo_camera_privacy_mode == 'on' }}"
+                          - condition: state
+                            entity_id: switch.tapo_camera_c200_privacy
+                            state: 'off'
+                        sequence:
+                          - service: switch.turn_on
+                            entity_id: switch.tapo_camera_c200_privacy
+            default:
+              - service: notify.alexus
+                data:
+                    title: "{{'\U000026A0'}} ПОМИЛКА {{'\U0000203C'}}{{'\U0000203C'}}"
+                    message: |
+                        {{"\U0001F3A6"}} Камера недоступна {{'\U0000203C'}}
+          - service: notify.alexus
+            data:
+                message: *camera_video_body
+                data: 
+                  inline_keyboard: *camera_video_keyb
+          mode: single
+
+        - alias: "Telegram: Camera Video Entrance Menu"
+          id: telegram_menu_camera_video_entrance
+          trigger:
+            platform: event
+            event_type: telegram_callback
+            event_data:
+              command: '/camera_menu_video_entrance'
+          action:
+          - variables:
+                tapo_camera_privacy_mode: '{{ states("switch.tapo_camera_c200_privacy") }}'
+                record_file_name: |
+                    {{ "/config/files/camera/" + state_attr('camera.tapo_camera_c200_hd_stream', 'friendly_name') +  "/record_entrance_door_" + now().strftime('%Y%m%d-%H%M%S') + ".mp4" }}
+          - service: telegram_bot.delete_message
+            data:
+                message_id: 'last'
+                chat_id: !secret telegram_user_1
+          - choose:
+              - conditions:
+                  - condition: template
+                    value_template: > 
+                        {{ not states('camera.tapo_camera_c200_hd_stream') in ('unknown','unavailable') }}
+                sequence:
+                    # Disable privacy mode for tapo_camera
+                  - choose:
+                      - conditions:
+                          - condition: state
+                            entity_id: switch.tapo_camera_c200_privacy
+                            state: 'on'
+                        sequence:
+                          - service: switch.turn_off
+                            entity_id: switch.tapo_camera_c200_privacy
+                          - delay: '00:00:04'
+                    # Move tapo_camera to Entrance preset
+                  - service: select.select_option
+                    target:
+                        entity_id: select.tapo_camera_c200_move_to_preset
+                    data: 
+                        option: 'Entrance'
+                  - delay: '00:00:03'
+                    # record short video
+                  - service: script.tapo_camera_save_record
+                    data:
+                        tapo_camera_id: camera.tapo_camera_c200_hd_stream
+                        file_name: '{{ record_file_name }}'
+                        time_duration: 15
+                    # send record
+                  - choose:
+                      - conditions:
+                          - condition: state
+                            entity_id: binary_sensor.internet_connection_ping
+                            state: 'on'
+                        sequence:
+                          - service: notify.alexus
+                            data:
+                                message: 'Відео обзор'
+                                data:
+                                    video:
+                                      - file: '{{ record_file_name }}'
+                                        caption: 'Відео: Entrance'
+                    # restore privacy mode for tapo_camera
+                  - choose:
+                      - conditions:
+                          - condition: template
+                            value_template: "{{ tapo_camera_privacy_mode == 'on' }}"
+                          - condition: state
+                            entity_id: switch.tapo_camera_c200_privacy
+                            state: 'off'
+                        sequence:
+                          - service: switch.turn_on
+                            entity_id: switch.tapo_camera_c200_privacy
+            default:
+              - service: notify.alexus
+                data:
+                    title: "{{'\U000026A0'}} ПОМИЛКА {{'\U0000203C'}}{{'\U0000203C'}}"
+                    message: |
+                        {{"\U0001F3A6"}} Камера недоступна {{'\U0000203C'}}
+          - service: notify.alexus
+            data:
+                message: *camera_video_body
+                data: 
+                  inline_keyboard: *camera_video_keyb
+          mode: single
+
+        - alias: "Telegram: Camera Video Living Room Menu"
+          id: telegram_menu_camera_video_living_room
+          trigger:
+            platform: event
+            event_type: telegram_callback
+            event_data:
+              command: '/camera_menu_video_living_room'
+          action:
+          - variables:
+                tapo_camera_privacy_mode: '{{ states("switch.tapo_camera_c200_privacy") }}'
+                record_file_name: |
+                    {{ "/config/files/camera/" + state_attr('camera.tapo_camera_c200_hd_stream', 'friendly_name') +  "/record_living_room_" + now().strftime('%Y%m%d-%H%M%S') + ".mp4" }}
+          - service: telegram_bot.delete_message
+            data:
+                message_id: 'last'
+                chat_id: !secret telegram_user_1
+          - choose:
+              - conditions:
+                  - condition: template
+                    value_template: > 
+                        {{ not states('camera.tapo_camera_c200_hd_stream') in ('unknown','unavailable') }}
+                sequence:
+                    # Disable privacy mode for tapo_camera
+                  - choose:
+                      - conditions:
+                          - condition: state
+                            entity_id: switch.tapo_camera_c200_privacy
+                            state: 'on'
+                        sequence:
+                          - service: switch.turn_off
+                            entity_id: switch.tapo_camera_c200_privacy
+                          - delay: '00:00:04'
+                    # Move tapo_camera to Living Room preset
+                  - service: select.select_option
+                    target:
+                        entity_id: select.tapo_camera_c200_move_to_preset
+                    data: 
+                        option: 'Living Room'
+                  - delay: '00:00:03'
+                    # record short video
+                  - service: script.tapo_camera_save_record
+                    data:
+                        tapo_camera_id: camera.tapo_camera_c200_hd_stream
+                        file_name: '{{ record_file_name }}'
+                        time_duration: 15
+                    # send record
+                  - choose:
+                      - conditions:
+                          - condition: state
+                            entity_id: binary_sensor.internet_connection_ping
+                            state: 'on'
+                        sequence:
+                          - service: notify.alexus
+                            data:
+                                message: 'Відео обзор'
+                                data:
+                                    video:
+                                      - file: '{{ record_file_name }}'
+                                        caption: 'Відео: Living Room'
+                    # restore privacy mode for tapo_camera
+                  - choose:
+                      - conditions:
+                          - condition: template
+                            value_template: "{{ tapo_camera_privacy_mode == 'on' }}"
+                          - condition: state
+                            entity_id: switch.tapo_camera_c200_privacy
+                            state: 'off'
+                        sequence:
+                          - service: switch.turn_on
+                            entity_id: switch.tapo_camera_c200_privacy
+            default:
+              - service: notify.alexus
+                data:
+                    title: "{{'\U000026A0'}} ПОМИЛКА {{'\U0000203C'}}{{'\U0000203C'}}"
+                    message: |
+                        {{"\U0001F3A6"}} Камера недоступна {{'\U0000203C'}}
+          - service: notify.alexus
+            data:
+                message: *camera_video_body
+                data: 
+                  inline_keyboard: *camera_video_keyb
+          mode: single
+
+        - alias: "Telegram: Camera Video Bedroom Menu"
+          id: telegram_menu_camera_video_bedroom
+          trigger:
+            platform: event
+            event_type: telegram_callback
+            event_data:
+              command: '/camera_menu_video_bedroom'
+          action:
+          - variables:
+                tapo_camera_privacy_mode: '{{ states("switch.tapo_camera_c200_privacy") }}'
+                record_file_name: |
+                    {{ "/config/files/camera/" + state_attr('camera.tapo_camera_c200_hd_stream', 'friendly_name') +  "/record_bedroom_" + now().strftime('%Y%m%d-%H%M%S') + ".mp4" }}
+          - service: telegram_bot.delete_message
+            data:
+                message_id: 'last'
+                chat_id: !secret telegram_user_1
+          - choose:
+              - conditions:
+                  - condition: template
+                    value_template: > 
+                        {{ not states('camera.tapo_camera_c200_hd_stream') in ('unknown','unavailable') }}
+                sequence:
+                    # Disable privacy mode for tapo_camera
+                  - choose:
+                      - conditions:
+                          - condition: state
+                            entity_id: switch.tapo_camera_c200_privacy
+                            state: 'on'
+                        sequence:
+                          - service: switch.turn_off
+                            entity_id: switch.tapo_camera_c200_privacy
+                          - delay: '00:00:04'
+                    # Move tapo_camera to Bedroom preset
+                  - service: select.select_option
+                    target:
+                        entity_id: select.tapo_camera_c200_move_to_preset
+                    data: 
+                        option: 'Bedroom'
+                  - delay: '00:00:03'
+                    # record short video
+                  - service: script.tapo_camera_save_record
+                    data:
+                        tapo_camera_id: camera.tapo_camera_c200_hd_stream
+                        file_name: '{{ record_file_name }}'
+                        time_duration: 15
+                    # send record
+                  - choose:
+                      - conditions:
+                          - condition: state
+                            entity_id: binary_sensor.internet_connection_ping
+                            state: 'on'
+                        sequence:
+                          - service: notify.alexus
+                            data:
+                                message: 'Відео обзор'
+                                data:
+                                    video:
+                                      - file: '{{ record_file_name }}'
+                                        caption: 'Відео: Bedroom'
+                    # restore privacy mode for tapo_camera
+                  - choose:
+                      - conditions:
+                          - condition: template
+                            value_template: "{{ tapo_camera_privacy_mode == 'on' }}"
+                          - condition: state
+                            entity_id: switch.tapo_camera_c200_privacy
+                            state: 'off'
+                        sequence:
+                          - service: switch.turn_on
+                            entity_id: switch.tapo_camera_c200_privacy
+            default:
+              - service: notify.alexus
+                data:
+                    title: "{{'\U000026A0'}} ПОМИЛКА {{'\U0000203C'}}{{'\U0000203C'}}"
+                    message: |
+                        {{"\U0001F3A6"}} Камера недоступна {{'\U0000203C'}}
+          - service: notify.alexus
+            data:
+                message: *camera_video_body
+                data: 
+                  inline_keyboard: *camera_video_keyb
+          mode: single
+
+        - alias: "Telegram: Camera Video Kitchen Menu"
+          id: telegram_menu_camera_video_kitchen
+          trigger:
+            platform: event
+            event_type: telegram_callback
+            event_data:
+              command: '/camera_menu_video_kitchen'
+          action:
+          - variables:
+                tapo_camera_privacy_mode: '{{ states("switch.tapo_camera_c200_privacy") }}'
+                record_file_name: |
+                    {{ "/config/files/camera/" + state_attr('camera.tapo_camera_c200_hd_stream', 'friendly_name') +  "/record_kitchen_" + now().strftime('%Y%m%d-%H%M%S') + ".mp4" }}
+          - service: telegram_bot.delete_message
+            data:
+                message_id: 'last'
+                chat_id: !secret telegram_user_1
+          - choose:
+              - conditions:
+                  - condition: template
+                    value_template: > 
+                        {{ not states('camera.tapo_camera_c200_hd_stream') in ('unknown','unavailable') }}
+                sequence:
+                    # Disable privacy mode for tapo_camera
+                  - choose:
+                      - conditions:
+                          - condition: state
+                            entity_id: switch.tapo_camera_c200_privacy
+                            state: 'on'
+                        sequence:
+                          - service: switch.turn_off
+                            entity_id: switch.tapo_camera_c200_privacy
+                          - delay: '00:00:04'
+                    # Move tapo_camera to Kitchen preset
+                  - service: select.select_option
+                    target:
+                        entity_id: select.tapo_camera_c200_move_to_preset
+                    data: 
+                        option: 'Kitchen'
+                  - delay: '00:00:03'
+                    # record short video
+                  - service: script.tapo_camera_save_record
+                    data:
+                        tapo_camera_id: camera.tapo_camera_c200_hd_stream
+                        file_name: '{{ record_file_name }}'
+                        time_duration: 15
+                    # send record
+                  - choose:
+                      - conditions:
+                          - condition: state
+                            entity_id: binary_sensor.internet_connection_ping
+                            state: 'on'
+                        sequence:
+                          - service: notify.alexus
+                            data:
+                                message: 'Відео обзор'
+                                data:
+                                    video:
+                                      - file: '{{ record_file_name }}'
+                                        caption: 'Відео: Kitchen'
+                    # restore privacy mode for tapo_camera
+                  - choose:
+                      - conditions:
+                          - condition: template
+                            value_template: "{{ tapo_camera_privacy_mode == 'on' }}"
+                          - condition: state
+                            entity_id: switch.tapo_camera_c200_privacy
+                            state: 'off'
+                        sequence:
+                          - service: switch.turn_on
+                            entity_id: switch.tapo_camera_c200_privacy
+            default:
+              - service: notify.alexus
+                data:
+                    title: "{{'\U000026A0'}} ПОМИЛКА {{'\U0000203C'}}{{'\U0000203C'}}"
+                    message: |
+                        {{"\U0001F3A6"}} Камера недоступна {{'\U0000203C'}}
+          - service: notify.alexus
+            data:
+                message: *camera_video_body
+                data: 
+                  inline_keyboard: *camera_video_keyb
+          mode: single
+
+        - alias: "Telegram: Camera Video Bathroom Menu"
+          id: telegram_menu_camera_video_bathroom
+          trigger:
+            platform: event
+            event_type: telegram_callback
+            event_data:
+              command: '/camera_menu_video_bathroom'
+          action:
+          - variables:
+                tapo_camera_privacy_mode: '{{ states("switch.tapo_camera_c200_privacy") }}'
+                record_file_name: |
+                    {{ "/config/files/camera/" + state_attr('camera.tapo_camera_c200_hd_stream', 'friendly_name') +  "/record_bathroom_" + now().strftime('%Y%m%d-%H%M%S') + ".mp4" }}
+          - service: telegram_bot.delete_message
+            data:
+                message_id: 'last'
+                chat_id: !secret telegram_user_1
+          - choose:
+              - conditions:
+                  - condition: template
+                    value_template: > 
+                        {{ not states('camera.tapo_camera_c200_hd_stream') in ('unknown','unavailable') }}
+                sequence:
+                    # Disable privacy mode for tapo_camera
+                  - choose:
+                      - conditions:
+                          - condition: state
+                            entity_id: switch.tapo_camera_c200_privacy
+                            state: 'on'
+                        sequence:
+                          - service: switch.turn_off
+                            entity_id: switch.tapo_camera_c200_privacy
+                          - delay: '00:00:04'
+                    # Move tapo_camera to Bathroom preset
+                  - service: select.select_option
+                    target:
+                        entity_id: select.tapo_camera_c200_move_to_preset
+                    data: 
+                        option: 'Bathroom'
+                  - delay: '00:00:03'
+                    # record short video
+                  - service: script.tapo_camera_save_record
+                    data:
+                        tapo_camera_id: camera.tapo_camera_c200_hd_stream
+                        file_name: '{{ record_file_name }}'
+                        time_duration: 15
+                    # send record
+                  - choose:
+                      - conditions:
+                          - condition: state
+                            entity_id: binary_sensor.internet_connection_ping
+                            state: 'on'
+                        sequence:
+                          - service: notify.alexus
+                            data:
+                                message: 'Відео обзор'
+                                data:
+                                    video:
+                                      - file: '{{ record_file_name }}'
+                                        caption: 'Відео: Bathroom'
+                    # restore privacy mode for tapo_camera
+                  - choose:
+                      - conditions:
+                          - condition: template
+                            value_template: "{{ tapo_camera_privacy_mode == 'on' }}"
+                          - condition: state
+                            entity_id: switch.tapo_camera_c200_privacy
+                            state: 'off'
+                        sequence:
+                          - service: switch.turn_on
+                            entity_id: switch.tapo_camera_c200_privacy
+            default:
+              - service: notify.alexus
+                data:
+                    title: "{{'\U000026A0'}} ПОМИЛКА {{'\U0000203C'}}{{'\U0000203C'}}"
+                    message: |
+                        {{"\U0001F3A6"}} Камера недоступна {{'\U0000203C'}}
+          - service: notify.alexus
+            data:
+                message: *camera_video_body
+                data: 
+                  inline_keyboard: *camera_video_keyb
           mode: single
 
         - alias: "Telegram: Set Alarm Menu"
