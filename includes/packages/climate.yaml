@@ -26,6 +26,8 @@ climate_configuration:
               - sensor.loggia_tuya_weather_temperature
               - sensor.nous_weather_lcd_humidity
               - sensor.nous_weather_lcd_temperature
+              - sensor.school_7_temperature_humidity_sensor_temperature
+              - sensor.school_7_temperature_humidity_sensor_humidity
               - sensor.lr_levoit_air_purifier_300s_air_quality
               - sensor.lr_levoit_air_purifier_300s_air_quality_value
               - sensor.lr_levoit_air_purifier_300s_filter_life
@@ -80,9 +82,9 @@ climate_configuration:
         climate_target_temperature:
             name: 'Climate Target Temperature'
             mode: box
-            min: 18
-            max: 28
-            step: 1
+            min: 18.0
+            max: 28.0
+            step: 0.5
             unit_of_measurement: '°C'
 
     input_boolean:
@@ -105,6 +107,14 @@ climate_configuration:
 
         disable_climate:
             name: Disable Climate Automations
+            icon: mdi:thermometer-off
+
+        disable_climate_bedroom:
+            name: Disable Bedroom Climate Automations
+            icon: mdi:thermometer-off
+
+        disable_climate_living_room:
+            name: Disable Living Room Climate Automations
             icon: mdi:thermometer-off
 
         disable_climate_notifications:
@@ -377,7 +387,7 @@ climate_configuration:
                   - climate.living_room_heater
                   - climate.living_room_ac
             data:
-                temperature: "{{ states('input_number.climate_target_temperature') | int }}"
+                temperature: "{{ states('input_number.climate_target_temperature') | float }}"
         mode: single
 
     # =================== Pause/Start Climate when Windows/Doors are Openned/Closed =======
@@ -393,9 +403,13 @@ climate_configuration:
             for:
                 minutes: 3
         condition:
-          - condition: state
-            entity_id: input_boolean.disable_climate
-            state: 'off'
+          - or:
+              - condition: state
+                entity_id: input_boolean.disable_climate
+                state: 'off'
+              - condition: state
+                entity_id: input_boolean.disable_climate_living_room
+                state: 'off'
         action:
           - choose:
               - conditions:
@@ -472,9 +486,13 @@ climate_configuration:
             for:
                 minutes: 1
         condition:
-          - condition: state
-            entity_id: input_boolean.disable_climate
-            state: 'off'
+          - or:
+              - condition: state
+                entity_id: input_boolean.disable_climate
+                state: 'off'
+              - condition: state
+                entity_id: input_boolean.disable_climate_living_room
+                state: 'off'
         action:
           - choose:
               - conditions:
@@ -513,7 +531,7 @@ climate_configuration:
                     after: "08:00:00"
                     before: "23:00:00"
                   - condition: state
-                    entity_id: binary_sensor.bedroom_air_conditioner_socket_status
+                    entity_id: binary_sensor.living_room_air_conditioner_socket_status
                     state: 'off'
                   - condition: state
                     entity_id: input_boolean.living_room_ac_status
@@ -568,9 +586,13 @@ climate_configuration:
             for:
                 minutes: 3
         condition:
-          - condition: state
-            entity_id: input_boolean.disable_climate
-            state: 'off'
+          - or:
+              - condition: state
+                entity_id: input_boolean.disable_climate
+                state: 'off'
+              - condition: state
+                entity_id: input_boolean.disable_climate_bedroom
+                state: 'off'
         action:
           - choose:
               - conditions:
@@ -646,9 +668,13 @@ climate_configuration:
             for:
                 minutes: 1
         condition:
-          - condition: state
-            entity_id: input_boolean.disable_climate
-            state: 'off'
+          - or:
+              - condition: state
+                entity_id: input_boolean.disable_climate
+                state: 'off'
+              - condition: state
+                entity_id: input_boolean.disable_climate_bedroom
+                state: 'off'
         action:
           - choose:
               - conditions:
@@ -745,11 +771,14 @@ climate_configuration:
           - condition: state
             entity_id: input_boolean.disable_home_away
             state: 'off'
-          - condition: state
-            entity_id: input_boolean.disable_climate
-            state: 'off'
-          - condition: not
-            conditions:
+          - or:
+              - condition: state
+                entity_id: input_boolean.disable_climate
+                state: 'off'
+              - condition: state
+                entity_id: input_boolean.disable_climate_bedroom
+                state: 'off'
+          - not:
               - condition: state
                 entity_id: group.family
                 state: 'home'
@@ -839,6 +868,14 @@ climate_configuration:
                     entity_id: input_boolean.heating_status
                     state: 'on'
                 sequence:
+                  - service: climate.set_temperature
+                    target:
+                        entity_id: 
+                          - climate.kitchen_heater
+                          - climate.bedroom_heater
+                          - climate.living_room_heater
+                    data:
+                        temperature: "{{ states('input_number.climate_target_temperature') | float }}"
                   - choose: # living_room
                       - conditions:
                           - condition: state
@@ -1312,7 +1349,7 @@ climate_configuration:
             entity_id: group.family
             state: 'home'
           - condition: time
-            after: "08:00:00"
+            after: "07:00:00"
             before: "23:00:00"
           - condition: template
             value_template: > 
@@ -1329,8 +1366,7 @@ climate_configuration:
         action:
           - choose: # set hvac_mode to 'cool' for Living_Room_AC
               - conditions:
-                  - condition: or
-                    conditions:
+                  - or:
                       - not:
                           - condition: state
                             entity_id: climate.living_room_ac
@@ -1343,6 +1379,9 @@ climate_configuration:
                   - condition: state
                     entity_id: binary_sensor.living_room_loggia_door_contact
                     state: 'off'
+                  - condition: state
+                    entity_id: input_boolean.disable_climate_living_room
+                    state: 'off'
                 sequence: 
                   - service: script.climate_turn_on_ac
                     data: 
@@ -1351,8 +1390,7 @@ climate_configuration:
                         ac_socket_entity: switch.living_room_air_conditioner_socket
           - choose: # set hvac_mode to 'cool' for Bedroom_AC
               - conditions:
-                  - condition: or
-                    conditions:
+                  - or:
                       - not:
                           - condition: state
                             entity_id: climate.bedroom_ac
@@ -1366,6 +1404,9 @@ climate_configuration:
                   - condition: template
                     value_template: "{{ states('sensor.bedroom_average_temperature') | float(24) >= state_attr('climate.bedroom_ac','temperature') + 1 }}"
                     # value_template: "{{ states('sensor.bedroom_lumi_weather_temperature') | float(24) > state_attr('climate.bedroom_ac','temperature') + 1 }}"
+                  - condition: state
+                    entity_id: input_boolean.disable_climate_bedroom
+                    state: 'off'
                 sequence:
                   - service: script.climate_turn_on_ac
                     data: 
@@ -1397,7 +1438,7 @@ climate_configuration:
             entity_id: group.family
             state: 'home'
           - condition: time
-            after: "08:00:00"
+            after: "07:00:00"
             before: "23:00:00"
           - condition: template
             value_template: > 
@@ -1415,8 +1456,7 @@ climate_configuration:
         action:
           - choose: # set hvac_mode to 'heat' for Living_Room_AC
               - conditions:
-                  - condition: or
-                    conditions:
+                  - or:
                       - not:
                           - condition: state
                             entity_id: climate.living_room_ac
@@ -1428,6 +1468,9 @@ climate_configuration:
                     value_template: "{{ states('sensor.living_room_lumi_weather_temperature') | float(24) <= state_attr('climate.living_room_ac','temperature') - 1 }}"
                   - condition: state
                     entity_id: binary_sensor.living_room_loggia_door_contact
+                    state: 'off'
+                  - condition: state
+                    entity_id: input_boolean.disable_climate_living_room
                     state: 'off'
                 sequence: 
                   - service: script.climate_turn_on_ac
@@ -1452,6 +1495,9 @@ climate_configuration:
                   - condition: template 
                     value_template: "{{ states('sensor.bedroom_average_temperature') | float(24) <= state_attr('climate.bedroom_ac','temperature') - 1 }}"
                     # value_template: "{{ states('sensor.bedroom_lumi_weather_temperature') | float(24) < state_attr('climate.bedroom_ac','temperature') - 1 }}"
+                  - condition: state
+                    entity_id: input_boolean.disable_climate_bedroom
+                    state: 'off'
                 sequence:
                   - service: script.climate_turn_on_ac
                     data: 
@@ -1477,7 +1523,7 @@ climate_configuration:
             entity_id: input_boolean.ac_status
             state: 'on'
           - condition: time
-            after: "08:00:00"
+            after: "07:00:00"
             before: "23:00:00"
           - condition: template
             value_template: > 
@@ -1508,6 +1554,9 @@ climate_configuration:
                     state: 'cool'
                   - condition: template
                     value_template: "{{ states('sensor.living_room_lumi_weather_temperature') | float(24) <= state_attr('climate.living_room_ac','temperature') }}"
+                  - condition: state
+                    entity_id: input_boolean.disable_climate_living_room
+                    state: 'off'
                 sequence: 
                   - service: script.climate_turn_off_ac
                     data: 
@@ -1526,6 +1575,9 @@ climate_configuration:
                   - condition: template 
                     value_template: "{{ states('sensor.bedroom_average_temperature') | float(24) <= state_attr('climate.bedroom_ac','temperature') }}"
                     # value_template: "{{ states('sensor.bedroom_lumi_weather_temperature') | float(24) < state_attr('climate.bedroom_ac','temperature') }}"
+                  - condition: state
+                    entity_id: input_boolean.disable_climate_bedroom
+                    state: 'off'
                 sequence:
                   - service: script.climate_turn_off_ac
                     data: 
@@ -1552,7 +1604,7 @@ climate_configuration:
             entity_id: input_boolean.ac_status
             state: 'on'
           - condition: time
-            after: "08:00:00"
+            after: "07:00:00"
             before: "23:00:00"
           - condition: template
             value_template: > 
@@ -1583,6 +1635,9 @@ climate_configuration:
                     state: 'heat'
                   - condition: template
                     value_template: "{{ states('sensor.living_room_lumi_weather_temperature') | float(24) >= state_attr('climate.living_room_ac','temperature') }}"
+                  - condition: state
+                    entity_id: input_boolean.disable_climate_living_room
+                    state: 'off'
                 sequence: 
                   - service: script.climate_turn_off_ac
                     data: 
@@ -1601,6 +1656,9 @@ climate_configuration:
                   - condition: template 
                     value_template: "{{ states('sensor.bedroom_average_temperature') | float(24) >= state_attr('climate.bedroom_ac','temperature') }}"
                     # value_template: "{{ states('sensor.bedroom_lumi_weather_temperature') | float(24) > state_attr('climate.bedroom_ac','temperature') }}"
+                  - condition: state
+                    entity_id: input_boolean.disable_climate_bedroom
+                    state: 'off'
                 sequence:
                   - service: script.climate_turn_off_ac
                     data: 
@@ -1616,10 +1674,10 @@ climate_configuration:
         trigger:
           - platform: time
             at: '23:00:00'
-          - platform: time
-            at: '23:15:00'
-          - platform: time
-            at: '23:30:00'
+        #   - platform: time
+        #     at: '23:15:00'
+        #   - platform: time
+        #     at: '23:30:00'
         condition:
           - condition: state
             entity_id: input_boolean.ac_status
@@ -1763,6 +1821,97 @@ climate_configuration:
                       - "{{'\U0001F321'}} Клімат:/climate, {{'\U0001F4D1'}} Меню:/menu"
         mode: single
 
+      - alias: "Climate: Input Boolean Disable Climate Automation Status Change"
+        id: climate_input_boolean_disable_climate_automation_status_change
+        description: 'Зміна статусу перемикача заборони автоматизацій клімату'
+        trigger:
+          - platform: state
+            entity_id: 
+              - input_boolean.disable_climate
+              - input_boolean.disable_climate_bedroom
+              - input_boolean.disable_climate_living_room
+        action:
+          - choose:
+              - conditions:
+                  - condition: template
+                    value_template: '{{ trigger.entity_id == "input_boolean.disable_climate" }}'
+                sequence:
+                  - choose: 
+                      - conditions:
+                          - condition: state
+                            entity_id: input_boolean.disable_climate
+                            state: 'on'
+                        sequence:
+                          - choose:
+                              - conditions:
+                                  - or:
+                                      - condition: state
+                                        entity_id: input_boolean.disable_climate_living_room
+                                        state: 'off'
+                                      - condition: state
+                                        entity_id: input_boolean.disable_climate_bedroom
+                                        state: 'off'
+                                sequence:
+                                  - action: input_boolean.turn_on
+                                    entity_id:
+                                      - input_boolean.disable_climate_bedroom
+                                      - input_boolean.disable_climate_living_room
+                      - conditions:
+                          - condition: state
+                            entity_id: input_boolean.disable_climate
+                            state: 'off'
+                        sequence:
+                          - choose:
+                              - conditions:
+                                  - and:
+                                      - condition: state
+                                        entity_id: input_boolean.disable_climate_living_room
+                                        state: 'on'
+                                      - condition: state
+                                        entity_id: input_boolean.disable_climate_bedroom
+                                        state: 'on'
+                                sequence:
+                                  - action: input_boolean.turn_off
+                                    entity_id:
+                                      - input_boolean.disable_climate_bedroom
+                                      - input_boolean.disable_climate_living_room
+              - conditions:
+                  - condition: template
+                    value_template: >
+                        {{ (trigger.entity_id == "input_boolean.disable_climate_living_room") or
+                           (trigger.entity_id == "input_boolean.disable_climate_bedroom") }}
+                sequence:
+                  - choose: 
+                      - conditions:
+                          - and: 
+                              - condition: state
+                                entity_id: input_boolean.disable_climate_living_room
+                                state: 'on'
+                              - condition: state
+                                entity_id: input_boolean.disable_climate_bedroom
+                                state: 'on'
+                          - condition: state
+                            entity_id: input_boolean.disable_climate
+                            state: 'off'
+                        sequence:
+                          - action: input_boolean.turn_on
+                            entity_id: input_boolean.disable_climate
+                      - conditions:
+                          - or:
+                              - condition: state
+                                entity_id: input_boolean.disable_climate_living_room
+                                state: 'off'
+                              - condition: state
+                                entity_id: input_boolean.disable_climate_bedroom
+                                state: 'off'
+                          - condition: state
+                            entity_id: input_boolean.disable_climate
+                            state: 'on'
+                        sequence:
+                          - action: input_boolean.turn_off
+                            entity_id: input_boolean.disable_climate
+        mode: single
+
     # =================== Air Purifier Automations ===================
 
       - alias: "Climate: Change mode for Air Purifiers"
@@ -1797,7 +1946,7 @@ climate_configuration:
                                 {% set m_hour = now().hour %}
                                 {{ (m_hour > 22) or (m_hour < 8) }}
                         sequence:
-                          - service: fan.turn_on
+                          - action: fan.set_preset_mode
                             data:
                                 preset_mode: sleep
                             target:
@@ -1808,7 +1957,7 @@ climate_configuration:
                                 {% set m_hour = now().hour %}
                                 {{ (m_hour < 23) and (m_hour > 7) }}
                         sequence:
-                          - service: fan.turn_on
+                          - action: fan.set_preset_mode
                             data:
                                 preset_mode: auto
                             target:
@@ -1832,7 +1981,7 @@ climate_configuration:
                           - condition: template
                             value_template: "{{ not state_attr('fan.lr_levoit_air_purifier_300s','preset_mode') == 'sleep' }}"
                         sequence:
-                          - service: fan.turn_on
+                          - service: fan.set_preset_mode
                             data:
                                 preset_mode: sleep
                             target:
@@ -1845,11 +1994,12 @@ climate_configuration:
                           - condition: template
                             value_template: "{{ not state_attr('fan.lr_levoit_air_purifier_300s','preset_mode') == 'auto' }}"
                         sequence:
-                          - service: fan.turn_on
+                            action: fan.set_preset_mode
                             data:
-                                preset_mode: auto
+                              preset_mode: auto
                             target:
-                                entity_id: fan.lr_levoit_air_purifier_300s
+                              entity_id:
+                                - fan.lr_levoit_air_purifier_300s
               - conditions: # turn off
                   - condition: numeric_state
                     entity_id: sensor.lr_levoit_air_purifier_300s_air_quality_value
@@ -1860,7 +2010,9 @@ climate_configuration:
                   - condition: template
                     value_template: "{{ not state_attr('fan.lr_levoit_air_purifier_300s','preset_mode') == 'manual' }}"
                 sequence:
-                  - service: fan.turn_off
+                  - service: fan.set_percentage
                     target:
                         entity_id: fan.lr_levoit_air_purifier_300s
+                    data:
+                        percentage: 0
         mode: single
