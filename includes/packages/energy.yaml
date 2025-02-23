@@ -9,7 +9,6 @@ energy_config:
               - sensor.energy_active_tariff
               - binary_sensor.exceed_electricity_consumption_limit
               - binary_sensor.bedroom_air_conditioner_socket_status
-              - binary_sensor.bedroom_prusa_mk3_printer_socket_status
               - binary_sensor.bedroom_socket_heating_status
               - binary_sensor.living_room_air_conditioner_socket_status
               - binary_sensor.living_room_desktop_equipment_socket_status
@@ -20,7 +19,11 @@ energy_config:
               - binary_sensor.kitchen_socket_heating_status
               - binary_sensor.kitchen_coffee_machine_and_microwave_socket_status
               - binary_sensor.kitchen_oven_socket_status
+              - binary_sensor.ecoflow_charging_socket_status
+              - binary_sensor.ecoflow_charging_required
+              - binary_sensor.bluetti_charging_socket_status
               - binary_sensor.bathroom_washing_machine_socket_status
+              - binary_sensor.voltage_out_of_range
               - switch.living_room_aquarium_main_lighting
               - input_number.tarrif_energy_cost_calibrate_base
             entity_globs:
@@ -30,17 +33,19 @@ energy_config:
               - sensor.girier_socket_2_*
               - sensor.bathroom_washing_machine_socket*
               - sensor.bedroom_air_conditioner_socket*
-              - sensor.bedroom_prusa_mk3_printer_socket*
               - sensor.bedroom_socket_heating*
               - sensor.kitchen_socket_heating*
               - sensor.kitchen_coffee_machine_and_microwave_socket*
               - sensor.kitchen_oven_socket*
+              - sensor.ecoflow_charging_socket*
+              - sensor.bluetti_charging_socket*
               - sensor.living_room_aquarium_main_lighting*
               - sensor.living_room_air_conditioner_socket*
               - sensor.living_room_laptop_charging_socket*
               - sensor.living_room_ns_socket*
               - sensor.living_room_desktop_*
               - sensor.living_room_socket_heating*
+              - sensor.river_pro_*
               - switch.living_room_aquarium_power_strip_*
               - switch.*_socket*
 
@@ -48,6 +53,10 @@ energy_config:
         customize:
             binary_sensor.bathroom_washing_machine_socket_status:
                 friendly_name: 'Пральна Машина'
+            binary_sensor.ecoflow_charging_socket_status:
+                friendly_name: 'ECOFLOW - розетка, статус'
+            binary_sensor.bluetti_charging_socket_status:
+                friendly_name: 'BLUETTI - розетка, статус'
             binary_sensor.bedroom_air_conditioner_socket_status:
                 friendly_name: 'Кондиціонер у Спальні'
             binary_sensor.living_room_air_conditioner_socket_status:
@@ -64,6 +73,12 @@ energy_config:
                 friendly_name: 'Духовка на Кухні'
             binary_sensor.exceed_electricity_consumption_limit:
                 friendly_name: 'Перевищення Ліміту Споживання'
+            sensor.river_pro_main_full_capacity_wh:
+                friendly_name: 'RIVER Pro Main Full Capacity (Wh)'
+            sensor.river_pro_slave_full_capacity_wh:
+                friendly_name: 'RIVER Pro Slave Full Capacity (Wh)'
+            sensor.river_pro_total_full_capacity_wh:
+                friendly_name: 'RIVER Pro Total Full Capacity (Wh)'
             sensor.tuya_clamp_meter_monthly_total:
                 friendly_name: 'Споживання за Місяць (всього)'
             sensor.energy_counter_total:
@@ -80,6 +95,14 @@ energy_config:
                 friendly_name: 'Калібрування Тарифу на Електроенергію'
             input_number.electricity_consumption_limit:
                 friendly_name: 'Ліміт Споживання Електроенергії'
+            input_number.voltage_over_threshold:
+                friendly_name: 'Over Voltage Threshold'
+            input_number.voltage_under_threshold:
+                friendly_name: 'Under Voltage Threshold'
+            switch.ecoflow_charging_socket:
+                friendly_name: 'ECOFLOW - Розетка'
+            switch.bluetti_charging_socket:
+                friendly_name: 'BLUETTI - Розетка'
             switch.bathroom_washing_machine_socket:
                 friendly_name: 'Ванна - Пральна машина, Розетка'
             switch.bedroom_air_conditioner_socket:
@@ -128,7 +151,9 @@ energy_config:
                 icon: mdi:chart-histogram
             sensor.bedroom_socket_heating_integration:
                 icon: mdi:chart-histogram
-            sensor.bedroom_prusa_mk3_printer_socket_integration:
+            sensor.ecoflow_charging_socket_integration:
+                icon: mdi:chart-histogram
+            sensor.bluetti_charging_socket_integration:
                 icon: mdi:chart-histogram
             sensor.kitchen_socket_heating_integration:
                 icon: mdi:chart-histogram
@@ -155,13 +180,35 @@ energy_config:
             sensor.tuya_clamp_meter_integration:
                 icon: mdi:chart-histogram
 
+    input_datetime:
+
+        tarrif_energy_electric_heating_start_date:
+            name: Start Date for Electric Heating Period
+            has_date: true
+            has_time: false
+            initial: '2024-10-01'
+
+        tarrif_energy_electric_heating_finish_date:
+            name: Finish Date for Electric Heating Period
+            has_date: true
+            has_time: false
+            initial: '2025-04-30'
+
     input_number:
 
         tarrif_energy_cost_calibrate_base:
             mode: box
             min: 1.68
-            max: 99.999
-            step: 0.001
+            max: 99.99
+            step: 0.01
+            unit_of_measurement: ₴/kWh
+            icon: mdi:cash-multiple
+
+        tarrif_energy_cost_electric_heating_base:
+            mode: box
+            min: 1.68
+            max: 99.99
+            step: 0.01
             unit_of_measurement: ₴/kWh
             icon: mdi:cash-multiple
 
@@ -180,6 +227,22 @@ energy_config:
             step: 0.001
             unit_of_measurement: kWh
             icon: mdi:calculator-variant
+
+        voltage_under_threshold:
+            mode: slider
+            min: 175
+            max: 220
+            step: 1
+            unit_of_measurement: V
+            icon: mdi:flash-triangle-outline
+
+        voltage_over_threshold:
+            mode: slider
+            min: 220
+            max: 265
+            step: 1
+            unit_of_measurement: V
+            icon: mdi:flash-triangle-outline
 
         electricity_consumption_limit:
             mode: box
@@ -211,8 +274,8 @@ energy_config:
         entity_ids:
           - sensor.bathroom_washing_machine_socket_voltage
           - sensor.bedroom_air_conditioner_socket_voltage
-          - sensor.bedroom_prusa_mk3_printer_socket_voltage
           - sensor.bedroom_socket_heating_voltage
+          - sensor.bluetti_charging_socket_voltage
           - sensor.kitchen_socket_heating_voltage
           - sensor.kitchen_coffee_machine_and_microwave_socket_voltage
           - sensor.kitchen_oven_socket_voltage
@@ -224,6 +287,24 @@ energy_config:
         name: tuya_clamp_meter_integration
         unique_id: sensor_tuya_clamp_meter_integration
         source: sensor.tuya_clamp_meter_power
+        unit_prefix: k
+        unit_time: h
+        method: trapezoidal
+        round: 2
+
+      - platform: integration
+        name: ecoflow_charging_socket_integration
+        unique_id: sensor_ecoflow_charging_socket_socket_integration
+        source: sensor.ecoflow_charging_socket_power
+        unit_prefix: k
+        unit_time: h
+        method: trapezoidal
+        round: 2
+
+      - platform: integration
+        name: bluetti_charging_socket_integration
+        unique_id: sensor_bluetti_charging_socket_socket_integration
+        source: sensor.bluetti_charging_socket_power
         unit_prefix: k
         unit_time: h
         method: trapezoidal
@@ -278,15 +359,6 @@ energy_config:
         name: bedroom_air_conditioner_socket_integration
         unique_id: sensor_bedroom_air_conditioner_socket_integration
         source: sensor.bedroom_air_conditioner_socket_power
-        unit_prefix: k
-        unit_time: h
-        method: trapezoidal
-        round: 2
-
-      - platform: integration
-        name: bedroom_prusa_mk3_printer_socket_integration
-        unique_id: sensor_bedroom_prusa_mk3_printer_socket_integration
-        source: sensor.bedroom_prusa_mk3_printer_socket_power
         unit_prefix: k
         unit_time: h
         method: trapezoidal
@@ -406,6 +478,17 @@ energy_config:
             unique_id: sensor_tuya_clamp_meter_monthly_total
             cycle: monthly
 
+        ecoflow_charging_socket_meter_monthly:
+            unique_id: sensor_ecoflow_charging_socket_meter_monthly
+            source: sensor.ecoflow_charging_socket_integration
+            cycle: monthly
+
+        bluetti_charging_socket_meter_monthly:
+            unique_id: sensor_bluetti_charging_socket_meter_monthly
+            source: sensor.bluetti_charging_socket_integration
+            cycle: monthly
+
+
         bathroom_washing_machine_socket_meter_monthly:
             unique_id: sensor_bathroom_washing_machine_socket_meter_monthly
             source: sensor.bathroom_washing_machine_socket_integration
@@ -414,11 +497,6 @@ energy_config:
         bedroom_air_conditioner_socket_meter_monthly:
             unique_id: sensor_bedroom_air_conditioner_socket_meter_monthly
             source: sensor.bedroom_air_conditioner_socket_integration
-            cycle: monthly
-
-        bedroom_prusa_mk3_printer_socket_meter_monthly:
-            unique_id: sensor_bedroom_prusa_mk3_printer_socket_meter_monthly
-            source: sensor.bedroom_prusa_mk3_printer_socket_integration
             cycle: monthly
 
         bedroom_socket_heating_meter_monthly:
@@ -505,14 +583,46 @@ energy_config:
                 {% if is_state("sensor.energy_active_tariff","night") %}
                 {% set k = 0.5 %}
                 {% endif %}
-                {% if is_state("sensor.tariff_energy_cost_base","unavailable") or
-                      is_state("sensor.tariff_energy_cost_base","0.0") or 
-                      is_state("sensor.tariff_energy_cost_base","0") or 
-                      is_state("sensor.tariff_energy_cost_base","unknown") %}
-                {{ states("input_number.tarrif_energy_cost_calibrate_base") | float(0) * k | round(2) }}
+                {% set date = now().strftime('%Y-%m-%d') %}
+
+                {% if (date < states("input_datetime.tarrif_energy_electric_heating_start_date")  or
+                       date > states("input_datetime.tarrif_energy_electric_heating_finish_date")) %}
+                  {% if is_state("sensor.tariff_energy_cost_base","unavailable") or
+                        is_state("sensor.tariff_energy_cost_base","0.0") or 
+                        is_state("sensor.tariff_energy_cost_base","0") or 
+                        is_state("sensor.tariff_energy_cost_base","unknown") %}
+                    {{ states("input_number.tarrif_energy_cost_calibrate_base") | float(0) * k | round(2) }}
+                  {% else %}
+                    {{ states("sensor.tariff_energy_cost_base") | float(0) * k | round(2) }}
+                  {% endif %}
                 {% else %}
-                {{ states("sensor.tariff_energy_cost_base") | float(0) * k | round(2) }}
+                  {{ states("input_number.tarrif_energy_cost_electric_heating_base") | float(0) * k | round(2) }}
                 {% endif %}
+
+          - name: river_pro_main_full_capacity_wh
+            unique_id: sensor_river_pro_main_full_capacity_wh
+            device_class: energy_storage
+            unit_of_measurement: Wh
+            icon: mdi:home-battery-outline
+            state: >
+                {{ ((states('sensor.river_pro_main_full_capacity') | int(0) * states('sensor.river_pro_battery_volts') | int(0)) / 1000) | round(0) }}
+
+          - name: river_pro_slave_full_capacity_wh
+            unique_id: sensor_river_pro_slave_full_capacity_wh
+            device_class: energy_storage
+            unit_of_measurement: Wh
+            icon: mdi:home-battery-outline
+            state: >
+                {{ ((states('sensor.river_pro_slave_full_capacity') | int(0) * states('sensor.river_pro_slave_battery_volts') | int(0)) / 1000) | round(0) }}
+
+          - name: river_pro_total_full_capacity_wh
+            unique_id: sensor_river_pro_total_full_capacity_wh
+            device_class: energy_storage
+            unit_of_measurement: Wh
+            icon: mdi:home-battery
+            state: >
+                {{ states('sensor.river_pro_main_full_capacity_wh') | int(0) + states('sensor.river_pro_slave_full_capacity_wh') | int(0) }}
+
 
           - name: energy_counter_total
             unique_id: sensor_energy_counter_total
@@ -556,12 +666,70 @@ energy_config:
 
       - binary_sensor:
 
+          - name: voltage_out_of_range
+            unique_id: sensor_voltage_out_of_range 
+            device_class: problem
+            icon: mdi:flash-triangle-outline
+            delay_on: '00:00:01'
+            delay_off: '00:10:00'
+            state: >
+                {% if is_state('sensor.tuya_clamp_meter_voltage', ['unavailable','unknown']) %}
+                off
+                {% else %}
+                    {% set v = (states('sensor.tuya_clamp_meter_voltage') | int )  %}
+                    {% if (v < states('input_number.voltage_under_threshold') | int) or (v > states('input_number.voltage_over_threshold') | int) %}
+                    on
+                    {% else %}
+                    off
+                    {% endif %}
+                {% endif %}
+
           - name: exceed_electricity_consumption_limit
             unique_id: binary_sensor_exceed_electricity_consumption_limit
             device_class: problem
             icon: mdi:fuse-alert
             state: >-
                 {{ states('input_number.electricity_consumption_limit') | int(0) <= states('sensor.tuya_clamp_meter_power') | int(0) }}
+
+          - name: ecoflow_charging_required
+            unique_id: binary_sensor_ecoflow_charging_required
+            device_class: problem
+            state: >-
+                {% set mode = states('binary_sensor.ecoflow_charging_required') %}
+                {% if (mode == 'off') and 
+                      ((states('number.river_pro_max_charge_level') | int(0) - states('sensor.river_pro_main_battery_level') | int(0)) > ((states('number.river_pro_max_charge_level') | int(0) * 0.10) | int(0) )) and
+                      (states('sensor.river_pro_ac_out_power') | int (0) == 0) %}
+                  {% set mode = 'on' %}
+                {% endif %}
+                {%if (mode == 'on') and 
+                     (states('sensor.river_pro_main_battery_level') | int(0) == states('number.river_pro_max_charge_level') | int(0)) or 
+                     (states('sensor.river_pro_ac_out_power') | int (0) > 0) %}
+                  {% set mode = 'off' %}
+                {% endif %}
+                {{ mode }}
+            icon: mdi:fuel-cell
+
+          - name: ecoflow_charging_socket_status
+            unique_id: binary_sensor_ecoflow_charging_socket_status
+            device_class: battery_charging
+            state: >-
+                {% if (states("sensor.ecoflow_charging_socket_power") | int(0) > 0) %}
+                on
+                {% else %}
+                off
+                {% endif %}
+            icon: mdi:generator-portable
+
+          - name: bluetti_charging_socket_status
+            unique_id: binary_sensor_bluetti_charging_socket_status
+            device_class: battery_charging
+            state: >-
+                {% if (states("sensor.bluetti_charging_socket_power") | int(0) > 0) %}
+                on
+                {% else %}
+                off
+                {% endif %}
+            icon: mdi:generator-portable
 
           - name: bedroom_air_conditioner_socket_status
             unique_id: binary_sensor_bedroom_air_conditioner_socket_status
@@ -577,22 +745,6 @@ energy_config:
                 mdi:hvac
                 {% else %}
                 mdi:hvac-off
-                {% endif %}
-
-          - name: bedroom_prusa_mk3_printer_socket_status
-            unique_id:  binary_sensor_bedroom_prusa_mk3_printer_socket_status
-            device_class: heat
-            state: >-
-                {% if (states("sensor.bedroom_prusa_mk3_printer_socket_power") | int(0) > 0) %}
-                on
-                {% else %}
-                off
-                {% endif %}
-            icon: >-
-                {% if is_state("binary_sensor.bedroom_prusa_mk3_printer_socket_status","on") %}
-                mdi:printer-3d
-                {% else %}
-                mdi:printer-3d-off
                 {% endif %}
 
           - name: bedroom_socket_heating_status
@@ -615,7 +767,7 @@ energy_config:
 
           - name: living_room_ns_socket_status
             unique_id:  binary_sensor_living_room_ns_socket_status
-            device_class: power
+            device_class: battery_charging
             state: >-
                 {% if (states("sensor.living_room_ns_socket_power") | int(0) > 0) %}
                 on
@@ -631,7 +783,7 @@ energy_config:
 
           - name: living_room_laptop_charging_socket_status
             unique_id:  binary_sensor_living_room_laptop_charging_socket_status
-            device_class: power
+            device_class: battery_charging
             state: >-
                 {% if (states("sensor.living_room_laptop_charging_socket_power") | int(0) > 0) %}
                 on
@@ -785,19 +937,18 @@ energy_config:
                 mdi:power-plug-off-outline
                 {% endif %}
 
-    notify:
+    # notify:
+    #   - name: daily_electricity_consumption
+    #     platform: file
+    #     filename: /config/files/electricity_consumption/daily.json
 
-      - name: daily_electricity_consumption
-        platform: file
-        filename: /config/files/electricity_consumption/daily.json
+    #   - name: weekly_electricity_consumption
+    #     platform: file
+    #     filename: /config/files/electricity_consumption/weekly.json
 
-      - name: weekly_electricity_consumption
-        platform: file
-        filename: /config/files/electricity_consumption/weekly.json
-
-      - name: monthly_electricity_consumption
-        platform: file
-        filename: /config/files/electricity_consumption/monthly.json
+    #   - name: monthly_electricity_consumption
+    #     platform: file
+    #     filename: /config/files/electricity_consumption/monthly.json
 
 # ==============================================================================
 
@@ -854,8 +1005,9 @@ energy_config:
                         {% set r = 31 if now().month == 12 else (now().replace(month=now().month+1, day=1) - timedelta(days=1)).day %}
                         {{ now().day == r }}
                 sequence:
-                  - service: notify.monthly_electricity_consumption
+                  - service: notify.send_message
                     data:
+                        entity_id: notify.monthly_electricity_consumption
                         message: >
                             {"date": "{{ now().date() }}", "day": {{ states('sensor.tuya_clamp_meter_monthly_day') | float(0) | round(2) }}, "night": {{ states('sensor.tuya_clamp_meter_monthly_night') | float(0) | round(2) }}, "total": {{ states('sensor.tuya_clamp_meter_monthly_total') | float(0) | round(2) }}},
                   - service: notify.alexus
@@ -869,11 +1021,15 @@ energy_config:
                              - {{"\U0001F4CB"}} Загалом: {{ states("sensor.energy_counter_total")       | float(0) | round(0) }} kWh
                              - {{"\U00002600"}} День:  {{ states("sensor.energy_counter_total_day")   | float(0) | round(0) }} kWh
                              - {{"\U0001F312"}} Ніч:  {{ states("sensor.energy_counter_total_night") | float(0) | round(0) }} kWh
+                            {% set tariff =  states.sensor.tariff_energy_cost.state | float (0) %}
+                            {% if is_state('sensor.energy_active_tariff','night') %}
+                            {% set tariff = tariff * 2 %}
+                            {% endif -%}
 
                             {{"\U0001F4CA"}} {{ now().strftime('%B') }}/{{ now().year }}:
-                             - {{"\U0001F4CB"}} Загалом: {{ states("sensor.tuya_clamp_meter_monthly_total") | float(0) | round(0) }} kWh, {{"\U0001F4B8"}} {{ ((states("sensor.tuya_clamp_meter_monthly_day") | float(0) | round(0) * states('sensor.tariff_energy_cost_base') | float(0) | round(2)) +  (states("sensor.tuya_clamp_meter_monthly_night") | float(0) | round(0) * states('sensor.tariff_energy_cost_base') | float(0) * 0.5 | round(2))) | round(2) }} ₴
-                             - {{"\U00002600"}} День: {{ states("sensor.tuya_clamp_meter_monthly_day")    | float(0) | round(0) }} kWh, {{"\U0001F4B8"}} {{ (states("sensor.tuya_clamp_meter_monthly_day") | float(0) | round(0) * states('sensor.tariff_energy_cost_base') | float(0) | round(2)) | round(2) }} ₴
-                             - {{"\U0001F312"}} Ніч: {{ states("sensor.tuya_clamp_meter_monthly_night")  | float(0) | round(0) }} kWh, {{"\U0001F4B8"}} {{ (states("sensor.tuya_clamp_meter_monthly_night") | float(0) | round(0) * states('sensor.tariff_energy_cost_base') | float(0) * 0.5 | round(2)) | round(2) }} ₴
+                             - {{"\U0001F4CB"}} Загалом: {{ states("sensor.tuya_clamp_meter_monthly_total") | float(0) | round(0) }} kWh, {{"\U0001F4B8"}} {{ ((states("sensor.tuya_clamp_meter_monthly_day") | float(0) | round(0) * tariff | float(0) | round(2)) +  (states("sensor.tuya_clamp_meter_monthly_night") | float(0) | round(0) * tariff | float(0) * 0.5 | round(2))) | round(2) }} ₴
+                             - {{"\U00002600"}} День: {{ states("sensor.tuya_clamp_meter_monthly_day")    | float(0) | round(0) }} kWh, {{"\U0001F4B8"}} {{ (states("sensor.tuya_clamp_meter_monthly_day") | float(0) | round(0) * tariff | float(0) | round(2)) | round(2) }} ₴
+                             - {{"\U0001F312"}} Ніч: {{ states("sensor.tuya_clamp_meter_monthly_night")  | float(0) | round(0) }} kWh, {{"\U0001F4B8"}} {{ (states("sensor.tuya_clamp_meter_monthly_night") | float(0) | round(0) * tariff | float(0) * 0.5 | round(2)) | round(2) }} ₴
                         data:
                             inline_keyboard: 
                               - "{{'\U000026A1'}} Электричество:/electricity, {{'\U0001F4D1'}} Меню:/menu"
@@ -882,12 +1038,14 @@ energy_config:
                   - condition: template
                     value_template: '{{ now().weekday() == 6 }}'
                 sequence:
-                  - service: notify.weekly_electricity_consumption
+                  - service: notify.send_message
                     data:
+                        entity_id: notify.weekly_electricity_consumption
                         message: >
                             {"date": "{{ now().date() }}", "day": {{ states('sensor.tuya_clamp_meter_weekly_day') | float(0) | round(2) }}, "night": {{ states('sensor.tuya_clamp_meter_weekly_night') | float(0) | round(2) }}, "total": {{ states('sensor.tuya_clamp_meter_weekly_total') | float(0) | round(2) }}},
-          - service: notify.daily_electricity_consumption
+          - service: notify.send_message
             data:
+                entity_id: notify.daily_electricity_consumption
                 message: >
                     {"date": "{{ now().date() }}", "day": {{ states('sensor.tuya_clamp_meter_daily_day') | float(0) | round(2) }}, "night": {{ states('sensor.tuya_clamp_meter_daily_night') | float(0) | round(2) }}, "total": {{ states('sensor.tuya_clamp_meter_daily_total') | float(0) | round(2) }}},
         mode: single
@@ -981,23 +1139,6 @@ energy_config:
             entity_id: switch.living_room_ns_socket
         mode: single
 
-      - alias: "Energy: Turn OFF Prusa MK3 Printer Socket in Bedroom if Not Active"
-        id: energy_bedroom_prusa_mk3_printer_socket_turn_off
-        description: 'Вимкнення розетки Prusa MK3 Printer у спальні'
-        trigger:
-          - platform: state
-            entity_id: binary_sensor.bedroom_prusa_mk3_printer_socket_status
-            to: 'off'
-            for: '00:05:00'
-        condition:
-          - condition: state
-            entity_id: switch.bedroom_prusa_mk3_printer_socket
-            state: 'on'
-        action:
-          - service: switch.turn_off
-            entity_id: switch.bedroom_prusa_mk3_printer_socket
-        mode: single
-
       - alias: "Energy: Turn OFF Girier Socket 2 if Not Active"
         id: energy_girier_socket_2_turn_off
         description: 'Вимкнення розетки Girier Socket 2'
@@ -1013,4 +1154,222 @@ energy_config:
         action:
           - service: switch.turn_off
             entity_id: switch.girier_socket_2
+        mode: single
+
+      - alias: "Energy: Turn ON EcoFlow socket in 5 mins after Startup if charging is enabled"
+        id: energy_turn_on_ecoflow_socket_if_ecoflow_charging_is_enabled_in_5_mins_after_startup
+        description: 'Увімкнення EcoFlow розетки при старті HA, якщо зовнішнє живлення підключено'
+        trigger:
+          - platform: template
+            value_template: "{{ 5 == (as_timestamp(now()) - as_timestamp(states('sensor.online'))) // 60 | int  }}"
+        condition:
+          - condition: state
+            entity_id: binary_sensor.rpi_ac_power_status
+            state: 'on'
+          - condition: state
+            entity_id: input_boolean.enable_ecoflow_charging
+            state: 'on'
+          - condition: state
+            entity_id: binary_sensor.ecoflow_charging_required
+            state: 'on'
+          - condition: state
+            entity_id: binary_sensor.ecoflow_charging_socket_status
+            state: 'off'
+        action:
+          - service: switch.turn_on
+            entity_id: switch.ecoflow_charging_socket
+        mode: single
+
+      - alias: "Energy: Turn ON BLUETTI socket in 5 mins after Startup if charging is enabled"
+        id: energy_turn_on_bluetti_socket_if_charging_is_enabled_in_5_mins_after_startup
+        description: 'Увімкнення BLUETTI розетки при стрті HA, якщо зовнішнє живлення підключено'
+        trigger:
+          - platform: template
+            value_template: "{{ 5 == (as_timestamp(now()) - as_timestamp(states('sensor.online'))) // 60 | int  }}"
+        condition:
+          - condition: state
+            entity_id: binary_sensor.rpi_ac_power_status
+            state: 'on'
+          - condition: state
+            entity_id: input_boolean.enable_bluetti_charging
+            state: 'on'
+          - condition: state
+            entity_id: binary_sensor.bluetti_charging_socket_status
+            state: 'off'
+          - condition: state
+            entity_id: binary_sensor.voltage_out_of_range
+            state: 'off'
+        action:
+          - service: switch.turn_on
+            entity_id: switch.bluetti_charging_socket
+        mode: single
+
+      - alias: "Energy: Turn OFF Ecoflow Socket if Conditions are not Good"
+        id: energy_ecoflow_socket_turn_off
+        description: 'Вимкнення розетки Ecoflow Socket'
+        trigger:
+          - platform: template
+            value_template: >
+                {{ (not (is_state('switch.ecoflow_charging_socket','unavailable')) and
+                    is_state('binary_sensor.rpi_ac_power_status','on') and 
+                    is_state('binary_sensor.ecoflow_charging_required','on') and
+                    is_state('input_boolean.enable_ecoflow_charging','on')) != true 
+                }}
+        condition:
+          - condition: state
+            entity_id: switch.ecoflow_charging_socket
+            state: 'on'
+        action:
+          - service: switch.turn_off
+            entity_id: switch.ecoflow_charging_socket
+        mode: single
+
+      - alias: "Energy: Turn OFF BLUETTI Socket if Conditions are not Good"
+        id: energy_bluetti_socket_turn_off
+        description: 'Вимкнення розетки BLUETTI Socket'
+        trigger:
+          - platform: template
+            value_template: >
+                {{ (not (is_state('switch.bluetti_charging_socket','unavailable')) and
+                    is_state('binary_sensor.rpi_ac_power_status','on') and 
+                    is_state('input_boolean.enable_bluetti_charging','on')) != true 
+                }}
+        condition:
+          - condition: state
+            entity_id: switch.bluetti_charging_socket
+            state: 'on'
+        action:
+          - service: switch.turn_off
+            entity_id: switch.bluetti_charging_socket
+        mode: single
+
+      - alias: "Energy: Ecoflow Socket Status is Active"
+        id: energy_ecoflow_socket_status_is_active
+        description: 'Повідомлення про статус EcoFlow розетки'
+        trigger:
+          - platform: state
+            entity_id: binary_sensor.ecoflow_charging_socket_status
+            not_from:
+                - unavailable
+                - unknown
+            not_to:
+                - unavailable
+                - unknown
+        condition:
+          - condition: state
+            entity_id: binary_sensor.internet_connection_ping
+            state: 'on'
+          - condition: template
+            value_template: >
+                {% set up_time =  as_timestamp(now()) - as_timestamp(states('sensor.online')) %}
+                {% set minutes = (up_time // 60) | int %}
+                {{ minutes > 3 }}
+        action:
+          - service: notify.alexus
+            data:
+                title: '{{"\U000026A0"}} УВАГА{{"\U0000203C"}}'
+                message: |
+                  ➖➖➖➖➖➖➖
+                  {{'\U0001FAAB'}} Заряджання EcoFlow Power Station {% if is_state('binary_sensor.ecoflow_charging_socket_status','on') %}розпочато{% else %}припинено{% endif %}{{"\U0000203C"}}
+                  
+                  {{'\U0001F50B'}} Main Battery Level: {{ states('sensor.river_pro_main_battery_level') }} % 
+                  {{'\U0001F50B'}} Slave Battery Level: {{ states('sensor.river_pro_slave_battery_level') }} %
+                data:
+                    inline_keyboard:
+                      - "{{'\U00002139'}} Статус:/status, {{'\U0001F4D1'}} Меню:/menu"
+        mode: single
+
+      - alias: "Energy: BLUETTI Socket Status is Active"
+        id: energy_bluetti_socket_status_is_active
+        description: 'Повідомлення про статус BLUETTI розетки'
+        trigger:
+          - platform: state
+            entity_id: binary_sensor.bluetti_charging_socket_status
+            not_from:
+                - unavailable
+                - unknown
+            not_to:
+                - unavailable
+                - unknown
+        condition:
+          - condition: state
+            entity_id: binary_sensor.internet_connection_ping
+            state: 'on'
+          - condition: template
+            value_template: >
+                {% set up_time =  as_timestamp(now()) - as_timestamp(states('sensor.online')) %}
+                {% set minutes = (up_time // 60) | int %}
+                {{ minutes > 3 }}
+        action:
+          - service: notify.alexus
+            data:
+                title: '{{"\U000026A0"}} УВАГА{{"\U0000203C"}}'
+                message: |
+                  ➖➖➖➖➖➖➖
+                  {{'\U0001FAAB'}} Заряджання BLUETTI Power Station {% if is_state('binary_sensor.bluetti_charging_socket_status','on') %}розпочато{% else %}припинено{% endif %}{{"\U0000203C"}}
+                data:
+                    inline_keyboard:
+                      - "{{'\U00002139'}} Статус:/status, {{'\U0001F4D1'}} Меню:/menu"
+        mode: single
+
+      - alias: "Energy: Turn ON Ecoflow Socket if Charging is Enabled"
+        id: energy_ecoflow_socket_turn_on
+        description: 'Увімкнення розетки Ecoflow Socket'
+        trigger:
+          - platform: template
+            value_template: >
+               {{ is_state('binary_sensor.ecoflow_charging_socket_status', 'off') and 
+                  not (is_state('switch.ecoflow_charging_socket','unavailable')) and
+                  is_state('binary_sensor.rpi_ac_power_status','on') and
+                  is_state('input_boolean.enable_ecoflow_charging','on') and 
+                  is_state('binary_sensor.voltage_out_of_range','off') and
+                  is_state('binary_sensor.ecoflow_charging_required','on')
+               }}
+        condition:
+          - condition: state
+            entity_id: switch.ecoflow_charging_socket
+            state: 'off'
+        action:
+          - service: switch.turn_on
+            entity_id: switch.ecoflow_charging_socket
+        mode: single
+
+      - alias: "Energy: Turn ON BLUETTI Socket if Charging is Enabled"
+        id: energy_bluetti_socket_turn_on
+        description: 'Увімкнення розетки BLUETTI Socket'
+        trigger:
+          - platform: template
+            value_template: >
+               {{ is_state('binary_sensor.bluetti_charging_socket_status', 'off') and 
+                  not (is_state('switch.bluetti_charging_socket','unavailable')) and
+                  is_state('binary_sensor.rpi_ac_power_status','on') and
+                  is_state('binary_sensor.voltage_out_of_range','off') and
+                  is_state('input_boolean.enable_bluetti_charging','on') 
+               }}
+        condition:
+          - condition: state
+            entity_id: switch.bluetti_charging_socket
+            state: 'off'
+        action:
+          - service: switch.turn_on
+            entity_id: switch.bluetti_charging_socket
+        mode: single
+
+      - alias: "Energy: Turn OFF EcoFlow AC Out when Chanring is started"
+        id: energy_turn_off_ecoflow_ac_out_when_charging_started
+        description: "Вимкнення AC виходів EcoFlow станції якщо розпочато заряджання"
+        trigger:
+          - platform: state
+            entity_id: binary_sensor.ecoflow_charging_socket_status
+            to: 'on'
+        conditions:
+          - condition: state
+            entity_id: switch.river_pro_ac_enabled
+            state: 'on'
+          - condition: numeric_state
+            entity_id: sensor.river_pro_ac_in_power
+            above: 0
+        action:
+          - action: switch.turn_off
+            entity_id: switch.river_pro_ac_enabled
         mode: single
