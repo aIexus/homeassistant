@@ -7,6 +7,7 @@ home_alarm_settings:
               - binary_sensor.hallway_entrance_door_contact
               - binary_sensor.bedroom_lumi_sensor_motion_occupancy
               - binary_sensor.living_room_lumi_sensor_motion_occupancy
+              - binary_sensor.school_7_door_contact_door
               - binary_sensor.motion_sensors
             entity_globs:
               - binary_sensor.*_smoke_detector_smoke
@@ -727,7 +728,6 @@ home_alarm_settings:
         trigger:
           - platform: state
             entity_id: sensor.tuya_smart_button_action
-            attribute: action
             not_to: double
         condition:
           - condition: state
@@ -737,13 +737,13 @@ home_alarm_settings:
           - choose:
               - conditions:
                   - condition: template
-                    value_template: "{{ trigger.to_state.attributes.action == 'single' }}"
+                    value_template: "{{ trigger.to_state.state == 'single' }}"
                 sequence:
                   - service: alarm_control_panel.alarm_arm_away
                     entity_id: alarm_control_panel.home_alarm
               - conditions:
                   - condition: template
-                    value_template: "{{ trigger.to_state.attributes.action == 'hold' }}"
+                    value_template: "{{ trigger.to_state.state == 'hold' }}"
                 sequence:
                   - service: alarm_control_panel.alarm_arm_home
                     entity_id: alarm_control_panel.home_alarm
@@ -755,11 +755,9 @@ home_alarm_settings:
         trigger: 
           - platform: state
             entity_id: sensor.hallway_rgb_bulb_switch_action
-            attribute: action
             to: double 
           - platform: state
             entity_id: sensor.tuya_smart_button_action
-            attribute: action
             to: double 
         condition:
           - condition: not
@@ -840,16 +838,9 @@ home_alarm_settings:
         id: alarm_warning_about_low_high_voltage
         description: 'Повідомлення про знижену/підвищену напругу в мережі'
         trigger:
-          - platform: numeric_state
-            entity_id: sensor.tuya_clamp_meter_voltage
-            below: 198
-            for: 
-                minutes: 2
-          - platform: numeric_state
-            entity_id: sensor.tuya_clamp_meter_voltage
-            above: 242
-            for: 
-                minutes: 2
+          - platform: state
+            entity_id: binary_sensor.voltage_out_of_range
+            to: 'on'
         condition: []
         action:
           - choose:
@@ -863,7 +854,7 @@ home_alarm_settings:
                         title: '{{"\U000026A0"}} УВАГА{{"\U0000203C"}}'
                         message:  |
                             ➖➖➖➖➖➖➖
-                            Зафіксовано {% if (trigger.to_state.state | int < 198) %}заниження{% elif (trigger.to_state.state | int > 242) %}стрибок{% endif %} напруги: {{ trigger.to_state.state | int }} V{{"\U0000203C"}}
+                            Зафіксовано {% if (states('sensor.tuya_clamp_meter_voltage') | int < 198) %}заниження{% elif (states('sensor.tuya_clamp_meter_voltage') | int > 242) %}стрибок{% endif %} напруги: {{ states('sensor.tuya_clamp_meter_voltage') | int }} V{{"\U0000203C"}}
 
                             Рекомендується відключити чутливі електроприлади від мережі до стабілізації напруги!
                         data: 
@@ -887,7 +878,7 @@ home_alarm_settings:
                         service_name: tts.google_cloud_say
                         volume: 0.5
                         duration: '00:00:10'
-                        message: 'УВАГА!!! Зафіксовано {% if (trigger.to_state.state | int < 198) %}заниження{% elif (trigger.to_state.state | int > 242) %}стрибок{% endif %} напруги в мережі: {{ trigger.to_state.state | int }} вольт!' 
+                        message: 'УВАГА!!! Зафіксовано {% if (states("sensor.tuya_clamp_meter_voltage") | int < 198) %}заниження{% elif (states("sensor.tuya_clamp_meter_voltage") | int > 242) %}стрибок{% endif %} напруги в мережі: {{ states("sensor.tuya_clamp_meter_voltage") | int }} вольт!' 
                         # Рекомендується відключити чутливі електроприлади від мережі до стабілізації напруги!'
                         # message: 'ВНИМАНИЕ!!! Зафиксирован скачок напряжения в сети: {{ trigger.to_state.state | int }} вольт! 
                         # Рекомендуется отключить чувствительные электроприборы от сети до стабилизации напряжения!'
