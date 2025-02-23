@@ -3,7 +3,8 @@ visible:
 #   - user: c95c6095c99342e980335fc45f93584b # Ivan
   - user: 3da46ad97a5d4bedbd4bf4d770d9f714 # alexus
 #   - user: 0bae28547b584a2fae4ceb544b33539c # Vova
-#   - user: fd6364b295834039a8ea6137739fd937 # Inna
+#   - user: 026423d607f54fa2889fd8d13bd07b38 # inna
+
 icon: mdi:view-dashboard
 cards:
   - type: vertical-stack
@@ -49,6 +50,10 @@ cards:
                 entities:
                   - entity: sensor.living_room_lumi_sensor_motion_illuminance_lux
                     name: Освітленість
+
+              - entity: light.living_room_tuya_rgb_strip
+                name: Стрічка підсвітки
+                icon: mdi:led-strip-variant
 
               - type: custom:multiple-entity-row
                 entity: sensor.living_room_lumi_weather_temperature
@@ -147,6 +152,23 @@ cards:
                     name: Потужність
                     unit: "W"
                   - entity: sensor.living_room_ns_socket_meter_monthly
+                    name: Спожито
+                    unit: "kWh"
+
+              - type: custom:multiple-entity-row
+                entity: binary_sensor.ecoflow_charging_socket_status
+                name: ECOFLOW
+                secondary_info: last-changed
+                state_color: true
+                show_state: false
+                entities:
+                  - entity: sensor.ecoflow_charging_socket_voltage
+                    name: Напруга
+                    unit: "V"
+                  - entity: sensor.ecoflow_charging_socket_power
+                    name: Потужність
+                    unit: "W"
+                  - entity: sensor.ecoflow_charging_socket_meter_monthly
                     name: Спожито
                     unit: "kWh"
 
@@ -253,6 +275,10 @@ cards:
                   - entity: sensor.bedroom_lumi_sensor_motion_illuminance_lux
                     name: Освітленість
 
+              - entity: light.bedroom_tuya_rgb_strip
+                name: Стрічка підсвітки
+                icon: mdi:led-strip-variant
+
               - type: custom:multiple-entity-row
                 entity: sensor.bedroom_lumi_weather_temperature
                 icon: mdi:home-thermometer
@@ -278,19 +304,19 @@ cards:
                     name: Вологість
 
               - type: custom:multiple-entity-row
-                entity: binary_sensor.bedroom_prusa_mk3_printer_socket_status
-                name: Prusa MK3 Printer
+                entity: binary_sensor.bluetti_charging_socket_status
+                name: BLUETTI
                 secondary_info: last-changed
                 state_color: true
                 show_state: false
                 entities:
-                  - entity: sensor.bedroom_prusa_mk3_printer_socket_voltage
+                  - entity: sensor.bluetti_charging_socket_voltage
                     name: Напруга
                     unit: "V"
-                  - entity: sensor.bedroom_prusa_mk3_printer_socket_power
+                  - entity: sensor.bluetti_charging_socket_power
                     name: Потужність
                     unit: "W"
-                  - entity: sensor.bedroom_prusa_mk3_printer_socket_meter_monthly
+                  - entity: sensor.bluetti_charging_socket_meter_monthly
                     name: Спожито
                     unit: "kWh"
 
@@ -376,6 +402,10 @@ cards:
                 state_header: Стан
                 state_color: true
 
+              - entity: light.kitchen_tuya_cob_led_strip
+                name: Стрічка підсвітки
+                icon: mdi:led-strip-variant
+
               - type: custom:multiple-entity-row
                 entity: sensor.kitchen_lumi_weather_temperature
                 icon: mdi:home-thermometer
@@ -424,7 +454,7 @@ cards:
 
               - type: custom:multiple-entity-row
                 entity: binary_sensor.kitchen_coffee_machine_and_microwave_socket_status
-                name: Кавоварка
+                name: Кавомашина
                 secondary_info: last-changed
                 state_color: true
                 show_state: false
@@ -580,7 +610,7 @@ cards:
                     font-size: 16px;
                 } 
             content: >
-                **Графики Температуры**
+                **Графіки Температури**
 
           - type: history-graph
             hours_to_show: 72
@@ -638,3 +668,41 @@ cards:
                 name: Зовнішня
               - entity: sensor.outdoor_mean_temperature
                 name: Середньодобова
+
+      - type: custom:stack-in-card
+        mode: vertical
+        cards:
+        
+          - type: markdown
+            style: |
+                ha-card {
+                    # color: #FFA500;
+                    font-weight: bold;
+                    font-size: 16px;
+                } 
+            content: >
+                **Гімназія №7**
+
+          - type: entities
+            state_color: true
+            entities:
+              - type: custom:multiple-entity-row
+                entity: binary_sensor.school_7_door_contact_door
+                secondary_info: last-changed
+                state_header: Стан
+                state_color: true
+                name: Двері до кабінету
+              - type: custom:multiple-entity-row
+                entity: sensor.school_7_temperature_humidity_sensor_temperature
+                name: Клімат
+                state_header: Температура
+                secondary_info: last-changed
+                entities:
+                  - entity: sensor.school_7_temperature_humidity_sensor_humidity
+                    name: Вологість
+          - type: history-graph
+            hours_to_show: 72
+            entities:
+              - entity: sensor.school_7_temperature_humidity_sensor_temperature
+                name: Температура
+
