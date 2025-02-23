@@ -1,9 +1,10 @@
 title: Система
 visible:
-#   - user: c95c6095c99342e980335fc45f93584b # Ivan
+  - user: c95c6095c99342e980335fc45f93584b # Ivan
   - user: 3da46ad97a5d4bedbd4bf4d770d9f714 # alexus
   - user: 0bae28547b584a2fae4ceb544b33539c # Vova
-  - user: fd6364b295834039a8ea6137739fd937 # Inna
+  - user: 026423d607f54fa2889fd8d13bd07b38 # inna
+
 icon: mdi:tune-vertical
 cards:
 
@@ -20,32 +21,19 @@ cards:
             entities:
               - entity: sensor.time_date
                 name: Час/Дата
-
-          - type: entities
-            show_header_toggle: false
-            state_color: true
-            entities:
+              - type: divider
               - entity: binary_sensor.internet_connection_ping
-
-          - type: entities
-            show_header_toggle: false
-            state_color: true
-            entities:
+              - type: divider
               - entity: binary_sensor.rpi_ac_power_status
               - entity: binary_sensor.ups_battery_low
-
-          - type: entities
-            show_header_toggle: false
-            state_color: true
-            entities:
+              - type: divider
               - entity: sensor.last_boot_custom
-                name: Last boot
+                name: Last Boot
               - entity: sensor.online_custom
-
-          - type: entities
-            show_header_toggle: false
-            state_color: true
-            entities:
+              - type: divider
+              - entity: binary_sensor.last_shutdown_accident
+                name: Last Shutdown Accident
+              - type: divider
               - entity: sensor.last_google_backup_train
               - entity: sensor.snapshots_in_google_drive_train
               - entity: sensor.snapshots_in_hassio_train
@@ -103,13 +91,6 @@ cards:
             hours_to_show: 6
             entity: sensor.swap_use_percent
 
-        #   - type: sensor
-        #     graph: line
-        #     name: SWAP
-        #     detail: 2
-        #     hours_to_show: 6
-        #     entity: sensor.swap_free
-
       - type: custom:stack-in-card
         mode: horizontal
         cards:
@@ -146,6 +127,7 @@ cards:
             graph: line
             name: UPS
             detail: 2
+            state_color: true
             hours_to_show: 6
             entity: sensor.ups_battery_capacity
 
@@ -186,6 +168,72 @@ cards:
                 detail: 2
                 entity: sensor.speedtest_upload
 
+      - type: conditional
+        conditions:
+          - entity: input_boolean.enable_ecoflow_charging
+            state: 'on'
+        card:
+            type: custom:stack-in-card
+            mode: vertical
+            cards:
+              - type: markdown
+                card_mod:
+                    style: |
+                        ha-card {
+                            color: #00ff00;
+                            font-weight: bold;
+                            font-size: 16px;
+                        }
+                content: >
+                  **EcoFlow**
+
+              - type: custom:stack-in-card
+                mode: horizontal
+                cards:
+
+                  - type: sensor
+                    graph: line
+                    name: Main
+                    entity: sensor.river_pro_main_battery_level
+                    state_color: true
+                    hours_to_show: 6
+                    detail: 2
+        
+                  - type: sensor
+                    graph: line
+                    name: Slave
+                    detail: 2
+                    hours_to_show: 6
+                    state_color: true
+                    entity: sensor.river_pro_slave_battery_level
+
+                  - type: button
+                    name: Discharged
+                    entity: binary_sensor.ecoflow_charging_required
+                    state_color: true
+
+              - type: custom:stack-in-card
+                mode: horizontal
+                cards:
+
+                  - type: sensor
+                    graph: line
+                    name:  In
+                    hours_to_show: 6
+                    detail: 2
+                    entity: sensor.river_pro_total_in_power
+
+                  - type: sensor
+                    graph: line
+                    name:  Out
+                    hours_to_show: 6
+                    detail: 2
+                    entity: sensor.river_pro_total_out_power
+
+                  - type: entity
+                    name:  Remaining
+                    entity: sensor.river_pro_remaining_time
+
   - type: vertical-stack
     cards:
 
@@ -197,35 +245,31 @@ cards:
             show_header_toggle: false
             state_color: true
             entities:
-              - entity: input_boolean.disable_alerts_notifications
-              - entity: input_boolean.disable_voice_alerts
-
-          - type: entities
-            show_header_toggle: false
-            state_color: true
-            entities:
               - entity: input_boolean.ac_status
               - entity: input_boolean.heating_status
-
-          - type: entities
-            show_header_toggle: false
-            state_color: true
-            entities:
+              - type: divider
               - entity: input_boolean.disable_climate
+              - entity: input_boolean.disable_climate_bedroom
+              - entity: input_boolean.disable_climate_living_room
+              - type: divider
+              - entity: input_boolean.enable_ecoflow_charging
+              - entity: input_boolean.enable_bluetti_charging
+              - type: divider
               - entity: input_boolean.disable_home_away
               - entity: input_boolean.disable_occupancy
-              - entity: input_boolean.enable_christmas_automations
               - entity: input_boolean.disable_sunrise_sunset_simulation
-
-          - type: entities
-            show_header_toggle: false
-            state_color: true
-            entities:
-              - entity: input_boolean.disable_ups_battery_status_notifications
-              - entity: input_boolean.disable_climate_notifications
+              - entity: input_boolean.disable_kitchen_cob_led_strip_brightness_adaptation
+              - type: divider
+              - entity: input_boolean.enable_christmas_automations
+              - type: divider
+              - entity: input_boolean.disable_voice_alerts
               - entity: input_boolean.disable_voice_notifications
-              - entity: input_boolean.disable_voltage_voice_alarms
+              - type: divider
+              - entity: input_boolean.disable_alerts_notifications
               - entity: input_boolean.disable_startup_notifications
+              - entity: input_boolean.disable_climate_notifications
+              - entity: input_boolean.disable_voltage_voice_alarms
+              - entity: input_boolean.disable_ups_battery_status_notifications
               - entity: input_boolean.disable_zone_notifications
 
   - type: vertical-stack
@@ -240,18 +284,23 @@ cards:
             entities:
               - entity: input_number.climate_target_temperature
                 icon: mdi:thermometer-check
-
-          - type: entities
-            show_header_toggle: false
-            entities:
+              - type: divider
+              - entity: input_number.voltage_over_threshold
+              - entity: input_number.voltage_under_threshold
+              - type: divider
               - entity: input_number.electricity_consumption_limit
                 name: Consumption Limit
+              - type: divider
               - entity: input_number.tarrif_energy_cost_calibrate_base
                 name: Tariff Base Cost
-
-          - type: entities
-            show_header_toggle: false
-            entities:
+              - entity: input_number.tarrif_energy_cost_electric_heating_base
+                name: Tarrif Heating Period
+              - type: divider
+              - entity: input_datetime.tarrif_energy_electric_heating_start_date
+                name: Heating Start Date
+              - entity: input_datetime.tarrif_energy_electric_heating_finish_date
+                name: Heating Finish Date
+              - type: divider
               - entity: input_number.energy_counter_calibration_day
                 name: Energy Counter Day
               - entity: input_number.energy_counter_calibration_night
