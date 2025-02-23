@@ -9,7 +9,9 @@ homeassistant:
     language: uk
 
     packages: !include_dir_merge_named includes/packages
-    allowlist_external_dirs: "/config/files/"
+    allowlist_external_dirs: 
+        - "/config/files/"
+        - "/config/files/electricity_consumption/"
 
 # Configure a default setup of Home Assistant (frontend, api, etc)
 default_config:
@@ -35,7 +37,7 @@ lovelace:
 # Text to speech
 tts:
 
-  - platform: google_translate
+#   - platform: google_translate
 
   - platform: google_cloud
     key_file: !secret google_cloud_service_keyfile
@@ -46,10 +48,10 @@ tts:
     gain: 0.0
     text_type: ssml
 
-  - platform: reversotts
-    language: 'Alyona-Russian'
-    pitch: "100"
-    bitrate: "128k"
+#   - platform: reversotts
+    # language: 'Alyona-Russian'
+    # pitch: "100"
+    # bitrate: "128k"
 
 # Include External Folders
 automation: !include_dir_merge_list includes/automation
