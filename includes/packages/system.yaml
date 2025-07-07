@@ -17,16 +17,18 @@ system_config:
               - sensor.maria_db_size
               - sensor.load_15m
               - sensor.strict_shutdown_sensor
-              - sensor.ups_battery_voltage
-              - sensor.ups_battery_capacity
-              - sensor.chassis_fan_speed
+              - sensor.rpi_chassis_fan_speed
+              - sensor.rpi_ups_battery_voltage
+              - sensor.rpi_ups_battery_capacity
+              - binary_sensor.rpi_ups_battery_low
+              - binary_sensor.rpi_ups_fan_status
+              - binary_sensor.rpi_ups_power_status
               - binary_sensor.last_shutdown_accident
-              - binary_sensor.ups_battery_low
-              - binary_sensor.ups_fan_speed
-              - binary_sensor.rpi_ac_power_status
               - binary_sensor.anyone_home
               - binary_sensor.internet_connection_ping
               - group.family
+              - light.rpi_chassis_fan
+              - switch.rpi_ups_fan
             entity_globs:
               - binary_sensor.*_battery_low
               - sensor.*_battery
@@ -35,12 +37,23 @@ system_config:
     homeassistant:
 
         customize:
-            sensor.ups_battery_voltage:
-                friendly_name: 'Напруга Батареї UPS'
-            sensor.ups_battery_capacity:
-                friendly_name: 'Рівень Заряду Батареї UPS'
-            sensor.chassis_fan_speed:
-                friendly_name: 'Chassis Fan Speed'
+            binary_sensor.rpi_ups_power_status:
+                device_class: plug
+                friendly_name: 'RPi UPS: Зовнішнє Живлення'
+            sensor.rpi_ups_battery_voltage:
+                friendly_name: 'RPi UPS: Напруга Батареї'
+                device_class: voltage
+            sensor.rpi_ups_battery_capacity:
+                friendly_name: 'RPi UPS: Рівень Заряду Батареї'
+                device_class: battery
+            binary_sensor.rpi_ups_battery_low:
+                friendly_name: 'RPi UPS: Стан Батареї'
+            switch.rpi_ups_fan:
+                friendly_name: 'RPi UPS: Fan Switch'
+            binary_sensor.rpi_ups_fan_status:
+                friendly_name: 'RPi UPS: Fan Status'
+            sensor.rpi_chassis_fan_speed:
+                friendly_name: 'RPi Chassis Fan Speed'
             sensor.last_boot_custom:
                 friendly_name: 'System Last Boot'
             sensor.online_custom:
@@ -49,12 +62,6 @@ system_config:
                 friendly_name: 'Anyone Home'
             binary_sensor.internet_connection_ping:
                 friendly_name: "Інтернет З'єднання"
-            binary_sensor.ups_battery_low:
-                friendly_name: 'Стан Батареї UPS'
-            binary_sensor.ups_fan_speed:
-                friendly_name: 'UPS Fan Speed'
-            binary_sensor.rpi_ac_power_status:
-                friendly_name: 'Джерело Зовнішнього Живлення'
 
     input_boolean:
 
@@ -118,6 +125,35 @@ system_config:
             name: Enable Energy Monthly Card
             icon: mdi:calendar-month
 
+    light:
+      - platform: rpi_gpio_pwm
+        leds:
+          - name: RPi Chassis Fan
+            pin: 18
+            unique_id: rpi_chassis_fan
+            frequency: 65
+
+    switch:
+      - platform: rpi_gpio
+        switches:
+          - port: 16
+            name: RPi UPS Fan
+            unique_id: rpi_ups_fan
+          - port: 13
+            name: RPi UPS Shutdown
+            unique_id: rpi_ups_shutdown
+
+    binary_sensor:
+      - platform: rpi_gpio
+        sensors:
+          - port: 6
+            name: RPi UPS Power Status
+            unique_id: rpi_ups_power_status
+            invert_logic: true
+        #   - port: 5
+        #     name: RPi UPS Power Button
+        #     unique_id: rpi_ups_power_button
+
     sensor:
 
       - platform: time_date
@@ -125,36 +161,9 @@ system_config:
           - 'time'
           - 'date'
           - 'time_date'
-
-    #   - platform: file
-    #     name: file_battery_voltage
-    #     scan_interval: '00:01:01'
-    #     file_path: /config/files/ups_battery.json
-    #     value_template: '{{ value_json.voltage | default(4.00) }}'
-
-    #   - platform: file
-    #     name: file_battery_capacity
-    #     scan_interval: '00:00:59'
-    #     file_path: /config/files/ups_battery.json
-    #     value_template: '{{ value_json.capacity | default(100) }}'
-
-    #   - platform: file
-    #     name: file_chassis_fan_speed
-    #     scan_interval: '00:00:05'
-    #     file_path: /config/files/chassis_fan.json
-    #     value_template: '{{ value_json.fan_speed | default(0) }}'
-
-    #   - platform: file
-    #     name: file_ups_fan_speed
-    #     scan_interval: '00:00:05'
-    #     file_path: /config/files/ups_fan.json
-    #     value_template: '{{ value_json.fan_speed | default(0) }}'
-
-    #   - platform: file
-    #     name: file_ac_power_status
-    #     scan_interval: '00:00:05'
-    #     file_path: /config/files/ac_power.json
-    #     value_template: '{{ value_json.status | default(2) }}'
+    
+      - platform: x750
+        name: 'RPi UPS Battery'
 
     group:
 
@@ -175,7 +184,7 @@ system_config:
             id: start
         sensor:
           - name: strict_shutdown_sensor
-            unique_id: sesor_strict_shutdown_sensor
+            unique_id: sensor_strict_shutdown_sensor
             state: >
               {% if trigger.id == 'start' %}
                 {{iif(this.state|default('unknown') == 'shutdown','start','interrupt')}}
@@ -207,42 +216,29 @@ system_config:
             attributes:
                 list_entities: >
                     {% set variable = namespace(value = {}) %}
-                    {% for entity in states.update if is_state(entity.entity_id, 'on') and 
-                                                      entity.entity_id.startswith("update.") %}
+                    {% for entity in states.update if is_state(entity.entity_id, 'on') and entity.entity_id.startswith("update.") %}
                         {% set variable.value = dict(variable.value, **{entity.name: [state_attr(entity.entity_id, 'installed_version'), state_attr(entity.entity_id, 'latest_version')] }) %}
                     {% endfor %}
                     {{ variable.value |dictsort(false, 'value') }}
 
       - sensor:
 
-          - name: ups_battery_voltage
-            unique_id: sensor_ups_battery_voltage
-            unit_of_measurement: 'V'
-            state: '{{ states("sensor.file_battery_voltage") | float(0) }}'
-            device_class: voltage
-
-          - name: ups_battery_capacity
-            unique_id: sensor_ups_battery_capacity
-            unit_of_measurement: '%'
-            state: >
-                {% set capacity = states("sensor.file_battery_capacity") | int(0) %}
-                {% if capacity > 100 %}
-                   {% set capacity = 100 %}
+          - name: rpi_chassis_fan_speed
+            unique_id: sensor_rpi_sensor_chassis_fan_speed
+            state: >-
+                {% if is_state("light.rpi_chassis_fan",'off') %}
+                0
+                {% else %}
+                {{ (state_attr('light.rpi_chassis_fan', 'brightness') / 255 * 100) | int }}
                 {% endif %}
-                {{ capacity }}
-            device_class: battery
-
-          - name: chassis_fan_speed
-            unique_id: sensor_chassis_fan_speed
-            state: '{{ states("sensor.file_chassis_fan_speed") | int(0) }}'
             icon: >-
-                {% if   (states.sensor.chassis_fan_speed.state | int(0) == 0) %}
+                {% if   is_state("light.rpi_chassis_fan",'off') %}
                 mdi:fan-off
-                {% elif (states.sensor.chassis_fan_speed.state | int(0) >  0) and (states.sensor.chassis_fan_speed.state | int(0) <=  40) %}
+                {% elif (states.sensor.rpi_chassis_fan_speed.state | int(0) >  0) and (states.sensor.rpi_chassis_fan_speed.state | int(0) <=  40) %}
                 mdi:fan-speed-1
-                {% elif (states.sensor.chassis_fan_speed.state | int(0) > 40) and (states.sensor.chassis_fan_speed.state | int(0) <=  75) %}
+                {% elif (states.sensor.rpi_chassis_fan_speed.state | int(0) > 40) and (states.sensor.rpi_chassis_fan_speed.state | int(0) <=  75) %}
                 mdi:fan-speed-2
-                {% elif (states.sensor.chassis_fan_speed.state | int(0) > 75) and (states.sensor.chassis_fan_speed.state | int(0) <= 100) %}
+                {% elif (states.sensor.rpi_chassis_fan_speed.state | int(0) > 75) and (states.sensor.rpi_chassis_fan_speed.state | int(0) <= 100) %}
                 mdi:fan-speed-3
                 {% else %}
                 mdi:fan-alert
@@ -340,36 +336,47 @@ system_config:
             device_class: presence
             state: "{{ states.person | selectattr('state','eq','home') | list | count > 0 }}"
 
-          - name: ups_battery_low
-            unique_id: binary_sensor_ups_battery_low
+          - name: rpi_ups_fan_status
+            unique_id: sensor_rpi_ups_fan_status
+            state: '{{ states("switch.rpi_ups_fan") }}'
+            icon: >-
+                {% if is_state('binary_sensor.rpi_ups_fan_status','on') %}
+                mdi:fan-plus
+                {% else %}
+                mdi:fan-minus
+                {% endif %}
+            device_class: running
+
+          - name: rpi_ups_battery_low
+            unique_id: binary_sensor_rpi_ups_battery_low
             state: >-
-                {% if (states("sensor.ups_battery_capacity") | int(0) < 30) or (states("sensor.ups_battery_voltage") | float(0) < 3.5) %}
+                {% if (states("sensor.rpi_ups_battery_capacity") | int(0) < 30) or (states("sensor.rpi_ups_battery_voltage") | float(0) < 3.5) %}
                 on
                 {% else %}
                 off
                 {% endif %}
             icon: >-
-                {% if is_state("binary_sensor.ups_battery_low", "on") %}
-                  {% if (states("sensor.ups_battery_voltage") | float(0) > 3.7 ) and (states("binary_sensor.rpi_ac_power_status") == "on") %}
+                {% if is_state("binary_sensor.rpi_ups_battery_low", "on") %}
+                  {% if (states("sensor.rpi_ups_battery_voltage") | float(0) > 3.7 ) and (states("binary_sensor.rpi_ups_power_status") == "on") %}
                   mdi:battery-charging-outline
                   {% else %}
                   mdi:battery-alert-variant-outline
                   {% endif %}
                 {% else %}
-                  {% if (states("sensor.ups_battery_capacity") | int(0) < 50) %}
-                    {% if (states("sensor.ups_battery_voltage") | float(0) > 4.0 ) and (states("binary_sensor.rpi_ac_power_status") == "on") %}
+                  {% if (states("sensor.rpi_ups_battery_capacity") | int(0) < 50) %}
+                    {% if (states("sensor.rpi_ups_battery_voltage") | float(0) > 4.0 ) and (states("binary_sensor.rpi_ups_power_status") == "on") %}
                     mdi:battery-charging-low
                     {% else %}
                     mdi:battery-low
                     {% endif %}
-                  {% elif (states("sensor.ups_battery_capacity") | int(0) >=50) and (states("sensor.ups_battery_capacity") | int(0) < 80) %}
-                    {% if (states("sensor.ups_battery_voltage") | float(0) > 4.0 ) and (states("binary_sensor.rpi_ac_power_status") == "on") %}
+                  {% elif (states("sensor.rpi_ups_battery_capacity") | int(0) >=50) and (states("sensor.rpi_ups_battery_capacity") | int(0) < 80) %}
+                    {% if (states("sensor.rpi_ups_battery_voltage") | float(0) > 4.0 ) and (states("binary_sensor.rpi_ups_power_status") == "on") %}
                     mdi:battery-charging-medium
                     {% else %}
                     mdi:battery-medium
                     {% endif %}
-                  {% elif (states("sensor.ups_battery_capacity") | int(0) >= 80)  %}
-                    {% if (states("sensor.ups_battery_voltage") | float(0) > 4.0 ) and (states("binary_sensor.rpi_ac_power_status") == "on") %}
+                  {% elif (states("sensor.rpi_ups_battery_capacity") | int(0) >= 80)  %}
+                    {% if (states("sensor.rpi_ups_battery_voltage") | float(0) > 4.0 ) and (states("binary_sensor.rpi_ups_power_status") == "on") %}
                     mdi:battery-charging-high
                     {% else %}
                     mdi:battery-high
@@ -377,34 +384,6 @@ system_config:
                   {% endif %}
                 {% endif %}
             device_class: battery
-
-          - name: ups_fan_speed
-            unique_id: binary_sensor_ups_fan_speed
-            state: >-
-                {% if is_state('sensor.file_ups_fan_speed','1') %}
-                on
-                {% else %}
-                off
-                {% endif %}
-            icon: >-
-                {% if is_state('binary_sensor.ups_fan_speed','on') %}
-                mdi:fan-plus
-                {% else %}
-                mdi:fan-minus
-                {% endif %}
-            device_class: running
-
-          - name: rpi_ac_power_status
-            unique_id: binary_sensor_rpi_ac_power_status
-            state: >- 
-                {% if   states.sensor.file_ac_power_status.state  == "1" %}
-                off
-                {% elif states.sensor.file_ac_power_status.state  == "2" %}
-                on
-                {% else %}
-                {{ none }} 
-                {% endif %}
-            device_class: plug
 
     automation:
 
@@ -508,7 +487,7 @@ system_config:
             event: start
         condition:
           - condition: state
-            entity_id: binary_sensor.rpi_ac_power_status
+            entity_id: binary_sensor.rpi_ups_power_status
             state: 'on'
           - condition: or
             conditions:
@@ -535,11 +514,88 @@ system_config:
               - switch.living_room_aquarium_power_strip_l5 # USB air pump
         mode: single
 
-      - alias: "System: Action on RPi Power Failure"
-        id: system_rpi_ac_power_failure_action
+      - alias: "System: RPi UPS Fan Speed Adjustments"
+        id: system_rpi_ups_fan_speed_adjustements
+        description: 'Контроль швидкості обертання вентилятора модуля RPi UPS'
         trigger:
           - platform: state
-            entity_id: binary_sensor.rpi_ac_power_status
+            entity_id: sensor.processor_temperature
+        condition: []
+        action:
+          - choose:
+              - conditions:
+                  - condition: numeric_state
+                    entity_id: sensor.processor_temperature
+                    above: 60
+                  - condition: state
+                    entity_id: switch.rpi_ups_fan
+                    state: 'off'
+                sequence:
+                  - action: switch.turn_on
+                    entity_id: switch.rpi_ups_fan
+              - conditions:
+                  - condition: numeric_state
+                    entity_id: sensor.processor_temperature
+                    below: 55
+                  - condition: state
+                    entity_id: switch.rpi_ups_fan
+                    state: 'on'
+                sequence:
+                  - action: switch.turn_off
+                    entity_id: switch.rpi_ups_fan
+        mode: single
+
+      - alias: "System: RPi Chassis Fan Speed Adjustments"
+        id: system_rpi_chassis_fan_speed_adjustments
+        description: "Контроль швидкості обертання вентилятора корпусу"
+        trigger:
+          - platform: state
+            entity_id: sensor.processor_temperature
+        condition: []
+        action:
+          - variables:
+                MIN_TEMP: 55
+                MAX_TEMP: 80
+                FAN_LOW: 20
+                FAN_HIGH: 100
+                FAN_OFF: 0
+                FAN_MAX: 100
+                TEMP: '{{ states("sensor.processor_temperature") | int }}'
+          - choose:
+              - conditions:
+                  - condition: template
+                    value_template: '{{ TEMP < MIN_TEMP }}'
+                sequence: 
+                  - action: light.turn_off
+                    target:
+                        entity_id: light.rpi_chassis_fan
+              - conditions:
+                  - condition: template
+                    value_template: '{{ TEMP >= MAX_TEMP }}'
+                sequence: 
+                  - action: light.turn_on
+                    data_template:
+                        transition: 5
+                        brightness_pct: '{{ FAN_MAX }}'
+                    target:
+                      entity_id: light.rpi_chassis_fan
+            default:
+              - action: light.turn_on
+                data_template:
+                    transition: 5
+                    brightness_pct: >
+                        {% set STEP = (FAN_HIGH - FAN_LOW) / (MAX_TEMP - MIN_TEMP) %}  
+                        {% set DELTA = TEMP - MIN_TEMP %}
+                        {{ (FAN_LOW + ( DELTA | int ) * STEP) | int }}
+                target:
+                  entity_id: light.rpi_chassis_fan
+        mode: single
+
+      - alias: "System: Action on RPi UPS Power Failure"
+        id: system_rpi_ups_power_failure_action
+        trigger:
+          - platform: state
+            entity_id: binary_sensor.rpi_ups_power_status
             from: 'on'
             to: 'off'
         condition: []
@@ -562,11 +618,11 @@ system_config:
         #     entity_id: switch.living_room_aquarium_main_lighting
         mode: single
 
-      - alias: "System: Action on RPi Power Restore"
-        id: system_rpi_ac_power_restore_action
+      - alias: "System: Action on RPi UPS Power Restore"
+        id: system_rpi_ups_power_restore_action
         trigger:
           - platform: state
-            entity_id: binary_sensor.rpi_ac_power_status
+            entity_id: binary_sensor.rpi_ups_power_status
             from: 'off'
             to: 'on'
             for: '00:02:00'
@@ -698,13 +754,12 @@ system_config:
         trigger:
           - platform: state
             entity_id: sensor.count_updates_on
+            for:
+                seconds: 10
         condition: 
           - condition: numeric_state
             entity_id: sensor.count_updates_on
             above: 0
-        #   - condition: state
-        #     entity_id: binary_sensor.all_available_updates
-        #     state: 'on'
           - condition: state
             entity_id: binary_sensor.internet_connection_ping
             state: 'on'
@@ -722,11 +777,11 @@ system_config:
                       - "{{'\U00002139'}} Статус:/status, {{'\U0001F4D1'}} Меню:/menu"
         mode: single
 
-      - alias: "System: Notification about RPi Power Failure"
-        id: system_rpi_ac_power_failure_notification
+      - alias: "System: Notification about RPi UPS Power Failure"
+        id: system_rpi_ups_power_failure_notification
         trigger:
           - platform: state
-            entity_id: binary_sensor.rpi_ac_power_status
+            entity_id: binary_sensor.rpi_ups_power_status
             not_from:
               - "unknown"
               - "unavailable"
@@ -746,9 +801,9 @@ system_config:
                         title: '{{"\U000026A0"}} УВАГА{{"\U0000203C"}}'
                         message: |
                           ➖➖➖➖➖➖➖
-                          Зовнішнє живлення: {{"\U0001F50C"}} {% if is_state("binary_sensor.rpi_ac_power_status", "on") %}Підключено{% elif is_state("binary_sensor.rpi_ac_power_status", "off") %}Відсутнє{% else %}Недоступне{% endif %}
+                          Зовнішнє живлення: {{"\U0001F50C"}} {% if is_state("binary_sensor.rpi_ups_power_status", "on") %}Підключено{% elif is_state("binary_sensor.rpi_ups_power_status", "off") %}Відсутнє{% else %}Недоступне{% endif %}
                           
-                          {{"\U0001F50B"}} UPS Battery Status: ({% if is_state("binary_sensor.ups_battery_low","off") %}OK{%else%}Low{{"\U0000203C"}}{%endif%}) {{ states("sensor.ups_battery_capacity") }}% / {{ states("sensor.ups_battery_voltage") }}V
+                          {{"\U0001F50B"}} UPS Battery Status: ({% if is_state("binary_sensor.ups_battery_low","off") %}OK{%else%}Low{{"\U0000203C"}}{%endif%}) {{ states("sensor.rpi_ups_battery_capacity") }}% / {{ states("sensor.rpi_ups_battery_voltage") }}V
                         data:
                             inline_keyboard:
                               - "{{'\U00002139'}} Статус:/status, {{'\U0001F4D1'}} Меню:/menu"
@@ -758,18 +813,20 @@ system_config:
           - condition: state
             entity_id: binary_sensor.anyone_home
             state: 'on'
+          - condition: time
+            after:  '08:00:00'
+            before: '22:00:00'
           - service: script.sonos_say
             data: 
                 sonos_entity: media_player.sonos_living_room
                 service_name: tts.google_cloud_say
                 volume: 0.4
                 duration: '00:00:05'
-                message: 'УВАГА!!! Зовнішнє живлення {% if is_state("binary_sensor.rpi_ac_power_status", "on") %}Підключено{% elif is_state("binary_sensor.rpi_ac_power_status", "off") %}Відсутнє{% else %}Недоступне{% endif %}!'
-                # message: 'ВНИМАНИЕ!!! Внешнее питание {% if is_state("binary_sensor.rpi_ac_power_status", "on") %}Подключено{% elif is_state("binary_sensor.rpi_ac_power_status", "off") %}Отключено{% else %}Недоступно{% endif %}!'
+                message: 'УВАГА!!! Зовнішнє живлення {% if is_state("binary_sensor.rpi_ups_power_status", "on") %}Підключено{% elif is_state("binary_sensor.rpi_ups_power_status", "off") %}Відсутнє{% else %}Недоступне{% endif %}!'
         mode: single
 
-      - alias: "System: Notification about UPS Low Battery Level"
-        id: system_ups_battery_low_level_notification
+      - alias: "System: Notification about RPi UPS Battery Low Level"
+        id: system_rpi_ups_battery_low_level_notification
         trigger:
           - platform: state
             entity_id: binary_sensor.ups_battery_low
@@ -791,8 +848,8 @@ system_config:
                         title: '{{"\U0001F50B"}} УВАГА{{"\U0000203C"}}'
                         message: |
                           ➖➖➖➖➖➖➖
-                          Низький рівень заряду батареї сервера Home Assistant: {{ states("sensor.ups_battery_capacity") }}% / {{ states("sensor.ups_battery_voltage") }}V {{"\U0000203C"}}
-                          Зовнішнє живлення: {{"\U0001F50C"}} {% if is_state("binary_sensor.rpi_ac_power_status", "on") %}Підключено{% else %}Відсутнє{% endif %}
+                          Низький рівень заряду батареї сервера Home Assistant: {{ states("sensor.rpi_ups_battery_capacity") }}% / {{ states("sensor.rpi_ups_battery_voltage") }}V {{"\U0000203C"}}
+                          Зовнішнє живлення: {{"\U0001F50C"}} {% if is_state("binary_sensor.rpi_ups_power_status", "on") %}Підключено{% else %}Відсутнє{% endif %}
                           
                           {{"\U0000203C"}}Через деякий час сервер буде зупинено{{"\U0000203C"}}
                         data:
@@ -804,6 +861,9 @@ system_config:
           - condition: state
             entity_id: binary_sensor.anyone_home
             state: 'on'
+          - condition: time
+            after:  '08:00:00'
+            before: '22:00:00'
           - service: script.sonos_say
             data: 
                 sonos_entity: media_player.sonos_living_room
@@ -812,21 +872,16 @@ system_config:
                 duration: '00:00:15'
                 message: |
                   УВАГА!!!
-                  Низький рівень заряду батареї сервера Home Assistant: {{ states("sensor.ups_battery_capacity") }} відсотків.
-                  Зовнішнє живлення {% if is_state("binary_sensor.rpi_ac_power_status", "on") %}підключено{% else %}відсутнє{% endif %}!
+                  Низький рівень заряду батареї сервера Home Assistant: {{ states("sensor.rpi_ups_battery_capacity") }} відсотків.
+                  Зовнішнє живлення {% if is_state("binary_sensor.rpi_ups_power_status", "on") %}підключено{% else %}відсутнє{% endif %}!
                   Через деякий час сервер буде зупинено!
-                # message: |
-                #   ВНИМАНИЕ!!! 
-                #   Низкий уровень заряда батареи сервера Home Assistant: {{ states("sensor.ups_battery_capacity") }} процентов.
-                #   Внешнее питание {% if is_state("binary_sensor.rpi_ac_power_status", "on") %}подключено{% else %}отключено{% endif %}!
-                #   Через некоторое время сервер будет остановлен!
         mode: single
 
-      - alias: "System: Notification about Full UPS Battery Level"
-        id: system_ups_battery_full_level_notification
+      - alias: "System: Notification about RPi UPS Battery Full Level"
+        id: system_rpi_ups_battery_full_level_notification
         trigger:
           - platform: numeric_state
-            entity_id: sensor.ups_battery_capacity
+            entity_id: sensor.rpi_ups_battery_capacity
             above: 99
         condition: 
           - condition: state
@@ -844,11 +899,31 @@ system_config:
                 title: '{{"\U0001F50B"}} УВАГА{{"\U0000203C"}}'
                 message: |
                   ➖➖➖➖➖➖➖
-                  Батарея UPS повністю заряджена: {{ states("sensor.ups_battery_capacity") }}% / {{ states("sensor.ups_battery_voltage") }}V{{"\U0000203C"}}
-                  Зовнішнє живлення {% if is_state("binary_sensor.rpi_ac_power_status", "on") %}підключено{% else %}відсутнє{% endif %}!
+                  Батарея UPS повністю заряджена: {{ states("sensor.rpi_ups_battery_capacity") }}% / {{ states("sensor.rpi_ups_battery_voltage") }}V{{"\U0000203C"}}
+                  Зовнішнє живлення {% if is_state("binary_sensor.rpi_ups_power_status", "on") %}підключено{% else %}відсутнє{% endif %}!
                 data:
                     inline_keyboard:
                       - "{{'\U00002139'}} Статус:/status, {{'\U0001F4D1'}} Меню:/menu"
+        mode: single
+
+      - alias: "System: RPi UPS Battery Critical Level Actions"
+        description: Send notification & gracefully shutdown host
+        triggers:
+          - entity_id: sensor.rpi_ups_battery_capacity
+            below: 25
+            for:
+              hours: 0
+              minutes: 0
+              seconds: 20
+            trigger: numeric_state
+        conditions: []
+        actions:
+          - event: set_shutdown_reason
+            event_data:
+                reason: ups_charge_critical
+          - action: hassio.host_shutdown
+            data: {}
+            enabled: true
         mode: single
 
       - alias: "System: Notification about changed Zone for persones"
