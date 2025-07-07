@@ -24,8 +24,8 @@ cards:
               - type: divider
               - entity: binary_sensor.internet_connection_ping
               - type: divider
-              - entity: binary_sensor.rpi_ac_power_status
-              - entity: binary_sensor.ups_battery_low
+              - entity: binary_sensor.rpi_ups_power_status
+              - entity: binary_sensor.rpi_ups_battery_low
               - type: divider
               - entity: sensor.last_boot_custom
                 name: Last Boot
@@ -96,7 +96,7 @@ cards:
         cards:
 
           - type: button
-            entity: binary_sensor.ups_fan_speed
+            entity: binary_sensor.rpi_ups_fan_status
             name: UPS Fan
             state_color: true
 
@@ -105,7 +105,7 @@ cards:
             graph: line
             detail: 2
             hours_to_show: 6
-            entity: sensor.chassis_fan_speed
+            entity: sensor.rpi_chassis_fan_speed
 
           - type: sensor
             graph: line
@@ -120,7 +120,7 @@ cards:
 
           - type: button
             name: UPS
-            entity: binary_sensor.ups_battery_low
+            entity: binary_sensor.rpi_ups_battery_low
             state_color: true
 
           - type: sensor
@@ -129,19 +129,21 @@ cards:
             detail: 2
             state_color: true
             hours_to_show: 6
-            entity: sensor.ups_battery_capacity
+            entity: sensor.rpi_ups_battery_capacity
 
           - type: sensor
             graph: line
             name: UPS
             hours_to_show: 6
             detail: 2
-            entity: sensor.ups_battery_voltage
+            entity: sensor.rpi_ups_battery_voltage
 
       - type: conditional
         conditions:
           - entity: sensor.speedtest_ping
-            state_not: 'unavailable'
+            state_not: 
+                - 'unavailable'
+                - 'unknown'
         card:
             type: custom:stack-in-card
             mode: horizontal
@@ -168,71 +170,71 @@ cards:
                 detail: 2
                 entity: sensor.speedtest_upload
 
-      - type: conditional
-        conditions:
-          - entity: input_boolean.enable_ecoflow_charging
-            state: 'on'
-        card:
-            type: custom:stack-in-card
-            mode: vertical
-            cards:
-              - type: markdown
-                card_mod:
-                    style: |
-                        ha-card {
-                            color: #00ff00;
-                            font-weight: bold;
-                            font-size: 16px;
-                        }
-                content: >
-                  **EcoFlow**
+    #   - type: conditional
+    #     conditions:
+    #       - entity: input_boolean.enable_ecoflow_charging
+    #         state: 'on'
+    #     card:
+    #         type: custom:stack-in-card
+    #         mode: vertical
+    #         cards:
+    #           - type: markdown
+    #             card_mod:
+    #                 style: |
+    #                     ha-card {
+    #                         color: #00ff00;
+    #                         font-weight: bold;
+    #                         font-size: 16px;
+    #                     }
+    #             content: >
+    #               **EcoFlow**
 
-              - type: custom:stack-in-card
-                mode: horizontal
-                cards:
+    #           - type: custom:stack-in-card
+    #             mode: horizontal
+    #             cards:
 
-                  - type: sensor
-                    graph: line
-                    name: Main
-                    entity: sensor.river_pro_main_battery_level
-                    state_color: true
-                    hours_to_show: 6
-                    detail: 2
+    #               - type: sensor
+    #                 graph: line
+    #                 name: Main
+    #                 entity: sensor.river_pro_main_battery_level
+    #                 state_color: true
+    #                 hours_to_show: 6
+    #                 detail: 2
         
-                  - type: sensor
-                    graph: line
-                    name: Slave
-                    detail: 2
-                    hours_to_show: 6
-                    state_color: true
-                    entity: sensor.river_pro_slave_battery_level
+    #               - type: sensor
+    #                 graph: line
+    #                 name: Slave
+    #                 detail: 2
+    #                 hours_to_show: 6
+    #                 state_color: true
+    #                 entity: sensor.river_pro_slave_battery_level
 
-                  - type: button
-                    name: Discharged
-                    entity: binary_sensor.ecoflow_charging_required
-                    state_color: true
+    #               - type: button
+    #                 name: Discharged
+    #                 entity: binary_sensor.ecoflow_charging_required
+    #                 state_color: true
 
-              - type: custom:stack-in-card
-                mode: horizontal
-                cards:
+    #           - type: custom:stack-in-card
+    #             mode: horizontal
+    #             cards:
 
-                  - type: sensor
-                    graph: line
-                    name:  In
-                    hours_to_show: 6
-                    detail: 2
-                    entity: sensor.river_pro_total_in_power
+    #               - type: sensor
+    #                 graph: line
+    #                 name:  In
+    #                 hours_to_show: 6
+    #                 detail: 2
+    #                 entity: sensor.river_pro_total_in_power
 
-                  - type: sensor
-                    graph: line
-                    name:  Out
-                    hours_to_show: 6
-                    detail: 2
-                    entity: sensor.river_pro_total_out_power
+    #               - type: sensor
+    #                 graph: line
+    #                 name:  Out
+    #                 hours_to_show: 6
+    #                 detail: 2
+    #                 entity: sensor.river_pro_total_out_power
 
-                  - type: entity
-                    name:  Remaining
-                    entity: sensor.river_pro_remaining_time
+    #               - type: entity
+    #                 name:  Remaining
+    #                 entity: sensor.river_pro_remaining_time
 
   - type: vertical-stack
     cards:
@@ -296,6 +298,8 @@ cards:
               - entity: input_number.tarrif_energy_cost_electric_heating_base
                 name: Tarrif Heating Period
               - type: divider
+              - entity: input_boolean.enable_electric_heating_tarrif
+                name: Enable Heating Tariff Period
               - entity: input_datetime.tarrif_energy_electric_heating_start_date
                 name: Heating Start Date
               - entity: input_datetime.tarrif_energy_electric_heating_finish_date
