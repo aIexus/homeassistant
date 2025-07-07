@@ -186,13 +186,17 @@ energy_config:
             name: Start Date for Electric Heating Period
             has_date: true
             has_time: false
-            initial: '2024-10-01'
 
         tarrif_energy_electric_heating_finish_date:
             name: Finish Date for Electric Heating Period
             has_date: true
             has_time: false
-            initial: '2025-04-30'
+
+    input_boolean:
+
+        enable_electric_heating_tarrif:
+            name: Тариф Електроопалення
+            icon: mdi:cash-clock
 
     input_number:
 
@@ -561,6 +565,51 @@ energy_config:
 
     template:
 
+      - trigger:
+          - platform: state
+            entity_id: switch.ecoflow_charging_socket
+        sensor:
+          - name: ecoflow_charging_socket_breaker
+            unique_id: ecoflow_charging_socket_breaker
+            state: >
+                {% if is_state('switch.ecoflow_charging_socket','on') %}
+                    {% if (is_state('switch.ecoflow_charging_socket_under_voltage_breaker','on')
+                        or is_state('switch.ecoflow_charging_socket_over_voltage_breaker','on')
+                        or is_state('switch.ecoflow_charging_socket_power_breaker','on')
+                        or is_state('switch.ecoflow_charging_socket_over_current_breaker','on')
+                        or is_state('switch.ecoflow_charging_socket_temperature_breaker','on')) %}
+                        on
+                    {% else %}
+                        off
+                    {% endif %}
+                {% elif is_state('switch.ecoflow_charging_socket','off') %}
+                    {% if is_state('switch.ecoflow_charging_socket_under_voltage_breaker','on') and (states('sensor.ecoflow_charging_socket_voltage') | int < states('number.ecoflow_charging_socket_under_voltage_threshold') | int) %}
+                        under_voltage
+                    {% elif is_state('switch.ecoflow_charging_socket_over_voltage_breaker','on') and (states('sensor.ecoflow_charging_socket_voltage') | int > states('number.ecoflow_charging_socket_over_voltage_threshold') | int) %}
+                        over_voltage
+                    {% elif is_state('switch.ecoflow_charging_socket_power_breaker','on') and (states('sensor.ecoflow_charging_socket_power') | int / 1000 > states('number.ecoflow_charging_socket_power_threshold') | int) %}
+                        power
+                    {% elif is_state('switch.ecoflow_charging_socket_over_current_breaker','on') and (states('sensor.ecoflow_charging_socket_current') | int > states('number.ecoflow_charging_socket_over_current_threshold') | int) %}
+                        over_current
+                    {% elif is_state('switch.ecoflow_charging_socket_temperature_breaker','on') and (states('sensor.ecoflow_charging_socket_temperature') | int > states('number.ecoflow_charging_socket_temperature_threshold') | int) %}
+                        temperature
+                    {% else %}
+                        switch
+                    {% endif %}
+                {% else %}
+                    unknown
+                {% endif %}
+            icon: >
+                {% set status = states('sensor.ecoflow_charging_socket_breaker') %}
+                mdi:toggle-switch-variant{{'-off' if status == 'off'}}
+            attributes:
+              history: >
+                {% set current = this.attributes.get('history',[]) %}
+                {% set new = [{
+                  "event": states('sensor.ecoflow_charging_socket_breaker'),
+                  "time": now().isoformat()}] %}
+                {{(new + current)[:10]}}
+
       - sensor:
 
           - name: 'Energy: Active Tariff'
@@ -585,7 +634,8 @@ energy_config:
                 {% endif %}
                 {% set date = now().strftime('%Y-%m-%d') %}
 
-                {% if (date < states("input_datetime.tarrif_energy_electric_heating_start_date")  or
+                {% if ( is_state('input_boolean.enable_electric_heating_tarrif','off') ) or
+                      (date < states("input_datetime.tarrif_energy_electric_heating_start_date")  or
                        date > states("input_datetime.tarrif_energy_electric_heating_finish_date")) %}
                   {% if is_state("sensor.tariff_energy_cost_base","unavailable") or
                         is_state("sensor.tariff_energy_cost_base","0.0") or 
@@ -973,6 +1023,27 @@ energy_config:
                 option: '{{ states("sensor.energy_active_tariff") }}'
         mode: single
 
+      - alias: 'Energy: Update Heating Period Dates'
+        id: energy_update_heating_period_dates
+        description: 'Update Heating Period Dates'
+        trigger:
+          - platform: template
+            value_template: > 
+                {% set date = now().strftime('%Y-%m-%d') %}
+                {{ (date > states("input_datetime.tarrif_energy_electric_heating_finish_date")) }}
+        action:
+          - action: input_datetime.set_datetime
+            data: 
+                entity_id: input_datetime.tarrif_energy_electric_heating_start_date
+                datetime: >-
+                    {{ states('input_datetime.tarrif_energy_electric_heating_start_date') | replace(state_attr("input_datetime.tarrif_energy_electric_heating_start_date","year"), state_attr("input_datetime.tarrif_energy_electric_heating_start_date","year") + 1) }}
+          - action: input_datetime.set_datetime
+            data: 
+                entity_id: input_datetime.tarrif_energy_electric_heating_finish_date
+                datetime: >-
+                    {{ states('input_datetime.tarrif_energy_electric_heating_finish_date') | replace(state_attr("input_datetime.tarrif_energy_electric_heating_finish_date","year"), state_attr("input_datetime.tarrif_energy_electric_heating_finish_date","year") + 1) }}
+        mode: single
+
       - alias: "Energy: Updating the Calibration Value when the Tariff was Changed"
         id: energy_update_calibrating_value_if_tariff_is_changed
         trigger:
@@ -1107,6 +1178,39 @@ energy_config:
             entity_id: switch.living_room_laptop_charging_socket
         mode: single
 
+      - alias: "Energy: Turn ON Router UPS Charging Socket in Hallway by Schedule"
+        id: energy_hallway_router_ups_charging_socket_turn_on
+        description: 'Увімкнення розетки UPS Charging Socket у передпокої'
+        trigger:
+          - platform: template
+            value_template: '{{ now().hour == 1 }}'
+        condition:
+          - condition: state
+            entity_id: switch.hallway_router_ups_socket_l1
+            state: 'off'
+        action:
+          - service: switch.turn_on
+            entity_id: switch.hallway_router_ups_socket_l1
+        mode: single
+
+      - alias: "Energy: Turn OFF Router UPS Charging Socket in Hallway by Schedule"
+        id: energy_hallway_router_ups_charging_socket_turn_off
+        description: 'Вимкнення розетки UPS Charging Socket у передпокої'
+        trigger:
+          - platform: template
+            value_template: '{{ now().hour == 0 }}'
+        condition:
+          - condition: state
+            entity_id: switch.hallway_router_ups_socket_l1
+            state: 'on'
+          - condition: state
+            entity_id: binary_sensor.rpi_ac_power_status
+            state: 'on'
+        action:
+          - service: switch.turn_off
+            entity_id: switch.hallway_router_ups_socket_l1
+        mode: single
+
       - alias: "Energy: Turn ON Nintendo Switch Charging Socket in Living Room by Schedule"
         id: energy_living_room_ns_charging_socket_turn_on
         description: 'Увімкнення розетки Nintendo Switch Charging Socket у вітальні'
@@ -1139,22 +1243,22 @@ energy_config:
             entity_id: switch.living_room_ns_socket
         mode: single
 
-      - alias: "Energy: Turn OFF Girier Socket 2 if Not Active"
-        id: energy_girier_socket_2_turn_off
-        description: 'Вимкнення розетки Girier Socket 2'
-        trigger:
-          - platform: state
-            entity_id: binary_sensor.girier_socket_2_status
-            to: 'off'
-            for: '00:05:00'
-        condition:
-          - condition: state
-            entity_id: switch.girier_socket_2
-            state: 'on'
-        action:
-          - service: switch.turn_off
-            entity_id: switch.girier_socket_2
-        mode: single
+    #   - alias: "Energy: Turn OFF Girier Socket 2 if Not Active"
+    #     id: energy_girier_socket_2_turn_off
+    #     description: 'Вимкнення розетки Girier Socket 2'
+    #     trigger:
+    #       - platform: state
+    #         entity_id: binary_sensor.girier_socket_2_status
+    #         to: 'off'
+    #         for: '00:05:00'
+    #     condition:
+    #       - condition: state
+    #         entity_id: switch.girier_socket_2
+    #         state: 'on'
+    #     action:
+    #       - service: switch.turn_off
+    #         entity_id: switch.girier_socket_2
+    #     mode: single
 
       - alias: "Energy: Turn ON EcoFlow socket in 5 mins after Startup if charging is enabled"
         id: energy_turn_on_ecoflow_socket_if_ecoflow_charging_is_enabled_in_5_mins_after_startup
