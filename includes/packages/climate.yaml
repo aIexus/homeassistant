@@ -374,6 +374,7 @@ climate_configuration:
     # =================== Set Climate Target Temperature =======
 
       - alias: "Climate: Set Target Temperature"
+        id: climate_set_target_temperature
         trigger:
             platform: state
             entity_id: input_number.climate_target_temperature
@@ -1241,27 +1242,33 @@ climate_configuration:
 
       - alias: "Climate: Setup Thermostats on System Startup"
         id: climate_heaters_settings_on_statrup
-        description: 'Установки термостатов при старте системы'
+        description: 'Налаштування термостатів під час старту системи'
         trigger: 
           - platform: homeassistant
             event: start
-        condition: 
-          - condition: state
-            entity_id: input_boolean.disable_climate
-            state: 'off'
+        # condition: 
+        #   - condition: state
+        #     entity_id: input_boolean.disable_climate
+        #     state: 'off'
         action:
           - service: climate.turn_off
             entity_id: group.heaters
           - choose:
               - conditions:
                   - condition: state
-                    entity_id: input_boolean.heating_status
-                    state: 'on'
+                    entity_id: input_boolean.disable_climate
+                    state: 'off'
                 sequence:
-                  - delay: 
-                        minutes: 3
-                  - service: automation.trigger
-                    entity_id: automation.climate_turn_on_off_heaters
+                  - choose:
+                      - conditions:
+                          - condition: state
+                            entity_id: input_boolean.heating_status
+                            state: 'on'
+                        sequence:
+                          - delay: 
+                                minutes: 3
+                          - service: automation.trigger
+                            entity_id: automation.climate_turn_on_off_heaters
         mode: single
 
     # =================== A/C Automations ===================
@@ -1910,6 +1917,68 @@ climate_configuration:
                         sequence:
                           - action: input_boolean.turn_off
                             entity_id: input_boolean.disable_climate
+                  - choose:
+                      - conditions:
+                          - condition: state
+                            entity_id: input_boolean.heating_status
+                            state: 'on'
+                        sequence:
+                          - choose:
+                              - conditions:
+                                  - condition: state
+                                    entity_id: input_boolean.disable_climate_living_room
+                                    state: 'on'
+                                sequence:
+                                  - action: climate.turn_off
+                                    entity_id: climate.living_room_heater
+                              - conditions:
+                                  - condition: state
+                                    entity_id: input_boolean.disable_climate_living_room
+                                    state: 'off'
+                                sequence:
+                                  - action: climate.turn_on
+                                    entity_id: climate.living_room_heater
+                          - choose:
+                              - conditions:
+                                  - condition: state
+                                    entity_id: input_boolean.disable_climate_bedroom
+                                    state: 'on'
+                                sequence:
+                                  - action: climate.turn_off
+                                    entity_id: climate.bedroom_heater
+                              - conditions:
+                                  - condition: state
+                                    entity_id: input_boolean.disable_climate_bedroom
+                                    state: 'off'
+                                sequence:
+                                  - action: climate.turn_on
+                                    entity_id: climate.bedroom_heater
+                          - choose:
+                              - conditions:
+                                  - condition: state
+                                    entity_id: input_boolean.disable_climate
+                                    state: 'on'
+                                sequence:
+                                  - action: climate.turn_off
+                                    entity_id: climate.kitchen_heater
+                              - conditions:
+                                  - condition: state
+                                    entity_id: input_boolean.disable_climate
+                                    state: 'off'
+                                sequence:
+                                  - action: climate.turn_on
+                                    entity_id: climate.kitchen_heater
+                      - conditions:
+                          - condition: state
+                            entity_id: input_boolean.heating_status
+                            state: 'off'
+                        sequence:
+                          - action: climate.turn_off
+                            entity_id: 
+                              - climate.kitchen_heater
+                              - climate.bedroom_heater
+                              - climate.living_room_heater
+
         mode: single
 
     # =================== Air Purifier Automations ===================
