@@ -1,12 +1,12 @@
 telegram: 
 
-    telegram_bot:
-        - platform: polling
-        #   parse_mode: html
-          api_key: !secret telegramm_bot_token
-          allowed_chat_ids:
-            - !secret telegram_user_1
-        #   - ID пользователя 2   
+    # telegram_bot:
+    #     - platform: polling
+    #     #   parse_mode: html
+    #       api_key: !secret telegramm_bot_token
+    #       allowed_chat_ids:
+    #         - !secret telegram_user_1
+    #     #   - ID пользователя 2   
 
     notify:
         - name: alexus
@@ -249,24 +249,23 @@ telegram:
               message: &system_status_body |
                 {{'\U00002139'}} {{ states("sensor.date") }} {{"\U0001F551"}} {{ states("sensor.time") }} {{"\U0001F1FA\U0001F1E6"}}
                 ➖➖➖➖➖➖➖
-                {{"\U0001F4BB"}} RPi Power status: {% if is_state("binary_sensor.rpi_ac_power_status",'on') %}{{"\U0001F50C"}}{% else%}{{"\U0001F50B"}}{% endif %}
+                {{"\U0001F4BB"}} RPi Power status: {% if is_state("binary_sensor.rpi_ups_power_status",'on') %}{{"\U0001F50C"}}{% else%}{{"\U0001F50B"}}{% endif %}
                 {{"\U0001F4C6"}} RPi Last Boot: {{ states("sensor.last_boot_custom") }} ago
                 {{"\U0001F199"}} HA Uptime: {{ states("sensor.online_custom") }}
                 {{"\U0001F4C5"}} Last BackUp: {{ states("sensor.last_google_backup_train") }}
 
-                {% if is_state("binary_sensor.ups_battery_low","off") %}{{"\U0001F50B"}} UPS Battery: (OK){%else%}{{"\U0001FAAB"}} UPS Battery Status: (Low){{"\U0000203C"}}{%endif%} {{ states("sensor.ups_battery_capacity") }}% / {{ states("sensor.ups_battery_voltage") }}V
+                {% if is_state("binary_sensor.rpi_ups_battery_low","off") %}{{"\U0001F50B"}} UPS Battery: (OK){%else%}{{"\U0001FAAB"}} UPS Battery Status: (Low){{"\U0000203C"}}{%endif%} {{ states("sensor.rpi_ups_battery_capacity") }}% / {{ states("sensor.rpi_ups_battery_voltage") }}V
 
                 CPU: {{"\U0001F321"}} {{ states("sensor.processor_temperature") }}{{"\U00002103"}}, {{"\U0001F4C8"}}: {{ states("sensor.processor_use") }}{{"\U00000025"}}
                 RAM: {{ states("sensor.memory_use_percent") }}{{"\U00000025"}} Usage / {{ states("sensor.memory_free") }} Mb Free
                 SSD: {{ states("sensor.disk_use_percent") }}{{"\U00000025"}} Usage / {{ states("sensor.disk_free") }} Gb Free
 
-                UPS Fan: {% if is_state("binary_sensor.ups_fan_speed",'on') %}High{% else %}Low{% endif %}
-                Chassis Fan: {{ states("sensor.chassis_fan_speed") }}% speed
+                UPS Fan: {% if is_state("binary_sensor.rpi_ups_fan_status",'on') %}High{% else %}Low{% endif %}
+                Chassis Fan: {{ states("sensor.rpi_chassis_fan_speed") }}% speed
 
                 External IP: {{ states("sensor.archer_c80_router_external_ip") }}
-                Ping: {{ states("sensor.speedtest_ping") }} ms
-                Download/Upload: {{ states("sensor.speedtest_download") | int(0) }}/{{ states("sensor.speedtest_upload") | int(0) }} Mbit/s
-
+            # Ping: {{ states("sensor.speedtest_ping") }} ms
+            # Download/Upload: {{ states("sensor.speedtest_download") | int(0) }}/{{ states("sensor.speedtest_upload") | int(0) }} Mbit/s
             # Курс 1$ = {{ states("sensor.exchange_rate_usd") }} ₴
               data: 
                 inline_keyboard: *main_menu
