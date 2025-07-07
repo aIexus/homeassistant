@@ -41,17 +41,12 @@ tts:
 
   - platform: google_cloud
     key_file: !secret google_cloud_service_keyfile
-    voice: uk-UA-Standard-A
+    voice: uk-UA-Standard-B
     encoding: mp3
     speed: 1.0
     pitch: 0.0
     gain: 0.0
     text_type: ssml
-
-#   - platform: reversotts
-    # language: 'Alyona-Russian'
-    # pitch: "100"
-    # bitrate: "128k"
 
 # Include External Folders
 automation: !include_dir_merge_list includes/automation
