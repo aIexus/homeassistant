@@ -252,6 +252,75 @@ cards:
 
       - type: conditional
         conditions:
+          - entity: input_boolean.enable_ecoflow_charging
+            state: 'on'
+        card:
+            type: custom:stack-in-card
+            mode: vertical
+            cards:
+              - type: markdown
+                card_mod:
+                    style: |
+                        ha-card {
+                            color: #00ff00;
+                            font-weight: bold;
+                            font-size: 16px;
+                        }
+                content: >
+                  **EcoFlow**
+
+              - type: custom:stack-in-card
+                mode: horizontal
+                cards:
+
+                  - type: sensor
+                    graph: line
+                    name: Main
+                    entity: sensor.river_pro_main_battery_level
+                    state_color: true
+                    hours_to_show: 6
+                    detail: 2
+        
+                  - type: sensor
+                    graph: line
+                    name: Slave
+                    detail: 2
+                    hours_to_show: 6
+                    state_color: true
+                    entity: sensor.river_pro_slave_battery_level
+
+                  - type: button
+                    name: Discharged
+                    entity: binary_sensor.ecoflow_charging_required
+                    state_color: true
+
+              - type: custom:stack-in-card
+                mode: horizontal
+                cards:
+
+                  - type: sensor
+                    graph: line
+                    name:  In
+                    hours_to_show: 6
+                    detail: 2
+                    entity: sensor.river_pro_total_in_power
+
+                  - type: sensor
+                    graph: line
+                    name:  Out
+                    hours_to_show: 6
+                    detail: 2
+                    entity: sensor.river_pro_total_out_power
+
+                  - type: entity
+                    name:  Remaining
+                    entity: sensor.river_pro_remaining_time
+
+  - type: vertical-stack
+    cards:
+
+      - type: conditional
+        conditions:
           - entity: binary_sensor.exceed_electricity_consumption_limit
             state: "on"
         card:
