@@ -168,6 +168,12 @@ cards:
                 show_icon: true
                 name: Камера
                 tap_action: none
+              - entity: switch.hallway_router_ups_socket_l1
+                show_icon: true
+                state_color: true
+                icon: mdi:router-wireless
+                name: Router UPS
+                tap_action: none
             info_entities:
               - entity: sensor.hallway_lumi_weather_humidity
                 format: precision1
