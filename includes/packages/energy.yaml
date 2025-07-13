@@ -673,6 +673,56 @@ energy_config:
             state: >
                 {{ states('sensor.river_pro_main_full_capacity_wh') | int(0) + states('sensor.river_pro_slave_full_capacity_wh') | int(0) }}
 
+          - name: river_pro_main_remain_capacity_wh
+            unique_id: sensor_river_pro_main_remain_capacity_wh
+            device_class: energy_storage
+            unit_of_measurement: Wh
+            icon: mdi:home-battery-outline
+            state: >
+                {{ ((states('sensor.river_pro_main_remain_capacity') | int(0) * states('sensor.river_pro_battery_volts') | int(0)) / 1000) | round(0) }}
+
+          - name: river_pro_slave_remain_capacity_wh
+            unique_id: sensor_river_pro_slave_remain_capacity_wh
+            device_class: energy_storage
+            unit_of_measurement: Wh
+            icon: mdi:home-battery-outline
+            state: >
+                {{ ((states('sensor.river_pro_slave_remain_capacity') | int(0) * states('sensor.river_pro_slave_battery_volts') | int(0)) / 1000) | round(0) }}
+
+          - name: river_pro_total_remain_capacity_wh
+            unique_id: sensor_river_pro_total_remain_capacity_wh
+            device_class: energy_storage
+            unit_of_measurement: Wh
+            icon: mdi:home-battery
+            state: >
+                {{ states('sensor.river_pro_main_remain_capacity_wh') | int(0) + states('sensor.river_pro_slave_remain_capacity_wh') | int(0) }}
+
+          - name: river_pro_total_battery_level
+            unique_id: sensor_river_pro_total_battery_level
+            device_class: battery
+            unit_of_measurement: '%'
+            state: >
+                {% if not(is_state('sensor.river_pro_main_battery_level', ['unavailable','unknown'])) %}
+                  {% set MAIN = states('sensor.river_pro_main_battery_level') | int(0) %}
+                {% endif %}
+                {% if not(is_state('sensor.river_pro_slave_battery_level', ['unavailable','unknown'])) %}
+                  {% set SLAVE = states('sensor.river_pro_slave_battery_level') | int(0) %}
+                {% endif %}
+                {% set TOTAL = 0 %}
+                {% set COUNT = 0 %}
+                {% if MAIN is defined %}
+                  {% set TOTAL = TOTAL + MAIN %}
+                  {% set COUNT = COUNT + 1 %}
+                {% endif %}
+                {% if SLAVE is defined %}
+                  {% set TOTAL = TOTAL + SLAVE %}
+                  {% set COUNT = COUNT + 1 %}
+                {% endif %}
+                {% if COUNT > 0 %}
+                  {{ ( TOTAL / COUNT) | round(0) }}
+                {% else %}
+                  0
+                {% endif %}
 
           - name: energy_counter_total
             unique_id: sensor_energy_counter_total
@@ -747,12 +797,12 @@ energy_config:
             state: >-
                 {% set mode = states('binary_sensor.ecoflow_charging_required') %}
                 {% if (mode == 'off') and 
-                      ((states('number.river_pro_max_charge_level') | int(0) - states('sensor.river_pro_main_battery_level') | int(0)) > ((states('number.river_pro_max_charge_level') | int(0) * 0.10) | int(0) )) and
+                      ((states('number.river_pro_max_charge_level') | int(0) - states('sensor.river_pro_total_battery_level') | int(0)) > ((states('number.river_pro_max_charge_level') | int(0) * 0.10) | int(0) )) and
                       (states('sensor.river_pro_ac_out_power') | int (0) == 0) %}
                   {% set mode = 'on' %}
                 {% endif %}
                 {%if (mode == 'on') and 
-                     (states('sensor.river_pro_main_battery_level') | int(0) == states('number.river_pro_max_charge_level') | int(0)) or 
+                     (states('sensor.river_pro_total_battery_level') | int(0) == states('number.river_pro_max_charge_level') | int(0)) or 
                      (states('sensor.river_pro_ac_out_power') | int (0) > 0) %}
                   {% set mode = 'off' %}
                 {% endif %}
@@ -1204,7 +1254,7 @@ energy_config:
             entity_id: switch.hallway_router_ups_socket_l1
             state: 'on'
           - condition: state
-            entity_id: binary_sensor.rpi_ac_power_status
+            entity_id: binary_sensor.rpi_ups_power_status
             state: 'on'
         action:
           - service: switch.turn_off
@@ -1268,7 +1318,7 @@ energy_config:
             value_template: "{{ 5 == (as_timestamp(now()) - as_timestamp(states('sensor.online'))) // 60 | int  }}"
         condition:
           - condition: state
-            entity_id: binary_sensor.rpi_ac_power_status
+            entity_id: binary_sensor.rpi_ups_power_status
             state: 'on'
           - condition: state
             entity_id: input_boolean.enable_ecoflow_charging
@@ -1292,7 +1342,7 @@ energy_config:
             value_template: "{{ 5 == (as_timestamp(now()) - as_timestamp(states('sensor.online'))) // 60 | int  }}"
         condition:
           - condition: state
-            entity_id: binary_sensor.rpi_ac_power_status
+            entity_id: binary_sensor.rpi_ups_power_status
             state: 'on'
           - condition: state
             entity_id: input_boolean.enable_bluetti_charging
@@ -1315,7 +1365,7 @@ energy_config:
           - platform: template
             value_template: >
                 {{ (not (is_state('switch.ecoflow_charging_socket','unavailable')) and
-                    is_state('binary_sensor.rpi_ac_power_status','on') and 
+                    is_state('binary_sensor.rpi_ups_power_status','on') and 
                     is_state('binary_sensor.ecoflow_charging_required','on') and
                     is_state('input_boolean.enable_ecoflow_charging','on')) != true 
                 }}
@@ -1335,7 +1385,7 @@ energy_config:
           - platform: template
             value_template: >
                 {{ (not (is_state('switch.bluetti_charging_socket','unavailable')) and
-                    is_state('binary_sensor.rpi_ac_power_status','on') and 
+                    is_state('binary_sensor.rpi_ups_power_status','on') and 
                     is_state('input_boolean.enable_bluetti_charging','on')) != true 
                 }}
         condition:
@@ -1424,7 +1474,7 @@ energy_config:
             value_template: >
                {{ is_state('binary_sensor.ecoflow_charging_socket_status', 'off') and 
                   not (is_state('switch.ecoflow_charging_socket','unavailable')) and
-                  is_state('binary_sensor.rpi_ac_power_status','on') and
+                  is_state('binary_sensor.rpi_ups_power_status','on') and
                   is_state('input_boolean.enable_ecoflow_charging','on') and 
                   is_state('binary_sensor.voltage_out_of_range','off') and
                   is_state('binary_sensor.ecoflow_charging_required','on')
@@ -1446,7 +1496,7 @@ energy_config:
             value_template: >
                {{ is_state('binary_sensor.bluetti_charging_socket_status', 'off') and 
                   not (is_state('switch.bluetti_charging_socket','unavailable')) and
-                  is_state('binary_sensor.rpi_ac_power_status','on') and
+                  is_state('binary_sensor.rpi_ups_power_status','on') and
                   is_state('binary_sensor.voltage_out_of_range','off') and
                   is_state('input_boolean.enable_bluetti_charging','on') 
                }}
@@ -1459,7 +1509,7 @@ energy_config:
             entity_id: switch.bluetti_charging_socket
         mode: single
 
-      - alias: "Energy: Turn OFF EcoFlow AC Out when Chanring is started"
+      - alias: "Energy: Turn OFF EcoFlow AC Out when Charging is started"
         id: energy_turn_off_ecoflow_ac_out_when_charging_started
         description: "Вимкнення AC виходів EcoFlow станції якщо розпочато заряджання"
         trigger:

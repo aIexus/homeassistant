@@ -6,3 +6,4 @@ views:
   - !include lovelace/sensors.yaml
   - !include lovelace/electricity.yaml
   - !include lovelace/system.yaml
+#   - !include lovelace/packages.yaml
