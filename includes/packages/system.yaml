@@ -436,7 +436,6 @@ system_config:
                         duration: '00:00:05'
                         message: >-
                             УВАГА!!! Інтернет з'єднання: {% if is_state("binary_sensor.internet_connection_ping", "on") %}Відновлено{% elif is_state("binary_sensor.internet_connection_ping", "off") %}Відсутнє{% else %}Недоступне{% endif %}!
-                        # message: 'ВНИМАНИЕ!!! Интернет соединение: {% if is_state("binary_sensor.internet_connection_ping", "on") %}Восстановлено{% elif is_state("binary_sensor.internet_connection_ping", "off") %}Отключено{% else %}Недоступно{% endif %}!'
         mode: queued
 
       - alias: "System: Purge DB Everyday"
@@ -907,15 +906,15 @@ system_config:
         mode: single
 
       - alias: "System: RPi UPS Battery Critical Level Actions"
-        description: Send notification & gracefully shutdown host
+        description: system_rpi_ups_battery_critical_level_shutdown_host
         triggers:
-          - entity_id: sensor.rpi_ups_battery_capacity
+          - trigger: numeric_state
+            entity_id: sensor.rpi_ups_battery_capacity
             below: 25
             for:
-              hours: 0
-              minutes: 0
-              seconds: 20
-            trigger: numeric_state
+                hours: 0
+                minutes: 0
+                seconds: 20
         conditions: []
         actions:
           - event: set_shutdown_reason
